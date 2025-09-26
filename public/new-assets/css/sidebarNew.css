@@ -19,9 +19,21 @@
     margin-inline: 1.5rem !important;
 }
 
-.sidebar.collapsed {
-    width: 0;
-    overflow: hidden;
+/* Updated toggle button positioning */
+#sidebarToggle {
+    position: absolute; /* inside sidebar */
+    top: 20px; /* aligned with header */
+    right: 20px; /* top-right corner inside sidebar */
+    z-index: 2000;
+    background: #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: right 0.3s ease, transform 0.3s ease;
 }
 
 /* Header section - fixed at top */
@@ -207,6 +219,26 @@
     margin: 0;
 }
 
+/* === Collapsed Sidebar Styles === */
+.sidebar.collapsed {
+    width: 60px; /* minimal width */
+    overflow: visible; /* keep toggle clickable */
+}
+
+.sidebar.collapsed .sidebar-content,
+.sidebar.collapsed .sidebar-footer,
+.sidebar.collapsed .sidebar-title {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Toggle button stays fully inside collapsed sidebar */
+.sidebar.collapsed #sidebarToggle {
+    right: 10px; /* fully inside sidebar */
+    top: 20px; /* aligned with header */
+    transform: rotate(0deg);
+}
+
 /* Responsive behavior */
 @media (max-width: 768px) {
     .sidebar {
@@ -214,7 +246,7 @@
     }
     
     .sidebar.collapsed {
-        width: 0;
+        width: 60px;
     }
 }
 

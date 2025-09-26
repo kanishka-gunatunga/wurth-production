@@ -22,4 +22,4 @@ use Illuminate\Http\Request;
 Route::prefix('finance')->group(function() {
     Route::match(['get', 'post'],'/', [UserController::class, 'dashboard'])->middleware(FinanceAuthenticated::class);
     Route::match(['get', 'post'],'/inquiries', [InquiriesController::class, 'inquiries'])->middleware(FinanceAuthenticated::class);
-});
+}); 

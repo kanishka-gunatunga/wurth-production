@@ -49,10 +49,11 @@ body {
 
 .form-select:focus,
 .form-control:focus {
-  border-color: #ff7e8b !important;
-  outline: 0 !important;
-  box-shadow: 0 0 4px 0rem #ff7e8b !important;
+  border-color: none !important; /* keeps original border */
+  outline: 0 !important;            /* removes default blue outline */
+  box-shadow: none !important;      /* removes focus glow */
 }
+
 
 .form-control:focus {
   color: var(--bs-body-color);
@@ -66,6 +67,14 @@ body {
   min-height: calc(100vh - 6rem);
   padding: 1.5rem;
   border-radius: 8px;
+}
+
+/* Center the cards */
+.dashboard-stats {
+  display: flex;
+  flex-wrap: wrap;  /* ✅ allow wrapping */
+  justify-content: center;
+  gap: 1rem; /* optional: spacing between cards */
 }
 
 /* Stats Cards */
@@ -227,6 +236,20 @@ body {
   background: #a8a8a8;
 }
 
+/* ✅ Below 1238px: keep width, add horizontal scroll */
+@media (max-width: 1238px) {
+  .activities-card {
+    overflow-x: auto;                /* allow horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .activities-list {
+    min-width: 200px;                /* lock to same width as large screens */
+    max-width: 100%;                 /* prevent overflow beyond card */
+    overflow-x: auto;                /* horizontal scroll if needed */
+  }
+}
+
 .activity-item {
   padding: 1rem 0;
   border-bottom: 1px solid #f0f0f0;
@@ -378,5 +401,17 @@ body {
   right: 0;
   background-color: white;
   z-index: 5;
+  text-align: center;      /* center text horizontally */
+  vertical-align: middle;  /* center text vertically */
 }
+
+.sticky-actions {
+  display: flex;
+  flex-direction: row;   /* stack buttons horizontally */
+  align-items: center;      /* center horizontally */
+  justify-content: center;  /* center vertically */
+  height: 100%;             /* match the cell height */
+  gap: 8px;                 /* add gap between buttons */
+}
+
 
