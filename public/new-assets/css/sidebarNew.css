@@ -1,0 +1,229 @@
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+.sidebar {
+    background-color: #BFBFBF4D;
+    color: #000000;
+    padding: 0;
+    width: 288px;
+    height: 85vh;
+    border-radius: 13px;
+    border: 1px solid #E5E5E5;
+    transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin-inline: 1.5rem !important;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    overflow: hidden;
+}
+
+/* Header section - fixed at top */
+.sidebar-header {
+    padding: 20px 15px;
+    border-radius: 13px 13px 0 0;
+    flex-shrink: 0;
+}
+
+.sidebar-header .d-flex {
+    align-items: center;
+}
+
+.sidebar-title {
+    font-family: "Poppins", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #5E6F87;
+    margin: 0;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Scrollable middle section */
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px 0;
+}
+
+.sidebar-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Footer section - fixed at bottom */
+.sidebar-footer {
+    padding: 15px 0;
+    border-top: 1px solid #E5E5E5;
+    border-radius: 0 0 13px 13px;
+    flex-shrink: 0;
+}
+
+/* List styling */
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-list li {
+    position: relative;
+    margin: 5px 0;
+}
+
+/* Active state styling */
+.sidebar-list li.active {
+    position: relative;
+}
+
+/* Red vertical line for active state */
+.sidebar-list li.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 40px;
+    background-color: #CC0000;
+    border-radius: 0 2px 2px 0;
+    z-index: 1;
+}
+
+/* Link styling */
+.sidebar-list li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #000000;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 0 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sidebar-list li a:hover {
+    background-color: rgba(204, 0, 0, 0.05);
+}
+
+/* Icon container */
+.sidebar-list li a .me-4 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+/* Active state text color */
+.sidebar-list li.active a {
+    color: #CC0000;
+    font-weight: 600;
+}
+
+/* Active state icon color */
+.sidebar-list li.active svg path,
+.sidebar-list li.active svg {
+    stroke: #CC0000 !important;
+    fill: #CC0000 !important;
+}
+
+/* Specific icon styling for fill icons */
+.sidebar-list li.active svg path[fill] {
+    fill: #CC0000 !important;
+    stroke: none !important;
+}
+
+/* Default icon styling */
+.sidebar-list li svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-list li svg path {
+    transition: all 0.3s ease;
+}
+
+/* Dropdown arrow styling */
+.sidebar-list li a .dropdown-arrow {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-list li.expanded .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Submenu styling (if needed for dropdowns) */
+.sidebar-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-left: 40px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.sidebar-list li.expanded .sidebar-submenu {
+    max-height: 300px;
+}
+
+.sidebar-submenu li a {
+    padding: 8px 20px;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px;
+    }
+    
+    .sidebar.collapsed {
+        width: 0;
+    }
+}
+
+/* Footer links styling */
+.sidebar-footer .sidebar-list li a {
+    margin: 0 15px 5px 15px;
+}
+
+/* Special styling for bottom items */
+.sidebar-footer .sidebar-list li:last-child a {
+    margin-bottom: 10px;
+}

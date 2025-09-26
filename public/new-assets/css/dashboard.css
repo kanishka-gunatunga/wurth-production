@@ -1,0 +1,177 @@
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+.dashboard-main-container{
+    background-color: #FFFFFF;
+    padding: 25px;
+}
+/* 
+.card-wrapper{
+    width: fit-content;
+}
+
+.header-card{
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    border-color: #EEEEEE;
+    box-shadow: 1px 1px 5px 0px #0000001A;
+    width: fit-content;
+    padding-left: 10px;
+    padding-right: 28px;
+}
+
+.stat-card-title{
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stat-card-amount{
+    color: #CC0000;
+    font-size: 25px;
+    font-weight: 600;
+} */
+.card-wrapper {
+    width: fit-content;
+}
+
+.header-card {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid #EEEEEE;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+.stat-card-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stat-card-amount {
+    color: #CC0000;
+    font-size: 25px;
+    font-weight: 600;
+}
+
+
+
+.calender-card, .dashboard-custom-card{
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+    border-radius: 8px !important;
+    box-shadow: 1px 1px 5px 0px #0000001A;
+
+}
+
+
+.dashboard-custom-card{
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+.calendar {
+    /* width: 350px; */
+    background-color: #d8d8d8f3;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-weight: 600;
+    
+}
+
+#month-year{
+    font-size: 16px !important;
+    font-family: 'SF Pro Display', sans-serif;
+    font-weight: 600;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    font-weight: 700;
+    color: #CC0000;
+    cursor: pointer;
+    align-self: self-start;
+}
+
+.calendar-header button:hover {
+    text-decoration: underline;
+}
+
+.calendar-body {
+    padding: 10px;
+}
+
+.calendar-days,
+.calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-days div {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 12.42px;
+    font-weight: 590;
+    line-height: 17.19px;
+    text-align: center;
+    color: #3C3C434D;
+
+}
+
+.calendar-dates div {
+    text-align: center;
+    padding: 10px;
+    margin: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 19.1px;
+    font-weight: 400;
+    text-align: center;
+
+}
+
+.calendar-dates div:hover {
+    background-color: #e0e0e0;
+}
+
+.calendar-dates .today {
+    background-color: #fdb4b6;
+    color: #ED2128;
+}
+
+
+.clock-digit{
+    background-color: #CC0000;
+    border-radius: 7px;
+    color: #FFFFFF;
+    padding: 5px;
+    font-size: 40px;
+    font-weight: 500;
+    font-family: 'Poppins';
+}
+
+.clock-digit-colan{
+    background-color: #FFFFFF;
+    border-radius: 7px;
+    color: #CC0000;
+    padding: 5px;
+    font-size: 44px;
+    font-weight: 500;
+    font-family: 'Poppins';
+}
+
+
+
+
+
+@media only screen and (max-width: 768px) {
+    .card-wrapper{
+        width: 100%;
+    }
+}

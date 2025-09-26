@@ -1,0 +1,134 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-image: url('./public/images/Login.png');
+    background-repeat: no-repeat, repeat;
+    background-size: cover;
+    background-position: center;
+    object-fit: cover;
+}
+.login-div {
+    width: 100%;
+    
+}
+.login-card {
+    width: 533px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    border-radius: 16px;
+    background-color: #FFFFFF;
+    min-height: 562px;
+}
+img {
+    max-width: 100%;
+    width: 246px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.login-btn{
+    background-color: #ED2027 !important;
+    color: #fff !important;
+    width: 100% !important;
+    height: 53px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    line-height: 27px !important;
+
+
+}
+.login-btn:hover{
+    background-color: #b92227 !important;
+    color: #FFFFFF !important;
+}
+
+.login-title{
+font-family: 'Inter', sans-serif !important;
+    font-size: 26px !important;
+    font-weight: 700;
+    line-height: 29.78px;
+}
+
+.login-input{
+    border-color: #B0B0B0;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400;
+    border-radius: 5px !important;
+    height: 48px;
+}
+
+.input-div{
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.input-icon{
+
+    position: absolute;
+    left: 20px !important;
+    
+}
+
+.envelop{
+    top: 14px;
+    width: 22px; 
+    height: 22px; 
+}
+
+.key{
+    top: 9px;
+    width: 30.28px; 
+    height: 30.28px; 
+}
+
+.input-div .form-control{
+    padding-left: 50px !important; 
+    height: 48px; 
+}
+
+.input-div .form-control:focus{
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: #ED2027;
+    outline: 0;
+    box-shadow: 0 0 0 1px rgba(255, 42, 42, 0.53);
+}
+
+
+.logo{
+    width: 246px;
+    height: 72px;
+    align-self: center;
+}
+
+.forgot-password-link{
+    text-decoration: none;
+    color: #000;
+    font-family: 'Poppins', sans-serif;;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.register-text{
+    font-family: 'Poppins', sans-serif;;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.register-text-link{
+    text-decoration: none;
+    color: #7C7C7C;
+}
+
+@media only screen and (max-width: 768px) {
+  .login-div{
+    width: 90%;
+  }
+}
