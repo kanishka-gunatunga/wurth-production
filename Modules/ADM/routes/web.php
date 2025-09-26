@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\ADM\Http\Controllers\UserController;
 use Modules\ADM\Http\Controllers\CollectionsController;
 use Modules\ADM\Http\Controllers\CustomerController;
+use Modules\ADM\Http\Controllers\InquiryController;
 use Modules\ADM\Http\Controllers\NotificationsRemindersController;
 use Modules\ADM\Http\Middleware\ADMAuthenticated;
 use Illuminate\Http\Request;
@@ -38,6 +39,7 @@ Route::prefix('adm')->group(function() {
     Route::match(['get', 'post'],'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'search-bulk-payment', [CollectionsController::class, 'search_bulk_payment'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'bulk-payment', [CollectionsController::class, 'bulk_payment'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'bulk-payment-submit', [CollectionsController::class, 'bulk_payment_submit'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'add-bulk-cash-payments', [CollectionsController::class, 'add_bulk_cash_payments'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'add-bulk-fund-transfer', [CollectionsController::class, 'add_bulk_fund_transfer'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'add-bulk-cheque-payment', [CollectionsController::class, 'add_bulk_cheque_payment'])->middleware(ADMAuthenticated::class);
@@ -48,4 +50,8 @@ Route::prefix('adm')->group(function() {
 
     Route::match(['get', 'post'],'notifications-and-reminders', [NotificationsRemindersController::class, 'notifications_and_reminders'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'create-reminder', [NotificationsRemindersController::class, 'create_reminder'])->middleware(ADMAuthenticated::class);
+
+
+    Route::match(['get', 'post'],'inquiries', [InquiryController::class, 'inquiries'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'create-inquiry', [InquiryController::class, 'create_inquiry'])->middleware(ADMAuthenticated::class);
 });

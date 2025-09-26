@@ -3,13 +3,13 @@
 use App\Models\Customers;
 ?>
 <div class="content px-0">
-            <!-- <div class="d-flex flex-row px-4 justify-content-between align-items-center w-100 text-start  mb-3">
+            <div class="d-flex flex-row px-4 justify-content-between align-items-center w-100 text-start  mb-3">
                 <h3 class="page-title">Collections</h3>
-                <a href="" class="my-3 small-button">
+                <a href="{{url('adm/bulk-payment')}}" class="my-3 small-button">
                     Bulk Payment
                 </a>
-            </div> -->
-            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            </div>
+            <!-- <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" style="width: 50vw;" id="pills-payment-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab"
@@ -20,7 +20,7 @@ use App\Models\Customers;
                             data-bs-target="#pills-system" type="button" role="tab" aria-controls="pills-system"
                             aria-selected="false">Bulk Payment</button>
                     </li>
-            </ul>
+            </ul> -->
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-payment" role="tabpanel" aria-labelledby="pills-payment-tab">
                         <div class="d-flex flex-row px-4 justify-content-center align-items-center w-100 text-start mb-3"
@@ -91,86 +91,7 @@ use App\Models\Customers;
                         </div>
                 </div>
 
-                <div class="tab-pane fade" id="pills-system" role="tabpanel" aria-labelledby="pills-system-tab">
-                    <div class="d-flex flex-row px-4 justify-content-between align-items-center w-100 text-start  mb-3">
-                        <h3 class="page-title">Bulk Payment</h3>
-                    </div>
-
-                    <!-- dropdown section -->
-                    <div class="container px-3">
-                        <div class="dropdown-overlay" id="dropdownOverlay"></div>
-                        <div class="custom-select-wrapper" id="customSelectWrapper">
-                            <div class="custom-select" id="customSelect" style="padding: 5px 10px !important;">
-                                <div class="d-flex flex-row align-items-center w-100">
-                                    <i class="bi bi-search me-2"></i>
-                                    <input type="text" id="searchInput2" class="form-control mb-0 p-0 dropdown-search"
-                                        placeholder="Search Customers">
-                                </div>
-                                <i class="bi bi-chevron-down chevron"></i>
-                            </div>
-                            <div class="custom-dropdown" id="customDropdown">
-                                <table class="table dashboard-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Full Name</th>
-                                            <th scope="col">Customer ID</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="dropdownItems">
-                                        <?php foreach($customers as $customer){ ?>
-                                        <tr class="custom-dropdown-item">
-                                            <td>
-                                                <input class="form-check-input form-check-input-table ms-0 customer-checkbox"
-                                                    type="checkbox"
-                                                    data-id="{{$customer->customer_id}}"
-                                                    data-name="{{$customer->name}}"
-                                                >
-                                            </td>
-                                            <td style="line-height: 25px;">{{$customer->name}}</td>
-                                            <td style="line-height: 25px;">{{$customer->customer_id}}</td>
-                                        </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- tags -->
-                    <div class="d-flex selected-items px-3 py-3 d-flex flex-wrap gap-2" id="selectedTagsContainer"></div>
-
-                    <form  action="{{url('adm/bulk-payment')}}" method="get"  enctype="multipart/form-data">
-                  
-                    <div class="d-flex w-100 flex-column px-3 mb-0 mt-3">
-                        <div class="card-view px-0 pt-0 pb-0">
-                            <div class="d-flex flex-row justify-content-between align-items-center px-3 mb-0">
-                                <h4 class="black-title mb-0">Select Invoices</h4>
-                                <button type="submit" class="my-3 small-button">
-                                    Done
-                                </button>
-                            </div>
-                            <div class="scrollable-section-deposit" style="height: calc(100vh - 410px)">
-                                <div class="d-flex flex-column">
-                                    <table class="table dashboard-table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col"></th>
-                                                <th scope="col">Full Name</th>
-                                                <th scope="col">Invoice Number</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="bulk-invoices-data">
-                                           
-                                            
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </form>
-                </div>
+                
             </div>
            
         </div>

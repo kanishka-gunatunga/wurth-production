@@ -12,12 +12,15 @@ class Invoices extends Model
     protected $table = 'invoices';
     protected $primaryKey = 'id';
 
-    public function customer()
-    {
-        return $this->belongsTo(Customers::class, 'customer_id', 'customer_id');
-    }
-    public function inquiries()
+   public function customer()
+{
+    // invoices.customer_id → customers.customer_id
+    return $this->belongsTo(Customers::class, 'customer_id', 'customer_id');
+}
+
+public function inquiries()
 {
     return $this->hasMany(Inquiries::class, 'invoice_number', 'id');
 }
+
 }

@@ -43,6 +43,17 @@ class CollectionsController extends Controller
 
          return view('adm::collection.collections', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
      }
+
+      public function bulk_payment()
+     {
+         $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
+         $customers = Customers::where('adm', $adm_no)->pluck('customer_id'); 
+         $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
+         $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+         $all_customers = Customers::where('adm', $adm_no)->get(); 
+
+         return view('adm::collection.bulk_payment', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
+     }
      
     
      public function search_invoices(Request $request)
@@ -496,12 +507,12 @@ public function resend_receipt($id){
     }
     
 
-    public function bulk_payment(Request $request)
+    public function bulk_payment_submit(Request $request)
     {
         $invoiceIds = $request->query('invoices');
     
         if (empty($invoiceIds)) {
-            return redirect()->back()->with('error', 'No invoices selected.');
+            return redirect()->back('bulk-payment')->with('fail', 'No invoices selected.');
         }
     
         $invoices = Invoices::whereIn('id', $invoiceIds)->get();
@@ -516,7 +527,7 @@ public function resend_receipt($id){
             ];
         });
     
-        return view('adm::collection.bulk_payment', ['grouped_data' => $groupedWithCustomers]);
+        return view('adm::collection.bulk_payment_submit', ['grouped_data' => $groupedWithCustomers]);
     }
     
     public function add_bulk_cash_payments(Request $request)
