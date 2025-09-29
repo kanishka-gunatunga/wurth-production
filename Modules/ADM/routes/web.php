@@ -8,6 +8,7 @@ use Modules\ADM\Http\Controllers\CollectionsController;
 use Modules\ADM\Http\Controllers\CustomerController;
 use Modules\ADM\Http\Controllers\InquiryController;
 use Modules\ADM\Http\Controllers\NotificationsRemindersController;
+use Modules\ADM\Http\Controllers\AdvancedPaymentController;
 use Modules\ADM\Http\Middleware\ADMAuthenticated;
 use Illuminate\Http\Request;
 
@@ -54,4 +55,10 @@ Route::prefix('adm')->group(function() {
 
     Route::match(['get', 'post'],'inquiries', [InquiryController::class, 'inquiries'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'create-inquiry', [InquiryController::class, 'create_inquiry'])->middleware(ADMAuthenticated::class);
+    Route::get('/get-customer-invoices/{customerId}', [InquiryController::class, 'get_customer_invoices'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'search-inquiries', [InquiryController::class, 'search_inquiries'])->middleware(ADMAuthenticated::class);
+
+
+    Route::match(['get', 'post'],'create-advanced-payment', [AdvancedPaymentController::class, 'create_advanced_payment'])->middleware(ADMAuthenticated::class);
+    Route::get('/get-customer-details/{customerId}', [AdvancedPaymentController::class, 'get_customer_details'])->middleware(ADMAuthenticated::class);
 });

@@ -22,5 +22,9 @@ public function invoices()
     // invoices.customer_id → customers.customer_id
     return $this->hasMany(Invoices::class, 'customer_id', 'customer_id');
 }
-
+public function advance_payments()
+{
+    // invoices.customer_id → customers.customer_id
+    return $this->hasMany(AdvancedPayment::class, 'customer', 'id');
+}
 }

@@ -89,7 +89,7 @@ use App\Models\Customers;
             let query = $(this).val();
 
             $.ajax({
-                url: "{{ url('adm/search-invoices') }}", 
+                url: "{{ url('adm/search-inquiries') }}", 
                 method: "GET",
                 data: { query: query },
                 success: function(response) {
