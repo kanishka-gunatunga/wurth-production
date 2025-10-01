@@ -19,7 +19,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::prefix('finance')->group(function() {
-    Route::match(['get', 'post'],'/', [UserController::class, 'dashboard'])->middleware(FinanceAuthenticated::class);
-    Route::match(['get', 'post'],'/inquiries', [InquiriesController::class, 'inquiries'])->middleware(FinanceAuthenticated::class);
+Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(function() {
+    Route::match(['get', 'post'],'/', [UserController::class, 'dashboard']);
+    Route::match(['get', 'post'],'/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
+
+    // New route for inquiry details
+    Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
 }); 

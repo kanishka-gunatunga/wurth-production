@@ -91,8 +91,36 @@
 
                     </tr>
                 </thead>
-                <tbody id="cashDepositeTableBody">
+                <tbody>
+                    @foreach ($inquiries as $inquiry)
+                    <tr class="clickable-row" data-href="{{ route('inquiry.details', $inquiry->id) }}">
+
+                        <td>{{ $inquiry->id }}</td>
+                        <td>{{ $inquiry->inquiry_date }}</td>
+                        <td>{{ $inquiry->type }}</td>
+                        <td>{{ $inquiry->adm_id }}</td>
+                        <td>{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}</td>
+                        <td>{{ $inquiry->customer }}</td>
+                        <td>
+                            @php
+                            $statusClass = match($inquiry->status) {
+                            'Sorted' => 'success-status-btn',
+                            'Deposited' => 'blue-status-btn',
+                            'Rejected' => 'danger-status-btn',
+                            default => 'grey-status-btn',
+                            };
+                            @endphp
+                            <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
+                        </td>
+                        <td class="sticky-column">
+                            <button class="success-action-btn">Approve</button>
+                            <button class="red-action-btn">Reject</button>
+                            <button class="black-action-btn submit">Download</button>
+                        </td>
+                    </tr>
+                    @endforeach
                 </tbody>
+
             </table>
 
         </div>
@@ -353,7 +381,7 @@
     });
 </script>
 
-<script>
+<!-- <script>
     // Cash deposit data
     const cashDepositeTableData = [{
             inquiryRefNo: "REF-1001",
@@ -597,7 +625,7 @@
     window.onload = function() {
         changePage('cashDeposite', 1);
     };
-</script>
+</script> -->
 
 <!-- link entire row of table -->
 <script>
@@ -736,4 +764,4 @@
     });
 </script>
 
-            @include('finance::layouts.footer')
+@include('finance::layouts.footer')

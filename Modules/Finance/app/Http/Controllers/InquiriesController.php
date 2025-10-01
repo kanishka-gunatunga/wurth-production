@@ -18,23 +18,43 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Customers;
 use App\Models\Invoices;
+use App\Models\Inquiries;
 
 use File;
 use Mail;
 use Image;
 use PDF;
+
 class InquiriesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
+
     public function inquiries()
     {
-        return view('finance::inquiries.index');
+        $inquiries = Inquiries::with([
+            'invoice',
+            'customer',
+            'admin.userDetails' // load ADM details too
+        ])->get();
+
+        return view('finance::inquiries.index', compact('inquiries'));
     }
-    
-   
+
+    public function details($id)
+    {
+        $inquiry = Inquiries::with([
+            'invoice',
+            'customer',
+            'admin.userDetails'
+        ])->findOrFail($id);
+
+        return view('finance::inquiries.details', compact('inquiry'));
+    }
+
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -82,4 +102,4 @@ class InquiriesController extends Controller
     {
         //
     }
-} 
+}
