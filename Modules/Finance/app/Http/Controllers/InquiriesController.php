@@ -53,6 +53,25 @@ class InquiriesController extends Controller
         return view('finance::inquiries.details', compact('inquiry'));
     }
 
+    public function approve($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+        $inquiry->status = 'Sorted';
+        $inquiry->save();
+
+        return response()->json(['success' => true, 'status' => $inquiry->status]);
+    }
+
+    public function reject($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+        $inquiry->status = 'Rejected';
+        $inquiry->save();
+
+        return response()->json(['success' => true, 'status' => $inquiry->status]);
+    }
+
+
 
 
     /**
