@@ -22,7 +22,7 @@
             <p>
                 <span class="bold-text">Inquiry Type :</span><span class="slip-detail-text">&nbsp;Payment issue</span>
             </p>
-            
+
             <p>
                 <span class="bold-text">Date :</span><span class="slip-detail-text">&nbsp;2024.12.26</span>
             </p>
@@ -165,27 +165,124 @@
     </div>
 </div>
 
-<!-- @section('bottom-bar') -->
-<div class="py-3">
-    <div class="action-button-lg-row">
-        <a href="{{ url('inquiries') }}" class="grey-action-btn-lg" style="text-decoration: none;">
-            Back
-        </a>
+@section('footer-buttons')
+<a href="{{ route('inquiries') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+<button class="red-action-btn-lg">Reject</button>
+<button class="success-action-btn-lg">Approve</button>
+@endsection
 
+@push('scripts')@push('scripts')
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
 
+    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
 
-        <button class="red-action-btn-lg">
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        searchDropdown.innerHTML = '';
 
-            Reject
-        </button>
+        if (query) {
+            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
+            if (filteredItems.length > 0) {
+                filteredItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.textContent = item;
+                    div.addEventListener('click', function() {
+                        searchInput.value = item;
+                        searchDropdown.classList.remove('show');
+                    });
+                    searchDropdown.appendChild(div);
+                });
+                searchDropdown.classList.add('show');
+            } else {
+                searchDropdown.classList.remove('show');
+            }
+        } else {
+            searchDropdown.classList.remove('show');
+        }
+    });
 
-        <button class="success-action-btn-lg">
+    document.addEventListener('click', function(e) {
+        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
+            searchDropdown.classList.remove('show');
+        }
+    });
+</script>
 
-            Approve
-        </button>
-    </div>
-</div>
+<!-- dropdown script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+            const button = dropdown.querySelector('.custom-dropdown');
+            const items = dropdown.querySelectorAll('.dropdown-item');
 
-<!-- @endsection -->
+            items.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault(); // stop page jump
+                    const selectedText = this.getAttribute("data-value") || this.textContent.trim();
+                    button.innerHTML = selectedText + '<span class="custom-arrow"></span>';
+                });
+            });
+        });
+    });
+</script>
 
-@include('finance::layouts.footer')
+<!-- toast message -->
+<script>
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('submit')) {
+            e.preventDefault();
+            const toast = document.getElementById('user-toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    });
+</script>
+
+<!-- for reject modal pop-up -->
+<script>
+    document.addEventListener('click', function(e) {
+        // Approve button click
+        if (e.target.classList.contains('success-action-btn-lg')) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('approve-modal').style.display = 'block';
+            document.getElementById('approve-modal-input').value = '';
+        }
+        // Approve modal tick
+        if (e.target.id === 'approve-modal-tick' || e.target.closest('#approve-modal-tick')) {
+            document.getElementById('approve-modal').style.display = 'none';
+        }
+        // Approve modal close
+        if (e.target.id === 'approve-modal-close') {
+            document.getElementById('approve-modal').style.display = 'none';
+        }
+
+        // Reject button click
+        if (e.target.classList.contains('red-action-btn-lg')) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('reject-modal').style.display = 'block';
+            // Optionally clear input fields here if needed
+            var inputs = document.querySelectorAll('#reject-modal input');
+            inputs.forEach(function(input) {
+                input.value = '';
+            });
+        }
+        // Reject modal tick
+        if (e.target.id === 'reject-modal-tick' || e.target.closest('#reject-modal-tick')) {
+            document.getElementById('reject-modal').style.display = 'none';
+        }
+        // Reject modal close
+        if (e.target.id === 'reject-modal-close') {
+            document.getElementById('reject-modal').style.display = 'none';
+        }
+    });
+</script>
+@endpush
+
+@include('finance::layouts.footer2')
