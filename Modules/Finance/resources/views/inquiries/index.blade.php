@@ -55,6 +55,10 @@
     .col-12.d-flex.justify-content-lg-end {
         align-items: center;
     }
+
+    .custom-dropdown-menu li {
+        list-style: none !important;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -93,10 +97,17 @@
                 </thead>
                 <tbody>
                     @foreach ($inquiries as $inquiry)
-                    <tr class="clickable-row" data-href="{{ route('inquiry.details', $inquiry->id) }}">
+                    <tr class="clickable-row"
+                        data-href="{{ route('inquiry.details', $inquiry->id) }}"
+                        data-adm="{{ $inquiry->adm_id }}"
+                        data-customer="{{ $inquiry->customer }}"
+                        data-type="{{ $inquiry->type }}"
+                        data-status="{{ $inquiry->status }}"
+                        data-date="{{ $inquiry->created_at }}">
+
 
                         <td>{{ $inquiry->id }}</td>
-                        <td>{{ $inquiry->inquiry_date }}</td>
+                        <td>{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</td>
                         <td>{{ $inquiry->type }}</td>
                         <td>{{ $inquiry->adm_id }}</td>
                         <td>{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}</td>
@@ -177,11 +188,11 @@
         </div class="col-6">
 
         <div>
-            <button class="btn rounded-phill">Clear All</button>
+            <button id="clear-filters" class="btn rounded-phill">Clear All</button>
         </div>
     </div>
     <div class="offcanvas-body">
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
 
@@ -211,62 +222,60 @@
                 <span>Head of Division</span>
 
             </div>
-        </div>
+        </div> -->
 
-        <!-- ADM ID Dropdown -->
+        <!-- ADM Number Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
+            <select id="filter-adm" class="form-control select2" multiple="multiple">
+                @foreach ($inquiries->pluck('adm_id')->unique() as $admId)
+                <option>{{ $admId }}</option>
+                @endforeach
             </select>
         </div>
+
 
         <!-- Customers Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
+            <select id="filter-customer" class="form-control select2" multiple="multiple">
+                @foreach ($inquiries->pluck('customer')->unique() as $customer)
+                <option>{{ $customer }}</option>
+                @endforeach
             </select>
         </div>
 
+
         <div class="mt-5 filter-categories">
             <p class="filter-title">Inquiry type</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>Payment issue</option>
-                <option>Refund request</option>
-                <option>Invoice correction</option>
-                <option>Duplicate payment</option>
+            <select id="filter-type" class="form-control select2" multiple="multiple">
+                @foreach ($inquiries->pluck('type')->unique() as $type)
+                <option>{{ $type }}</option>
+                @endforeach
             </select>
         </div>
+
 
         <!-- Styled Status Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
+            <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
                     Choose Status
-                    <span class="custom-arrow"></span>
                 </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Pending</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Sorted</a></li>
+                <ul id="custom-status-menu" class="custom-dropdown-menu"
+                    style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                    @foreach ($inquiries->pluck('status')->unique() as $status)
+                    <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                    @endforeach
                 </ul>
             </div>
         </div>
 
 
-
         <div class="mt-5 filter-categories">
             <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
+            <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
         </div>
     </div>
 </div>
@@ -351,6 +360,7 @@
         const searchWrapper = document.getElementById("search-box-wrapper");
         const searchToggleButton = document.getElementById("search-toggle-button");
         const searchInput = searchWrapper.querySelector(".search-input");
+        const tableRows = document.querySelectorAll(".custom-table-locked tbody tr");
 
         let idleTimeout;
         const idleTime = 5000; // 5 seconds
@@ -381,31 +391,26 @@
             }
         });
 
+        // Filter table rows by Inquiry Ref. No
         searchInput.addEventListener("input", function() {
-            filterInquiries(this.value);
+            const query = this.value.trim().toLowerCase();
+
+            tableRows.forEach(row => {
+                const inquiryRefNo = row.querySelector("td").textContent.trim().toLowerCase();
+                if (inquiryRefNo.includes(query)) {
+                    row.style.display = ""; // show
+                } else {
+                    row.style.display = "none"; // hide
+                }
+            });
+
             startIdleTimer();
         });
 
         searchInput.addEventListener("keydown", startIdleTimer);
     });
-
-    // Filter inquiries only by Inquiry Ref. No
-    function filterInquiries(query) {
-        const searchQuery = query.toLowerCase();
-
-        // Filter data strictly by inquiryRefNo
-        const filteredData = cashDepositeTableData.filter(item =>
-            item.inquiryRefNo.toLowerCase().includes(searchQuery)
-        );
-
-        // Reset to first page when searching
-        currentPages['cashDeposite'] = 1;
-
-        // Re-render table and pagination
-        renderTable('cashDeposite', filteredData, 1);
-        renderPagination('cashDeposite', filteredData);
-    }
 </script>
+
 
 
 <script>
@@ -494,6 +499,114 @@
     });
 </script>
 
+<!-- for dropdown -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const btn = document.getElementById("custom-status-btn");
+        const menu = document.getElementById("custom-status-menu");
+
+        btn.addEventListener("click", () => {
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        menu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.preventDefault();
+                btn.textContent = e.target.textContent;
+                btn.setAttribute("data-value", e.target.dataset.value);
+                menu.style.display = "none";
+            });
+        });
+
+        // Close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
+            }
+        });
+    });
+</script>
+
+<!-- filtering script & close all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll(".custom-table-locked tbody tr");
+
+        const admFilter = document.getElementById("filter-adm");
+        const customerFilter = document.getElementById("filter-customer");
+        const typeFilter = document.getElementById("filter-type");
+        const statusBtn = document.getElementById("custom-status-btn");
+        const dateFilter = document.getElementById("filter-date");
+
+        function applyFilters() {
+            const selectedAdms = $(admFilter).val() || [];
+            const selectedCustomers = $(customerFilter).val() || [];
+            const selectedTypes = $(typeFilter).val() || [];
+            const selectedStatus = statusBtn.getAttribute("data-value") || "";
+            const dateRange = dateFilter.value.split(" to ");
+
+            rows.forEach(row => {
+                const rowAdm = row.dataset.adm;
+                const rowCustomer = row.dataset.customer;
+                const rowType = row.dataset.type;
+                const rowStatus = row.dataset.status;
+                const rowDate = row.dataset.date;
+
+                let visible = true;
+
+                if (selectedAdms.length && !selectedAdms.includes(rowAdm)) visible = false;
+                if (selectedCustomers.length && !selectedCustomers.includes(rowCustomer)) visible = false;
+                if (selectedTypes.length && !selectedTypes.includes(rowType)) visible = false;
+                if (selectedStatus && rowStatus !== selectedStatus) visible = false;
+
+                // Date range filter
+                if (dateRange.length === 2 && dateRange[0] && dateRange[1]) {
+                    const rowD = new Date(rowDate);
+                    const from = new Date(dateRange[0]);
+                    const to = new Date(dateRange[1]);
+                    if (rowD < from || rowD > to) visible = false;
+                }
+
+                row.style.display = visible ? "" : "none";
+            });
+        }
+
+        // Hook into change events
+        $(admFilter).on("change", applyFilters);
+        $(customerFilter).on("change", applyFilters);
+        $(typeFilter).on("change", applyFilters);
+        dateFilter.addEventListener("change", applyFilters);
+
+        // Custom status dropdown
+        document.querySelectorAll("#custom-status-menu .dropdown-item").forEach(item => {
+            item.addEventListener("click", e => {
+                e.preventDefault();
+                statusBtn.textContent = e.target.textContent;
+                statusBtn.setAttribute("data-value", e.target.dataset.value);
+                document.getElementById("custom-status-menu").style.display = "none";
+                applyFilters();
+            });
+        });
+
+        // ✅ Clear All button (now inside)
+        document.getElementById("clear-filters").addEventListener("click", function() {
+            // Reset Select2 dropdowns
+            $(admFilter).val(null).trigger("change");
+            $(customerFilter).val(null).trigger("change");
+            $(typeFilter).val(null).trigger("change");
+
+            // Reset status button
+            statusBtn.textContent = "Choose Status";
+            statusBtn.removeAttribute("data-value");
+
+            // Reset date
+            dateFilter.value = "";
+
+            // Show all rows
+            rows.forEach(row => row.style.display = "");
+        });
+    });
+</script>
 
 
 
