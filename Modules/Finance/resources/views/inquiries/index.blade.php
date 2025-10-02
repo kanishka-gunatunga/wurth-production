@@ -113,8 +113,14 @@
                             <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
                         </td>
                         <td class="sticky-column">
+                            @php
+                            $status = strtolower(trim($inquiry->status ?? ''));
+                            @endphp
+
+                            @if(in_array($status, ['pending', 'deposited']))
                             <button class="success-action-btn">Approve</button>
                             <button class="red-action-btn">Reject</button>
+                            @endif
 
                             @if($inquiry->attachement)
                             <a href="{{ asset('storage/'.$inquiry->attachement) }}"
@@ -124,11 +130,11 @@
                                 onclick="showDownloadToast(event)">
                                 Download
                             </a>
-
                             @else
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
                         </td>
+
 
                     </tr>
                     @endforeach
@@ -456,6 +462,9 @@
                         const btn = row.querySelector('td button');
                         btn.textContent = data.status;
                         btn.className = 'success-status-btn';
+
+                        // ✅ Hide Approve/Reject buttons
+                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.style.display = 'none');
                     }
                 });
         }
@@ -476,6 +485,9 @@
                         const btn = row.querySelector('td button');
                         btn.textContent = data.status;
                         btn.className = 'danger-status-btn';
+
+                        // ✅ Hide Approve/Reject buttons
+                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.style.display = 'none');
                     }
                 });
         }

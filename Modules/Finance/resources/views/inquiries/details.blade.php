@@ -249,8 +249,9 @@ $status = strtolower(trim($inquiry->status ?? ''));
                         }
                     }
 
-                    // Hide the footer buttons after updating
-                    btn.closest('.footer-buttons')?.querySelectorAll('.update-status-btn').forEach(b => b.style.display = 'none');
+                    // Hide all approve/reject footer buttons immediately
+document.querySelectorAll('.update-status-btn').forEach(b => b.style.display = 'none');
+
                 }
             })
             .catch(err => console.error(err));
