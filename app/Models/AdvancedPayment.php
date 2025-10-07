@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Inquiries extends Model
+class AdvancedPayment extends Model
 {
     use HasFactory;
 
-    protected $table = 'inquiries';
+    protected $table = 'advanced_payments';
     protected $primaryKey = 'id';
 
   public function customerData()
@@ -17,11 +17,7 @@ class Inquiries extends Model
     return $this->belongsTo(Customers::class, 'customer', 'customer_id');
 }
 
-    public function invoiceData()
-    {
-        // inquiries.invoice_number → invoices.id
-        return $this->belongsTo(Invoices::class, 'invoice_number', 'invoice_or_cheque_no');
-    }
+
 
     public function admin()
     {

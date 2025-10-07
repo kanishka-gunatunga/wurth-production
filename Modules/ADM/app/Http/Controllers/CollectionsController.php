@@ -43,6 +43,17 @@ class CollectionsController extends Controller
 
          return view('adm::collection.collections', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
      }
+
+      public function bulk_payment()
+     {
+         $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
+         $customers = Customers::where('adm', $adm_no)->pluck('customer_id'); 
+         $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
+         $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+         $all_customers = Customers::where('adm', $adm_no)->get(); 
+
+         return view('adm::collection.bulk_payment', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
+     }
      
     
      public function search_invoices(Request $request)
@@ -496,12 +507,12 @@ public function resend_receipt($id){
     }
     
 
-    public function bulk_payment(Request $request)
+    public function bulk_payment_submit(Request $request)
     {
         $invoiceIds = $request->query('invoices');
     
         if (empty($invoiceIds)) {
-            return redirect()->back()->with('error', 'No invoices selected.');
+            return redirect()->back('bulk-payment')->with('fail', 'No invoices selected.');
         }
     
         $invoices = Invoices::whereIn('id', $invoiceIds)->get();
@@ -516,7 +527,7 @@ public function resend_receipt($id){
             ];
         });
     
-        return view('adm::collection.bulk_payment', ['grouped_data' => $groupedWithCustomers]);
+        return view('adm::collection.bulk_payment_submit', ['grouped_data' => $groupedWithCustomers]);
     }
     
     public function add_bulk_cash_payments(Request $request)
@@ -579,139 +590,429 @@ public function resend_receipt($id){
     }
 }
 
- public function add_bulk_fund_transfer(Request $request)
-    { 
-    if($request->isMethod('post')){
+//  public function add_bulk_fund_transfer(Request $request)
+//     { 
+//     if($request->isMethod('post')){
         
+//         try {
+//          $payments = $request->payments;
+
+//         if($request->payment_batch_id == ''){
+//             $payment_batch = new InvoicePaymentBatches();
+//             $payment_batch->save();  
+//         }
+//         else{
+//             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
+//         }
+
+//         $screenshot_name = null;
+//         if ($request->hasFile('screenshot')) {
+//             $file = $request->file('screenshot');
+//             $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+//             $file->move(public_path('uploads/adm/collections/fund_transfer_reciepts/'), $screenshot_name);
+//         }
+//         foreach ($payments as $key => $data) {
+//             $discount =  ($data['amount'] * ($data['discount'] ?? 0)) / 100;
+//             $final_payment = $data['amount']-$discount;
+
+
+//             $payment_data = new InvoicePayments();
+//             $payment_data->invoice_id = $data['invoice_id'];
+//             $payment_data->batch_id = $payment_batch->id;
+//             $payment_data->type = 'fund-transfer';
+//             $payment_data->is_bulk = 1;
+//             $payment_data->amount =$data['amount'];
+//             $payment_data->discount = $data['discount'];
+//             $payment_data->final_payment = $final_payment;
+//             $payment_data->transfer_date = $request->transfer_date;
+//             $payment_data->transfer_reference_number = $request->transfer_reference_number;
+//             $payment_data->screenshot = $screenshot_name;
+//             $payment_data->save();
+
+//             $invoice = Invoices::where('id', $data['invoice_id'])->first();
+//             $invoice->paid_amount = $invoice->paid_amount + $data['amount'];
+//             $invoice->update();
+
+//             $pdf_name ='#'.$payment_data->id.'.pdf';
+//             $payment_data = InvoicePayments::where('id', $payment_data->id)->first();
+//             $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
+//             $customer= Customers::where('customer_id', $invoice->customer_id)->first();
+//             $adm= UserDetails::where('adm_number', $customer->adm)->first();
+
+//             $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment_data,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
+//             $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+
+//             Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+//         }
+
+//         return response()->json([
+//             'status' => "success",
+//             'message' => 'Payments added successfully',
+//             'payment_batch_id' => $payment_batch->id,
+//         ], 201);
+        
+//     }
+//     catch (\Exception $e) {
+//         return response()->json([
+//             'status' => "fail",
+//             'message' => 'Request failed',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }    
+//     }
+// }
+public function add_bulk_fund_transfer(Request $request)
+{
+    if ($request->isMethod('post')) {
         try {
-         $payments = $request->payments;
+            $payments = $request->input('payments', []);
 
-        if($request->payment_batch_id == ''){
-            $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->save();  
+            if (empty($request->payment_batch_id)) {
+                $payment_batch = new InvoicePaymentBatches();
+                $payment_batch->save();
+            } else {
+                $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
+            }
+
+            $screenshot_name = null;
+            if ($request->hasFile('screenshot')) {
+                $file = $request->file('screenshot');
+                $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/adm/collections/fund_transfer_reciepts/'), $screenshot_name);
+            }
+
+            foreach ($payments as $data) {
+                $amount = $data['amount'];
+                $discountValue = $data['discount'] ?? 0;
+
+                // if discount is % convert, otherwise keep as flat
+                $discount = is_numeric($discountValue) && $discountValue < 100
+                    ? ($amount * $discountValue / 100)
+                    : $discountValue;
+
+                $final_payment = $amount - $discount;
+
+                $payment_data = new InvoicePayments();
+                $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->batch_id = $payment_batch->id;
+                $payment_data->type = 'fund-transfer';
+                $payment_data->is_bulk = 1;
+                $payment_data->amount = $amount;
+                $payment_data->discount = $discountValue;
+                $payment_data->final_payment = $final_payment;
+                $payment_data->transfer_date = $request->transfer_date;
+                $payment_data->transfer_reference_number = $request->transfer_reference_number;
+                $payment_data->screenshot = $screenshot_name;
+                $payment_data->save();
+
+                // update invoice
+                $invoice = Invoices::find($data['invoice_id']);
+                $invoice->paid_amount += $amount;
+                $invoice->save();
+
+                // generate receipt + email
+                $pdf_name = '#' . $payment_data->id . '.pdf';
+                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+
+                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+                    'is_duplicate' => 0,
+                    'payment' => $payment_data,
+                    'invoice' => $invoice,
+                    'customer' => $customer,
+                    'adm' => $adm
+                ]);
+
+                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+            }
+
+            return response()->json([
+                'status' => "success",
+                'message' => 'Payments added successfully',
+                'payment_batch_id' => $payment_batch->id,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => "fail",
+                'message' => 'Request failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        else{
-            $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
-        }
-
-        $screenshot_name = null;
-        if ($request->hasFile('screenshot')) {
-            $file = $request->file('screenshot');
-            $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/adm/collections/fund_transfer_reciepts/'), $screenshot_name);
-        }
-        foreach ($payments as $key => $data) {
-            $discount =  ($data['amount'] * ($data['discount'] ?? 0)) / 100;
-            $final_payment = $data['amount']-$discount;
-
-
-            $payment_data = new InvoicePayments();
-            $payment_data->invoice_id = $data['invoice_id'];
-            $payment_data->batch_id = $payment_batch->id;
-            $payment_data->type = 'fund-transfer';
-            $payment_data->is_bulk = 1;
-            $payment_data->amount =$data['amount'];
-            $payment_data->discount = $data['discount'];
-            $payment_data->final_payment = $final_payment;
-            $payment_data->transfer_date = $request->transfer_date;
-            $payment_data->transfer_reference_number = $request->transfer_reference_number;
-            $payment_data->screenshot = $screenshot_name;
-            $payment_data->save();
-
-            $invoice = Invoices::where('id', $data['invoice_id'])->first();
-            $invoice->paid_amount = $invoice->paid_amount + $data['amount'];
-            $invoice->update();
-
-            $pdf_name ='#'.$payment_data->id.'.pdf';
-            $payment_data = InvoicePayments::where('id', $payment_data->id)->first();
-            $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
-            $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-            $adm= UserDetails::where('adm_number', $customer->adm)->first();
-
-            $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment_data,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-            $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
-
-            Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
-        }
-
-        return response()->json([
-            'status' => "success",
-            'message' => 'Payments added successfully',
-            'payment_batch_id' => $payment_batch->id,
-        ], 201);
-        
-    }
-    catch (\Exception $e) {
-        return response()->json([
-            'status' => "fail",
-            'message' => 'Request failed',
-            'error' => $e->getMessage()
-        ], 500);
-    }    
     }
 }
+
+// public function add_bulk_cheque_payment(Request $request)
+//     { 
+//     if($request->isMethod('post')){
+        
+//         try {
+//          $payments = $request->payments;
+
+//         if($request->payment_batch_id == ''){
+//             $payment_batch = new InvoicePaymentBatches();
+//             $payment_batch->save();  
+//         }
+//         else{
+//             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
+//         }
+
+//         $image_name = null;
+//         if ($request->hasFile('cheque_image')) {
+//             $file = $request->file('cheque_image');
+//             $image_name = time() . '-' . Str::uuid()->toString() .'.' . $file->getClientOriginalExtension();
+//             $file->move(public_path('uploads/adm/collections/cheque_images/'), $image_name);
+//         }
+//         foreach ($payments as $key => $data) {
+//             $discount =  ($data['amount'] * ($data['discount'] ?? 0)) / 100;
+//             $final_payment = $data['amount']-$discount;
+
+//             $payment_data = new InvoicePayments();
+//             $payment_data->invoice_id = $data['invoice_id'];
+//             $payment_data->batch_id = $payment_batch->id;
+//             $payment_data->type = 'cheque';
+//             $payment_data->is_bulk = 1;
+//             $payment_data->amount = $data['amount'];
+//             $payment_data->discount = $data['discount'];
+//             $payment_data->cheque_amount = $request->cheque_amount;
+//             $payment_data->final_payment = $final_payment;
+//             $payment_data->cheque_number = $request->cheque_number;
+//             $payment_data->cheque_date = $request->cheque_date;
+//             $payment_data->cheque_image = $image_name;
+//             $payment_data->bank_name = $request->bank_name;
+//             $payment_data->branch_name = $request->branch_name;
+//             $payment_data->post_dated = $request->post_dated;
+//             $payment_data->save();
+
+//             $invoice = Invoices::where('id', $data['invoice_id'])->first();
+//             $invoice->paid_amount = $invoice->paid_amount + $data['amount'];
+//             $invoice->update();
+
+//             $pdf_name ='#'.$payment_data->id.'.pdf';
+//             $payment_data = InvoicePayments::where('id', $payment_data->id)->first();
+//             $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
+//             $customer= Customers::where('customer_id', $invoice->customer_id)->first();
+//             $adm= UserDetails::where('adm_number', $customer->adm)->first();
+
+//             $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment_data,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
+//             $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+
+//             Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+//         }
+
+//         return response()->json([
+//             'status' => "success",
+//             'message' => 'Payments added successfully',
+//             'payment_batch_id' => $payment_batch->id,
+//         ], 201);
+        
+//     }
+//     catch (\Exception $e) {
+//         return response()->json([
+//             'status' => "fail",
+//             'message' => 'Request failed',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }    
+//     }
+// }
 public function add_bulk_cheque_payment(Request $request)
+{
+    if ($request->isMethod('post')) {
+        try {
+            $payments = $request->payments;
+
+            if (empty($request->payment_batch_id)) {
+                $payment_batch = new InvoicePaymentBatches();
+                $payment_batch->save();
+            } else {
+                $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
+            }
+
+            $image_name = null;
+            if ($request->hasFile('cheque_image')) {
+                $file = $request->file('cheque_image');
+                $image_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/adm/collections/cheque_images/'), $image_name);
+            }
+
+            foreach ($payments as $data) {
+                $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
+                $final_payment = $data['amount'] - $discount;
+
+                $payment_data = new InvoicePayments();
+                $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->batch_id = $payment_batch->id;
+                $payment_data->type = 'cheque';
+                $payment_data->is_bulk = 1;
+                $payment_data->amount = $data['amount'];
+                $payment_data->discount = $data['discount'] ?? 0;
+                $payment_data->cheque_amount = $request->cheque_amount;
+                $payment_data->final_payment = $final_payment;
+                $payment_data->cheque_number = $request->cheque_number;
+                $payment_data->cheque_date = $request->cheque_date;
+                $payment_data->cheque_image = $image_name;
+                $payment_data->bank_name = $request->bank_name;
+                $payment_data->branch_name = $request->branch_name;
+                $payment_data->post_dated = $request->post_dated == 1 ? 1 : 0;
+                $payment_data->save();
+
+                $invoice = Invoices::find($data['invoice_id']);
+                $invoice->paid_amount += $data['amount'];
+                $invoice->save();
+
+                // Send receipt
+                $pdf_name = '#' . $payment_data->id . '.pdf';
+                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+
+                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+                    'is_duplicate' => 0,
+                    'payment' => $payment_data,
+                    'invoice' => $invoice,
+                    'customer' => $customer,
+                    'adm' => $adm
+                ]);
+
+                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+            }
+
+            return response()->json([
+                'status' => "success",
+                'message' => 'Payments added successfully',
+                'payment_batch_id' => $payment_batch->id,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => "fail",
+                'message' => 'Request failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
+public function add_bulk_card_payment(Request $request)
+{
+    if ($request->isMethod('post')) {
+        try {
+            $payments = $request->payments;
+
+            if (empty($request->payment_batch_id)) {
+                $payment_batch = new InvoicePaymentBatches();
+                $payment_batch->save();
+            } else {
+                $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
+            }
+
+            // Handle screenshots (multiple uploads)
+           $screenshot_name = null;
+            if ($request->hasFile('card_screenshot')) {
+                $file = $request->file('card_screenshot');
+                $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/adm/collections/card_screenshots/'), $screenshot_name);
+            }
+
+            foreach ($payments as $data) {
+                $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
+                $final_payment = $data['amount'] - $discount;
+
+                $payment_data = new InvoicePayments();
+                $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->batch_id = $payment_batch->id;
+                $payment_data->type = 'card';
+                $payment_data->is_bulk = 1;
+                $payment_data->amount = $data['amount'];
+                $payment_data->discount = $data['discount'] ?? 0;
+                $payment_data->final_payment = $final_payment;
+                $payment_data->card_transfer_date = $request->card_transfer_date;
+                $payment_data->card_image = $screenshot_name;
+                $payment_data->save();
+
+                $invoice = Invoices::find($data['invoice_id']);
+                $invoice->paid_amount += $data['amount'];
+                $invoice->save();
+
+                // Send receipt
+                $pdf_name = '#' . $payment_data->id . '.pdf';
+                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+
+                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+                    'is_duplicate' => 0,
+                    'payment' => $payment_data,
+                    'invoice' => $invoice,
+                    'customer' => $customer,
+                    'adm' => $adm
+                ]);
+
+                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+            }
+
+            return response()->json([
+                'status' => "success",
+                'message' => 'Card Payments added successfully',
+                'payment_batch_id' => $payment_batch->id,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => "fail",
+                'message' => 'Request failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
+
+public function save_bulk_payment(Request $request)
     { 
     if($request->isMethod('post')){
         
         try {
-         $payments = $request->payments;
+        $request->validate([
+            'adm_signature'   => 'required',
+            'payment_batch_id'   => 'required',
 
-        if($request->payment_batch_id == ''){
-            $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->save();  
+        ]);
+
+        $admSignature = $request->adm_signature;
+        $admSignaturePath = null;
+
+        if (strpos($admSignature, 'data:image/png;base64') === 0) {
+            $admSignature = str_replace('data:image/png;base64,', '', $admSignature);
+            $admSignature = str_replace(' ', '+', $admSignature);
+            $admSignatureName = 'adm_signature_' . Str::random(10) . '.png';
+            $admSignaturePath = public_path('uploads/adm/collections/signatures/adm/' . $admSignatureName);
+            File::ensureDirectoryExists(public_path('uploads/adm/collections/signatures/adm'));
+            File::put($admSignaturePath, base64_decode($admSignature));
         }
-        else{
-            $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
+
+        $customerSignaturePath = null;
+        
+        if ($request->customer_signature && strpos($request->customer_signature, 'data:image/png;base64') === 0) {
+            $customerSignature = str_replace('data:image/png;base64,', '', $request->customer_signature);
+            $customerSignature = str_replace(' ', '+', $customerSignature);
+            $customerSignatureName = 'customer_signature_' . Str::random(10) . '.png';
+            $customerSignaturePath = public_path('uploads/adm/collections/signatures/customer/' . $customerSignatureName);
+            File::ensureDirectoryExists(public_path('uploads/adm/collections/signatures/customer'));
+            File::put($customerSignaturePath, base64_decode($customerSignature));
         }
 
-        $image_name = null;
-        if ($request->hasFile('cheque_image')) {
-            $file = $request->file('cheque_image');
-            $image_name = time() . '-' . Str::uuid()->toString() .'.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/adm/collections/cheque_images/'), $image_name);
-        }
-        foreach ($payments as $key => $data) {
-            $discount =  ($data['amount'] * ($data['discount'] ?? 0)) / 100;
-            $final_payment = $data['amount']-$discount;
-
-            $payment_data = new InvoicePayments();
-            $payment_data->invoice_id = $data['invoice_id'];
-            $payment_data->batch_id = $payment_batch->id;
-            $payment_data->type = 'cheque';
-            $payment_data->is_bulk = 1;
-            $payment_data->amount = $data['amount'];
-            $payment_data->discount = $data['discount'];
-            $payment_data->cheque_amount = $request->cheque_amount;
-            $payment_data->final_payment = $final_payment;
-            $payment_data->cheque_number = $request->cheque_number;
-            $payment_data->cheque_date = $request->cheque_date;
-            $payment_data->cheque_image = $image_name;
-            $payment_data->bank_name = $request->bank_name;
-            $payment_data->branch_name = $request->branch_name;
-            $payment_data->post_dated = $request->post_dated;
-            $payment_data->save();
-
-            $invoice = Invoices::where('id', $data['invoice_id'])->first();
-            $invoice->paid_amount = $invoice->paid_amount + $data['amount'];
-            $invoice->update();
-
-            $pdf_name ='#'.$payment_data->id.'.pdf';
-            $payment_data = InvoicePayments::where('id', $payment_data->id)->first();
-            $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
-            $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-            $adm= UserDetails::where('adm_number', $customer->adm)->first();
-
-            $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment_data,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-            $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
-
-            Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
-        }
+        $batch = InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
+        $batch->adm_signature = $admSignatureName ?? '';
+        $batch->temp_receipt =  $request->temp_receipt;
+        $batch->customer_signature = $customerSignatureName ?? '';
+        $batch->reason_for_temp = $request->reason_for_temp;
+        $batch->update();
+        
 
         return response()->json([
             'status' => "success",
-            'message' => 'Payments added successfully',
-            'payment_batch_id' => $payment_batch->id,
+            'message' => 'Payment Details Saved',
         ], 201);
         
     }
