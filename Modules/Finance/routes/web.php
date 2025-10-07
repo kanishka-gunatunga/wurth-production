@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Finance\Http\Controllers\UserController;
 use Modules\Finance\Http\Controllers\InquiriesController;
 use Modules\Finance\Http\Middleware\FinanceAuthenticated;
+use Modules\Finance\Http\Controllers\AdvancedPaymentsController;
 use Illuminate\Http\Request;
 
 /*
@@ -26,4 +27,9 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
     Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
     Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
+
+    Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])
+        ->name('advanced_payments.index');
+    Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class, 'show'])
+        ->name('advanced_payments.show');
 });
