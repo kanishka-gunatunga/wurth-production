@@ -119,7 +119,7 @@ foreach($grouped_data as $group){
                                                             <input class="form-check-input parent-check" type="checkbox"
                                                                 id="parent{{$customer->id}}">
                                                             <label class="form-check-label ms-3" for="parent{{$customer->id}}">{{$customer->name}}</label>
-
+                                                            <input type="hidden" name="customer_name[]" value="{{ $customer->name }} - {{ $customer->address }}">    
                                                             <div class="child-check-group ms-4">
                                                                 <?php foreach($invoices as $invoice){ 
                                                                 $payble_amount = $invoice->amount - $invoice->paid_amount;
@@ -133,6 +133,7 @@ foreach($grouped_data as $group){
                                                                     <div class="row">
                                                                     <div class="col-md-6 mb-2">
                                                                     <input type="hidden" name="invoice_ids[]" value="{{ $invoice->id }}">
+                                                                    
                                                                     <input type="number" class="form-control cash-pay-input" placeholder="Enter payble amount" name="cash_amounts[{{ $invoice->id }}]" required="" >
                                                                     </div>
                                                                     <div class="col-md-6  mb-2">
@@ -211,7 +212,7 @@ foreach($grouped_data as $group){
                                         style="border-top: 1px solid #dee2e6 !important;">
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
-                                                <form id="FundTransferForm" class="content needs-validation p-0 border-0 px-1" novalidate  enctype="multipart/form-data">
+                                                <form id="FundTransferForm" class="content needs-validation p-0 border-0 px-1 FundTransferForm" novalidate  enctype="multipart/form-data">
                                                     <div
                                                         class="d-flex flex-row justify-content-between align-items-center mb-3">
                                                         <p class="title-600-14-black mb-0">Selected Customers</p>
@@ -229,6 +230,7 @@ foreach($grouped_data as $group){
                                                                 <input class="form-check-input parent-check" type="checkbox"
                                                                     id="parent{{$customer->id}}">
                                                                 <label class="form-check-label ms-3" for="parent{{$customer->id}}">{{$customer->name}}</label>
+                                                                <input type="hidden" name="customer_name[]" value="{{ $customer->name }} - {{ $customer->address }}">    
 
                                                                 <div class="child-check-group ms-4">
                                                                     <?php foreach($invoices as $invoice){ 
@@ -312,7 +314,7 @@ foreach($grouped_data as $group){
                                                                             <clipPath id="clip0_798_4571">
                                                                                 <rect width="20" height="20"
                                                                                     fill="white"
-                                                                                    transform="translate(13.5 13)" />
+                                                                                    transform="transFFlate(13.5 13)" />
                                                                             </clipPath>
                                                                         </defs>
                                                                     </svg>
@@ -377,7 +379,7 @@ foreach($grouped_data as $group){
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
                                                 <form id="ChequePaymentForm"
-                                                    class="content needs-validation p-0 border-0 px-1" novalidate>
+                                                    class="content needs-validation p-0 border-0 px-1 ChequePaymentForm" novalidate>
                                                     <div
                                                         class="d-flex flex-row justify-content-between align-items-center mb-3">
                                                         <p class="title-600-14-black mb-0">Selected Customers</p>
@@ -395,6 +397,7 @@ foreach($grouped_data as $group){
                                                                 <input class="form-check-input parent-check" type="checkbox"
                                                                     id="parent{{$customer->id}}">
                                                                 <label class="form-check-label ms-3" for="parent{{$customer->id}}">{{$customer->name}}</label>
+                                                                <input type="hidden" name="customer_name[]" value="{{ $customer->name }} - {{ $customer->address }}">    
 
                                                                 <div class="child-check-group ms-4">
                                                                     <?php foreach($invoices as $invoice){ 
@@ -577,7 +580,7 @@ foreach($grouped_data as $group){
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
                                                 <form id="CardPaymentForm"
-                                                    class="content needs-validation p-0 border-0 px-1" novalidate>
+                                                    class="content needs-validation p-0 border-0 px-1 CardPaymentForm" novalidate>
                                                      <div
                                                         class="d-flex flex-row justify-content-between align-items-center mb-3">
                                                         <p class="title-600-14-black mb-0">Selected Customers</p>
@@ -595,6 +598,7 @@ foreach($grouped_data as $group){
                                                                 <input class="form-check-input parent-check" type="checkbox"
                                                                     id="parent{{$customer->id}}">
                                                                 <label class="form-check-label ms-3" for="parent{{$customer->id}}">{{$customer->name}}</label>
+                                                                <input type="hidden" name="customer_name[]" value="{{ $customer->name }} - {{ $customer->address }}">    
 
                                                                 <div class="child-check-group ms-4">
                                                                     <?php foreach($invoices as $invoice){ 
@@ -729,48 +733,40 @@ foreach($grouped_data as $group){
                                 style="border-bottom: solid 1px #EAECF0">
                                 <span class="label-value-title">Cash Payment</span>
                             </label>
-                            <label class="form-check-label d-flex flex-column">
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Selected Customers : </span>
-                                    <span class="label-value">Dimo Lanka - Negombo</span>
-                                </div>
-                                <div class="d-flex flex-row mb-3">
-                                    <span class="label-name">Selected Invoice Numbers : </span>
-                                    <span class="label-value">1256845, 1256854</span>
-                                </div>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Expect to pay :</span>
-                                    <span class="label-value">Rs. 100,000.00</span>
-                                </div>
-                                <div class="d-flex flex-row mb-3">
-                                    <span class="label-name">Discount : </span>
-                                    <span class="label-value">3%</span>
-                                </div>
-                            </label>
+                            <div id="cashe-payments-summery">
+                               
+                            </div>
+                            
                         </div>
                         <div class="d-flex flex-column">
                             <label class="form-check-label d-flex flex-column mb-2 pb-2"
                                 style="border-bottom: solid 1px #EAECF0">
                                 <span class="label-value-title">Fund Transfer</span>
                             </label>
-                            <label class="form-check-label d-flex flex-column">
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Selected Customers : </span>
-                                    <span class="label-value">Toyota Lanka - Navinna</span>
-                                </div>
-                                <div class="d-flex flex-row mb-3">
-                                    <span class="label-name">Selected Invoice Numbers : </span>
-                                    <span class="label-value">1256845, 1256854</span>
-                                </div>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Expect to pay :</span>
-                                    <span class="label-value">Rs. 400,000.00</span>
-                                </div>
-                                <div class="d-flex flex-row mb-3">
-                                    <span class="label-name">Discount : </span>
-                                    <span class="label-value">4%</span>
-                                </div>
+                            <div id="fund-transfer-summery">
+                               
+                            </div>
+                            
+                        </div>
+                        <div class="d-flex flex-column">
+                            <label class="form-check-label d-flex flex-column mb-2 pb-2"
+                                style="border-bottom: solid 1px #EAECF0">
+                                <span class="label-value-title">Cheque Payment</span>
                             </label>
+                            <div id="cheque-payment-summery">
+                               
+                            </div>
+                            
+                        </div>
+                        <div class="d-flex flex-column">
+                            <label class="form-check-label d-flex flex-column mb-2 pb-2"
+                                style="border-bottom: solid 1px #EAECF0">
+                                <span class="label-value-title">Card Payment</span>
+                            </label>
+                            <div id="card-payment-summery">
+                               
+                            </div>
+                            
                         </div>
 
                         <div class="d-flex flex-row px-4 justify-content-center align-items-center w-100 text-start mb-2 shadow-border"
@@ -789,6 +785,7 @@ foreach($grouped_data as $group){
                             <h3 class="mb-0">E-signature</h3>
                             <p>Sign to confirm payment.</p>
                             <canvas id="signature-pad-adm" width="300" height="250"></canvas>
+                             <input type="hidden" name="adm_signature" id="adm_signature_input">
                             <div class="d-flex flex-row my-2">
                                 <div class="clear-btn styled-button-red me-2">
                                     <button id="clear-admin"><span> Clear </span></button>
@@ -800,18 +797,19 @@ foreach($grouped_data as $group){
                         </div>
 
                     </div>
-                    <div class="form-check my-3">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                        <label class="form-check-label ckeck-label-collection-inner ms-3" for="flexCheckDefault">
+                   <div class="form-check my-3">
+                        <input class="form-check-input" type="checkbox" name="temp_receipt" id="temp_receipt">
+                        <label class="form-check-label ckeck-label-collection-inner ms-3" for="temp_receipt">
                             Temporary Receipt
                         </label>
                     </div>
                     <!-- customer signature -->
-                    <div class="flex-row">
+                   <div class=" customer-e-signature">
                         <div class="wrapper signature_pad d-flex flex-column">
                             <h3 class="mb-0">Customer's E-signature</h3>
                             <p>Sign to confirm payment.</p>
                             <canvas id="signature-pad-customer" width="300" height="250"></canvas>
+                            <input type="hidden" name="customer_signature" id="customer_signature_input">
                             <div class="d-flex flex-row my-2">
                                 <div class="clear-btn styled-button-red me-2">
                                     <button id="clear-customer"><span> Clear </span></button>
@@ -823,11 +821,19 @@ foreach($grouped_data as $group){
                         </div>
 
                     </div>
+                       <div class="mt-2 temp-receipt-reason" style="display:none;">
+                        <div class="wrapper signature_pad d-flex flex-column">
+                            <h3 class="mb-0">Temporary Receipt</h3>
+                            <p>Reason for Temporary Receipt</p>
+                            <textarea  class="form-control " rows="4"  name="reason_for_temp" id="reason_for_temp" ></textarea>
+                           
+                        </div>
 
+                    </div>                                                        
                     <div class="d-flex w-100 justify-content-center align-items-center pt-3">
                         <button class="styled-button-normal w-100 px-5"
                             style="width: 100% !important; font-size: 14px !important; font-weight: 600; height: 40px !important; min-height: 40px !important"
-                            type="submit">Submit Payment</button>
+                            type="submit" id="submit-payment">Submit Payment</button>
                     </div>
                 </div>
             </div>
@@ -859,15 +865,17 @@ foreach($grouped_data as $group){
             return signaturePad;
         }
 
-        var adminSignaturePad = initializeSignaturePad('signature-pad-adm');
-        var customerSignaturePad = initializeSignaturePad('signature-pad-customer');
+        var adminSignaturePad = initializeSignaturePad('signature-pad-adm', 'adm_signature_input');
+        var customerSignaturePad = initializeSignaturePad('signature-pad-customer', 'customer_signature_input');
 
         document.getElementById("clear-admin").addEventListener('click', function () {
             adminSignaturePad.clear();
+            document.getElementById('adm_signature_input').value = '';
         });
 
         document.getElementById("clear-customer").addEventListener('click', function () {
             customerSignaturePad.clear();
+            document.getElementById('customer_signature_input').value = '';
         });
 
         document.getElementById("save-admin").addEventListener('click', function () {
@@ -1318,6 +1326,65 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Reset UI
                 document.querySelectorAll('.cash-pay-amount-input').forEach(div => div.style.display = 'none');
                 updateTotal();
+
+
+                // ====== Build Summary Data ======
+                let selectedCustomers = [];
+                let selectedInvoices = [];
+                let totalAmount = 0;
+                let totalDiscount = 0;
+
+                invoiceData.forEach(item => {
+                    // Invoice IDs
+                    selectedInvoices.push(item.invoice_id);
+
+                    // Amount & Discount
+                    totalAmount += item.amount;
+                    if (item.discount && item.discount > 0) {
+                        totalDiscount += (item.amount * (item.discount / 100));
+                    }
+
+                    // Find the customer hidden input (name + address)
+                    const parentWrapper = document.querySelector(`.cash-check[data-invoice-id="${item.invoice_id}"]`)
+                                            .closest(".form-check.my-3");
+                    if (parentWrapper) {
+                        const hiddenCustomerInput = parentWrapper.querySelector('input[name="customer_name[]"]');
+                        if (hiddenCustomerInput) {
+                            const customerFull = hiddenCustomerInput.value; // "Name - Address"
+                            if (customerFull && !selectedCustomers.includes(customerFull)) {
+                                selectedCustomers.push(customerFull);
+                            }
+                        }
+                    }
+                });
+
+                // Format currency
+                const formattedAmount = "Rs. " + totalAmount.toLocaleString();
+                const formattedDiscount = totalDiscount > 0 ? 
+                                        ( (totalDiscount / totalAmount) * 100 ).toFixed(2) + "%" : "0%";
+
+                // ====== Update summary section ======
+                const summaryDiv = document.getElementById('cashe-payments-summery');
+                summaryDiv.innerHTML = `
+                    <label class="form-check-label d-flex flex-column">
+                        <div class="d-flex flex-row mb-1">
+                            <span class="label-name">Selected Customers : </span>
+                            <span class="label-value">${selectedCustomers.join(", ")}</span>
+                        </div>
+                        <div class="d-flex flex-row mb-3">
+                            <span class="label-name">Selected Invoice Numbers : </span>
+                            <span class="label-value">${selectedInvoices.join(", ")}</span>
+                        </div>
+                        <div class="d-flex flex-row mb-1">
+                            <span class="label-name">Expect to pay :</span>
+                            <span class="label-value">${formattedAmount}</span>
+                        </div>
+                        <div class="d-flex flex-row mb-3">
+                            <span class="label-name">Discount : </span>
+                            <span class="label-value">${formattedDiscount}</span>
+                        </div>
+                    </label>
+                `;
             },
             error: function(xhr, status, error) {
                 preloader.style.display = 'none';
@@ -1418,34 +1485,38 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 }); 
-
-document.getElementById('FundTransferForm').addEventListener('submit', function (e) {
+$(document).on('submit', '.FundTransferForm', function (e) {
     e.preventDefault();
     preloader.style.display = 'flex';
-    let form = $(this); 
+
+    let form = $(this);
+    var batchId = $('#payment_batch_id').val();
     let formData = new FormData();
 
     let hasSelectedInvoices = false;
+    const invoiceData = [];
 
-    document.querySelectorAll('.fund-check-parent').forEach(parent => {
-        const checkbox = parent.querySelector('.fund-check');
-        const isChecked = checkbox.checked;
-
-        if (isChecked) {
+    form.find('.fund-check-parent').each(function () {
+        const checkbox = $(this).find('.fund-check')[0];
+        if (checkbox && checkbox.checked) {
             hasSelectedInvoices = true;
-
-            const invoiceId = checkbox.dataset.invoiceId;
-            const amountInput = parent.querySelector('.fund-pay-input');
-            const discountInput = parent.querySelector('.fund-pay-discount');;
+            const invoiceId = $(checkbox).data('invoice-id');
+            const amountInput = $(this).find('.fund-pay-input')[0];
+            const discountInput = $(this).find('.fund-pay-discount')[0];
 
             const amount = parseFloat(amountInput?.value || 0);
             const discount = parseFloat(discountInput?.value || 0);
- 
 
             if (invoiceId && amount > 0) {
                 formData.append(`payments[${invoiceId}][invoice_id]`, invoiceId);
                 formData.append(`payments[${invoiceId}][amount]`, amount);
                 formData.append(`payments[${invoiceId}][discount]`, discount);
+
+                invoiceData.push({
+                    invoice_id: invoiceId,
+                    amount: amount,
+                    discount: discount
+                });
             }
         }
     });
@@ -1456,93 +1527,127 @@ document.getElementById('FundTransferForm').addEventListener('submit', function 
         return;
     }
 
-    const batchId = $('#payment_batch_id').val();
-    const transferDate = document.getElementById('transfer_date').value;
-    const transferReferenceNumber = document.getElementById('transfer_reference_number').value;
-    const screenshotFile = document.getElementById('screenshot').files[0];
-    if (batchId) {
-        formData.append('payment_batch_id', batchId);
-    }
+    const transferDate = form.find('#transfer_date').val();
+    const transferReferenceNumber = form.find('#transfer_reference_number').val();
+    const screenshotFile = form.find('#screenshot')[0]?.files[0];
+
+    if (batchId) formData.append('payment_batch_id', batchId);
     formData.append('transfer_date', transferDate);
     formData.append('transfer_reference_number', transferReferenceNumber);
-    if (screenshotFile) {
-        formData.append('screenshot', screenshotFile);
-    }
-    console.log(transferDate);
-    console.log(transferReferenceNumber);
-    console.log(screenshotFile);
+    if (screenshotFile) formData.append('screenshot', screenshotFile);
+
     $.ajax({
-        url: '{{ url('adm/add-bulk-fund-transfer') }}',
+        url: '{{ url("adm/add-bulk-fund-transfer") }}',
         method: 'POST',
         data: formData,
         processData: false,
         contentType: false,
         success: function (response) {
             preloader.style.display = 'none';
-            console.log('Saved successfully:', response);
             toastr.success(response.message);
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
+            updateTotalFund();
+
+            // ===== Build Summary Data (like cash summary) =====
+            let selectedCustomers = [];
+            let selectedInvoices = [];
+            let totalAmount = 0;
+            let totalDiscount = 0;
+
+            invoiceData.forEach(item => {
+                selectedInvoices.push(item.invoice_id);
+                totalAmount += item.amount;
+                if (item.discount && item.discount > 0) {
+                    totalDiscount += (item.amount * (item.discount / 100));
+                }
+
+                // Find hidden customer input
+                const parentWrapper = document.querySelector(`.fund-check[data-invoice-id="${item.invoice_id}"]`)
+                    .closest(".form-check.my-3");
+                if (parentWrapper) {
+                    const hiddenCustomerInput = parentWrapper.querySelector('input[name="customer_name[]"]');
+                    if (hiddenCustomerInput) {
+                        const customerFull = hiddenCustomerInput.value;
+                        if (customerFull && !selectedCustomers.includes(customerFull)) {
+                            selectedCustomers.push(customerFull);
+                        }
+                    }
+                }
+            });
+
+            const formattedAmount = "Rs. " + totalAmount.toLocaleString();
+            const formattedDiscount = totalDiscount > 0 ?
+                ((totalDiscount / totalAmount) * 100).toFixed(2) + "%" : "0%";
+
+            // ===== Update fund transfer summary =====
+            const summaryDiv = document.getElementById('fund-transfer-summery');
+            summaryDiv.innerHTML = `
+                <label class="form-check-label d-flex flex-column">
+                    <div class="d-flex flex-row mb-1">
+                        <span class="label-name">Selected Customers : </span>
+                        <span class="label-value">${selectedCustomers.join(", ")}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-3">
+                        <span class="label-name">Selected Invoice Numbers : </span>
+                        <span class="label-value">${selectedInvoices.join(", ")}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-1">
+                        <span class="label-name">Expect to pay :</span>
+                        <span class="label-value">${formattedAmount}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-3">
+                        <span class="label-name">Discount : </span>
+                        <span class="label-value">${formattedDiscount}</span>
+                    </div>
+                </label>
+            `;
         },
-        error: function (xhr, status, error) {
-            console.error('Error saving:', error);
+        error: function (xhr) {
             preloader.style.display = 'none';
-            let errorMessage = 'An unexpected error occurred';
-
-            if (xhr.responseJSON) {
-                if (xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                if (xhr.responseJSON.error) {
-                    errorMessage += ' - ' + xhr.responseJSON.error;
-                }
-            } else if (xhr.responseText) {
-                errorMessage = xhr.responseText;
-            }
-
-            console.log(errorMessage);
+            let errorMessage = xhr.responseJSON?.message || xhr.responseText || 'Unexpected error';
             toastr.error(errorMessage);
         }
     });
 });
 
 
-//Cheque Payment Functions
 
+//Cheque Payment Functions
 document.addEventListener('DOMContentLoaded', function () {
     const paybleDisplay = document.querySelector('.final-payable-amount-cheque');
     const totalDisplay = document.querySelector('.total-amount-cheque');
 
     function updateTotalCheque() {
-    let totalPayable = 0;
-    let totalAfterDiscount = 0;
+        let totalPayable = 0;
+        let totalAfterDiscount = 0;
 
-    document.querySelectorAll('.cheque-check-parent').forEach(parent => {
-        const isChecked = parent.querySelector('.cheque-check').checked;
-        if (isChecked) {
-            const amountInput = parent.querySelector('.cheque-pay-input');
-            const discountInput = parent.querySelector('.cheque-pay-discount');
+        document.querySelectorAll('.cheque-check-parent').forEach(parent => {
+            const isChecked = parent.querySelector('.cheque-check').checked;
+            if (isChecked) {
+                const amountInput = parent.querySelector('.cheque-pay-input');
+                const discountInput = parent.querySelector('.cheque-pay-discount');
 
-            const amount = parseFloat(amountInput.value || 0);
-            const discountPercentage = parseFloat(discountInput?.value || 0);
+                const amount = parseFloat(amountInput.value || 0);
+                const discountPercentage = parseFloat(discountInput?.value || 0);
 
-            const discountAmount = (amount * discountPercentage) / 100;
-            const finalAmount = Math.max(0, amount - discountAmount);
+                const discountAmount = (amount * discountPercentage) / 100;
+                const finalAmount = Math.max(0, amount - discountAmount);
 
-            totalPayable += amount;
-            totalAfterDiscount += finalAmount;
+                totalPayable += amount;
+                totalAfterDiscount += finalAmount;
+            }
+        });
+
+        if (paybleDisplay) {
+            paybleDisplay.textContent = `Final Payable amount : Rs. ${totalPayable.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
         }
-    });
-
-    if (paybleDisplay) {
-        paybleDisplay.textContent = `Final Payable amount : Rs. ${totalPayable.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
+        if (totalDisplay) {
+            totalDisplay.textContent = `Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
+        }
     }
-    if (totalDisplay) {
-        totalDisplay.textContent = `Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
-    }
-}
 
-
+    // Checkbox toggle
     document.querySelectorAll('.cheque-check').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const parent = this.closest('.cheque-check-parent');
@@ -1565,10 +1670,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Input listeners
     document.querySelectorAll('.cheque-pay-input, .cheque-pay-discount').forEach(input => {
         input.addEventListener('input', updateTotalCheque);
     });
 
+    // Full payment toggle
     document.querySelectorAll('.full-invoice-check-cheque').forEach(fullPaymentCheckbox => {
         fullPaymentCheckbox.addEventListener('change', function () {
             const parent = this.closest('.cheque-check-parent');
@@ -1584,35 +1691,45 @@ document.addEventListener('DOMContentLoaded', function () {
             updateTotalCheque();
         });
     });
-}); 
+});
 
-document.getElementById('ChequePaymentForm').addEventListener('submit', function (e) {
+
+// ===================== Cheque Payment Submit =====================
+$(document).on("submit", ".ChequePaymentForm", function (e) {
     e.preventDefault();
     preloader.style.display = 'flex';
-    let form = $(this); 
-    let formData = new FormData();
+
+    let form = $(this);
+    let formData = new FormData(this);
 
     let hasSelectedInvoices = false;
+    const invoiceData = [];
 
-    document.querySelectorAll('.cheque-check-parent').forEach(parent => { 
-        const checkbox = parent.querySelector('.cheque-check');
+    // Collect selected invoice data
+    form.find('.cheque-check-parent').each(function () {
+        const checkbox = $(this).find('.cheque-check')[0];
         const isChecked = checkbox.checked;
 
         if (isChecked) {
             hasSelectedInvoices = true;
 
             const invoiceId = checkbox.dataset.invoiceId;
-            const amountInput = parent.querySelector('.cheque-pay-input');
-            const discountInput = parent.querySelector('.cheque-pay-discount');;
+            const amountInput = $(this).find('.cheque-pay-input')[0];
+            const discountInput = $(this).find('.cheque-pay-discount')[0];
 
             const amount = parseFloat(amountInput?.value || 0);
             const discount = parseFloat(discountInput?.value || 0);
- 
 
             if (invoiceId && amount > 0) {
                 formData.append(`payments[${invoiceId}][invoice_id]`, invoiceId);
                 formData.append(`payments[${invoiceId}][amount]`, amount);
                 formData.append(`payments[${invoiceId}][discount]`, discount);
+
+                invoiceData.push({
+                    invoice_id: invoiceId,
+                    amount: amount,
+                    discount: discount
+                });
             }
         }
     });
@@ -1623,43 +1740,335 @@ document.getElementById('ChequePaymentForm').addEventListener('submit', function
         return;
     }
 
+    // Explicit cheque fields
+    formData.append('cheque_number', form.find('#cheque_number').val());
+    formData.append('cheque_date', form.find('#cheque_date').val());
+    formData.append('cheque_amount', form.find('#cheque_amount').val());
+    formData.append('bank_name', form.find('#bank_name').val());
+    formData.append('branch_name', form.find('#branch_name').val());
+    formData.append('post_dated', form.find('#post_dated').is(':checked') ? 1 : 0);
+
     const batchId = $('#payment_batch_id').val();
-    const chequeNumber = document.getElementById('cheque_number').value;
-    const chequeDate = document.getElementById('cheque_date').value;
-    const chequeAmount = document.getElementById('cheque_amount').value;
-    const bankName = document.getElementById('bank_name').value;
-    const branchName = document.getElementById('branch_name').value;
-    const chequeImage = document.getElementById('cheque_image').files[0];
-     const postDated = document.getElementById('post_dated').checked ? 'on' : 'off';
     if (batchId) {
         formData.append('payment_batch_id', batchId);
     }
-    formData.append('cheque_number', chequeNumber);
-    formData.append('cheque_date', chequeDate);
-    formData.append('cheque_amount', chequeAmount);
-    formData.append('bank_name', bankName);
-    formData.append('branch_name', branchName);
-    formData.append('post_dated', postDated);
+
+    const chequeImage = form.find('#cheque_image')[0]?.files[0];
     if (chequeImage) {
         formData.append('cheque_image', chequeImage);
     }
 
     $.ajax({
-        url: '{{ url('adm/add-bulk-cheque-payment') }}',
+        url: '{{ url("adm/add-bulk-cheque-payment") }}',
         method: 'POST',
         data: formData,
         processData: false,
         contentType: false,
         success: function (response) {
             preloader.style.display = 'none';
-            console.log('Saved successfully:', response);
             toastr.success(response.message);
+
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
+            updateTotalCheque();
+
+            // ===== Build Cheque Payment Summary =====
+            let selectedCustomers = [];
+            let selectedInvoices = [];
+            let totalAmount = 0;
+            let totalDiscount = 0;
+
+            invoiceData.forEach(item => {
+                selectedInvoices.push(item.invoice_id);
+                totalAmount += item.amount;
+                if (item.discount && item.discount > 0) {
+                    totalDiscount += (item.amount * (item.discount / 100));
+                }
+
+                // Find hidden customer input (name + address)
+                const parentWrapper = document.querySelector(`.cheque-check[data-invoice-id="${item.invoice_id}"]`)
+                    .closest(".form-check.my-3");
+                if (parentWrapper) {
+                    const hiddenCustomerInput = parentWrapper.querySelector('input[name="customer_name[]"]');
+                    if (hiddenCustomerInput) {
+                        const customerFull = hiddenCustomerInput.value;
+                        if (customerFull && !selectedCustomers.includes(customerFull)) {
+                            selectedCustomers.push(customerFull);
+                        }
+                    }
+                }
+            });
+
+            // Currency formatting
+            const formattedAmount = "Rs. " + totalAmount.toLocaleString();
+            const formattedDiscount = totalDiscount > 0 ?
+                ((totalDiscount / totalAmount) * 100).toFixed(2) + "%" : "0%";
+
+            // ===== Update cheque payment summary =====
+            const summaryDiv = document.getElementById('cheque-payment-summery');
+            summaryDiv.innerHTML = `
+                <label class="form-check-label d-flex flex-column">
+                    <div class="d-flex flex-row mb-1">
+                        <span class="label-name">Selected Customers : </span>
+                        <span class="label-value">${selectedCustomers.join(", ")}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-3">
+                        <span class="label-name">Selected Invoice Numbers : </span>
+                        <span class="label-value">${selectedInvoices.join(", ")}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-1">
+                        <span class="label-name">Expect to pay :</span>
+                        <span class="label-value">${formattedAmount}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-3">
+                        <span class="label-name">Discount : </span>
+                        <span class="label-value">${formattedDiscount}</span>
+                    </div>
+                </label>
+            `;
         },
         error: function (xhr, status, error) {
-            console.error('Error saving:', error);
             preloader.style.display = 'none';
+            console.error('Error saving:', error);
+
+            let errorMessage = 'An unexpected error occurred';
+            if (xhr.responseJSON) {
+                if (xhr.responseJSON.message) errorMessage = xhr.responseJSON.message;
+                if (xhr.responseJSON.error) errorMessage += ' - ' + xhr.responseJSON.error;
+            } else if (xhr.responseText) {
+                errorMessage = xhr.responseText;
+            }
+
+            toastr.error(errorMessage);
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const payableDisplay = document.querySelector('.final-payable-amount-card');
+    const totalDisplay = document.querySelector('.total-amount-card');
+    const summaryContainer = document.getElementById('card-payment-summery');
+
+    function updateTotalCard() {
+        let totalPayable = 0;
+        let totalAfterDiscount = 0;
+        let summaryHTML = '';
+
+        document.querySelectorAll('.card-check-parent').forEach(parent => {
+            const isChecked = parent.querySelector('.card-check').checked;
+            if (isChecked) {
+                const amountInput = parent.querySelector('.card-pay-input');
+                const discountInput = parent.querySelector('.card-pay-discount');
+                const invoiceLabel = parent.querySelector('.invoice-label')?.textContent || 'Invoice';
+
+                const amount = parseFloat(amountInput.value || 0);
+                const discountPercentage = parseFloat(discountInput?.value || 0);
+
+                const discountAmount = (amount * discountPercentage) / 100;
+                const finalAmount = Math.max(0, amount - discountAmount);
+
+                totalPayable += amount;
+                totalAfterDiscount += finalAmount;
+
+                // Add this invoice to the summary
+                summaryHTML += `
+                    <div class="d-flex justify-content-between border-bottom py-1">
+                        <span>${invoiceLabel}</span>
+                        <span>Rs. ${finalAmount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        Amount: Rs. ${amount.toLocaleString('en-LK', { minimumFractionDigits: 2 })} |
+                        Discount: ${discountPercentage}% 
+                    </div>
+                `;
+            }
+        });
+
+        // Update main totals
+        if (payableDisplay) {
+            payableDisplay.textContent = `Final Payable amount : Rs. ${totalPayable.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
+        }
+        if (totalDisplay) {
+            totalDisplay.textContent = `Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
+        }
+
+        // Update summary display
+        if (summaryContainer) {
+            if (summaryHTML === '') {
+                summaryContainer.innerHTML = `
+                    <div class="text-muted text-center py-2">No invoices selected yet</div>
+                `;
+            } else {
+                summaryContainer.innerHTML = `
+                    <div class="card border-0 shadow-sm p-3">
+                        <h6 class="fw-bold mb-2">Card Payment Summary</h6>
+                        ${summaryHTML}
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total Payable:</span>
+                            <span>Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Handle checkbox toggle
+    document.querySelectorAll('.card-check').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const parent = this.closest('.card-check-parent');
+            const payInputDiv = parent.querySelector('.card-pay-amount-input');
+            const amountInput = parent.querySelector('.card-pay-input');
+            const fullPaymentCheck = parent.querySelector('.full-invoice-check-card');
+            const invoiceAmount = parseFloat(fullPaymentCheck.dataset.invoiceAmount || 0);
+
+            if (this.checked) {
+                payInputDiv.style.display = 'block';
+                amountInput.value = invoiceAmount;
+            } else {
+                payInputDiv.style.display = 'none';
+                amountInput.value = '';
+                parent.querySelector('.card-pay-discount').value = '';
+                fullPaymentCheck.checked = false;
+            }
+
+            updateTotalCard();
+        });
+    });
+
+    // Update totals on amount/discount input
+    document.querySelectorAll('.card-pay-input, .card-pay-discount').forEach(input => {
+        input.addEventListener('input', updateTotalCard);
+    });
+
+    // Handle full invoice selection
+    document.querySelectorAll('.full-invoice-check-card').forEach(fullPaymentCheckbox => {
+        fullPaymentCheckbox.addEventListener('change', function () {
+            const parent = this.closest('.card-check-parent');
+            const amountInput = parent.querySelector('.card-pay-input');
+            const invoiceAmount = parseFloat(this.dataset.invoiceAmount || 0);
+
+            if (this.checked) {
+                amountInput.value = invoiceAmount;
+            } else {
+                amountInput.value = '';
+            }
+
+            updateTotalCard();
+        });
+    });
+
+    // Handle Card Payment Form Submit
+    $(document).on("submit", ".CardPaymentForm", function (e) {
+        e.preventDefault();
+        preloader.style.display = 'flex';
+
+        let form = $(this);
+        let formData = new FormData(this);
+        let hasSelectedInvoices = false;
+
+        form.find('.card-check-parent').each(function () {
+            const checkbox = $(this).find('.card-check')[0];
+            if (checkbox.checked) {
+                hasSelectedInvoices = true;
+
+                const invoiceId = checkbox.dataset.invoiceId;
+                const amountInput = $(this).find('.card-pay-input')[0];
+                const discountInput = $(this).find('.card-pay-discount')[0];
+
+                const amount = parseFloat(amountInput?.value || 0);
+                const discount = parseFloat(discountInput?.value || 0);
+
+                if (invoiceId && amount > 0) {
+                    formData.append(`payments[${invoiceId}][invoice_id]`, invoiceId);
+                    formData.append(`payments[${invoiceId}][amount]`, amount);
+                    formData.append(`payments[${invoiceId}][discount]`, discount);
+                }
+            }
+        });
+
+        if (!hasSelectedInvoices) {
+            preloader.style.display = 'none';
+            alert('Please select at least one invoice to make a payment.');
+            return;
+        }
+
+        // Explicit fields
+        formData.append('card_transfer_date', form.find('[name="card_transfer_date"]').val());
+
+        const batchId = $('#payment_batch_id').val();
+        if (batchId) {
+            formData.append('payment_batch_id', batchId);
+        }
+
+        const screenshot = form.find('[name="card_screenshot"]')[0]?.files[0];
+        if (screenshot) {
+            formData.append('card_screenshot', screenshot);
+        }
+
+        $.ajax({
+            url: '{{ url('adm/add-bulk-card-payment') }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                preloader.style.display = 'none';
+                toastr.success(response.message);
+                form.trigger('reset');
+                $('#payment_batch_id').val(response.payment_batch_id);
+                updateTotalCard();
+            },
+            error: function (xhr) {
+                preloader.style.display = 'none';
+                let errorMessage = xhr.responseJSON?.message || xhr.responseText || 'An unexpected error occurred';
+                toastr.error(errorMessage);
+            }
+        });
+    });
+});
+$(document).on('change', '#temp_receipt', function () {
+    if ($(this).is(':checked')) {
+        $('.temp-receipt-reason').show();
+        $('.customer-e-signature').hide();
+    } else {
+        $('.temp-receipt-reason').hide();
+        $('.customer-e-signature').show();
+    }
+});
+$(document).on('click', '#submit-payment', function(e) {
+        e.preventDefault(); 
+        preloader.style.display = 'flex';
+
+        var isTempReceiptChecked = $('#temp_receipt').is(':checked');
+
+        var formData = {
+        temp_receipt: isTempReceiptChecked ? 1 : 0,
+        adm_signature: $('#adm_signature_input').val(),
+        customer_signature: $('#customer_signature_input').val(),
+        reason_for_temp: $('#reason_for_temp').val(),
+        payment_batch_id: $('#payment_batch_id').val()
+        };
+        console.log(formData);
+        $.ajax({
+            url: '{{ url('adm/save-bulk-payment') }}',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                preloader.style.display = 'none';
+                console.log('Saved successfully:', response);
+                toastr.success(response.message);
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+
+            },
+            error: function(xhr, status, error) {
+            preloader.style.display = 'none';
+            console.error('Error saving:', error);
+            
             let errorMessage = 'An unexpected error occurred';
 
             if (xhr.responseJSON) {
@@ -1673,10 +2082,8 @@ document.getElementById('ChequePaymentForm').addEventListener('submit', function
                 errorMessage = xhr.responseText;
             }
 
-            console.log(errorMessage);
             toastr.error(errorMessage);
         }
+        });
     });
-});
-
     </script>

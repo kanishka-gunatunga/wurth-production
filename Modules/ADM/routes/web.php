@@ -44,6 +44,8 @@ Route::prefix('adm')->group(function() {
     Route::match(['get', 'post'],'add-bulk-cash-payments', [CollectionsController::class, 'add_bulk_cash_payments'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'add-bulk-fund-transfer', [CollectionsController::class, 'add_bulk_fund_transfer'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'add-bulk-cheque-payment', [CollectionsController::class, 'add_bulk_cheque_payment'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'add-bulk-card-payment', [CollectionsController::class, 'add_bulk_card_payment'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'save-bulk-payment', [CollectionsController::class, 'save_bulk_payment'])->middleware(ADMAuthenticated::class);
 
     Route::match(['get', 'post'],'customers', [CustomerController::class, 'customers'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'search-customers', [CustomerController::class, 'search_customers'])->middleware(ADMAuthenticated::class);
