@@ -67,7 +67,7 @@
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search ADM Number or Name, Customer Name, Reason" />
+                <input type="text" class="search-input" placeholder="Search ADM Number or Name, Customer Name" />
             </div>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
@@ -102,7 +102,17 @@
                             <button class="success-action-btn" data-href="{{ route('advanced_payments.show', $payment->id) }}">
                                 View More
                             </button>
-                            <button class="black-action-btn submit">Download</button>
+                            @if($payment->attachment)
+                            <a href="{{ asset('storage/'.$payment->attachment) }}"
+                                class="black-action-btn submit"
+                                style="text-decoration: none;"
+                                download
+                                onclick="showDownloadToast(event)">
+                                Download
+                            </a>
+                            @else
+                            <button class="black-action-btn" disabled>No File</button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -141,84 +151,52 @@
         </div class="col-6">
 
         <div>
-            <button class="btn rounded-phill">Clear All</button>
+            <button class="btn rounded-phill" id="clear-filters">Clear All</button>
         </div>
     </div>
     <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
 
         <!-- ADM Name Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
+            <select id="filter-adm-name" class="form-control select2" multiple="multiple">
+                @foreach ($payments->pluck('admin.userDetails.name')->unique() as $admName)
+                @if($admName)
+                <option>{{ $admName }}</option>
+                @endif
+                @endforeach
             </select>
         </div>
 
         <!-- ADM ID Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
+            <select id="filter-adm-id" class="form-control select2" multiple="multiple">
+                @foreach ($payments->pluck('adm_id')->unique() as $admId)
+                <option>{{ $admId }}</option>
+                @endforeach
             </select>
         </div>
 
         <!-- Customers Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
+            <select id="filter-customer" class="form-control select2" multiple="multiple">
+                @foreach ($payments->pluck('customerData.name')->unique() as $customer)
+                @if($customer)
+                <option>{{ $customer }}</option>
+                @endif
+                @endforeach
             </select>
         </div>
 
         <div class="mt-5 filter-categories">
             <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
+            <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
         </div>
     </div>
 </div>
-</div>
+
 
 
 <!-- Toast message -->
@@ -241,148 +219,43 @@
 </div>
 
 
-
-
-
-
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
-    });
-</script>
-
 <!-- link entire row of table -->
 <script>
     document.addEventListener('click', function(e) {
         const row = e.target.closest('.clickable-row');
-        if (row && !e.target.closest('button')) {
+        if (row && !e.target.closest('button') && !e.target.closest('a')) {
             window.location.href = row.getAttribute('data-href');
         }
+
     });
 </script>
 
-<!-- Search functionality -->
+<!-- Dynamic Search for ADM Number, ADM Name, and Customer Name -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.querySelector("#search-box-wrapper .search-input");
+        const rows = document.querySelectorAll(".custom-table-locked tbody tr.clickable-row");
 
         searchInput.addEventListener("input", function() {
-            const query = searchInput.value.toLowerCase();
+            const query = searchInput.value.toLowerCase().trim();
 
-            // Filter cash deposit data
-            const filteredData = cashDepositeTableData.filter(item =>
-                item.admNumber.toLowerCase().includes(query) ||
-                item.admName.toLowerCase().includes(query) ||
-                item.customerName.toLowerCase().includes(query) ||
-                item.reason.toLowerCase().includes(query)
-            );
+            rows.forEach(row => {
+                const admNumber = row.children[1].innerText.toLowerCase();
+                const admName = row.children[2].innerText.toLowerCase();
+                const customerName = row.children[3].innerText.toLowerCase();
 
-            // Reset current page for filtered results
-            currentPages.cashDeposite = 1;
-
-            renderCashDepositeTable(filteredData);
-            renderCashDepositePagination(filteredData);
+                // Show row only if query matches any of these fields
+                if (
+                    admNumber.includes(query) ||
+                    admName.includes(query) ||
+                    customerName.includes(query)
+                ) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
         });
-
-        function renderCashDepositeTable(data) {
-            const tableBody = document.getElementById("cashDepositeTableBody");
-            tableBody.innerHTML = "";
-
-            const startIndex = (currentPages.cashDeposite - 1) * rowsPerPage;
-            const endIndex = Math.min(startIndex + rowsPerPage, data.length);
-
-            for (let i = startIndex; i < endIndex; i++) {
-                const row = `
-        <tr>
-            <td>${data[i].date}</td>
-            <td>${data[i].admNumber}</td>
-            <td>${data[i].admName}</td>
-            <td>${data[i].customerName}</td>
-            <td>${data[i].paymentAmount.toFixed(2)}</td>
-            <td class="sticky-column">
-                <button class="success-action-btn" data-href="/advance-payments-details">View More</button>
-                <button class="black-action-btn submit">Download</button>
-            </td>
-        </tr>
-    `;
-                tableBody.innerHTML += row;
-            }
-        }
-
-        function renderCashDepositePagination(data) {
-            const pagination = document.getElementById("cashDepositePagination");
-            pagination.innerHTML = "";
-
-            const totalPages = Math.ceil(data.length / rowsPerPage);
-            const currentPage = currentPages.cashDeposite;
-
-            // Prev button
-            pagination.innerHTML += `
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="changeCashDepositePage(${currentPage - 1}, data)">Prev</a>
-            </li>
-        `;
-
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                pagination.innerHTML += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" onclick="changeCashDepositePage(${i}, data)">${i}</a>
-                </li>
-            `;
-            }
-
-            // Next button
-            pagination.innerHTML += `
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="changeCashDepositePage(${currentPage + 1}, data)">Next</a>
-            </li>
-        `;
-        }
-
-        // Page change for filtered data
-        window.changeCashDepositePage = function(page, data) {
-            const totalPages = Math.ceil(data.length / rowsPerPage);
-            if (page < 1 || page > totalPages) return;
-
-            currentPages.cashDeposite = page;
-            renderCashDepositeTable(data);
-            renderCashDepositePagination(data);
-        };
     });
 </script>
 
@@ -442,14 +315,19 @@
 <!-- for toast message + view more button -->
 <script>
     document.addEventListener('click', function(e) {
-        // View More button
+        // Handle "View More" button
         if (e.target.classList.contains('success-action-btn')) {
-            window.location.href = e.target.getAttribute('data-href');
+            const href = e.target.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
         }
-        // Download button (toast message, keep as is)
+
+        // Handle "Download" button (toast + prevent redirect)
         if (e.target.classList.contains('submit')) {
-            e.preventDefault();
-            e.stopPropagation();
+            e.stopPropagation(); // prevent row redirect
+
+            // Show toast
             const toast = document.getElementById('user-toast');
             toast.style.display = 'block';
             setTimeout(() => {
@@ -458,5 +336,73 @@
         }
     });
 </script>
+
+
+<!-- filtering script & close all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll(".custom-table-locked tbody tr.clickable-row");
+
+        // Filter elements
+        const admNameFilter = $('#filter-adm-name');
+        const admIdFilter = $('#filter-adm-id');
+        const customerFilter = $('#filter-customer');
+        const dateFilter = document.getElementById('filter-date');
+        const clearAllBtn = document.getElementById('clear-filters'); // make sure button has id="clear-filters"
+
+        // Helper: get selected values (Select2 safe)
+        function getSelectedValues(selectEl) {
+            return $(selectEl).val() ? $(selectEl).val().map(v => v.toLowerCase()) : [];
+        }
+
+        // Main filtering function
+        function applyFilters() {
+            const selectedAdms = getSelectedValues(admNameFilter);
+            const selectedAdmIds = getSelectedValues(admIdFilter);
+            const selectedCustomers = getSelectedValues(customerFilter);
+            const dateRange = dateFilter.value.trim(); // format: "YYYY-MM-DD to YYYY-MM-DD"
+
+            rows.forEach(row => {
+                const cells = row.children;
+                const rowDate = new Date(cells[0].innerText);
+                const admId = cells[1].innerText.toLowerCase();
+                const admName = cells[2].innerText.toLowerCase();
+                const customerName = cells[3].innerText.toLowerCase();
+
+                let visible = true;
+
+                if (selectedAdms.length && !selectedAdms.includes(admName)) visible = false;
+                if (selectedAdmIds.length && !selectedAdmIds.includes(admId)) visible = false;
+                if (selectedCustomers.length && !selectedCustomers.includes(customerName)) visible = false;
+
+                // ✅ Date range filter (same logic as second code)
+                if (dateRange.includes("to")) {
+                    const [startStr, endStr] = dateRange.split("to").map(d => d.trim());
+                    const startDate = new Date(startStr);
+                    const endDate = new Date(endStr);
+                    if (rowDate < startDate || rowDate > endDate) visible = false;
+                }
+
+                row.style.display = visible ? "" : "none";
+            });
+        }
+
+        // Hook into changes
+        [admNameFilter, admIdFilter, customerFilter].forEach(select => {
+            select.on('change', applyFilters);
+        });
+        dateFilter.addEventListener('change', applyFilters);
+
+        // ✅ Clear All button
+        clearAllBtn.addEventListener('click', function() {
+            [admNameFilter, admIdFilter, customerFilter].forEach(select => {
+                $(select).val(null).trigger('change');
+            });
+            dateFilter.value = '';
+            rows.forEach(row => row.style.display = '');
+        });
+    });
+</script>
+
 
 @include('finance::layouts.footer')
