@@ -36,11 +36,14 @@ class InquiriesController extends Controller
         $inquiries = Inquiries::with([
             'invoice',
             'customer',
-            'admin.userDetails' // load ADM details too
-        ])->get();
+            'admin.userDetails'
+        ])
+            ->orderBy('created_at', 'desc') // newest first
+            ->paginate(10); // show 10 per page
 
         return view('finance::inquiries.index', compact('inquiries'));
     }
+
 
     public function details($id)
     {

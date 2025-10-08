@@ -154,9 +154,10 @@
             </table>
 
         </div>
-        <nav class="d-flex justify-content-center mt-5">
-            <ul id="cashDepositePagination" class="pagination"></ul>
-        </nav>
+        <div class="col-12 d-flex justify-content-center laravel-pagination mt-4">
+            {{ $inquiries->links('pagination::bootstrap-5') }}
+        </div>
+
     </div>
 
 
