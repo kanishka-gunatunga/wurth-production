@@ -26,23 +26,31 @@
                         </div>
 
                         <!-- Send To (User Level) -->
-                        <div class="mb-4">
-                            <label for="reminder_type" class="form-label custom-input-label">Send to (User Level)</label>
-                            <select name="reminder_type" id="reminder_type" class="form-control custom-input">
-                                <option value="">Select User Level</option>
-                                <option value="Head of Division" {{ old('reminder_type') == 'Head of Division' ? 'selected' : '' }}>Head of Division</option>
-                                <option value="Finance Manager" {{ old('reminder_type') == 'Finance Manager' ? 'selected' : '' }}>Finance Manager</option>
-                                <option value="Recovery Manager" {{ old('reminder_type') == 'Recovery Manager' ? 'selected' : '' }}>Recovery Manager</option>
-                                <option value="System Administrator" {{ old('reminder_type') == 'System Administrator' ? 'selected' : '' }}>System Administrator</option>
-                                <option value="Regional Sales Manager" {{ old('reminder_type') == 'Regional Sales Manager' ? 'selected' : '' }}>Regional Sales Manager</option>
-                                <option value="ADM" {{ old('reminder_type') == 'ADM' ? 'selected' : '' }}>ADM</option>
-                                <option value="Area Sales Manager" {{ old('reminder_type') == 'Area Sales Manager' ? 'selected' : '' }}>Area Sales Manager</option>
-                                <option value="Team Leader" {{ old('reminder_type') == 'Team Leader' ? 'selected' : '' }}>Team Leader</option>
-                            </select>
-                            @if($errors->has('reminder_type'))
-                            <div class="alert alert-danger mt-2">{{ $errors->first('reminder_type') }}</div>
-                            @endif
-                        </div>
+<div class="mb-4">
+    <label for="user_level" class="form-label custom-input-label">Send to (User Level)</label>
+    <select name="user_level" id="user_level" class="form-control custom-input">
+        <option value="">Select User Level</option>
+
+        @php
+            // Get unique roles and IDs
+            $roles = $users->map(function ($user) {
+                return ['id' => $user->id, 'role' => $user->user_role];
+            })->unique('role')->filter(fn($item) => !empty($item['role']));
+        @endphp
+
+        @foreach ($roles as $item)
+            <option value="{{ $item['id'] }}" {{ old('user_level') == $item['id'] ? 'selected' : '' }}>
+                {{ $item['role'] }}
+            </option>
+        @endforeach
+    </select>
+
+    @if($errors->has('user_level'))
+        <div class="alert alert-danger mt-2">{{ $errors->first('user_level') }}</div>
+    @endif
+</div>
+
+
 
                         <!-- Send To (User) -->
                         <div class="mb-4">

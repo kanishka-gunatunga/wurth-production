@@ -28,8 +28,8 @@ class ReminderController extends Controller
         $request->validate([
             'send_from'      => 'required|string|max:255',
             'reminder_title' => 'required|string|max:255',
-            'reminder_type'  => 'nullable|string|max:255',
-            'send_to'        => 'required',           // accept single user id (or change if multiple)
+            'user_level'  => 'required',
+            'send_to'        => 'required',           
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
         ]);
@@ -38,7 +38,7 @@ class ReminderController extends Controller
         $reminder->sent_user_id    = Auth::id();
         $reminder->send_from       = $request->input('send_from');
         $reminder->reminder_title  = $request->input('reminder_title');
-        $reminder->reminder_type   = $request->input('reminder_type') ?? 'Other';
+        $reminder->user_level      = $request->input('user_level');
         $reminder->send_to         = $request->input('send_to');
         $reminder->reminder_date   = $request->input('reminder_date');
         $reminder->reason          = $request->input('reason');
