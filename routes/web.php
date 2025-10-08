@@ -9,6 +9,7 @@ use App\Http\Controllers\AccessController;
 use App\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\AuthAdmin;
+use App\Http\Controllers\ReminderController;
 
 
 Route::match(['get', 'post'],'/', [UserController::class, 'index']);
@@ -40,3 +41,6 @@ Route::match(['get', 'post'],'/deactivate-customer/{id}', [CustomerController::c
 Route::match(['get', 'post'],'/edit-customer/{id}', [CustomerController::class, 'edit_customer'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'],'/import-customers', [CustomerController::class, 'import_customers'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'],'/import', [CustomerController::class, 'import'])->middleware(AuthAdmin::class);
+
+Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(AuthAdmin::class);
+Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(AuthAdmin::class)->name('reminders.store');
