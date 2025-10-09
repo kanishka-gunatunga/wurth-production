@@ -46,4 +46,26 @@ class ReminderController extends Controller
 
         return redirect()->back()->with('toast', 'Reminder added successfully!');
     }
+
+    public function index(Request $request)
+    {
+        $userId = Auth::id();
+
+        $query = Reminders::query()
+            ->where('send_to', $userId); // show reminders sent to this user
+
+        // optional search by title (GET ?q=..)
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where('reminder_title', 'like', "%{$q}%");
+        }
+
+        // order by reminder_date (or created_at) and paginate
+        $reminders = $query->orderByDesc('reminder_date')
+                           ->paginate(10)            // adjust per page
+                           ->withQueryString();      // keep `q` during pages
+
+        // pass to view
+        return view('reminders.all_reminders', compact('reminders'));
+    }
 }

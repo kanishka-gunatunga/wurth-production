@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('new-assets/css/commonNew.css') }}">
+    <link rel="stylesheet" href="{{ asset('new-assets/css/finance.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link
@@ -391,114 +392,107 @@
                 <li class="active"> <a href="">All Collections</a></li>
                 <li class="active"> <a href="">Return Cheques</a></li>
                 <li class="active"> <a href="{{url('create-reminder')}}">Reminders</a></li>
+                <li class="active"> <a href="{{url('reminders')}}">All Reminders</a></li>
 
 
             </ul>
 
         </nav>
 
-        <script src="{{ asset('js/main-script.js') }}"></script>
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-        </script>
+                    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+                </script>
 
-        <!-- jQuery (required for Select2) -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-        <!-- Select2 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-        <!-- Flatpickr JS -->
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-        <!-- Initialize Select2 -->
-        <script>
-            $(document).ready(function() {
-                $('.select2').select2({
-                    placeholder: "Select options",
-                    tags: true,
-                    width: '100%'
-                });
-            });
-        </script>
-
-        <script>
-            flatpickr("#dateRange", {
-                mode: "range",
-                dateFormat: "Y-m-d", // Example: 2025-09-19
-                allowInput: true
-            });
-        </script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                function checkScreenSize() {
-                    const errorDiv = document.getElementById("screen-error");
-                    const mainContent = document.querySelector(".main");
-
-                    console.log("Screen width:", window.innerWidth);
+                <!-- jQuery (required for Select2) -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-                    if (!errorDiv || !mainContent) {
-                        console.error("Elements not found!");
-                        return;
+                <!-- Select2 JS -->
+                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+                <!-- Flatpickr JS -->
+                <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+                <script src="{{ asset('js/main-script.js') }}"></script>
+
+                <!-- Initialize Select2 -->
+                <script>
+                    $(document).ready(function() {
+                        $('.select2').select2({
+                            placeholder: "Select options",
+                            tags: true,
+                            width: '100%'
+                        });
+                    });
+                </script>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        flatpickr("#filter-date", {
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            allowInput: true
+                        });
+                    });
+                </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        function checkScreenSize() {
+                            const errorDiv = document.getElementById("screen-error");
+                            const mainContent = document.querySelector(".main");
+
+                            console.log("Screen width:", window.innerWidth);
+
+
+                            if (!errorDiv || !mainContent) {
+                                console.error("Elements not found!");
+                                return;
+                            }
+
+                            if (window.innerWidth < 1000) {
+                                errorDiv.style.display = "flex";
+                                mainContent.style.display = "none";
+                            } else {
+                                errorDiv.style.display = "none";
+                                mainContent.style.display = "flex";
+                            }
+                        }
+
+                        // Run on load
+                        checkScreenSize();
+
+                        // Run on resize
+                        window.addEventListener("resize", checkScreenSize);
+                    });
+                </script>
+
+
+
+
+
+                <script>
+                    function checkScreenSize() {
+                        const errorDiv = document.getElementById("screen-error");
+                        const mainContent = document.querySelector(".main");
+
+                        if (!errorDiv || !mainContent) {
+                            console.error("Elements not found!");
+                            return;
+                        }
+
+                        if (window.innerWidth < 1000) {
+                            errorDiv.style.display = "flex";
+                            mainContent.style.display = "none";
+                        } else {
+                            errorDiv.style.display = "none";
+                            mainContent.style.display = "flex";
+                        }
                     }
 
-                    if (window.innerWidth < 1000) {
-                        errorDiv.style.display = "flex";
-                        mainContent.style.display = "none";
-                    } else {
-                        errorDiv.style.display = "none";
-                        mainContent.style.display = "flex";
-                    }
-                }
+                    // Run immediately
+                    checkScreenSize();
 
-                // Run on load
-                checkScreenSize();
-
-                // Run on resize
-                window.addEventListener("resize", checkScreenSize);
-            });
-        </script>
-
-
-
-
-
-        <script>
-            function checkScreenSize() {
-                const errorDiv = document.getElementById("screen-error");
-                const mainContent = document.querySelector(".main");
-
-                if (!errorDiv || !mainContent) {
-                    console.error("Elements not found!");
-                    return;
-                }
-
-                if (window.innerWidth < 1000) {
-                    errorDiv.style.display = "flex";
-                    mainContent.style.display = "none";
-                } else {
-                    errorDiv.style.display = "none";
-                    mainContent.style.display = "flex";
-                }
-            }
-
-            // Run immediately
-            checkScreenSize();
-
-            // Run on resize
-            window.addEventListener("resize", checkScreenSize);
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const sidebar = document.getElementById('sidebar');
-                const toggle = document.getElementById('sidebarToggle');
-
-                toggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('collapsed');
-                });
-            });
-        </script>
+                    // Run on resize
+                    window.addEventListener("resize", checkScreenSize);
+                </script>

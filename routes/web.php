@@ -44,3 +44,6 @@ Route::match(['get', 'post'],'/import', [CustomerController::class, 'import'])->
 
 Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(AuthAdmin::class);
 Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(AuthAdmin::class)->name('reminders.store');
+Route::get('/reminders', [ReminderController::class, 'index'])
+    ->middleware(AuthAdmin::class)
+    ->name('reminders.index');
