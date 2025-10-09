@@ -29,7 +29,7 @@ class ReminderController extends Controller
             'send_from'      => 'required|string|max:255',
             'reminder_title' => 'required|string|max:255',
             'user_level'  => 'required',
-            'send_to'        => 'required',           
+            'send_to'        => 'required',
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
         ]);
@@ -62,10 +62,24 @@ class ReminderController extends Controller
 
         // order by reminder_date (or created_at) and paginate
         $reminders = $query->orderByDesc('reminder_date')
-                           ->paginate(10)            // adjust per page
-                           ->withQueryString();      // keep `q` during pages
+            ->paginate(10)            // adjust per page
+            ->withQueryString();      // keep `q` during pages
 
         // pass to view
         return view('reminders.all_reminders', compact('reminders'));
     }
+
+    public function show($id)
+{
+    // Find the reminder
+    $reminder = Reminders::findOrFail($id);
+
+    // Get the sender and receiver users
+    $sender = User::with('userDetails')->find($reminder->sent_user_id);
+    $receiver = User::with('userDetails')->find($reminder->send_to);
+
+    // Pass everything to the view
+    return view('reminders.payment_reminder_details', compact('reminder', 'sender', 'receiver'));
+}
+
 }
