@@ -116,15 +116,22 @@
                                 onclick="window.location.href='{{ url('reminders/'.$reminder->id) }}'">
 
                                 <div>
-                                    <div class="fw-bold">{{ Str::limit($reminder->reason, 120) }}</div>
+                                    <div class="fw-bold">
+                                        {{ Str::limit($reminder->reason, 120) }}
+                                    </div>
                                     <small class="text-muted">{{ $reminder->reminder_title }}</small>
-                                    <!-- <div class="small text-muted mt-1">{{ Str::limit($reminder->reason, 120) }}</div> -->
                                 </div>
 
-                                <small class="text-muted">
-                                    {{ \Carbon\Carbon::parse($reminder->reminder_date)->format('Y-m-d') }}
-                                </small>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">
+                                        {{ \Carbon\Carbon::parse($reminder->reminder_date)->format('Y-m-d') }}
+                                    </small>
+                                    @if(!$reminder->is_read)
+                                    <span class="badge mt-1" style="background-color:#CC0000;">new</span>
+                                    @endif
+                                </div>
                             </li>
+
                             @empty
                             <li class="list-group-item text-center">No payment reminders found.</li>
                             @endforelse
@@ -246,9 +253,9 @@
             </div>
 
             <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
-        </div>
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
+            </div>
         </div>
     </div>
 

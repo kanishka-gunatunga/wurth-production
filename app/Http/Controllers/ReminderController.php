@@ -28,24 +28,34 @@ class ReminderController extends Controller
         $request->validate([
             'send_from'      => 'required|string|max:255',
             'reminder_title' => 'required|string|max:255',
-            'user_level'  => 'required',
-            'send_to'        => 'required',
+            'user_level'     => 'required|integer', // user_level = 1, 2, 3, etc.
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
         ]);
 
-        $reminder = new Reminders();
-        $reminder->sent_user_id    = Auth::id();
-        $reminder->send_from       = $request->input('send_from');
-        $reminder->reminder_title  = $request->input('reminder_title');
-        $reminder->user_level      = $request->input('user_level');
-        $reminder->send_to         = $request->input('send_to');
-        $reminder->reminder_date   = $request->input('reminder_date');
-        $reminder->reason          = $request->input('reason');
-        $reminder->save();
+        // Get the selected user level (1 = Admin, 2 = Customer, 3 = Book Keeper)
+        $selectedLevel = (int)$request->input('user_level');
 
-        return redirect()->back()->with('toast', 'Reminder added successfully!');
+        // Get all users whose role <= selected level
+        $users = User::where('user_role', '<=', $selectedLevel)->get();
+
+        foreach ($users as $user) {
+            $reminder = new Reminders();
+            $reminder->sent_user_id   = Auth::id();
+            $reminder->send_from      = $request->input('send_from');
+            $reminder->reminder_title = $request->input('reminder_title');
+            $reminder->user_level     = $selectedLevel;  // store numeric level in reminders
+            $reminder->send_to        = $user->id;
+            $reminder->reminder_date  = $request->input('reminder_date');
+            $reminder->reason         = $request->input('reason');
+            $reminder->save();
+        }
+
+        return redirect()->back()->with('toast', 'Reminder sent successfully to all users up to level ' . $selectedLevel . '!');
     }
+
+
+
 
     public function index(Request $request)
     {
@@ -70,16 +80,18 @@ class ReminderController extends Controller
     }
 
     public function show($id)
-{
-    // Find the reminder
-    $reminder = Reminders::findOrFail($id);
+    {
+        $reminder = Reminders::findOrFail($id);
 
-    // Get the sender and receiver users
-    $sender = User::with('userDetails')->find($reminder->sent_user_id);
-    $receiver = User::with('userDetails')->find($reminder->send_to);
+        // ✅ Mark as read if not already
+        if (!$reminder->is_read) {
+            $reminder->is_read = true;
+            $reminder->save();
+        }
 
-    // Pass everything to the view
-    return view('reminders.payment_reminder_details', compact('reminder', 'sender', 'receiver'));
-}
+        $sender = User::with('userDetails')->find($reminder->sent_user_id);
+        $receiver = User::with('userDetails')->find($reminder->send_to);
 
+        return view('reminders.payment_reminder_details', compact('reminder', 'sender', 'receiver'));
+    }
 }
