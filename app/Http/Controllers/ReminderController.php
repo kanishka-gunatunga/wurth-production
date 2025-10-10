@@ -28,15 +28,16 @@ class ReminderController extends Controller
         $request->validate([
             'send_from'      => 'required|string|max:255',
             'reminder_title' => 'required|string|max:255',
-            'user_level'     => 'required|integer', // user_level = 1, 2, 3, etc.
+            'user_level'     => 'required|integer',
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
+            'send_to'        => 'required|integer', // validate the user
         ]);
 
-        // Get the selected user level (1 = Admin, 2 = Customer, 3 = Book Keeper)
         $selectedLevel = (int)$request->input('user_level');
+        $selectedUserId = (int)$request->input('send_to');
 
-        // Get all users whose role <= selected level
+        // Get all users within the selected level range
         $users = User::where('user_role', '<=', $selectedLevel)->get();
 
         foreach ($users as $user) {
@@ -44,16 +45,19 @@ class ReminderController extends Controller
             $reminder->sent_user_id   = Auth::id();
             $reminder->send_from      = $request->input('send_from');
             $reminder->reminder_title = $request->input('reminder_title');
-            $reminder->user_level     = $selectedLevel;  // store numeric level in reminders
+            $reminder->user_level     = $selectedLevel;
             $reminder->send_to        = $user->id;
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
+
+            // ✅ Mark the one that matches the selected user as direct
+            $reminder->is_direct = ($user->id === $selectedUserId) ? 1 : 0;
+
             $reminder->save();
         }
 
-        return redirect()->back()->with('toast', 'Reminder sent successfully to all users up to level ' . $selectedLevel . '!');
+        return redirect()->back()->with('toast', 'Reminder sent to all users up to level ' . $selectedLevel . '!');
     }
-
 
 
 
