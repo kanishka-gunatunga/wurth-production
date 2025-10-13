@@ -10,6 +10,7 @@ use App\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\AuthAdmin;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\ReturnChequeController;
 
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
@@ -50,3 +51,10 @@ Route::get('/reminders', [ReminderController::class, 'index'])
 Route::get('/reminders/{id}', [ReminderController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('reminders.show');
+
+Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(AuthAdmin::class);
+Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(AuthAdmin::class)->name('returncheques.store');
+
+Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
+    ->middleware(AuthAdmin::class)
+    ->name('returncheques.index');

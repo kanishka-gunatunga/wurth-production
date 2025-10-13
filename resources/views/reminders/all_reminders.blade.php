@@ -112,30 +112,30 @@
                         <ul class="list-group mt-3" id="paymentNotifications">
                             @forelse($reminders as $reminder)
                             <li class="list-group-item d-flex justify-content-between align-items-start notification-row"
-    style="cursor:pointer;"
-    onclick="window.location.href='{{ url('reminders/'.$reminder->id) }}'">
+                                style="cursor:pointer;"
+                                onclick="window.location.href='{{ url('reminders/'.$reminder->id) }}'">
 
-    <div>
-        <div class="fw-bold">
-            {{ Str::limit($reminder->reason, 120) }}
-        </div>
-        <small class="text-muted">{{ $reminder->reminder_title }}</small>
-    </div>
+                                <div>
+                                    <div class="fw-bold">
+                                        {{ Str::limit($reminder->reason, 120) }}
+                                    </div>
+                                    <small class="text-muted">{{ $reminder->reminder_title }}</small>
+                                </div>
 
-    <div class="text-end">
-        <small class="text-muted d-block">
-            {{ \Carbon\Carbon::parse($reminder->reminder_date)->format('Y-m-d') }}
-        </small>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">
+                                        {{ \Carbon\Carbon::parse($reminder->reminder_date)->format('Y-m-d') }}
+                                    </small>
 
-        @if($reminder->is_direct)
-            <span class="badge mt-1" style="background-color:#007bff;">Direct</span>
-        @endif
+                                    @if($reminder->is_direct)
+                                    <span class="badge mt-1" style="background-color:#007bff;">Direct</span>
+                                    @endif
 
-        @if(!$reminder->is_read)
-            <span class="badge mt-1" style="background-color:#CC0000;">New</span>
-        @endif
-    </div>
-</li>
+                                    @if(!$reminder->is_read)
+                                    <span class="badge mt-1" style="background-color:#CC0000;">New</span>
+                                    @endif
+                                </div>
+                            </li>
 
 
                             @empty
