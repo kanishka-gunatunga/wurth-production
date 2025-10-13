@@ -26,27 +26,27 @@
                         </div>
 
                         <!-- Send To (User Level) -->
-<div class="mb-4">
-    <label for="user_level" class="form-label custom-input-label">Send to (User Level)</label>
-    <select name="user_level" id="user_level" class="form-control custom-input">
-        <option value="">Select User Level</option>
+                        <div class="mb-4">
+                            <label for="user_level" class="form-label custom-input-label">Send to (User Level)</label>
+                            <select name="user_level" id="user_level" class="form-control custom-input">
+                                <option value="">Select User Level</option>
 
-        @php
-        // Get unique roles
-        $roles = $users->pluck('user_role')->unique()->sort();
-        @endphp
+                                @php
+                                // Get unique roles
+                                $roles = $users->pluck('user_role')->unique()->sort();
+                                @endphp
 
-        @foreach ($roles as $role)
-            <option value="{{ $role }}" {{ old('user_level') == $role ? 'selected' : '' }}>
-                {{ $role }}
-            </option>
-        @endforeach
-    </select>
+                                @foreach ($roles as $role)
+                                <option value="{{ $role }}" {{ old('user_level') == $role ? 'selected' : '' }}>
+                                    {{ $role }}
+                                </option>
+                                @endforeach
+                            </select>
 
-    @if($errors->has('user_level'))
-        <div class="alert alert-danger mt-2">{{ $errors->first('user_level') }}</div>
-    @endif
-</div>
+                            @if($errors->has('user_level'))
+                            <div class="alert alert-danger mt-2">{{ $errors->first('user_level') }}</div>
+                            @endif
+                        </div>
 
 
 
