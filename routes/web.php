@@ -58,3 +58,7 @@ Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->
 Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.index');
+
+Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
+    ->middleware(AuthAdmin::class)
+    ->name('returncheques.show');

@@ -391,7 +391,6 @@
                 <li class="active"> <a href="{{url('division-managment')}}">Division Management</a></li>
                 <li class="active"> <a href="">All Collections</a></li>
                 <li class="active"> <a href="{{url('return-cheques')}}">Return Cheques</a></li>
-                <li class="active"> <a href="{{url('create-return-cheque')}}">Create Return Cheques</a></li>
                 <li class="active"> <a href="{{url('create-reminder')}}">Reminders</a></li>
                 <li class="active"> <a href="{{url('reminders')}}">All Reminders</a></li>
 

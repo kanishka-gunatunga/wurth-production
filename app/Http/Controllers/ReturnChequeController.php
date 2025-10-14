@@ -40,9 +40,18 @@ class ReturnChequeController extends Controller
 
     public function index()
     {
-        // Fetch all return cheques with related ADM (user) details
-        $returnCheques = ReturnCheque::with(['adm.userDetails'])->get();
+        // Fetch return cheques with related ADM details and paginate (10 per page)
+        $returnCheques = ReturnCheque::with(['adm.userDetails'])
+            ->orderBy('returned_date', 'desc')
+            ->paginate(10);
 
         return view('return_cheques.return_cheques', compact('returnCheques'));
+    }
+
+    public function show($id)
+    {
+        $returnCheque = ReturnCheque::with(['adm.userDetails'])->findOrFail($id);
+
+        return view('return_cheques.return_cheque_details', compact('returnCheque'));
     }
 }
