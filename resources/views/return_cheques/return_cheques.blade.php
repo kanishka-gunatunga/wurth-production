@@ -82,26 +82,27 @@
 
 
             <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
-                <a href="{{url('upload')}}" style="text-decoration: none;">
-                    <button class="add-new-division-btn"
-                        style="background-color: black; color: white; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">
-                        <svg width="19" height="19" viewBox="0 0 19 19" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_1784_47778)">
-                                <path
-                                    d="M3.23663 1.24316H12.5471L16.7366 5.43266V17.7432H9.98663V16.2432H15.2366V7.24316H10.7366V2.74316H4.73663V10.2432H3.23663V1.24316ZM12.2366 3.05366V5.74316H14.9261L12.2366 3.05366ZM6.27413 11.0592L9.91763 14.7447L6.27413 18.4302L5.20762 17.3757L7.06763 15.4947H1.73438V13.9947H7.06688L5.20688 12.1137L6.27413 11.0592Z"
-                                    fill="white" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_1784_47778">
-                                    <rect width="18" height="18" fill="white"
-                                        transform="translate(0.986328 0.493164)" />
-                                </clipPath>
-                            </defs>
-                        </svg>
+                <button class="add-new-division-btn"
+                    style="background-color: black; color: white; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;"
+                    data-bs-toggle="modal" data-bs-target="#importChequeModal">
 
-                        <span>Import Return Cheques</span>
-                    </button>
+                    <svg width="19" height="19" viewBox="0 0 19 19" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_1784_47778)">
+                            <path
+                                d="M3.23663 1.24316H12.5471L16.7366 5.43266V17.7432H9.98663V16.2432H15.2366V7.24316H10.7366V2.74316H4.73663V10.2432H3.23663V1.24316ZM12.2366 3.05366V5.74316H14.9261L12.2366 3.05366ZM6.27413 11.0592L9.91763 14.7447L6.27413 18.4302L5.20762 17.3757L7.06763 15.4947H1.73438V13.9947H7.06688L5.20688 12.1137L6.27413 11.0592Z"
+                                fill="white" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_1784_47778">
+                                <rect width="18" height="18" fill="white"
+                                    transform="translate(0.986328 0.493164)" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+
+                    <span>Import Return Cheques</span>
+                </button>
                 </a>
 
                 <a href="{{ url('create-return-cheque') }}">
@@ -161,6 +162,49 @@
 
 
 
+    </div>
+</div>
+
+<!-- Import Return Cheque Modal -->
+<div class="modal fade" id="importChequeModal" tabindex="-1" aria-labelledby="importChequeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 15px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importChequeModalLabel">Import Return Cheques</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Drag & Drop Upload Area -->
+                <div class="card dotted-card" id="dropZone"
+                    style="border: 2px dashed #cc0000; border-radius: 12px; background-color: #fafafa;">
+                    <div class="card-body d-flex justify-content-center align-items-center flex-column py-5">
+
+                        <input type="file" class="d-none" id="fileInput" />
+
+                        <div class="upload-circle rounded-circle mb-3"
+                            style="width: 70px; height: 70px; background-color: #f8d7da; display: flex; align-items: center; justify-content: center;">
+                            <svg width="27" height="28" viewBox="0 0 27 28" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M1.8 1.81465H0V0.0146484H1.8V1.81465ZM9 1.81465H7.2V0.0146484H9V1.81465ZM16.2 1.81465H14.4V0.0146484H16.2V1.81465ZM5.4 5.41465H25.2V12.6146H23.4V7.21465H7.2V23.4146H12.6V25.2146H5.4V5.41465ZM1.8 9.01465H0V7.21465H1.8V9.01465ZM12.8628 12.8774C12.9763 12.764 13.1182 12.683 13.2736 12.6428C13.429 12.6026 13.5923 12.6047 13.7466 12.6488L26.3466 16.2488C26.5251 16.2999 26.6835 16.405 26.7999 16.5497C26.9164 16.6943 26.9853 16.8714 26.9971 17.0568C27.0089 17.2421 26.9631 17.4265 26.866 17.5848C26.7689 17.7431 26.6252 17.8675 26.4546 17.9408L20.4858 20.5004L17.928 26.4692C17.8546 26.6398 17.7303 26.7835 17.572 26.8807C17.4137 26.9778 17.2292 27.0236 17.0439 27.0118C16.8586 26.9999 16.6815 26.9311 16.5368 26.8146C16.3922 26.6981 16.2871 26.5398 16.236 26.3612L12.636 13.7612C12.5919 13.6073 12.5897 13.4445 12.6296 13.2894C12.6695 13.1344 12.75 12.991 12.8628 12.8774ZM14.8104 14.8268L17.2692 23.4344L18.972 19.4618C19.063 19.249 19.2326 19.0795 19.4454 18.9884L23.418 17.2856L14.8104 14.8268ZM1.8 16.2146H0V14.4146H1.8V16.2146Z"
+                                    fill="#CC0000" />
+                            </svg>
+                        </div>
+
+                        <p class="title mb-1" style="font-weight: 600; color: #333;">Drag files here</p>
+                        <p class="info text-muted">or click to upload (Max size: 100MB)</p>
+                        <p id="fileName" class="mt-2 fw-bold text-secondary"></p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: black;">Cancel</button>
+                <button type="button" class="btn btn-danger" id="uploadBtn">Submit</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -355,6 +399,59 @@
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
             tag.classList.toggle('selected');
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+        const fileNameDisplay = document.getElementById("fileName");
+        const uploadBtn = document.getElementById("uploadBtn");
+
+        // When clicking the drop area → open file chooser
+        dropZone.addEventListener("click", () => fileInput.click());
+
+        // When a file is selected manually
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (file) fileNameDisplay.textContent = `Selected: ${file.name}`;
+        });
+
+        // Handle drag events
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "#fff5f5";
+            dropZone.style.borderColor = "#a10000";
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.style.backgroundColor = "#fafafa";
+            dropZone.style.borderColor = "#cc0000";
+        });
+
+        // Handle dropped file
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "#fafafa";
+            dropZone.style.borderColor = "#cc0000";
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                fileInput.files = e.dataTransfer.files;
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+            }
+        });
+
+        // Dummy upload button (you can later send file via AJAX or form submission)
+        uploadBtn.addEventListener("click", () => {
+            if (!fileInput.files.length) {
+                alert("Please select a file first!");
+                return;
+            }
+            alert(`Uploading file: ${fileInput.files[0].name}`);
+            // TODO: replace with actual upload logic
         });
     });
 </script>
