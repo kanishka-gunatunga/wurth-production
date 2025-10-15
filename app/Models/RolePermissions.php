@@ -12,5 +12,15 @@ class RolePermissions extends Model
     protected $table = 'role_permissions';
     protected $primaryKey = 'id';
 
+    protected $casts = [
+        'permissions' => 'array', // Automatically cast JSON to array
+    ];
 
+    /**
+     * All users assigned to this role.
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class, 'user_role', 'id');
+    }
 }

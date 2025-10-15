@@ -1,9 +1,5 @@
  </div>
-            <div class="bottom-bar">
-               <div>
-    bottom bar
-</div>
-            </div>
+
         </div>
 
     </div>

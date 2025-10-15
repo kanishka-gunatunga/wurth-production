@@ -89,7 +89,7 @@ public function create_advanced_payment(Request $request)
         $advancedPayment->customer_signature = $signature_name; 
         $advancedPayment->save();
 
-
+        
         return back()->with('success', 'Advanced Payment Successfully Added');
     }
 }

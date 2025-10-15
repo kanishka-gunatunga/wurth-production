@@ -2,21 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
-    use  HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'email',
         'password',
@@ -24,31 +17,49 @@ class User extends Authenticatable
         'status'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Each user has one user details record.
+     */
     public function userDetails()
     {
         return $this->hasOne(UserDetails::class, 'user_id');
     }
+
+    /**
+     * Each user belongs to one role.
+     */
+    public function role()
+    {
+        return $this->belongsTo(RolePermissions::class, 'user_role', 'id');
+    }
+
+    /**
+     * Each user can submit many inquiries.
+     */
     public function inquiries()
     {
         return $this->hasMany(Inquiries::class, 'adm_id', 'id');
+    }
+
+     public function reminders()
+    {
+        return $this->hasMany(Reminders::class, 'sent_user_id', 'id');
+    }
+
+    /**
+     * All users supervised by this user.
+     */
+    public function subordinates()
+    {
+        return $this->hasMany(UserDetails::class, 'supervisor', 'id');
     }
 }

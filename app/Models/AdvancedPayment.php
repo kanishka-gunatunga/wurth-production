@@ -19,7 +19,7 @@ class AdvancedPayment extends Model
 
 
 
-    public function admin()
+    public function adm()
     {
         // adm_id in inquiries → id in users
         return $this->belongsTo(User::class, 'adm_id', 'id');
