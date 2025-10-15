@@ -7,6 +7,7 @@ use Modules\Finance\Http\Controllers\UserController;
 use Modules\Finance\Http\Controllers\InquiriesController;
 use Modules\Finance\Http\Middleware\FinanceAuthenticated;
 use Modules\Finance\Http\Controllers\AdvancedPaymentsController;
+use Modules\Finance\Http\Controllers\CashDepositsController;
 use Illuminate\Http\Request;
 
 /*
@@ -32,4 +33,6 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('advanced_payments.index');
     Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class, 'show'])
         ->name('advanced_payments.show');
+
+    Route::get('/cash-deposits', [CashDepositsController::class, 'index'])->name('cash_deposits.index');
 });

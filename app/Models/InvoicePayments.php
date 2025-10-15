@@ -12,4 +12,8 @@ class InvoicePayments extends Model
     protected $table = 'invoice_payments';
     protected $primaryKey = 'id';
 
+    public function invoice()
+    {
+        return $this->belongsTo(\App\Models\Invoices::class, 'invoice_id', 'id');
+    }
 }
