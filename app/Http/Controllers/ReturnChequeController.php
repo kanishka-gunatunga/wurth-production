@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\ReturnCheque;
 use App\Models\User;
 use App\Models\UserDetails;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class ReturnChequeController extends Controller
 {
@@ -53,5 +57,61 @@ class ReturnChequeController extends Controller
         $returnCheque = ReturnCheque::with(['adm.userDetails'])->findOrFail($id);
 
         return view('return_cheques.return_cheque_details', compact('returnCheque'));
+    }
+
+    public function importReturnCheques(Request $request)
+    {
+        // ✅ 1. Validate uploaded file type & size
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv|max:10240', // 10MB
+        ]);
+
+        // ✅ 2. Read the uploaded Excel file directly (not saving)
+        $file = $request->file('file');
+        $data = Excel::toArray([], $file); // Read Excel into an array
+
+        // ✅ 3. Get the first sheet
+        $rows = $data[0];
+
+        // ✅ 4. Extract headers (first row)
+        $header = array_map('trim', array_shift($rows)); // example: ['adm_id', 'cheque_number', ...]
+
+        $inserted = 0;
+
+        // ✅ 5. Loop through each row and insert into DB
+        foreach ($rows as $row) {
+            $record = array_combine($header, $row);
+
+            // Skip empty rows
+            if (empty($record['adm_id']) || empty($record['cheque_number'])) {
+                continue;
+            }
+
+            // Prevent duplicates by cheque number
+            if (ReturnCheque::where('cheque_number', $record['cheque_number'])->exists()) {
+                continue;
+            }
+
+            // Insert new record
+            ReturnCheque::create([
+                'adm_id'        => $record['adm_id'],
+                'cheque_number' => $record['cheque_number'],
+                'cheque_amount' => $record['cheque_amount'] ?? 0,
+                'returned_date' => isset($record['returned_date'])
+                    ? Carbon::parse($record['returned_date'])->format('Y-m-d')
+                    : now(),
+                'bank_id'       => $record['bank_id'] ?? null,
+                'branch_id'     => $record['branch_id'] ?? null,
+                'return_type'   => $record['return_type'] ?? null,
+                'reason'        => $record['reason'] ?? null,
+            ]);
+
+            $inserted++;
+        }
+
+        // ✅ 6. Return JSON response (no file saved)
+        return response()->json([
+            'message' => "$inserted return cheque(s) imported successfully!",
+        ]);
     }
 }

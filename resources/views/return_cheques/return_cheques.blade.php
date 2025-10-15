@@ -193,7 +193,7 @@
                         </div>
 
                         <p class="title mb-1" style="font-weight: 600; color: #333;">Drag files here</p>
-                        <p class="info text-muted">or click to upload (Max size: 100MB)</p>
+                        <p class="info text-muted">or click to upload (Max size: 10MB)</p>
                         <p id="fileName" class="mt-2 fw-bold text-secondary"></p>
 
                     </div>
@@ -444,14 +444,33 @@
             }
         });
 
-        // Dummy upload button (you can later send file via AJAX or form submission)
+
         uploadBtn.addEventListener("click", () => {
             if (!fileInput.files.length) {
                 alert("Please select a file first!");
                 return;
             }
-            alert(`Uploading file: ${fileInput.files[0].name}`);
-            // TODO: replace with actual upload logic
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("{{ route('returncheques.import') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload(); // refresh table
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Something went wrong during import!");
+                });
         });
+
     });
 </script>

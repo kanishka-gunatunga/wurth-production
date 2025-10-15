@@ -54,11 +54,12 @@ Route::get('/reminders/{id}', [ReminderController::class, 'show'])
 
 Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(AuthAdmin::class);
 Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(AuthAdmin::class)->name('returncheques.store');
-
 Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.index');
-
 Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.show');
+Route::post('/import-return-cheques', [ReturnChequeController::class, 'importReturnCheques'])
+    ->middleware(AuthAdmin::class)
+    ->name('returncheques.import');

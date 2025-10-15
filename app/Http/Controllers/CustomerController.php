@@ -141,7 +141,7 @@ class CustomerController extends Controller
 
     public function import_customers(Request $request)
     { if($request->isMethod('get')){
-        $reports = SalesReports::take(8)->get();
+        $reports = ImportedReports::take(8)->get();
         return view('customer.import_customers', ['reports' => $reports]);
     }
     if($request->isMethod('post')){
@@ -153,7 +153,7 @@ class CustomerController extends Controller
         $fileName =  $request->customers->getClientOriginalName();
         $request->customers->move(public_path('imports'), $fileName);
 
-        $sales_file = new SalesReports();
+        $sales_file = new ImportedReports();
         $sales_file->name = $fileName;
         $sales_file->date = date("Y-m-d");
         $sales_file->save();
