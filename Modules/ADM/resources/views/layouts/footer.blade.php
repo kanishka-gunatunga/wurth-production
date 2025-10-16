@@ -246,7 +246,7 @@
                     </a>
                 </div>
                 <div class="col p-2 d-flex justify-content-center align-items-center">
-                    <a href="https://loops-it.github.io/wurth-lanka/sales/deposit.html">
+                    <a href="{{url('adm/daily-deposit')}}">
                         <div class="d-flex flex-column justify-content-center align-items-center text-center">
                             <div class="svg-wrapper">
                                 <svg width="18" height="24" viewBox="0 0 18 24" fill="none"

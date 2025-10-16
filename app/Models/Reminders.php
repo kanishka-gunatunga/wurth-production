@@ -12,5 +12,9 @@ class Reminders extends Model
     protected $table = 'reminders';
     protected $primaryKey = 'id';
 
-
+    public function user()
+    {
+        // adm_id in inquiries → id in users
+        return $this->belongsTo(User::class, 'sent_user_id', 'id');
+    }
 }

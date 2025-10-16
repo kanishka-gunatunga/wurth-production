@@ -124,22 +124,37 @@ class CollectionsController extends Controller
         $payment->discount = $request->cash_discount;
         $payment->final_payment = $final_payment;
         $payment->save();
-        
-       
+
         $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->cash_amount;
         $invoice->update();
 
-        $pdf_name ='#'.$payment->id.'.pdf';
-        $payment = InvoicePayments::where('id', $payment->id)->first();
+
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
         $adm= UserDetails::where('adm_number', $customer->adm)->first();
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-        $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+        $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+            'is_duplicate' => 0,
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'adm' => $adm
+        ])->setPaper('a4', 'portrait');
 
-        Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+        $folder = public_path('uploads/adm/collections/receipts/original/');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+
+        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        $filePath = $folder.'/'.$pdf_name;
+        $pdf->save($filePath);
+
+        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        $payment->save();
+
+        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -199,21 +214,35 @@ public function add_fund_transfer($id,Request $request)
         $payment->screenshot = $screenshot_name;
         $payment->save();
         
-       
         $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->amount;
         $invoice->update();
 
-        $pdf_name ='#'.$payment->id.'.pdf';
-        $payment = InvoicePayments::where('id', $payment->id)->first();
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
         $adm= UserDetails::where('adm_number', $customer->adm)->first();
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', ['is_duplicate' => 0,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-        $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+        $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
+            'is_duplicate' => 0,
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'adm' => $adm
+        ])->setPaper('a4', 'portrait');
 
-        Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+        $folder = public_path('uploads/adm/collections/receipts/original');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+
+        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        $filePath = $folder.'/'.$pdf_name;
+        $pdf->save($filePath);
+
+        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        $payment->save();
+
+        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -284,16 +313,33 @@ public function add_cheque_payment($id,Request $request)
         $invoice->paid_amount = $invoice->paid_amount + $request->cheque_amount;
         $invoice->update();
 
-        $pdf_name ='#'.$payment->id.'.pdf';
-        $payment = InvoicePayments::where('id', $payment->id)->first();
+
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
         $adm= UserDetails::where('adm_number', $customer->adm)->first();
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.cheque', ['is_duplicate' => 0,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-        $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
 
-        Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+        $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
+            'is_duplicate' => 0,
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'adm' => $adm
+        ])->setPaper('a4', 'portrait');
+
+        $folder = public_path('uploads/adm/collections/receipts/original');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+
+        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        $filePath = $folder.'/'.$pdf_name;
+        $pdf->save($filePath);
+
+        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        $payment->save();
+
+        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -356,16 +402,33 @@ public function add_card_payment($id,Request $request)
         $invoice->paid_amount = $invoice->paid_amount + $request->card_amount;
         $invoice->update();
 
-        $pdf_name ='#'.$payment->id.'.pdf';
-        $payment = InvoicePayments::where('id', $payment->id)->first();
+
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
         $adm= UserDetails::where('adm_number', $customer->adm)->first();
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.card', ['is_duplicate' => 0,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-        $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
 
-        Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+        $pdf = PDF::loadView('pdfs.collections.receipts.card', [
+            'is_duplicate' => 0,
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'adm' => $adm
+        ])->setPaper('a4', 'portrait');
+
+        $folder = public_path('uploads/adm/collections/receipts/original');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+
+        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        $filePath = $folder.'/'.$pdf_name;
+        $pdf->save($filePath);
+
+        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        $payment->save();
+
+        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -443,35 +506,68 @@ public function save_invoice($id,Request $request)
     }    
     }
 }
-public function resend_receipt($id){
-    $payment = InvoicePayments::where('id', $id)->first();
-    $invoice= Invoices::where('id', $payment->invoice_id)->first();
-    $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-    $adm= UserDetails::where('adm_number', $customer->adm)->first();
+public function resend_receipt($id)
+{
+    $payment = InvoicePayments::findOrFail($id);
+    $invoice = Invoices::findOrFail($payment->invoice_id);
+    $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
+    $adm = UserDetails::where('adm_number', $customer->adm)->first();
 
-    $pdf_name ='#'.$payment->id.'.pdf';
-    if($payment->type == 'cash'){
-        $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 1,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
+    // Folder for saving duplicate receipts
+    $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
+    if (!File::exists($folderPath)) {
+        File::makeDirectory($folderPath, 0755, true);
     }
-    if($payment->type == 'fund-transfer'){
-        $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', ['is_duplicate' => 1,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-    }
-    if($payment->type == 'cheque'){
-        $pdf = PDF::loadView('pdfs.collections.receipts.cheque', ['is_duplicate' => 1,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-    }
-    if($payment->type == 'card'){
-        $pdf = PDF::loadView('pdfs.collections.receipts.card', ['is_duplicate' => 1,'payment' => $payment,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-    }
-   
-    $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
 
-    Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+    // Check if duplicate already exists
+    if ($payment->duplicate_pdf && File::exists(public_path($payment->duplicate_pdf))) {
+        // Use existing file
+        $filePath = public_path($payment->duplicate_pdf);
+    } else {
+        // Generate new duplicate PDF
+        $pdf_name = 'duplicate_receipt_' . $payment->id . '_' . time() . '.pdf';
+        $filePath = $folderPath . '/' . $pdf_name;
 
-    return back()->with('success', 'Reciept sent to the customer email');
-    // $pdf->setPaper('a4', 'portrait')->save(public_path('uploads/adm/collections/receipts/duplicates').$pdf_name);
-    // return $pdf->download();
+        // Select correct receipt view by payment type
+        switch ($payment->type) {
+            case 'cash':
+                $view = 'pdfs.collections.receipts.cash';
+                break;
+            case 'fund-transfer':
+                $view = 'pdfs.collections.receipts.fund-transfer';
+                break;
+            case 'cheque':
+                $view = 'pdfs.collections.receipts.cheque';
+                break;
+            case 'card':
+                $view = 'pdfs.collections.receipts.card';
+                break;
+            default:
+                return back()->with('error', 'Invalid payment type');
+        }
 
+        // Generate and save PDF
+        $pdf = PDF::loadView($view, [
+            'is_duplicate' => 1,
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'adm' => $adm
+        ])->setPaper('a4', 'portrait');
+
+        $pdf->save($filePath);
+
+        $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdf_name;
+        $payment->save();
     }
+
+    // Send email with the duplicate PDF attachment
+    if ($customer->email) {
+        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+    }
+
+    return back()->with('success', 'Receipt resent successfully to the customer.');
+}
 
 
     public function search_bulk_payment(Request $request)
@@ -561,16 +657,33 @@ public function resend_receipt($id){
             $invoice->paid_amount = $invoice->paid_amount + $payment['amount'];
             $invoice->update();
 
-            $pdf_name ='#'.$payment_data->id.'.pdf';
-            $payment_data = InvoicePayments::where('id', $payment_data->id)->first();
             $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
             $customer= Customers::where('customer_id', $invoice->customer_id)->first();
             $adm= UserDetails::where('adm_number', $customer->adm)->first();
+            
+            $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+                'is_duplicate' => 0,
+                'payment' => $payment_data,
+                'invoice' => $invoice,
+                'customer' => $customer,
+                'adm' => $adm
+            ])->setPaper('a4', 'portrait');
 
-            $pdf = PDF::loadView('pdfs.collections.receipts.cash', ['is_duplicate' => 0,'payment' => $payment_data,'invoice' => $invoice,'customer' => $customer,'adm' => $adm]);
-            $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
+            $folder = public_path('uploads/adm/collections/receipts/original');
+            if (!File::exists($folder)) {
+                File::makeDirectory($folder, 0755, true);
+            }
 
-            Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+            $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+            $filePath = $folder.'/'.$pdf_name;
+            $pdf->save($filePath);
+
+            $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+            $payment_data->save();
+
+            Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+
+
         }
 
         return response()->json([
@@ -711,20 +824,30 @@ public function add_bulk_fund_transfer(Request $request)
                 $invoice->save();
 
                 // generate receipt + email
-                $pdf_name = '#' . $payment_data->id . '.pdf';
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 $adm = UserDetails::where('adm_number', $customer->adm)->first();
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-                    'is_duplicate' => 0,
-                    'payment' => $payment_data,
-                    'invoice' => $invoice,
-                    'customer' => $customer,
-                    'adm' => $adm
-                ]);
+                $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
+                'is_duplicate' => 0,
+                'payment' => $payment_data,
+                'invoice' => $invoice,
+                'customer' => $customer,
+                'adm' => $adm
+                ])->setPaper('a4', 'portrait');
 
-                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
-                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+                $folder = public_path('uploads/adm/collections/receipts/original');
+                if (!File::exists($folder)) {
+                    File::makeDirectory($folder, 0755, true);
+                }
+
+                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                $filePath = $folder.'/'.$pdf_name;
+                $pdf->save($filePath);
+
+                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                $payment_data->save();
+
+                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -863,20 +986,31 @@ public function add_bulk_cheque_payment(Request $request)
                 $invoice->save();
 
                 // Send receipt
-                $pdf_name = '#' . $payment_data->id . '.pdf';
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 $adm = UserDetails::where('adm_number', $customer->adm)->first();
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-                    'is_duplicate' => 0,
-                    'payment' => $payment_data,
-                    'invoice' => $invoice,
-                    'customer' => $customer,
-                    'adm' => $adm
-                ]);
 
-                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
-                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+                $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
+                'is_duplicate' => 0,
+                'payment' => $payment_data,
+                'invoice' => $invoice,
+                'customer' => $customer,
+                'adm' => $adm
+                ])->setPaper('a4', 'portrait');
+
+                $folder = public_path('uploads/adm/collections/receipts/original');
+                if (!File::exists($folder)) {
+                    File::makeDirectory($folder, 0755, true);
+                }
+
+                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                $filePath = $folder.'/'.$pdf_name;
+                $pdf->save($filePath);
+
+                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                $payment_data->save();
+
+                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -936,20 +1070,30 @@ public function add_bulk_card_payment(Request $request)
                 $invoice->save();
 
                 // Send receipt
-                $pdf_name = '#' . $payment_data->id . '.pdf';
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 $adm = UserDetails::where('adm_number', $customer->adm)->first();
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-                    'is_duplicate' => 0,
-                    'payment' => $payment_data,
-                    'invoice' => $invoice,
-                    'customer' => $customer,
-                    'adm' => $adm
-                ]);
+                $pdf = PDF::loadView('pdfs.collections.receipts.card', [
+                'is_duplicate' => 0,
+                'payment' => $payment_data,
+                'invoice' => $invoice,
+                'customer' => $customer,
+                'adm' => $adm
+                ])->setPaper('a4', 'portrait');
 
-                $pdfContent = $pdf->setPaper('a4', 'portrait')->output();
-                Mail::to($customer->email)->send(new SendReceiptMail($pdfContent, $pdf_name, $customer));
+                $folder = public_path('uploads/adm/collections/receipts/original');
+                if (!File::exists($folder)) {
+                    File::makeDirectory($folder, 0755, true);
+                }
+
+                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                $filePath = $folder.'/'.$pdf_name;
+                $pdf->save($filePath);
+
+                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                $payment_data->save();
+
+                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -1025,6 +1169,24 @@ public function save_bulk_payment(Request $request)
     }    
     }
 }
+
+public function receipts()
+{
+    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
+
+    $receipts = InvoicePayments::whereHas('invoice.customer', function ($query) use ($adm_no) {
+        $query->where('adm', $adm_no);
+    })
+    ->with(['invoice.customer'])
+    ->paginate(15);
+
+    return view('adm::collection.receipts', [
+        'receipts' => $receipts,
+    ]);
+}
+
+
+
     function logout()
     {
      Auth::logout();

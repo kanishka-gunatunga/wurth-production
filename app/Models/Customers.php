@@ -12,20 +12,39 @@ class Customers extends Model
     protected $table = 'customers';
     protected $primaryKey = 'id';
 
-    public function inquiries()
-    {
-        return $this->hasMany(Inquiries::class, 'customer', 'id');
-    }
 
-    public function invoices()
+    /**
+     * A customer can have many inquiries.
+     */
+     public function inquiries()
+        {
+            return $this->hasMany(Inquiries::class, 'customer', 'id');
+        }
+
+    /**
+     * A customer can have many invoices.
+     */
+        public function invoices()
+        {
+                return $this->hasMany(Invoices::class, 'customer_id', 'id');
+        }
+
+    /**
+     * A customer can have many advance payments.
+     */
+        public function advance_payments()
+        {
+                return $this->hasMany(AdvancedPayment::class, 'customer', 'id');
+        }
+
+    /**
+     * The ADM (Account/Area Manager) assigned to this customer.
+     * 
+     * Links customers.adm → user_details.adm_number
+     */
+    public function admDetails()
     {
-        // invoices.customer_id → customers.customer_id
-        return $this->hasMany(Invoices::class, 'customer_id', 'customer_id');
-    }
-    public function advance_payments()
-    {
-        // invoices.customer_id → customers.customer_id
-        return $this->hasMany(AdvancedPayment::class, 'customer', 'id');
+        return $this->belongsTo(UserDetails::class, 'adm', 'adm_number');
     }
 
     public function userDetail()

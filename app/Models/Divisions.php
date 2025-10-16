@@ -13,4 +13,11 @@ class Divisions extends Model
     protected $primaryKey = 'id';
 
 
+    /**
+     * All user details under this division.
+     */
+    public function userDetails()
+    {
+        return $this->hasMany(UserDetails::class, 'division', 'id');
+    }
 }

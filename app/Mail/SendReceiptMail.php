@@ -4,30 +4,28 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\InvoicePayments;
 
 class SendReceiptMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $pdfContent;
-    public $pdfName;
-    public $customer;
+    public $payment;
+    public $pdfPath;
 
-    public function __construct($pdfContent, $pdfName, $customer)
+    public function __construct(InvoicePayments $payment, $pdfPath)
     {
-        $this->pdfContent = $pdfContent;
-        $this->pdfName = $pdfName;
-        $this->customer = $customer;
+        $this->payment = $payment;
+        $this->pdfPath = $pdfPath;
     }
 
     public function build()
     {
         return $this->subject('Wurth Collection Receipt')
-            ->view('email_templates.collection_receipt', ['customer' => $this->customer])
-            ->attachData($this->pdfContent, $this->pdfName, [
+            ->view('email_templates.collection_receipt', ['customer' => $this->payment->invoice->customer])
+            ->attach($this->pdfPath, [
+                'as' => basename($this->pdfPath),
                 'mime' => 'application/pdf',
             ]);
     }
 }
-
-?>
