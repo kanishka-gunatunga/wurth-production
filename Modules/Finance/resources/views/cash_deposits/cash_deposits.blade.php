@@ -100,7 +100,7 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr class="clickable-row">
+                    <tr onclick="window.location='{{ route('cash_deposits.show', $payment['id']) }}'" style="cursor:pointer;">
                         <td>{{ $payment['date'] }}</td>
                         <td>{{ $payment['adm_number'] }}</td>
                         <td>{{ $payment['adm_name'] }}</td>

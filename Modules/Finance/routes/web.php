@@ -35,4 +35,5 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('advanced_payments.show');
 
     Route::get('/cash-deposits', [CashDepositsController::class, 'index'])->name('cash_deposits.index');
+    Route::get('/cash-deposits/{id}', [CashDepositsController::class, 'show'])->name('cash_deposits.show');
 });

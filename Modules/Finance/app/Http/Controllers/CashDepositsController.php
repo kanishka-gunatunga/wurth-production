@@ -39,4 +39,42 @@ class CashDepositsController extends Controller
 
         return view('finance::cash_deposits.cash_deposits', compact('cashPayments'));
     }
+
+    public function show($id)
+    {
+        // Fetch the specific payment by ID
+        $payment = InvoicePayments::with(['invoice.customer.userDetail'])
+            ->findOrFail($id);
+
+        // ADM name & number
+        $admName = $payment->invoice->customer->userDetail->name ?? 'N/A';
+        $admNumber = $payment->invoice->customer->userDetail->adm_number ?? 'N/A';
+
+        // Deposit date (you can adjust the field used if needed)
+        $depositDate = $payment->transfer_date ?? $payment->created_at?->format('Y-m-d');
+
+        // Total amount
+        $totalAmount = $payment->final_payment ?? 0;
+
+        // Fetch all related invoices for this payment
+        // assuming `invoice_id` is the link to invoices table
+        $invoice = $payment->invoice;
+
+        $receiptDetails = [[
+            'receipt_number' => $invoice->invoice_or_cheque_no ?? 'N/A',
+            'customer_name' => $invoice->customer->name ?? 'N/A',
+            'customer_id' => $invoice->customer->customer_id ?? 'N/A',
+            'paid_date' => $invoice->invoice_date ?? 'N/A',
+            'paid_amount' => $invoice->paid_amount ?? 0,
+        ]];
+
+        return view('finance::cash_deposits.payment_slip', compact(
+            'payment',
+            'admName',
+            'admNumber',
+            'depositDate',
+            'totalAmount',
+            'receiptDetails'
+        ));
+    }
 }
