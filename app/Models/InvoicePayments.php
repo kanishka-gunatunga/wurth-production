@@ -32,8 +32,4 @@ class InvoicePayments extends Model
     {
         return $this->belongsTo(InvoicePaymentBatches::class, 'batch_id', 'id');
     }
-    public function invoice()
-    {
-        return $this->belongsTo(\App\Models\Invoices::class, 'invoice_id', 'id');
-    }
 }

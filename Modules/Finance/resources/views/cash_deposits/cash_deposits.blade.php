@@ -91,25 +91,30 @@
                     </tr>
                 </thead>
                 <tbody id="cashDepositeTableBody">
-                    @forelse ($cashPayments as $payment)
+                    @forelse ($cashDeposits as $deposit)
                     @php
-                    $statusClass = match (strtolower($payment['status'])) {
+                    $statusClass = match (strtolower($deposit['status'])) {
                     'approved' => 'success-status-btn',
                     'deposited' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr onclick="window.location='{{ route('cash_deposits.show', $payment['id']) }}'" style="cursor:pointer;">
-                        <td>{{ $payment['date'] }}</td>
-                        <td>{{ $payment['adm_number'] }}</td>
-                        <td>{{ $payment['adm_name'] }}</td>
-                        <td>{{ number_format($payment['amount'], 2) }}</td>
-                        <td><button class="{{ $statusClass }}">{{ ucfirst($payment['status']) }}</button></td>
+                    <tr style="cursor:pointer;">
+                        <td>{{ $deposit['date'] }}</td>
+                        <td>{{ $deposit['adm_number'] }}</td>
+                        <td>{{ $deposit['adm_name'] }}</td>
+                        <td>{{ number_format($deposit['amount'], 2) }}</td>
+                        <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
                             <button class="success-action-btn">Approve</button>
                             <button class="red-action-btn">Reject</button>
-                            <button class="black-action-btn submit">Download</button>
+                            @if($deposit['attachment_path'])
+                            <a href="{{ route('cash_deposits.download', $deposit['id']) }}"
+                                class="black-action-btn submit" style="text-decoration: none;">Download</a>
+                            @else
+                            <button class="black-action-btn" disabled>No File</button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -117,14 +122,15 @@
                         <td colspan="6" class="text-center text-muted">No cash deposits found.</td>
                     </tr>
                     @endforelse
+
                 </tbody>
 
             </table>
 
         </div>
         <div class="d-flex justify-content-center mt-4">
-    {{ $cashPayments->links('pagination::bootstrap-5') }}
-</div>
+            {{ $cashDeposits->links('pagination::bootstrap-5') }}
+        </div>
 
     </div>
 
