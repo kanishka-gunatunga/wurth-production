@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Deposits;
 use App\Models\UserDetails;
+use App\Models\InvoicePayments;
+use App\Models\Invoices;
+use App\Models\Customers;
 
 class CashDepositsController extends Controller
 {
@@ -43,13 +46,60 @@ class CashDepositsController extends Controller
 
     public function show($id)
     {
-        // Fetch the specific deposit by ID
+        // Get deposit record
         $deposit = Deposits::findOrFail($id);
 
-        // Fetch ADM details
+        // Get ADM details
         $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
 
-        return view('finance::cash_deposits.payment_slip', compact('deposit', 'admDetails'));
+        // Decode receipts JSON properly
+        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+
+        // Extract receipt IDs safely
+        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+
+        // Fetch all matching invoice payments
+        $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->paginate(10);
+
+        // Prepare detailed receipt data
+        $receiptDetails = $invoicePayments->map(function ($payment) {
+            $invoice = Invoices::find($payment->invoice_id);
+            $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+
+            return [
+                'receipt_number' => $payment->id,
+                'customer_name' => $customer->name ?? 'N/A',
+                'customer_id' => $invoice->customer_id ?? 'N/A',
+                'paid_date' => $invoice->invoice_date
+                    ? date('Y-m-d', strtotime($invoice->invoice_date))
+                    : 'N/A',
+                'paid_amount' => $payment->final_payment ?? 0,
+            ];
+        });
+
+        // Define display info
+        $admName = $admDetails->name ?? 'N/A';
+        $admNumber = $admDetails->adm_number ?? 'N/A';
+        $depositDate = $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A';
+        $totalAmount = $deposit->amount ?? 0;
+
+        // 🟢 Format status
+        $status = strtolower($deposit->status ?? '');
+        if ($status === 'pending') {
+            $status = 'deposited';
+        }
+        $status = ucfirst($status ?: 'Deposited');
+
+        return view('finance::cash_deposits.payment_slip', compact(
+            'deposit',
+            'admName',
+            'admNumber',
+            'depositDate',
+            'totalAmount',
+            'receiptDetails',
+            'invoicePayments',
+            'status' // ✅ pass status to view
+        ));
     }
 
     public function downloadAttachment($id)

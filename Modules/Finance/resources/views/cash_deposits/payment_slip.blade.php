@@ -3,7 +3,7 @@
 <div class="main-wrapper">
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
-        <h1 class="header-title">Payment Slip No. - {{ $payment->id }}</h1>
+        <h1 class="header-title">Payment Slip No. - {{ $deposit->id }}</h1>
         <button class="black-action-btn-lg submit">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -26,24 +26,46 @@
             <p><span class="bold-text">Total Amount :</span><span class="slip-detail-text">&nbsp;Rs. {{ number_format($totalAmount, 2) }}</span></p>
 
 
-            <!-- <p>
-                <span class="bold-text">Attachment Download :</span>
-                @if($payment->pdf_path)
-                <a href="{{ asset($payment->pdf_path) }}" download>
-                    <button class="black-action-btn">Download</button>
-                </a>
-                @else
-                <span class="slip-detail-text">&nbsp;No attachment available</span>
-                @endif
-            </p> -->
+            <p>
+                <span class="bold-text">Status :</span>
+                <span class="slip-detail-text">
+                    &nbsp;
+                    @php
+                    $status = strtolower($deposit->status ?? ''); // or $inquiry->status if different
+                    if ($status === 'pending') {
+                    $status = 'Deposited';
+                    } else {
+                    $status = ucfirst($status);
+                    }
+
+                    $statusClass = match($status) {
+                    'Approved' => 'success-status-btn',
+                    'Deposited' => 'blue-status-btn',
+                    'Rejected' => 'danger-status-btn',
+                    default => 'grey-status-btn',
+                    };
+                    @endphp
+
+                    <button class="{{ $statusClass }}">{{ $status }}</button>
+                </span>
+            </p>
+
+
+
+
 
 
             <p>
                 <span class="bold-text">Attachment Download :</span>
-                <a href="invoice_1001.htm" download>
+                @if($deposit->attachment_path)
+                <a href="{{ route('cash_deposits.download', $deposit->id) }}">
                     <button class="black-action-btn">Download</button>
                 </a>
+                @else
+                <button class="black-action-btn" disabled>No File</button>
+                @endif
             </p>
+
 
 
         </div>
@@ -63,23 +85,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($receiptDetails as $detail)
+                    @forelse($receiptDetails as $detail)
                     <tr>
                         <td>{{ $detail['receipt_number'] }}</td>
                         <td>{{ $detail['customer_name'] }}</td>
                         <td>{{ $detail['customer_id'] }}</td>
                         <td>{{ $detail['paid_date'] }}</td>
-                        <td>{{ number_format($detail['paid_amount'], 2) }}</td>
+                        <td>Rs. {{ number_format($detail['paid_amount'], 2) }}</td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No receipt data available</td>
+                    </tr>
+                    @endforelse
                 </tbody>
 
             </table>
 
         </div>
-        <nav class="d-flex justify-content-center mt-5">
-            <ul id="paymentSlipsPagination" class="pagination"></ul>
-        </nav>
+        <div class="d-flex justify-content-center mt-4">
+            {{ $invoicePayments->links('pagination::bootstrap-5') }}
+        </div>
+
     </div>
 </div>
 
@@ -169,8 +196,8 @@
 
 @section('footer-buttons')
 <a href="{{ route('cash_deposits.index') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-<button class="red-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="rejected">Reject</button>
-<button class="success-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="approved">Approve</button>
+<button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+<button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
 @endsection
 
 
