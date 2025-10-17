@@ -9,6 +9,7 @@ use Modules\Finance\Http\Controllers\CollectionsController;
 use Modules\Finance\Http\Middleware\FinanceAuthenticated;
 use Modules\Finance\Http\Controllers\AdvancedPaymentsController;
 use Modules\Finance\Http\Controllers\CashDepositsController;
+use Modules\Finance\Http\Controllers\ChequeDepositsController;
 use Illuminate\Http\Request;
 
 /*
@@ -43,4 +44,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment']);
     Route::get('/cash-deposits/download/{id}', [CashDepositsController::class, 'downloadAttachment'])
         ->name('cash_deposits.download');
+
+    Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
+    Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
 });
