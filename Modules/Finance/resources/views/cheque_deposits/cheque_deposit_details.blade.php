@@ -56,13 +56,18 @@
             </p>
 
             <p>
-                <span class="bold-text">Attachment :</span>
-                @if ($deposit['attachment_path'])
-                <a href="{{ route('cheque_deposits.download', $deposit['id']) }}" class="black-action-btn" style="text-decoration: none;">Download</a>
+                <span class="bold-text">Attachment Download :</span>
+                @if($deposit['attachment_path'])
+                <a href="{{ route('cheque_deposits.download', $deposit['id']) }}" class="black-action-btn" style="text-decoration: none;" download>
+                    Download
+                </a>
                 @else
                 <button class="black-action-btn" disabled>No File</button>
                 @endif
+
+
             </p>
+
         </div>
 
 

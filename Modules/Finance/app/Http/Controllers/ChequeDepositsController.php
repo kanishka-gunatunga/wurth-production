@@ -101,10 +101,26 @@ class ChequeDepositsController extends Controller
 
         $path = $deposit->attachment_path;
 
-        if (!$path || !file_exists(storage_path('app/' . $path))) {
+        if (!$path) {
             return back()->with('error', 'No file found for this record.');
         }
 
-        return response()->download(storage_path('app/' . $path));
+        // Check if file exists in "storage/app" (default local disk)
+        if (Storage::disk('local')->exists($path)) {
+            return Storage::disk('local')->download($path);
+        }
+
+        // Check if file exists in "public" folder
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->download($path);
+        }
+
+        // Fallback: check absolute path (if you store in public folder manually)
+        $absolutePath = public_path($path);
+        if (file_exists($absolutePath)) {
+            return response()->download($absolutePath);
+        }
+
+        return back()->with('error', 'No file found for this record.');
     }
 }
