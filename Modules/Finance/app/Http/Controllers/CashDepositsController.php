@@ -115,9 +115,12 @@ class CashDepositsController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        $request->merge(['status' => ucfirst(strtolower($request->status))]);
+
         $request->validate([
             'status' => 'required|in:Approved,Rejected',
         ]);
+
 
         $deposit = Deposits::findOrFail($id);
 

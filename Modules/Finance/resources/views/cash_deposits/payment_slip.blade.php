@@ -152,8 +152,12 @@
 
 @section('footer-buttons')
 <a href="{{ route('cash_deposits.index') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-<button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
-<button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+
+@if(strtolower($status) !== 'approved')
+    <!-- Show buttons only if status is NOT Approved -->
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+@endif
 @endsection
 
 
@@ -200,48 +204,62 @@
     let newStatus = '';
 
     document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('update-status-btn')) {
+        e.preventDefault();
 
-        // Approve / Reject buttons
-        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
-            e.target.classList.contains('success-action-btn-lg') || e.target.classList.contains('red-action-btn-lg')) {
+        const button = e.target;
+        const depositId = button.dataset.id;
+        const newStatus = button.dataset.status;
 
-            e.preventDefault();
-            e.stopPropagation();
+        // Show confirmation modal
+        document.getElementById('confirm-status-text').innerText = newStatus;
+        const modal = document.getElementById('confirm-status-modal');
+        modal.style.display = 'block';
 
-            currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+        const yesBtn = document.getElementById('confirm-yes-btn');
+        const noBtn = document.getElementById('confirm-no-btn');
+        const closeBtn = document.getElementById('confirm-modal-close');
 
-            // Show modal
-            document.getElementById('confirm-status-text').innerText = newStatus;
-            document.getElementById('confirm-status-modal').style.display = 'block';
-        }
+        function closeModal() { modal.style.display = 'none'; }
+        noBtn.onclick = closeModal;
+        closeBtn.onclick = closeModal;
 
-        // Close modal
-        if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
-        }
+        yesBtn.onclick = function() {
+            modal.style.display = 'none';
 
-        // Yes button
-        if (e.target.id === 'confirm-yes-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
+            // Send AJAX request to update status
+            fetch(`/finance/cash-deposits/update-status/${depositId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Update status button visually
+                    const statusBtn = document.querySelector('.slip-detail-text button');
+                    statusBtn.innerText = data.status;
+                    statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
-            if (currentStatusButton) {
-                // Example: Update the table status visually
-                let row = currentStatusButton.closest('tr');
-                let statusCell = row.querySelector('td:nth-child(5) button');
-
-                if (newStatus.toLowerCase() === 'approved') {
-                    statusCell.className = 'success-status-btn';
-                } else if (newStatus.toLowerCase() === 'rejected') {
-                    statusCell.className = 'danger-status-btn';
+                    // Hide buttons if approved, else keep them visible
+                    if(data.status.toLowerCase() === 'approved') {
+                        document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
+                    }
+                } else {
+                    alert('Failed to update status.');
                 }
-                statusCell.innerText = newStatus;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error updating status.');
+            });
+        };
+    }
+});
 
-                // TODO: Make your API call to update status in backend here
-                console.log(`Status changed to: ${newStatus} for row`, row);
-            }
-        }
-    });
 </script>
 
 @include('finance::layouts.footer2')
