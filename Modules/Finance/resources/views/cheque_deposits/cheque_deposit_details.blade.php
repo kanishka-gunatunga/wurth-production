@@ -44,10 +44,10 @@
                 <span class="bold-text">Status :</span>
                 <span class="slip-detail-text">
                     @php
-                    $statusClass = match(strtolower($deposit['status'])) {
-                    'deposited' => 'blue-status-btn',
-                    'rejected' => 'danger-status-btn',
-                    'sorted' => 'success-status-btn',
+                    $statusClass = match($deposit['status']) {
+                    'Approved' => 'success-status-btn',
+                    'Deposited' => 'blue-status-btn',
+                    'Rejected' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp

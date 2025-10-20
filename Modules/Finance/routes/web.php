@@ -51,4 +51,6 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
     Route::get('/cheque-deposits/{id}', [ChequeDepositsController::class, 'show'])
         ->name('cheque_deposits.show');
+    Route::post('/cheque-deposits/update-status/{id}', [ChequeDepositsController::class, 'updateStatus'])
+        ->name('cheque_deposits.update_status');
 });

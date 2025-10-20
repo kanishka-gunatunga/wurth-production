@@ -115,14 +115,18 @@
                             <button class="{{ $statusClass }}">{{ $item['status'] }}</button>
                         </td>
                         <td class="sticky-column">
-                            <button class="success-action-btn">Approve</button>
-                            <button class="red-action-btn">Reject</button>
-                            @if ($item['attachment_path'])
-                            <a href="{{ route('cheque_deposits.download', $item['id']) }}" class="black-action-btn submit" style="text-decoration: none;">Download</a>
-                            @else
-                            <button class="black-action-btn" disabled>No File</button>
-                            @endif
-                        </td>
+    @if (strtolower($item['status']) === 'deposited')
+        <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="Approved">Approve</button>
+        <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="Rejected">Reject</button>
+    @endif
+
+    @if ($item['attachment_path'])
+        <a href="{{ route('cheque_deposits.download', $item['id']) }}" class="black-action-btn submit" style="text-decoration: none;">Download</a>
+    @else
+        <button class="black-action-btn" disabled>No File</button>
+    @endif
+</td>
+
                     </tr>
                     @endforeach
 
@@ -432,20 +436,17 @@
     let currentStatusButton = null;
     let newStatus = '';
 
-    document.addEventListener('click', function(e) {
-
+    document.addEventListener('click', async function(e) {
         // Approve / Reject buttons
-        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
-            e.target.classList.contains('success-action-btn-lg') || e.target.classList.contains('red-action-btn-lg')) {
-
+        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn')) {
             e.preventDefault();
             e.stopPropagation();
 
-            currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+            currentStatusButton = e.target;
+            newStatus = e.target.classList.contains('success-action-btn') ? 'approved' : 'rejected';
 
-            // Show modal
-            document.getElementById('confirm-status-text').innerText = newStatus;
+            // Show confirmation modal
+            document.getElementById('confirm-status-text').innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
             document.getElementById('confirm-status-modal').style.display = 'block';
         }
 
@@ -454,28 +455,45 @@
             document.getElementById('confirm-status-modal').style.display = 'none';
         }
 
-        // Yes button
+        // Yes button clicked
         if (e.target.id === 'confirm-yes-btn') {
             document.getElementById('confirm-status-modal').style.display = 'none';
 
             if (currentStatusButton) {
-                // Example: Update the table status visually
-                let row = currentStatusButton.closest('tr');
-                let statusCell = row.querySelector('td:nth-child(5) button');
+                const row = currentStatusButton.closest('tr');
+                const depositId = row.getAttribute('data-href').split('/').pop();
 
-                if (newStatus.toLowerCase() === 'approved') {
-                    statusCell.className = 'success-status-btn';
-                } else if (newStatus.toLowerCase() === 'rejected') {
-                    statusCell.className = 'danger-status-btn';
+                try {
+                    // 🔥 Send AJAX request to backend
+                    const response = await fetch(`/finance/cheque-deposits/update-status/${depositId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    if (response.ok) {
+                        // Update UI instantly
+                        const statusButton = row.querySelector('td:nth-child(8) button');
+                        statusButton.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                        statusButton.className = newStatus === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+
+                        // Hide Approve/Reject buttons
+                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
+                    } else {
+                        alert('Failed to update status. Please try again.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Error occurred while updating status.');
                 }
-                statusCell.innerText = newStatus;
-
-                // TODO: Make your API call to update status in backend here
-                console.log(`Status changed to: ${newStatus} for row`, row);
             }
         }
     });
 </script>
+
 
 
 

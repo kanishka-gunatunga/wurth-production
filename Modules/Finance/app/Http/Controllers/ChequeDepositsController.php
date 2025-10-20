@@ -123,4 +123,28 @@ class ChequeDepositsController extends Controller
 
         return back()->with('error', 'No file found for this record.');
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        $deposit = Deposits::findOrFail($id);
+
+        // ✅ Update deposit status
+        $deposit->status = strtolower($request->status);
+        $deposit->save();
+
+        // ✅ Update all related invoice payments too
+        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+
+        if (!empty($receiptIds)) {
+            \App\Models\InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => strtolower($request->status)]);
+        }
+
+        return response()->json(['success' => true]);
+    }
 }
