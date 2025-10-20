@@ -164,13 +164,24 @@
 
 @section('footer-buttons')
 <a href="{{ route('cheque_deposits.index') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-<button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
-<button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+
+@php
+$currentStatus = strtolower($deposit['status']);
+@endphp
+
+@if ($currentStatus !== 'approved')
+<button class="red-action-btn-lg update-status-btn"
+    data-id="{{ $deposit['id'] }}"
+    data-status="rejected">
+    Reject
+</button>
+<button class="success-action-btn-lg update-status-btn"
+    data-id="{{ $deposit['id'] }}"
+    data-status="approved">
+    Approve
+</button>
+@endif
 @endsection
-
-
-
-
 
 
 
@@ -413,51 +424,73 @@
 
 <!-- for approve/reject buttons -->
 <script>
-    let currentStatusButton = null;
-    let newStatus = '';
+    document.addEventListener('DOMContentLoaded', function() {
+        const approveBtn = document.querySelector('.success-action-btn-lg');
+        const rejectBtn = document.querySelector('.red-action-btn-lg');
+        const confirmModal = document.getElementById('confirm-status-modal');
+        const confirmText = document.getElementById('confirm-status-text');
+        const closeBtn = document.getElementById('confirm-modal-close');
+        const noBtn = document.getElementById('confirm-no-btn');
+        const yesBtn = document.getElementById('confirm-yes-btn');
+        const depositId = "{{ $deposit['id'] }}";
+        const statusButton = document.querySelector('.slip-detail-text button');
 
-    document.addEventListener('click', function(e) {
+        let selectedStatus = '';
 
-        // Approve / Reject buttons
-        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
-            e.target.classList.contains('success-action-btn-lg') || e.target.classList.contains('red-action-btn-lg')) {
+        // ✅ Open modal when clicking approve/reject
+        [approveBtn, rejectBtn].forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectedStatus = this.dataset.status;
+                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+                confirmModal.style.display = 'block';
+            });
+        });
 
-            e.preventDefault();
-            e.stopPropagation();
+        // ✅ Close modal
+        [closeBtn, noBtn].forEach(btn => {
+            btn.addEventListener('click', function() {
+                confirmModal.style.display = 'none';
+            });
+        });
 
-            currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+        // ✅ Confirm (Yes) button
+        yesBtn.addEventListener('click', async function() {
+            confirmModal.style.display = 'none';
 
-            // Show modal
-            document.getElementById('confirm-status-text').innerText = newStatus;
-            document.getElementById('confirm-status-modal').style.display = 'block';
-        }
+            try {
+                const response = await fetch(`/finance/cheque-deposits/update-status/${depositId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        status: selectedStatus
+                    })
+                });
 
-        // Close modal
-        if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
-        }
+                if (response.ok) {
+                    // Update visual status instantly
+                    statusButton.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
 
-        // Yes button
-        if (e.target.id === 'confirm-yes-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
-
-            if (currentStatusButton) {
-                // Example: Update the table status visually
-                let row = currentStatusButton.closest('tr');
-                let statusCell = row.querySelector('td:nth-child(5) button');
-
-                if (newStatus.toLowerCase() === 'approved') {
-                    statusCell.className = 'success-status-btn';
-                } else if (newStatus.toLowerCase() === 'rejected') {
-                    statusCell.className = 'danger-status-btn';
+                    if (selectedStatus === 'approved') {
+                        statusButton.className = 'success-status-btn';
+                        approveBtn.style.display = 'none';
+                        rejectBtn.style.display = 'none';
+                    } else if (selectedStatus === 'rejected') {
+                        statusButton.className = 'danger-status-btn';
+                        approveBtn.style.display = 'inline-block';
+                        rejectBtn.style.display = 'inline-block';
+                    }
+                } else {
+                    alert('Failed to update status. Please try again.');
                 }
-                statusCell.innerText = newStatus;
-
-                // TODO: Make your API call to update status in backend here
-                console.log(`Status changed to: ${newStatus} for row`, row);
+            } catch (error) {
+                console.error(error);
+                alert('Error occurred while updating status.');
             }
-        }
+        });
     });
 </script>
 
