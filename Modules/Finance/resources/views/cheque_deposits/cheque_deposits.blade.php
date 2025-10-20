@@ -95,7 +95,7 @@
                 </thead>
                 <tbody>
                     @foreach($data as $item)
-                    <tr>
+                    <tr class="clickable-row" data-href="{{ route('cheque_deposits.show', $item['id']) }}" style="cursor:pointer;">
                         <td>{{ \Carbon\Carbon::parse($item['date'])->format('Y-m-d') }}</td>
                         <td>{{ $item['adm_number'] }}</td>
                         <td>{{ $item['adm_name'] }}</td>
@@ -115,6 +115,8 @@
                             <button class="{{ $statusClass }}">{{ $item['status'] }}</button>
                         </td>
                         <td class="sticky-column">
+                            <button class="success-action-btn">Approve</button>
+                            <button class="red-action-btn">Reject</button>
                             @if ($item['attachment_path'])
                             <a href="{{ route('cheque_deposits.download', $item['id']) }}" class="black-action-btn submit" style="text-decoration: none;">Download</a>
                             @else
@@ -123,6 +125,7 @@
                         </td>
                     </tr>
                     @endforeach
+
                 </tbody>
 
             </table>
@@ -354,16 +357,57 @@
 
 
 
-
-<!-- link entire row of table -->
+<!-- for clickable rows and modals -->
 <script>
-    document.addEventListener('click', function(e) {
-        const row = e.target.closest('.clickable-row');
-        if (row && !e.target.closest('button')) {
-            window.location.href = row.getAttribute('data-href');
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Make entire row clickable except buttons or links inside it
+        document.querySelectorAll('.clickable-row').forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                // Only navigate if click is NOT on a button or link
+                if (!e.target.closest('button') && !e.target.closest('a')) {
+                    window.location.href = this.dataset.href;
+                }
+            });
+        });
+
+        // Approve modal
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('success-action-btn')) {
+                e.stopPropagation();
+                document.getElementById('approve-modal').style.display = 'block';
+                document.getElementById('approve-modal-input').value = '';
+            }
+        });
+
+        // Reject modal
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('red-action-btn')) {
+                e.stopPropagation();
+                document.getElementById('reject-modal').style.display = 'block';
+                document.querySelectorAll('#reject-modal input').forEach(i => i.value = '');
+            }
+        });
+
+        // Close modals
+        document.getElementById('approve-modal-close').addEventListener('click', () => {
+            document.getElementById('approve-modal').style.display = 'none';
+        });
+        document.getElementById('reject-modal-close').addEventListener('click', () => {
+            document.getElementById('reject-modal').style.display = 'none';
+        });
+
+        // Toast for download button
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.submit')) {
+                e.stopPropagation(); // prevent row click
+                const toast = document.getElementById('user-toast');
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 3000);
+            }
+        });
     });
 </script>
+
 
 <!-- dropdown selector -->
 <script>
@@ -380,17 +424,29 @@
 <!-- for toast message -->
 <script>
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('submit')) {
-            e.preventDefault();
-            e.stopPropagation(); // Prevent row click
-            const toast = document.getElementById('user-toast');
-            toast.style.display = 'block';
+        const downloadLink = e.target.closest('.submit');
+        if (downloadLink) {
+            e.preventDefault(); // stop browser navigating
+            e.stopPropagation();
+
+            // trigger download
+            const tempLink = document.createElement('a');
+            tempLink.href = downloadLink.href;
+            tempLink.download = '';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+            // toast
             setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+                const toast = document.getElementById('user-toast');
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 3000);
+            }, 1000);
         }
     });
 </script>
+
 
 <!-- expand search bar and search functionality -->
 <script>
@@ -460,47 +516,6 @@
         tag.addEventListener('click', function() {
             tag.classList.toggle('selected');
         });
-    });
-</script>
-
-<!-- for reject modal pop-up -->
-<script>
-    document.addEventListener('click', function(e) {
-        // Approve button click
-        if (e.target.classList.contains('success-action-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('approve-modal').style.display = 'block';
-            document.getElementById('approve-modal-input').value = '';
-        }
-        // Approve modal tick
-        if (e.target.id === 'approve-modal-tick' || e.target.closest('#approve-modal-tick')) {
-            document.getElementById('approve-modal').style.display = 'none';
-        }
-        // Approve modal close
-        if (e.target.id === 'approve-modal-close') {
-            document.getElementById('approve-modal').style.display = 'none';
-        }
-
-        // Reject button click
-        if (e.target.classList.contains('red-action-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('reject-modal').style.display = 'block';
-            // Optionally clear input fields here if needed
-            var inputs = document.querySelectorAll('#reject-modal input');
-            inputs.forEach(function(input) {
-                input.value = '';
-            });
-        }
-        // Reject modal tick
-        if (e.target.id === 'reject-modal-tick' || e.target.closest('#reject-modal-tick')) {
-            document.getElementById('reject-modal').style.display = 'none';
-        }
-        // Reject modal close
-        if (e.target.id === 'reject-modal-close') {
-            document.getElementById('reject-modal').style.display = 'none';
-        }
     });
 </script>
 

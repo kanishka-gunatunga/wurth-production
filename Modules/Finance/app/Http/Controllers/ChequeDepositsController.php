@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Deposits;
 use App\Models\UserDetails;
+use App\Models\InvoicePayments;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ChequeDepositsController extends Controller
 {
@@ -19,22 +19,28 @@ class ChequeDepositsController extends Controller
         // Fetch cheque deposits with pagination (10 per page)
         $deposits = Deposits::where('type', 'cheque')
             ->orderByDesc('created_at')
-            ->paginate(10); // ✅ Laravel pagination
+            ->paginate(10);
 
-        // Map paginated data using transform()
+        // Transform results before sending to view
         $deposits->getCollection()->transform(function ($deposit) {
             $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
 
+            // Convert pending → Deposited
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') {
+                $status = 'deposited';
+            }
+
             return [
                 'id' => $deposit->id,
-                'date' => $deposit->date_time,
-                'adm_number' => $deposit->adm_id,
+                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'adm_number' => $userDetail?->adm_number ?? 'N/A',
                 'adm_name' => $userDetail?->name ?? 'N/A',
                 'bank_name' => $deposit->bank_name,
                 'branch_name' => $deposit->branch_name,
-                'amount' => $deposit->amount,
-                'status' => $this->getStatusLabel($deposit->status),
-                'attachment_path' => $deposit->attachment_path,
+                'amount' => $deposit->amount ?? 0,
+                'status' => ucfirst($status ?: 'Deposited'),
+                'attachment_path' => $deposit->attachment_path ?? null,
             ];
         });
 
@@ -43,6 +49,48 @@ class ChequeDepositsController extends Controller
         ]);
     }
 
+    /**
+     * Show a single cheque deposit details.
+     */
+    public function show($id)
+    {
+        $deposit = Deposits::findOrFail($id);
+        $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
+
+        // ✅ Decode the JSON field properly (correct key: reciepts)
+        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+
+        // ✅ Extract reciept IDs safely
+        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+
+        // ✅ Fetch related invoice payments
+        $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)
+            ->with(['invoice.customer'])
+            ->paginate(10);
+
+        // ✅ Convert pending → Deposited in show page too
+        $status = strtolower($deposit->status ?? '');
+        if ($status === 'pending') {
+            $status = 'deposited';
+        }
+
+        $depositData = [
+            'id' => $deposit->id,
+            'adm_name' => $userDetail?->name ?? 'N/A',
+            'adm_number' => $userDetail?->adm_number ?? 'N/A',
+            'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+            'bank_name' => $deposit->bank_name,
+            'branch_name' => $deposit->branch_name,
+            'amount' => $deposit->amount ?? 0,
+            'status' => ucfirst($status ?: 'Deposited'),
+            'attachment_path' => $deposit->attachment_path ?? null,
+        ];
+
+        return view('finance::cheque_deposits.cheque_deposit_details', [
+            'deposit' => $depositData,
+            'payments' => $invoicePayments,
+        ]);
+    }
 
     /**
      * Download attachment file if available.
@@ -51,23 +99,12 @@ class ChequeDepositsController extends Controller
     {
         $deposit = Deposits::findOrFail($id);
 
-        if (!$deposit->attachment_path || !Storage::exists($deposit->attachment_path)) {
+        $path = $deposit->attachment_path;
+
+        if (!$path || !file_exists(storage_path('app/' . $path))) {
             return back()->with('error', 'No file found for this record.');
         }
 
-        return Storage::download($deposit->attachment_path);
-    }
-
-    /**
-     * Helper to translate status.
-     */
-    private function getStatusLabel($status)
-    {
-        if (strtolower($status) === 'pending') {
-            return 'Deposited';
-        } elseif (strtolower($status) === 'rejected') {
-            return 'Rejected';
-        }
-        return ucfirst($status);
+        return response()->download(storage_path('app/' . $path));
     }
 }
