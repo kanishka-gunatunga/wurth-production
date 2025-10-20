@@ -107,8 +107,10 @@
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
                         <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
-                            <button class="success-action-btn">Approve</button>
-                            <button class="red-action-btn">Reject</button>
+                            @if(strtolower($deposit['status']) === 'deposited')
+                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="Approved">Approve</button>
+                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="Rejected">Reject</button>
+                            @endif
                             @if($deposit['attachment_path'])
                             <a href="{{ route('cash_deposits.download', $deposit['id']) }}"
                                 class="black-action-btn submit"
@@ -117,8 +119,8 @@
                             @else
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
-
                         </td>
+
                     </tr>
                     @empty
                     <tr>
@@ -443,21 +445,41 @@
             document.getElementById('confirm-status-modal').style.display = 'none';
 
             if (currentStatusButton) {
-                // Example: Update the table status visually
-                let row = currentStatusButton.closest('tr');
-                let statusCell = row.querySelector('td:nth-child(5) button');
+                const depositId = currentStatusButton.dataset.id;
 
-                if (newStatus.toLowerCase() === 'approved') {
-                    statusCell.className = 'success-status-btn';
-                } else if (newStatus.toLowerCase() === 'rejected') {
-                    statusCell.className = 'danger-status-btn';
-                }
-                statusCell.innerText = newStatus;
+                fetch(`/finance/cash-deposits/update-status/${depositId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update status visually
+                            let row = currentStatusButton.closest('tr');
+                            let statusCell = row.querySelector('td:nth-child(5) button');
 
-                // TODO: Make your API call to update status in backend here
-                console.log(`Status changed to: ${newStatus} for row`, row);
+                            statusCell.innerText = data.status;
+                            statusCell.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+
+                            // Hide action buttons
+                            row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
+                        } else {
+                            alert('Failed to update status.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Error updating status.');
+                    });
             }
         }
+
     });
 </script>
 

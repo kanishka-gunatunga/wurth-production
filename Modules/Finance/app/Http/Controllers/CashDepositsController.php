@@ -112,4 +112,32 @@ class CashDepositsController extends Controller
 
         return response()->download(public_path($deposit->attachment_path));
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected',
+        ]);
+
+        $deposit = Deposits::findOrFail($id);
+
+        // Update deposit status
+        $deposit->status = $request->status;
+        $deposit->save();
+
+        // Update related receipts status
+        $receiptIds = collect(json_decode($deposit->reciepts, true))
+            ->pluck('reciept_id')
+            ->toArray();
+
+        if (!empty($receiptIds)) {
+            InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => $request->status]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $request->status,
+        ]);
+    }
 }

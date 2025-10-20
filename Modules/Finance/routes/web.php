@@ -44,6 +44,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment']);
     Route::get('/cash-deposits/download/{id}', [CashDepositsController::class, 'downloadAttachment'])
         ->name('cash_deposits.download');
+    Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class, 'updateStatus'])
+        ->name('cash_deposits.update_status');
 
     Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
     Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
