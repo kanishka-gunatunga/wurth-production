@@ -100,7 +100,7 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr style="cursor:pointer;" onclick="window.location='{{ route('cash_deposits.show', $deposit['id']) }}'">
+                    <tr class="clickable-row" data-href="{{ route('cash_deposits.show', $deposit['id']) }}" style="cursor:pointer;">
                         <td>{{ $deposit['date'] }}</td>
                         <td>{{ $deposit['adm_number'] }}</td>
                         <td>{{ $deposit['adm_name'] }}</td>
@@ -111,10 +111,13 @@
                             <button class="red-action-btn">Reject</button>
                             @if($deposit['attachment_path'])
                             <a href="{{ route('cash_deposits.download', $deposit['id']) }}"
-                                class="black-action-btn submit" style="text-decoration: none;">Download</a>
+                                class="black-action-btn submit"
+                                style="text-decoration: none;"
+                                onclick="event.stopPropagation()">Download</a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
+
                         </td>
                     </tr>
                     @empty
@@ -367,7 +370,7 @@
 <script>
     document.addEventListener('click', function(e) {
         const row = e.target.closest('.clickable-row');
-        if (row && !e.target.closest('button')) {
+        if (row && !e.target.closest('button') && !e.target.closest('a')) {
             window.location.href = row.getAttribute('data-href');
         }
     });

@@ -357,54 +357,14 @@
 
 
 
-<!-- for clickable rows and modals -->
+<!-- link entire row of table -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Make entire row clickable except buttons or links inside it
-        document.querySelectorAll('.clickable-row').forEach(function(row) {
-            row.addEventListener('click', function(e) {
-                // Only navigate if click is NOT on a button or link
-                if (!e.target.closest('button') && !e.target.closest('a')) {
-                    window.location.href = this.dataset.href;
-                }
-            });
-        });
-
-        // Approve modal
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('success-action-btn')) {
-                e.stopPropagation();
-                document.getElementById('approve-modal').style.display = 'block';
-                document.getElementById('approve-modal-input').value = '';
-            }
-        });
-
-        // Reject modal
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('red-action-btn')) {
-                e.stopPropagation();
-                document.getElementById('reject-modal').style.display = 'block';
-                document.querySelectorAll('#reject-modal input').forEach(i => i.value = '');
-            }
-        });
-
-        // Close modals
-        document.getElementById('approve-modal-close').addEventListener('click', () => {
-            document.getElementById('approve-modal').style.display = 'none';
-        });
-        document.getElementById('reject-modal-close').addEventListener('click', () => {
-            document.getElementById('reject-modal').style.display = 'none';
-        });
-
-        // Toast for download button
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.submit')) {
-                e.stopPropagation(); // prevent row click
-                const toast = document.getElementById('user-toast');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
-            }
-        });
+    document.addEventListener('click', function(e) {
+        const row = e.target.closest('.clickable-row');
+        // Only navigate if the click is NOT on a button or link
+        if (row && !e.target.closest('button') && !e.target.closest('a')) {
+            window.location.href = row.getAttribute('data-href');
+        }
     });
 </script>
 
@@ -509,6 +469,47 @@
             }
         });
     }
+</script>
+
+<!-- for reject modal pop-up -->
+<script>
+    document.addEventListener('click', function(e) {
+        // Approve button click
+        if (e.target.classList.contains('success-action-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('approve-modal').style.display = 'block';
+            document.getElementById('approve-modal-input').value = '';
+        }
+        // Approve modal tick
+        if (e.target.id === 'approve-modal-tick' || e.target.closest('#approve-modal-tick')) {
+            document.getElementById('approve-modal').style.display = 'none';
+        }
+        // Approve modal close
+        if (e.target.id === 'approve-modal-close') {
+            document.getElementById('approve-modal').style.display = 'none';
+        }
+
+        // Reject button click
+        if (e.target.classList.contains('red-action-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('reject-modal').style.display = 'block';
+            // Optionally clear input fields here if needed
+            var inputs = document.querySelectorAll('#reject-modal input');
+            inputs.forEach(function(input) {
+                input.value = '';
+            });
+        }
+        // Reject modal tick
+        if (e.target.id === 'reject-modal-tick' || e.target.closest('#reject-modal-tick')) {
+            document.getElementById('reject-modal').style.display = 'none';
+        }
+        // Reject modal close
+        if (e.target.id === 'reject-modal-close') {
+            document.getElementById('reject-modal').style.display = 'none';
+        }
+    });
 </script>
 
 <script>
