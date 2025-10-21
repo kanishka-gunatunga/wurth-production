@@ -12,6 +12,21 @@ class Invoices extends Model
     protected $table = 'invoices';
     protected $primaryKey = 'id';
 
+    protected $fillable = [
+        'type',
+        'invoice_or_cheque_no',
+        'customer_id',
+        'invoice_date',
+        'paid_amount',
+        'amount',
+        'returned_date',
+        'bank',
+        'branch',
+        'return_type',
+        'reason',
+    ];
+
+
     /**
      * Each invoice belongs to one customer.
      * 

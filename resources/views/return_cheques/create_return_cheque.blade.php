@@ -14,21 +14,21 @@
 
                 <div class="row d-flex justify-content-between">
 
-                    <!-- Select ADM -->
+                    <!-- ✅ Select Customer ID -->
                     <div class="mb-4 col-12 col-lg-6">
-                        <label for="adm_id" class="form-label custom-input-label">Select ADM Name</label>
-                        <select name="adm_id" id="adm_id" class="form-select custom-input">
-                            <option value="">Select ADM</option>
-                            @foreach($adms as $adm)
-                            <option value="{{ $adm->id }}">{{ $adm->userDetails->name ?? $adm->email }}</option>
+                        <label for="customer_id" class="form-label custom-input-label">Select Customer ID</label>
+                        <select name="customer_id" id="customer_id" class="form-select custom-input">
+                            <option value="">Select Customer</option>
+                            @foreach($customers as $customer)
+                            <option value="{{ $customer->customer_id }}">{{ $customer->customer_id }}</option>
                             @endforeach
                         </select>
-                        @error('adm_id')
+                        @error('customer_id')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Cheque Number -->
+                    <!-- ✅ Return Cheque Number -->
                     <div class="mb-4 col-12 col-lg-6">
                         <label for="cheque_number" class="form-label custom-input-label">Return Cheque Number</label>
                         <input type="text" name="cheque_number" id="cheque_number"
@@ -39,7 +39,7 @@
                         @enderror
                     </div>
 
-                    <!-- Cheque Amount -->
+                    <!-- ✅ Cheque Amount -->
                     <div class="mb-4 col-12 col-lg-6">
                         <label for="cheque_amount" class="form-label custom-input-label">Cheque Amount</label>
                         <input type="text" name="cheque_amount" id="cheque_amount"
@@ -50,77 +50,45 @@
                         @enderror
                     </div>
 
-                    <!-- Returned Date -->
+                    <!-- ✅ Returned Date -->
                     <div class="mb-4 col-12 col-lg-6 position-relative">
                         <label for="returned_date" class="form-label custom-input-label">Returned Date</label>
-                        <div class="input-group">
-                            <input type="date" name="returned_date" id="returned_date"
-                                class="form-control custom-input pr-5" value="{{ old('returned_date') }}">
-                        </div>
+                        <input type="date" name="returned_date" id="returned_date"
+                            class="form-control custom-input" value="{{ old('returned_date') }}">
                         @error('returned_date')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Bank Name -->
-                    <!-- <div class="mb-4 col-12 col-lg-6">
+                    <!-- ✅ Bank Name -->
+                    <div class="mb-4 col-12 col-lg-6">
                         <label for="bank_id" class="form-label custom-input-label">Bank Name</label>
                         <select name="bank_id" id="bank_id" class="form-select custom-input">
                             <option value="">Select Bank</option>
                             @foreach($banks as $bank)
-                            <option value="{{ $bank->id }}">{{ $bank->bank_name }}</option>
+                            <option value="{{ $bank }}">{{ $bank }}</option>
                             @endforeach
                         </select>
                         @error('bank_id')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
-                    </div> -->
-
-                    <!-- Bank Name -->
-                    <div class="mb-4 col-12 col-lg-6">
-                        <label for="bank_id" class="form-label custom-input-label">Bank Name</label>
-                        <select name="bank_id" id="bank_id" class="form-select custom-input">
-                            <option value="">Select Bank</option>
-                            <option value="1">Bank of Ceylon</option>
-                            <option value="2">People’s Bank</option>
-                            <option value="3">Commercial Bank</option>
-                            <option value="4">Hatton National Bank</option>
-                            <option value="5">Sampath Bank</option>
-                        </select>
-                        @error('bank_id')
-                        <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
                     </div>
 
-                    <!-- Branch -->
-                    <!-- <div class="mb-4 col-12 col-lg-6">
-                        <label for="branch_id" class="form-label custom-input-label">Branch</label>
-                        <select name="branch_id" id="branch_id" class="form-select custom-input">
-                            <option value="">Select Branch</option> -->
-                    <!-- You’ll later fill this dynamically using AJAX -->
-                    <!-- </select>
-                        @error('branch_id')
-                        <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div> -->
-
-                    <!-- Branch -->
+                    <!-- ✅ Branch -->
                     <div class="mb-4 col-12 col-lg-6">
                         <label for="branch_id" class="form-label custom-input-label">Branch</label>
                         <select name="branch_id" id="branch_id" class="form-select custom-input">
                             <option value="">Select Branch</option>
-                            <option value="1">Colombo</option>
-                            <option value="2">Kandy</option>
-                            <option value="3">Galle</option>
-                            <option value="4">Negombo</option>
-                            <option value="5">Kurunegala</option>
+                            @foreach($branches as $branch)
+                            <option value="{{ $branch }}">{{ $branch }}</option>
+                            @endforeach
                         </select>
                         @error('branch_id')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Return Type -->
+                    <!-- ✅ Return Type -->
                     <div class="mb-4 col-12 col-lg-6">
                         <label for="return_type" class="form-label custom-input-label">Select Return Type</label>
                         <select name="return_type" id="return_type" class="form-select custom-input">
@@ -134,7 +102,7 @@
                         @enderror
                     </div>
 
-                    <!-- Reason -->
+                    <!-- ✅ Reason -->
                     <div class="mb-4 col-12 col-lg-6 position-relative">
                         <label for="reason" class="form-label custom-input-label">Reason</label>
                         <input type="text" name="reason" id="reason"
@@ -147,14 +115,14 @@
                 </div>
 
                 <!-- Buttons -->
-                <div class="action-button-lg-row ">
+                <div class="action-button-lg-row">
                     <a href="{{ url('return-cheques') }}" style="text-decoration: none;">
                         <button type="button" class="black-action-btn-lg mb-3 cancel">Cancel</button>
                     </a>
                     <button type="submit" class="red-action-btn-lg mb-3 submit">Submit</button>
                 </div>
-
             </form>
+
         </div>
     </div>
 </div>

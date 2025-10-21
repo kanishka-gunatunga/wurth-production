@@ -3,115 +3,91 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\ReturnCheque;
-use App\Models\User;
-use App\Models\UserDetails;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\DB;
+use App\Models\Invoices; // ✅ NEW (we now store in invoices table)
+use App\Models\Customers; // ✅ For fetching customer IDs
 use Carbon\Carbon;
-
 
 class ReturnChequeController extends Controller
 {
+    /**
+     * Show create return cheque form
+     */
     public function create()
     {
-        // Get ADMs (user_role = 6)
-        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        // ✅ Fetch all customers (for dropdown)
+        $customers = Customers::select('customer_id')->get();
 
-        // (You’ll add bank data fetching later when you share table info)
-        $banks = []; // placeholder
+        // Dummy banks for now
+        $banks = [
+            'Bank of Ceylon',
+            'People’s Bank',
+            'Commercial Bank',
+            'Hatton National Bank',
+            'Sampath Bank',
+        ];
 
-        return view('return_cheques.create_return_cheque', compact('adms', 'banks'));
+        $branches = [
+            'Colombo',
+            'Kandy',
+            'Galle',
+            'Negombo',
+            'Kurunegala',
+        ];
+
+        return view('return_cheques.create_return_cheque', compact('customers', 'banks', 'branches'));
     }
 
+    /**
+     * Store return cheque details in invoices table
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'adm_id' => 'required|exists:users,id',
-            'cheque_number' => 'required|string|max:255',
-            'cheque_amount' => 'required|numeric',
-            'returned_date' => 'required|date',
-            'bank_id' => 'required|integer',
-            'branch_id' => 'required|integer',
-            'return_type' => 'required|string|max:255',
-            'reason' => 'nullable|string',
+            'customer_id'       => 'required|string|exists:customers,customer_id',
+            'cheque_number'     => 'required|string|max:255',
+            'cheque_amount'     => 'required|numeric',
+            'returned_date'     => 'required|date',
+            'bank_id'           => 'required|string',
+            'branch_id'         => 'required|string',
+            'return_type'       => 'required|string|max:255',
+            'reason'            => 'nullable|string|max:255',
         ]);
 
-        ReturnCheque::create($validated);
+        // ✅ Create new record in invoices table
+        Invoices::create([
+            'type'              => 'return_cheque', // fixed type
+            'invoice_or_cheque_no' => $validated['cheque_number'],
+            'customer_id'       => $validated['customer_id'],
+            'amount'            => $validated['cheque_amount'],
+            'returned_date'     => Carbon::parse($validated['returned_date'])->format('Y-m-d'),
+            'bank'              => $validated['bank_id'],
+            'branch'            => $validated['branch_id'],
+            'return_type'       => $validated['return_type'],
+            'reason'            => $validated['reason'],
+        ]);
 
-        return redirect()->back()->with('success', 'Return cheque created successfully!');
+        return redirect()->route('returncheques.index')->with('success', 'Return cheque created successfully!');
     }
 
+    /**
+     * Show list of return cheques
+     */
     public function index()
     {
-        // Fetch return cheques with related ADM details and paginate (10 per page)
-        $returnCheques = ReturnCheque::with(['adm.userDetails'])
-            ->orderBy('returned_date', 'desc')
+        $returnCheques = Invoices::where('type', 'return_cheque')
+            ->orderByDesc('created_at')
             ->paginate(10);
 
         return view('return_cheques.return_cheques', compact('returnCheques'));
     }
 
+    /**
+     * Show single return cheque
+     */
     public function show($id)
     {
-        $returnCheque = ReturnCheque::with(['adm.userDetails'])->findOrFail($id);
+        $returnCheque = Invoices::where('type', 'return_cheque')->findOrFail($id);
 
         return view('return_cheques.return_cheque_details', compact('returnCheque'));
-    }
-
-    public function importReturnCheques(Request $request)
-    {
-        // ✅ 1. Validate uploaded file type & size
-        $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv|max:10240', // 10MB
-        ]);
-
-        // ✅ 2. Read the uploaded Excel file directly (not saving)
-        $file = $request->file('file');
-        $data = Excel::toArray([], $file); // Read Excel into an array
-
-        // ✅ 3. Get the first sheet
-        $rows = $data[0];
-
-        // ✅ 4. Extract headers (first row)
-        $header = array_map('trim', array_shift($rows)); // example: ['adm_id', 'cheque_number', ...]
-
-        $inserted = 0;
-
-        // ✅ 5. Loop through each row and insert into DB
-        foreach ($rows as $row) {
-            $record = array_combine($header, $row);
-
-            // Skip empty rows
-            if (empty($record['adm_id']) || empty($record['cheque_number'])) {
-                continue;
-            }
-
-            // Prevent duplicates by cheque number
-            if (ReturnCheque::where('cheque_number', $record['cheque_number'])->exists()) {
-                continue;
-            }
-
-            // Insert new record
-            ReturnCheque::create([
-                'adm_id'        => $record['adm_id'],
-                'cheque_number' => $record['cheque_number'],
-                'cheque_amount' => $record['cheque_amount'] ?? 0,
-                'returned_date' => isset($record['returned_date'])
-                    ? Carbon::parse($record['returned_date'])->format('Y-m-d')
-                    : now(),
-                'bank_id'       => $record['bank_id'] ?? null,
-                'branch_id'     => $record['branch_id'] ?? null,
-                'return_type'   => $record['return_type'] ?? null,
-                'reason'        => $record['reason'] ?? null,
-            ]);
-
-            $inserted++;
-        }
-
-        // ✅ 6. Return JSON response (no file saved)
-        return response()->json([
-            'message' => "$inserted return cheque(s) imported successfully!",
-        ]);
     }
 }
