@@ -52,4 +52,17 @@ class Invoices extends Model
     {
         return $this->hasMany(InvoicePayments::class, 'invoice_id', 'id');
     }
+
+
+    public function admDetails()
+    {
+        return $this->hasOneThrough(
+            \App\Models\UserDetails::class,
+            \App\Models\Customers::class,
+            'customer_id',    // Foreign key on customers table
+            'adm_number',     // Foreign key on user_details table
+            'customer_id',    // Local key on invoices table
+            'adm'             // Local key on customers table
+        );
+    }
 }

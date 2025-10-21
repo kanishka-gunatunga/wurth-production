@@ -116,6 +116,7 @@
                         <tr>
                             <th>ADM No.</th>
                             <th>ADM Name</th>
+                            <th>Customer ID</th>
                             <th>Return Cheque Number</th>
                             <th>Cheque Amount</th>
                             <th>Returned Date</th>
@@ -128,20 +129,39 @@
                     <tbody>
                         @forelse ($returnCheques as $cheque)
                         <tr>
-                            <td>{{ $cheque->adm->id ?? 'N/A' }}</td>
-                            <td>{{ $cheque->adm->userDetails->name ?? 'N/A' }}</td>
-                            <td>{{ $cheque->cheque_number }}</td>
-                            <td>Rs.{{ number_format($cheque->cheque_amount, 2) }}</td>
+                            {{-- ADM No --}}
+                            <td>{{ $cheque->customer->adm ?? 'N/A' }}</td>
+
+                            {{-- ADM Name --}}
+                            <td>{{ $cheque->customer->admDetails->name ?? 'N/A' }}</td>
+
+                            {{-- Customer ID --}}
+                            <td>{{ $cheque->customer_id ?? 'N/A' }}</td>
+
+                            {{-- Return Cheque Number --}}
+                            <td>{{ $cheque->invoice_or_cheque_no }}</td>
+
+                            {{-- Cheque Amount --}}
+                            <td>Rs. {{ number_format($cheque->amount, 2) }}</td>
+
+                            {{-- Returned Date --}}
                             <td>{{ \Carbon\Carbon::parse($cheque->returned_date)->format('Y-m-d') }}</td>
-                            <td>{{ $cheque->bank_id }}</td>
-                            <td>{{ $cheque->branch_id }}</td>
+
+                            {{-- Bank --}}
+                            <td>{{ $cheque->bank }}</td>
+
+                            {{-- Branch --}}
+                            <td>{{ $cheque->branch }}</td>
+
+                            {{-- Return Type --}}
                             <td>{{ $cheque->return_type }}</td>
+
+                            {{-- Actions --}}
                             <td class="sticky-column">
                                 <a href="{{ route('returncheques.show', $cheque->id) }}" style="text-decoration: none;">
                                     <button class="action-btn btn-sm btn-dark">View More</button>
                                 </a>
                             </td>
-
                         </tr>
                         @empty
                         <tr>
@@ -149,6 +169,7 @@
                         </tr>
                         @endforelse
                     </tbody>
+
                 </table>
             </div>
 

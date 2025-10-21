@@ -75,11 +75,13 @@ class ReturnChequeController extends Controller
     public function index()
     {
         $returnCheques = Invoices::where('type', 'return_cheque')
+            ->with(['customer.admDetails']) // Eager load customer & ADM
             ->orderByDesc('created_at')
             ->paginate(10);
 
         return view('return_cheques.return_cheques', compact('returnCheques'));
     }
+
 
     /**
      * Show single return cheque
