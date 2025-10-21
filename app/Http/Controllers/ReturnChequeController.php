@@ -88,7 +88,9 @@ class ReturnChequeController extends Controller
      */
     public function show($id)
     {
-        $returnCheque = Invoices::where('type', 'return_cheque')->findOrFail($id);
+        $returnCheque = Invoices::where('type', 'return_cheque')
+            ->with(['customer.admDetails'])
+            ->findOrFail($id);
 
         return view('return_cheques.return_cheque_details', compact('returnCheque'));
     }

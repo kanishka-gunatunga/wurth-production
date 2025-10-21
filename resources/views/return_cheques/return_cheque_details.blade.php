@@ -75,62 +75,61 @@
                 <div class="tab-content">
                     <div id="customer-details" class="tab-pane fade show active" role="tabpanel"
                         aria-labelledby="customer-list-tab">
-                        <div class="row d-flex justify-content-between mt-2">
-                            <!-- <h2 class="section-title mb-4">Customer Details</h2> -->
 
-                            <div class="detail-row">
-                                <span class="detail-label">ADM No. :</span>
-                                <span class="detail-value">{{ $returnCheque->adm->id ?? 'N/A' }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ADM No. :</span>
+                            <span class="detail-value">{{ $returnCheque->customer->adm ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">ADM Name :</span>
-                                <span class="detail-value">{{ $returnCheque->adm->userDetails->name ?? 'N/A' }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ADM Name :</span>
+                            <span class="detail-value">{{ $returnCheque->customer->admDetails->name ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Return Cheque Number :</span>
-                                <span class="detail-value">{{ $returnCheque->cheque_number }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Customer ID :</span>
+                            <span class="detail-value">{{ $returnCheque->customer_id ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Cheque Amount :</span>
-                                <span class="detail-value">Rs.{{ number_format($returnCheque->cheque_amount, 2) }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Return Cheque Number :</span>
+                            <span class="detail-value">{{ $returnCheque->invoice_or_cheque_no ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Returned Date :</span>
-                                <span class="detail-value">{{ \Carbon\Carbon::parse($returnCheque->returned_date)->format('d.m.Y') }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Cheque Amount :</span>
+                            <span class="detail-value">Rs. {{ number_format($returnCheque->amount, 2) }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Bank Name :</span>
-                                <span class="detail-value">{{ $returnCheque->bank_id ?? 'N/A' }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Returned Date :</span>
+                            <span class="detail-value">{{ \Carbon\Carbon::parse($returnCheque->returned_date)->format('Y-m-d') }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Branch :</span>
-                                <span class="detail-value">{{ $returnCheque->branch_id ?? 'N/A' }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Bank Name :</span>
+                            <span class="detail-value">{{ $returnCheque->bank ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Return Type :</span>
-                                <span class="detail-value">{{ $returnCheque->return_type }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Branch :</span>
+                            <span class="detail-value">{{ $returnCheque->branch ?? 'N/A' }}</span>
+                        </div>
 
-                            <div class="detail-row">
-                                <span class="detail-label">Reason :</span>
-                                <span class="detail-value">{{ $returnCheque->reason ?? 'N/A' }}</span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Return Type :</span>
+                            <span class="detail-value">{{ $returnCheque->return_type ?? 'N/A' }}</span>
+                        </div>
 
-
-
-
+                        <div class="detail-row">
+                            <span class="detail-label">Reason :</span>
+                            <span class="detail-value">{{ $returnCheque->reason ?? 'N/A' }}</span>
                         </div>
 
                     </div>
                 </div>
             </div>
+
 
             <div class="py-3">
                 <div class="action-button-lg-row">
