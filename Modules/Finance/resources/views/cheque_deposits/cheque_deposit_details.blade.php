@@ -100,8 +100,8 @@
                         <td>{{ $payment->bank_name ?? 'N/A' }}</td>
                         <td>{{ $payment->branch_name ?? 'N/A' }}</td>
                         <td>
-                            {{ optional($invoice)->invoice_date
-                                    ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d')
+                            {{ optional($payment)->created_at
+                                    ? \Carbon\Carbon::parse($payment->created_at)->format('Y-m-d')
                                     : 'N/A' }}
                         </td>
                         <td>{{ number_format($payment->final_payment, 2) }}</td>

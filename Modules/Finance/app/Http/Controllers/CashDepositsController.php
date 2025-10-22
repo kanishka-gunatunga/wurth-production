@@ -70,8 +70,8 @@ class CashDepositsController extends Controller
                 'receipt_number' => $payment->id,
                 'customer_name' => $customer->name ?? 'N/A',
                 'customer_id' => $invoice->customer_id ?? 'N/A',
-                'paid_date' => $invoice->invoice_date
-                    ? date('Y-m-d', strtotime($invoice->invoice_date))
+                'paid_date' => $payment->created_at
+                    ? date('Y-m-d', strtotime($payment->created_at))
                     : 'N/A',
                 'paid_amount' => $payment->final_payment ?? 0,
             ];
