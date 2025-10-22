@@ -475,6 +475,9 @@
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
 
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = "Uploading...";
+
             fetch("{{ route('returncheques.import') }}", {
                     method: "POST",
                     headers: {
@@ -485,13 +488,18 @@
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    location.reload(); // refresh table
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = "Submit";
+                    location.reload();
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    alert("Something went wrong during import!");
+                    alert("Error during upload. Please try again!");
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = "Submit";
                 });
         });
+
 
     });
 </script>

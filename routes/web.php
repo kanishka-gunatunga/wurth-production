@@ -60,6 +60,4 @@ Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
 Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.show');
-Route::post('/import-return-cheques', [ReturnChequeController::class, 'importReturnCheques'])
-    ->middleware(AuthAdmin::class)
-    ->name('returncheques.import');
+Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
