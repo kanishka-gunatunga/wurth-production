@@ -11,6 +11,7 @@ use Modules\Finance\Http\Controllers\AdvancedPaymentsController;
 use Modules\Finance\Http\Controllers\CashDepositsController;
 use Modules\Finance\Http\Controllers\ChequeDepositsController;
 use Modules\Finance\Http\Controllers\FinanceCashController;
+use Modules\Finance\Http\Controllers\FinanceChequeController;
 use Illuminate\Http\Request;
 
 /*
@@ -59,4 +60,9 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show');
     Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download');
     Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status');
+
+    Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index');
+    Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download');
+    Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show');
+    Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
 });
