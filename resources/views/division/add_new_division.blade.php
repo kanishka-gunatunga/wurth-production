@@ -6,8 +6,11 @@ use App\Models\UserDetails;
             <div class="main-wrapper">
                 <div class="p-4 pt-0">
                     <div class="col-lg-6 col-12">
-                        <h1 class="header-title">Division Management</h1>
+                        <h1 class="header-title">Add New Division</h1>
                     </div>
+
+                    <hr class="red-line">
+                    
                     @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
                     @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
@@ -50,7 +53,7 @@ use App\Models\UserDetails;
 
 
                         <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
-                            <a href="{{url('division-managment')}}"><button type="button" class="btn btn-dark cancel">Cancel</button></a>
+                            <a href="{{url('division-managment')}}" style="text-decoration: none;"><button type="button" class="btn btn-dark cancel">Cancel</button></a>
                             <button type="submit" class="btn btn-danger submit">Submit</button>
                         </div>
 

@@ -16,26 +16,26 @@ class Customers extends Model
     /**
      * A customer can have many inquiries.
      */
-    public function inquiries()
-    {
-        return $this->hasMany(Inquiries::class, 'customer', 'id');
-    }
+     public function inquiries()
+        {
+            return $this->hasMany(Inquiries::class, 'customer', 'id');
+        }
 
     /**
      * A customer can have many invoices.
      */
-    public function invoices()
-    {
-        return $this->hasMany(Invoices::class, 'customer_id', 'id');
-    }
+        public function invoices()
+        {
+                return $this->hasMany(Invoices::class, 'customer_id', 'id');
+        }
 
     /**
      * A customer can have many advance payments.
      */
-    public function advance_payments()
-    {
-        return $this->hasMany(AdvancedPayment::class, 'customer', 'id');
-    }
+        public function advance_payments()
+        {
+                return $this->hasMany(AdvancedPayment::class, 'customer', 'id');
+        }
 
     /**
      * The ADM (Account/Area Manager) assigned to this customer.
@@ -45,5 +45,10 @@ class Customers extends Model
     public function admDetails()
     {
         return $this->belongsTo(UserDetails::class, 'adm', 'adm_number');
+    }
+
+    public function userDetail()
+    {
+        return $this->belongsTo(\App\Models\UserDetails::class, 'adm', 'adm_number');
     }
 }

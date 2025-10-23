@@ -12,6 +12,21 @@ class Invoices extends Model
     protected $table = 'invoices';
     protected $primaryKey = 'id';
 
+    protected $fillable = [
+        'type',
+        'invoice_or_cheque_no',
+        'customer_id',
+        'invoice_date',
+        'paid_amount',
+        'amount',
+        'returned_date',
+        'bank',
+        'branch',
+        'return_type',
+        'reason',
+    ];
+
+
     /**
      * Each invoice belongs to one customer.
      * 
@@ -36,5 +51,18 @@ class Invoices extends Model
     public function payments()
     {
         return $this->hasMany(InvoicePayments::class, 'invoice_id', 'id');
+    }
+
+
+    public function admDetails()
+    {
+        return $this->hasOneThrough(
+            \App\Models\UserDetails::class,
+            \App\Models\Customers::class,
+            'customer_id',    // Foreign key on customers table
+            'adm_number',     // Foreign key on user_details table
+            'customer_id',    // Local key on invoices table
+            'adm'             // Local key on customers table
+        );
     }
 }

@@ -18,23 +18,65 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Customers;
 use App\Models\Invoices;
+use App\Models\Inquiries;
 
 use File;
 use Mail;
 use Image;
 use PDF;
+
 class InquiriesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
+
     public function inquiries()
     {
-        return view('finance::inquiries.index');
+        $inquiries = Inquiries::with([
+            'invoice',
+            'customer',
+            'admin.userDetails'
+        ])
+            ->orderBy('created_at', 'desc') // newest first
+            ->paginate(10); // show 10 per page
+
+        return view('finance::inquiries.index', compact('inquiries'));
     }
-    
-   
+
+
+    public function details($id)
+    {
+        $inquiry = Inquiries::with([
+            'invoice',
+            'customer',
+            'admin.userDetails'
+        ])->findOrFail($id);
+
+        return view('finance::inquiries.details', compact('inquiry'));
+    }
+
+    public function approve($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+        $inquiry->status = 'Sorted';
+        $inquiry->save();
+
+        return response()->json(['success' => true, 'status' => $inquiry->status]);
+    }
+
+    public function reject($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+        $inquiry->status = 'Rejected';
+        $inquiry->save();
+
+        return response()->json(['success' => true, 'status' => $inquiry->status]);
+    }
+
+
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -82,4 +124,4 @@ class InquiriesController extends Controller
     {
         //
     }
-} 
+}
