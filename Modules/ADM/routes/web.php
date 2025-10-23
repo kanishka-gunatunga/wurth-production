@@ -50,6 +50,7 @@ Route::prefix('adm')->group(function() {
     Route::match(['get', 'post'],'receipts', [CollectionsController::class, 'receipts'])->middleware(ADMAuthenticated::class);
 
     Route::match(['get', 'post'],'daily-deposit', [DepositeController::class, 'daily_deposit'])->middleware(ADMAuthenticated::class);
+    Route::match(['get', 'post'],'get-receipts', [DepositeController::class, 'get_receipts'])->middleware(ADMAuthenticated::class);
 
     Route::match(['get', 'post'],'customers', [CustomerController::class, 'customers'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'],'search-customers', [CustomerController::class, 'search_customers'])->middleware(ADMAuthenticated::class);

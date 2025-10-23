@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CommonController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\AuthAdmin;
 
@@ -40,3 +41,5 @@ Route::match(['get', 'post'],'/deactivate-customer/{id}', [CustomerController::c
 Route::match(['get', 'post'],'/edit-customer/{id}', [CustomerController::class, 'edit_customer'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'],'/import-customers', [CustomerController::class, 'import_customers'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'],'/import', [CustomerController::class, 'import'])->middleware(AuthAdmin::class);
+
+Route::match(['get', 'post'],'get-branches', [CommonController::class, 'get_branches']);

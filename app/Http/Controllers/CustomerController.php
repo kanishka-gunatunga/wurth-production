@@ -251,7 +251,7 @@ class CustomerController extends Controller
     
                 if(!Invoices::where("invoice_or_cheque_no", $record['invoice_or_cheque_no'])->exists()){
                     $invoice = new Invoices();
-                    $invoice->type = 'cheque';
+                    $invoice->type = 'return-cheque';
                     $invoice->invoice_or_cheque_no = $record['invoice_or_cheque_no'] ?? null;
                     $invoice->customer_id = $record['customer_number'] ?? null;
                     $invoice->invoice_date = $record['invoice_date'];

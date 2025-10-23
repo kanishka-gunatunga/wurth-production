@@ -34,15 +34,33 @@ class CollectionsController extends Controller
      */
     
      public function collections()
-     {
-         $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-         $customers = Customers::where('adm', $adm_no)->pluck('customer_id'); 
-         $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
-         $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
-         $all_customers = Customers::where('adm', $adm_no)->get(); 
+    {
+        $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
 
-         return view('adm::collection.collections', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
-     }
+        // Eager load related customer data for efficiency
+        $invoices = Invoices::with('customer')
+            ->whereHas('customer', function ($query) use ($adm_no) {
+                $query->where('adm', $adm_no);
+            })
+            ->paginate(15);
+
+        // Fetch all invoices (no pagination) for totals
+        $all_invoices = Invoices::with('customer')
+            ->whereHas('customer', function ($query) use ($adm_no) {
+                $query->where('adm', $adm_no);
+            })
+            ->get();
+
+        // Get all customers under this ADM
+        $all_customers = Customers::where('adm', $adm_no)->get();
+
+        return view('adm::collection.collections', [
+            'invoices' => $invoices,
+            'all_invoices' => $all_invoices,
+            'customers' => $all_customers,
+        ]);
+    }
+
 
       public function bulk_payment()
      {
@@ -55,35 +73,38 @@ class CollectionsController extends Controller
          return view('adm::collection.bulk_payment', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
      }
      
-    
-     public function search_invoices(Request $request)
-     {
-         $query = $request->input('query');
-     
-         $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-         $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
-     
-         $invoices = Invoices::whereIn('customer_id', $customers)
-             ->where(function ($q) use ($query) {
-                 $q->where('invoice_or_cheque_no', 'LIKE', "%{$query}%")
-                   ->orWhereHas('customer', function ($q) use ($query) {
-                       $q->where('name', 'LIKE', "%{$query}%");
-                   });
-             })
-             ->get();
-             
-         $invoice_data = '';
-         foreach ($invoices as $invoice) {
-             $customer_name = Customers::where('customer_id', $invoice->customer_id)->value('name');
-             $invoice_data .= '<tr>
-                                 <td><a href="' . url('adm/view-invoice/' . $invoice->id) . '">' . $invoice->invoice_or_cheque_no . '</a></td>
-                                 <td>' . $customer_name . '</td>
-                                 <td>' . $invoice->invoice_date . '</td>
-                               </tr>';
-         }
-     
-         return response()->json($invoice_data);
-     }
+ public function search_invoices(Request $request)
+{
+    $query = $request->input('query');
+    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
+
+    // Fetch invoices with related customer data
+    $invoices = Invoices::with('customer')
+        ->whereHas('customer', function ($q) use ($adm_no) {
+            $q->where('adm', $adm_no);
+        })
+        ->where(function ($q) use ($query) {
+            $q->where('invoice_or_cheque_no', 'LIKE', "%{$query}%")
+              ->orWhereHas('customer', function ($q) use ($query) {
+                  $q->where('name', 'LIKE', "%{$query}%");
+              });
+        })
+        ->get();
+
+    // Build HTML rows efficiently
+    $invoice_data = $invoices->map(function ($invoice) {
+        $customer_name = $invoice->customer->name ?? '-';
+        return '
+            <tr>
+                <td><a href="' . url('adm/view-invoice/' . $invoice->id) . '">' . e($invoice->invoice_or_cheque_no) . '</a></td>
+                <td>' . e($customer_name) . '</td>
+                <td>' . e($invoice->invoice_date) . '</td>
+            </tr>';
+    })->implode('');
+
+    return response()->json($invoice_data);
+}
+
     public function view_invoice($id,Request $request)
     {
     if($request->isMethod('get')){
