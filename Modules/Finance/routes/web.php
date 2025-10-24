@@ -12,6 +12,7 @@ use Modules\Finance\Http\Controllers\CashDepositsController;
 use Modules\Finance\Http\Controllers\ChequeDepositsController;
 use Modules\Finance\Http\Controllers\FinanceCashController;
 use Modules\Finance\Http\Controllers\FinanceChequeController;
+use Modules\Finance\Http\Controllers\WriteOffController;
 use Illuminate\Http\Request;
 
 /*
@@ -65,4 +66,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download');
     Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show');
     Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
+
+    Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
+    Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
+    Route::post('/write-off/credit-notes', [WriteOffController::class, 'getCreditNotes'])->name('write_off.credit_notes');
 });
