@@ -1,4 +1,6 @@
 @include('finance::layouts.header')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <div class="main-wrapper">
     <div class="d-flex justify-content-between">
         <div class="col-lg-4 col-12">
@@ -149,7 +151,7 @@
 
     <div class="styled-tab-sub p-4 mt-5" style="border-radius: 8px;">
         <div class="w-100">
-            <p class="mb-2 red-bold-text">Final Write-off amount : Rs. 235,000.00</p>
+            <p class="mb-2 red-bold-text">Final Write-off amount : Rs. 0.00</p>
             <textarea class="additional-notes" rows="3" placeholder="Enter Write-Off Reason Here"></textarea>
         </div>
     </div>
@@ -157,7 +159,7 @@
 
 @section('footer-buttons')
 <div class="d-flex justify-content-end mt-4 gap-3">
-   
+
     <button type="button" class="red-action-btn-lg submit-writeoff-btn">Submit</button>
 </div>
 @endsection
@@ -183,296 +185,371 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <script>
-    $(document).ready(function() {
-        $('#multi-select-dropdown').select2({
-            placeholder: "Select Customer",
-            allowClear: true
-        });
-    });
-</script>
+    /*
+  Consolidated script to:
+  - render invoice / credit rows
+  - expand rows to accept manual amount or full payment
+  - maintain invoiceState / creditState
+  - calculate final write-off
+  - fetch invoices/credit-notes for selected customers
+  - submit (requires at least 1 invoice OR 1 credit note)
+*/
 
-<script>
-    function filterTable(tableId, searchValue) {
-        const filter = searchValue.toLowerCase();
-        const table = document.getElementById(tableId);
-        const rows = table.querySelectorAll("tbody tr");
+    $(function() {
+        // States
+        let invoiceState = {}; // { id: { selected, fullPayment, manualAmount, fullAmount } }
+        let creditState = {};
 
-        rows.forEach(row => {
-            // The Invoice No. / Extra Payment Id is inside <span class="ms-2">
-            const span = row.querySelector("td span.ms-2");
+        // Helpers
+        function formatCurrency(n) {
+            return Number(n || 0).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
 
-            if (span) {
-                const text = span.textContent.toLowerCase();
+        function safeParseFloat(s) {
+            const v = parseFloat(String(s).replace(/,/g, ''));
+            return isNaN(v) ? 0 : v;
+        }
 
-                // Show or hide row
-                if (text.includes(filter)) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+        // Render table (type = 'invoice' | 'credit')
+        function renderTable(tableId, dataArray, type) {
+            const $tbody = $(`#${tableId} tbody`);
+            $tbody.empty();
+
+            dataArray.forEach((item, idx) => {
+                const idVal = String(item.fullName);
+                const fullAmount = safeParseFloat(item.invoiceNumber);
+
+                // ensure state exists
+                const state = (type === 'invoice' ? invoiceState : creditState);
+                if (!state[idVal]) state[idVal] = {
+                    selected: false,
+                    fullPayment: false,
+                    manualAmount: 0,
+                    fullAmount: fullAmount
+                };
+                else state[idVal].fullAmount = fullAmount;
+
+                const $tr = $(`
+                <tr class="checkbox-item" data-id="${idVal}" data-type="${type}">
+                    <td>
+                        <label class="checkbox-item-wrapper mb-0">
+                            <input type="checkbox" class="row-select me-2">
+                            <span class="ms-2 row-label">${idVal}</span>
+                        </label>
+                    </td>
+                    <td class="row-amount">${formatCurrency(fullAmount)}</td>
+                </tr>
+            `);
+
+                // append
+                $tbody.append($tr);
+            });
+
+            // ensure displayed total updated
+            updateFinalWriteOff();
+        }
+
+        // Expand row builder
+        function buildExpandedRow(idVal, type) {
+            const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
+            const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state.fullPayment ? state.fullAmount : '');
+
+            return $(`
+            <tr class="expanded-row">
+                <td colspan="2">
+                    <div class="d-flex align-items-center justify-content-start py-3 gap-3">
+                        <input type="text" class="form-control manual-input" placeholder="Write-off Amount" style="min-width:140px; max-width:180px;" value="${manualValue}">
+                        <label class="checkbox-item-wrapper mb-0">
+                            <input class="form-check-input full-pay" type="checkbox">
+                            <span class="ms-2">Full Payment</span>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+        `);
+        }
+
+        // Update total based on invoiceState and creditState
+        function updateFinalWriteOff() {
+            let total = 0;
+            Object.values(invoiceState).forEach(s => {
+                if (!s.selected) return;
+                total += s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
+            });
+            Object.values(creditState).forEach(s => {
+                if (!s.selected) return;
+                total -= s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
+            });
+
+            $('.red-bold-text').text("Final Write-off amount : Rs. " + formatCurrency(total));
+        }
+
+        // Fetch initial tableData variables if available (server may inject)
+        if (window.table1Data && Array.isArray(window.table1Data)) {
+            renderTable('table1', window.table1Data, 'invoice');
+        }
+        if (window.table2Data && Array.isArray(window.table2Data)) {
+            renderTable('table2', window.table2Data, 'credit');
+        }
+
+        /* ---------------------------
+           Delegated handlers
+           ---------------------------*/
+
+        // Row click (expand/collapse) - delegate to tbody
+        $(document).on('click', 'table tbody tr.checkbox-item', function(e) {
+            // don't expand if clicked the checkbox itself
+            if ($(e.target).is('input[type="checkbox"]') || $(e.target).closest('input[type="checkbox"]').length) return;
+
+            const $tr = $(this);
+            const idVal = $tr.attr('data-id');
+            const type = $tr.attr('data-type');
+            const $tbody = $tr.closest('tbody');
+
+            // toggle existing expanded row
+            const $next = $tr.next();
+            if ($next.hasClass('expanded-row')) {
+                $next.remove();
+                return;
             }
-        });
-    }
 
-    function filterCheckboxes() {
-        const input = document.getElementById("search-input").value.toLowerCase();
+            // remove any other expanded rows in this table for clarity
+            $tbody.find('.expanded-row').remove();
 
-        // Both tables
-        const tables = [document.getElementById("table1"), document.getElementById("table2")];
+            // append expanded row
+            const $expanded = buildExpandedRow(idVal, type);
+            $tr.after($expanded);
 
-        tables.forEach(table => {
-            const rows = table.querySelectorAll("tbody tr");
+            // wire up expanded controls
+            const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
+            const $manualInput = $expanded.find('.manual-input');
+            const $fullPay = $expanded.find('.full-pay');
+            const $rowCheckbox = $tr.find('.row-select');
 
-            rows.forEach(row => {
-                // Target the span that actually holds the Invoice No. / Return No.
-                const invoiceSpan = row.querySelector("td span.ms-2");
+            // restore states on controls
+            $fullPay.prop('checked', !!state.fullPayment);
+            if (state.fullPayment) {
+                $manualInput.prop('disabled', true).val(state.fullAmount);
+            } else {
+                $manualInput.prop('disabled', false).val(state.manualAmount ? state.manualAmount : '');
+            }
+            $rowCheckbox.prop('checked', !!state.selected);
 
-                if (invoiceSpan) {
-                    const invoiceNo = invoiceSpan.textContent.toLowerCase();
+            // manual input handler
+            $manualInput.on('input', function() {
+                const v = safeParseFloat($(this).val());
+                state.manualAmount = v;
+                if (v > 0) {
+                    state.fullPayment = false;
+                    $fullPay.prop('checked', false);
+                    state.selected = true;
+                    $rowCheckbox.prop('checked', true);
+                } else {
+                    state.selected = false;
+                    $rowCheckbox.prop('checked', false);
+                }
+                updateFinalWriteOff();
+            });
 
-                    if (invoiceNo.includes(input)) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
+            // full pay handler
+            $fullPay.on('change', function() {
+                if ($(this).is(':checked')) {
+                    state.fullPayment = true;
+                    state.manualAmount = state.fullAmount;
+                    $manualInput.val(state.fullAmount).prop('disabled', true);
+                    state.selected = true;
+                    $rowCheckbox.prop('checked', true);
+                } else {
+                    state.fullPayment = false;
+                    $manualInput.prop('disabled', false);
+                    if (!state.manualAmount) {
+                        state.selected = false;
+                        $rowCheckbox.prop('checked', false);
                     }
                 }
-            });
-        });
-    }
-
-
-    // Function to get table data
-    function populateTable(tableId, data) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ""; // Clear existing rows
-
-        data.forEach((item, index) => {
-            const tr = document.createElement("tr");
-            tr.classList.add("checkbox-item");
-
-            // Name / ID + Checkbox
-            const tdName = document.createElement("td");
-            tdName.innerHTML = `
-            <label class="checkbox-item-wrapper" style="margin-bottom:0;">
-                <input type="checkbox" id="${tableId}-item${index + 1}" ${item.checked ? "checked" : ""}>
-                <span class="checkmark"></span>
-                <span class="ms-2">${item.fullName}</span>
-            </label>
-        `;
-
-            // Amount
-            const tdAmount = document.createElement("td");
-            tdAmount.textContent = item.invoiceNumber;
-
-            tr.appendChild(tdName);
-            tr.appendChild(tdAmount);
-
-            tbody.appendChild(tr);
-        });
-    }
-
-
-    // Populate both tables
-    populateTable("table1", table1Data);
-    populateTable("table2", table2Data);
-
-
-
-
-    console.log("Table 1:", table1Data);
-    console.log("Table 2:", table2Data);
-
-
-
-
-
-    function populateTable(tableId, data) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ""; // Clear existing rows
-
-        data.forEach((item, index) => {
-            const tr = document.createElement("tr");
-            tr.classList.add("checkbox-item");
-            tr.style.cursor = "pointer";
-            tr.setAttribute("data-row-index", index);
-
-            // Custom checkbox with checkmark for main row
-            const tdName = document.createElement("td");
-            tdName.innerHTML = `
-            <label class="checkbox-item-wrapper" style="margin-bottom:0;">
-                <input type="checkbox" id="${tableId}-item${index + 1}" ${item.checked ? "checked" : ""}>
-                <span class="checkmark"></span>
-                <span class="ms-2">${item.fullName}</span>
-            </label>
-        `;
-
-            // Invoice Number cell
-            const tdInvoice = document.createElement("td");
-            tdInvoice.textContent = item.invoiceNumber;
-
-            tr.appendChild(tdName);
-            tr.appendChild(tdInvoice);
-
-            // Checkbox event: update data array when user ticks/unticks
-            tdName.querySelector('input[type="checkbox"]').addEventListener('change', function(e) {
-                item.checked = this.checked;
+                updateFinalWriteOff();
             });
 
-            // Expand/collapse on row click (but NOT when clicking the checkbox)
-            tr.addEventListener("click", function(e) {
-                if (e.target.closest('input[type="checkbox"]')) return;
+        });
 
-                // Collapse if already expanded
-                if (tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains(
-                        "expanded-row")) {
-                    tr.nextSibling.remove();
-                    return;
+        // Row-select (outer checkbox) change (delegate)
+        $(document).on('change', '.row-select', function() {
+            const $tr = $(this).closest('tr.checkbox-item');
+            const idVal = $tr.attr('data-id');
+            const type = $tr.attr('data-type');
+            const checked = $(this).is(':checked');
+            const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
+
+            // When user just checks outer checkbox, if manualAmount is 0 set manualAmount to fullAmount (so server receives an amount)
+            state.selected = checked;
+            if (checked && !state.manualAmount && !state.fullPayment) {
+                state.manualAmount = state.fullAmount;
+            }
+            updateFinalWriteOff();
+        });
+
+        // Also keep updateFinalWriteOff reacting to direct manual inputs inserted earlier (in case older code left inputs)
+        $(document).on('input', 'table tbody .manual-input', function() {
+            // handled when expanded created
+            updateFinalWriteOff();
+        });
+
+        /* ---------------------------
+           Dropdown show/hide & filtering
+           (keeps your existing behaviour)
+           ---------------------------*/
+        $('#invoiceDropdownSearch').on('focus', function() {
+            $(this).next('.dropdown-menu').addClass('show');
+        });
+        $('.dropdown-menu').on('mousedown', e => e.preventDefault());
+        $(document).on('click', e => {
+            if (!$(e.target).closest('.dropdown-menu, #invoiceDropdownSearch').length) {
+                $('.dropdown-menu').removeClass('show');
+            }
+        });
+        window.filterDropdown = function() {
+            const input = $('#invoiceDropdownSearch').val().toLowerCase();
+            $('#invoiceDropdownOptions tr').each(function() {
+                const name = $(this).find('td:first').text().toLowerCase();
+                const id = $(this).find('td:nth-child(2)').text().toLowerCase();
+                $(this).toggle(name.indexOf(input) !== -1 || id.indexOf(input) !== -1);
+            });
+        };
+
+        /* ---------------------------
+           Fetch invoices & credit notes for selected customers
+           ---------------------------*/
+        $('.red-edit-button-sm').on('click', function() {
+            let selectedCustomers = [];
+            $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
+                selectedCustomers.push($(this).val());
+            });
+            if (selectedCustomers.length === 0) {
+                alert("Select at least one customer");
+                return;
+            }
+
+            // invoices
+            $.ajax({
+                url: "{{ route('write_off.invoices') }}",
+                method: "POST",
+                data: {
+                    customer_ids: selectedCustomers,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(invoices) {
+                    // ensure we send array of { fullName, invoiceNumber }
+                    const table1Data = (invoices || []).map(inv => ({
+                        fullName: inv.invoice_or_cheque_no,
+                        invoiceNumber: inv.amount
+                    }));
+                    renderTable('table1', table1Data, 'invoice');
+                    updateFinalWriteOff();
+                },
+                error: function(xhr) {
+                    console.error('Failed to fetch invoices', xhr);
+                    alert('Failed to fetch invoices');
                 }
-
-                // Expand: insert the expandable row after this row
-                const expandTr = document.createElement("tr");
-                expandTr.className = "expanded-row";
-                const expandTd = document.createElement("td");
-                expandTd.colSpan = 2;
-
-                expandTd.innerHTML = `
-    <div class="d-flex align-items-center justify-content-center py-3">
-        <input type="text" class="form-control" placeholder="Write-off Amount" style="min-width:140px; max-width:180px; margin-right: 6rem;">
-        <label class="checkbox-item-wrapper mb-0" style="margin-bottom:0;">
-            <input class="form-check-input" type="checkbox" id="fullPaymentCheck${tableId}${index}">
-            <span class="checkmark"></span>
-            <span class="ms-2">Full Payment</span>
-        </label>
-    </div>
-`;
-
-                expandTr.appendChild(expandTd);
-                tr.parentNode.insertBefore(expandTr, tr.nextSibling);
             });
 
-            tbody.appendChild(tr);
+            // credit notes
+            $.ajax({
+                url: "{{ route('write_off.credit_notes') }}",
+                method: "POST",
+                data: {
+                    customer_ids: selectedCustomers,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(creditNotes) {
+                    const table2Data = (creditNotes || []).map(cn => ({
+                        fullName: cn.credit_note_id,
+                        invoiceNumber: cn.amount
+                    }));
+                    renderTable('table2', table2Data, 'credit');
+                    updateFinalWriteOff();
+                },
+                error: function(xhr) {
+                    console.error('Failed to fetch credit notes', xhr);
+                    alert('Failed to fetch credit notes');
+                }
+            });
         });
-    }
-</script>
 
-<script>
-    function filterDropdown() {
-        const input = document.getElementById("invoiceDropdownSearch").value.toLowerCase();
-        const rows = document.querySelectorAll("#invoiceDropdownOptions tr");
+        /* ---------------------------
+           Submit handler
+           - Validates at least one invoice OR one credit note selected
+           ---------------------------*/
+        $(document).on('click', '.submit-writeoff-btn', function() {
+            // Build maps
+            const writeOffInvoices = {};
+            const writeOffCreditNotes = {};
+            let finalAmount = 0;
 
-        rows.forEach(row => {
-            const name = row.querySelector("td").innerText.toLowerCase();
-            const invoice = row.querySelectorAll("td")[1].innerText.toLowerCase();
+            Object.keys(invoiceState).forEach(k => {
+                const s = invoiceState[k];
+                if (s.selected) {
+                    const amount = s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
+                    writeOffInvoices[k] = amount;
+                    finalAmount += amount;
+                }
+            });
 
-            if (name.includes(input) || invoice.includes(input)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
+            Object.keys(creditState).forEach(k => {
+                const s = creditState[k];
+                if (s.selected) {
+                    const amount = s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
+                    writeOffCreditNotes[k] = amount;
+                    finalAmount -= amount;
+                }
+            });
+
+            // Validate at least one invoice or credit note
+            if (Object.keys(writeOffInvoices).length === 0 && Object.keys(writeOffCreditNotes).length === 0) {
+                alert('Please select at least one invoice or credit note.');
+                return;
             }
-        });
-    }
-</script>
 
-<script>
-    // Cancel button redirect
-    document.querySelector('.cancel').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = 'write-off-main';
-    });
-</script>
+            const reason = $('.additional-notes').val() || '';
 
-<script>
-    document.getElementById('invoiceDropdownSearch').addEventListener('focus', function() {
-        const dropdownMenu = this.nextElementSibling; // the <ul class="dropdown-menu">
-        dropdownMenu.classList.add('show');
-    });
-
-    const dropdownInput = document.getElementById('invoiceDropdownSearch');
-    const dropdownMenu = dropdownInput.nextElementSibling;
-
-    // Show dropdown on focus
-    dropdownInput.addEventListener('focus', () => {
-        dropdownMenu.classList.add('show');
-    });
-
-    // Keep dropdown open if clicking inside
-    dropdownMenu.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // prevents input blur
-    });
-
-    // Hide dropdown on clicking outside
-    document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && e.target !== dropdownInput) {
-            dropdownMenu.classList.remove('show');
-        }
-    });
-</script>
-
-<script>
-    // Show toast on submit
-    document.querySelector('.submit').addEventListener('click', function(e) {
-        e.preventDefault();
-        const toast = document.getElementById('user-toast');
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
-    });
-</script>
-
-<script>
-    $('.red-edit-button-sm').on('click', function() {
-        // Get selected customer IDs
-        let selectedCustomers = [];
-        $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
-            selectedCustomers.push($(this).val());
+            // Submit
+            $.ajax({
+                url: "{{ route('write_off.submit') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    write_off_invoices: writeOffInvoices,
+                    write_off_credit_notes: writeOffCreditNotes,
+                    final_amount: finalAmount.toFixed(2), // send as proper decimal
+                    reason: reason
+                },
+                success: function(res) {
+                    if (res && res.success) {
+                        if ($('#user-toast').length) {
+                            $('#user-toast').show();
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            alert(res.message || 'Saved');
+                            location.reload();
+                        }
+                    } else {
+                        alert(res.message || 'Failed to save write-off.');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Server error while saving write-off', xhr);
+                    alert('Server error while saving write-off.');
+                }
+            });
         });
 
-        if (selectedCustomers.length === 0) {
-            alert("Select at least one customer");
-            return;
-        }
 
-        // Fetch invoices
-        $.ajax({
-            url: "{{ route('write_off.invoices') }}",
-            method: "POST",
-            data: {
-                customer_ids: selectedCustomers,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(invoices) {
-                const table1Data = invoices.map(inv => ({
-                    fullName: inv.invoice_or_cheque_no,
-                    invoiceNumber: inv.amount,
-                    checked: false
-                }));
-                populateTable('table1', table1Data);
-            }
-        });
-
-        // Fetch credit notes
-        $.ajax({
-            url: "{{ route('write_off.credit_notes') }}",
-            method: "POST",
-            data: {
-                customer_ids: selectedCustomers,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(creditNotes) {
-                const table2Data = creditNotes.map(cn => ({
-                    fullName: cn.credit_note_id,
-                    invoiceNumber: cn.amount,
-                    checked: false
-                }));
-                populateTable('table2', table2Data);
-            }
-        });
-    });
+    }); // end ready
 </script>
+
+
 
 @include('finance::layouts.footer2')
