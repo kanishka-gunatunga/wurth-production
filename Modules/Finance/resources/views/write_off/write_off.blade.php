@@ -97,6 +97,7 @@
 
                                             <th scope="col column-title">Invoice No. / Return No.</th>
                                             <th scope="col column-title">Amount</th>
+                                            <th scope="col column-title">Balance Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -136,6 +137,8 @@
 
                                             <th scope="col column-title">Extra Pay. Id / Credit Note Id</th>
                                             <th scope="col column-title">Amount</th>
+                                            <th scope="col column-title">Balance Amount</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -219,11 +222,11 @@
             const $tbody = $(`#${tableId} tbody`);
             $tbody.empty();
 
-            dataArray.forEach((item, idx) => {
+            dataArray.forEach(item => {
                 const idVal = String(item.fullName);
                 const fullAmount = safeParseFloat(item.invoiceNumber);
 
-                // ensure state exists
+                // State initialization
                 const state = (type === 'invoice' ? invoiceState : creditState);
                 if (!state[idVal]) state[idVal] = {
                     selected: false,
@@ -234,24 +237,24 @@
                 else state[idVal].fullAmount = fullAmount;
 
                 const $tr = $(`
-                <tr class="checkbox-item" data-id="${idVal}" data-type="${type}">
-                    <td>
-                        <label class="checkbox-item-wrapper mb-0">
-                            <input type="checkbox" class="row-select me-2">
-                            <span class="ms-2 row-label">${idVal}</span>
-                        </label>
-                    </td>
-                    <td class="row-amount">${formatCurrency(fullAmount)}</td>
-                </tr>
-            `);
+            <tr class="checkbox-item" data-id="${idVal}" data-type="${type}">
+                <td>
+                    <label class="checkbox-item-wrapper mb-0">
+                        <input type="checkbox" class="row-select me-2">
+                        <span class="ms-2 row-label">${idVal}</span>
+                    </label>
+                </td>
+                <td class="row-amount">${formatCurrency(fullAmount)}</td>
+                <td class="row-balance">${formatCurrency(fullAmount)}</td>
+            </tr>
+        `);
 
-                // append
                 $tbody.append($tr);
             });
 
-            // ensure displayed total updated
             updateFinalWriteOff();
         }
+
 
         // Expand row builder
         function buildExpandedRow(idVal, type) {
@@ -273,20 +276,17 @@
         `);
         }
 
-        // Update total based on invoiceState and creditState
+        // Update total based Only on sum invoices
         function updateFinalWriteOff() {
             let total = 0;
             Object.values(invoiceState).forEach(s => {
                 if (!s.selected) return;
                 total += s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
             });
-            Object.values(creditState).forEach(s => {
-                if (!s.selected) return;
-                total -= s.fullPayment ? s.fullAmount : (s.manualAmount || 0);
-            });
 
             $('.red-bold-text').text("Final Write-off amount : Rs. " + formatCurrency(total));
         }
+
 
         // Fetch initial tableData variables if available (server may inject)
         if (window.table1Data && Array.isArray(window.table1Data)) {
@@ -341,8 +341,22 @@
 
             // manual input handler
             $manualInput.on('input', function() {
-                const v = safeParseFloat($(this).val());
+                let v = safeParseFloat($(this).val());
+
+                // Validation: block typing more than fullAmount
+                if (v > state.fullAmount) {
+                    $(this).val(state.fullAmount.toFixed(2));
+                    v = state.fullAmount;
+                }
+
+                // Validation: block negative or non-numeric
+                if (v < 0 || isNaN(v)) {
+                    $(this).val('');
+                    v = 0;
+                }
+
                 state.manualAmount = v;
+
                 if (v > 0) {
                     state.fullPayment = false;
                     $fullPay.prop('checked', false);
@@ -352,27 +366,44 @@
                     state.selected = false;
                     $rowCheckbox.prop('checked', false);
                 }
+
+                // Update “Balance Amount” (new 3rd column)
+                const remaining = Math.max(0, state.fullAmount - v);
+                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
+                $mainRow.find('.row-balance').text(formatCurrency(remaining));
+
                 updateFinalWriteOff();
             });
 
             // full pay handler
             $fullPay.on('change', function() {
+                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
                 if ($(this).is(':checked')) {
                     state.fullPayment = true;
                     state.manualAmount = state.fullAmount;
                     $manualInput.val(state.fullAmount).prop('disabled', true);
                     state.selected = true;
                     $rowCheckbox.prop('checked', true);
+
+                    // Full payment → remaining becomes 0
+                    $mainRow.find('.row-balance').text(formatCurrency(0));
                 } else {
                     state.fullPayment = false;
                     $manualInput.prop('disabled', false);
+                    $mainRow.find('.row-balance').text(formatCurrency(state.fullAmount));
+
+                    // Reset displayed amount to original full amount if unchecked
+                    $mainRow.find('.row-amount').text(formatCurrency(state.fullAmount));
+
                     if (!state.manualAmount) {
                         state.selected = false;
                         $rowCheckbox.prop('checked', false);
                     }
                 }
+
                 updateFinalWriteOff();
             });
+
 
         });
 
@@ -549,7 +580,4 @@
 
     }); // end ready
 </script>
-
-
-
 @include('finance::layouts.footer2')

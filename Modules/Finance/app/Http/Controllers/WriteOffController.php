@@ -23,7 +23,7 @@ class WriteOffController extends Controller
         $customerIds = $request->customer_ids;
 
         $invoices = Invoices::whereIn('customer_id', $customerIds)
-            ->select('invoice_or_cheque_no', 'amount', 'customer_id')
+            ->select('invoice_or_cheque_no', DB::raw('COALESCE(updated_amount, amount) AS amount'), 'customer_id')
             ->get();
 
         return response()->json($invoices);
@@ -34,69 +34,99 @@ class WriteOffController extends Controller
         $customerIds = $request->customer_ids;
 
         $creditNotes = CreditNote::whereIn('customer_id', $customerIds)
-            ->select('credit_note_id', 'amount', 'customer_id')
+            ->select('credit_note_id', DB::raw('COALESCE(updated_amount, amount) AS amount'), 'customer_id')
             ->get();
 
         return response()->json($creditNotes);
     }
 
     public function submitWriteOff(Request $request)
-{
-    $request->validate([
-        'write_off_invoices' => 'nullable|array',
-        'write_off_credit_notes' => 'nullable|array',
-        'final_amount' => 'required|numeric',
-        'reason' => 'required|string|max:255',
-    ]);
-
-    $writeOffInvoices = $request->write_off_invoices ?? [];
-    $writeOffCreditNotes = $request->write_off_credit_notes ?? [];
-    $finalAmount = $request->final_amount;
-    $reason = $request->reason;
-
-    if (empty($writeOffInvoices) && empty($writeOffCreditNotes)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Please select at least one invoice or credit note.'
-        ], 422);
-    }
-
-    DB::beginTransaction();
-
-    try {
-        // Prepare JSON arrays
-        $invoiceJson = [];
-        foreach ($writeOffInvoices as $invNo => $amount) {
-            $invoiceJson[] = ['invoice' => $invNo];
-            // Update invoice write_off_amount
-            Invoices::where('invoice_or_cheque_no', $invNo)
-                ->update(['write_off_amount' => $amount]);
-        }
-
-        $creditNoteJson = [];
-        foreach ($writeOffCreditNotes as $cnNo => $amount) {
-            $creditNoteJson[] = ['credit_note' => $cnNo];
-            // Update credit note write_off_amount
-            CreditNote::where('credit_note_id', $cnNo)
-                ->update(['write_off_amount' => $amount]);
-        }
-
-        // Store in write_offs table
-        WriteOffs::create([
-            'invoice_or_cheque_no' => $invoiceJson,
-            'extraPayment_or_creditNote_no' => $creditNoteJson,
-            'final_amount' => $finalAmount,
-            'reason' => $reason,
+    {
+        $request->validate([
+            'write_off_invoices' => 'nullable|array',
+            'write_off_credit_notes' => 'nullable|array',
+            'final_amount' => 'required|numeric',
+            'reason' => 'nullable|string|max:255',
         ]);
 
-        DB::commit();
+        $writeOffInvoices = $request->write_off_invoices ?? [];
+        $writeOffCreditNotes = $request->write_off_credit_notes ?? [];
+        $reason = $request->reason;
 
-        return response()->json(['success' => true, 'message' => 'Write-Off successfully saved!']);
+        if (empty($writeOffInvoices) && empty($writeOffCreditNotes)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select at least one invoice or credit note.'
+            ], 422);
+        }
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+        DB::beginTransaction();
+
+        try {
+            $invoiceJson = [];
+            $creditNoteJson = [];
+            $finalAmount = 0;
+
+            // Handle Invoices
+            foreach ($writeOffInvoices as $invNo => $writeOffAmount) {
+                $invoice = Invoices::where('invoice_or_cheque_no', $invNo)->first();
+                if (!$invoice) continue;
+
+                $currentAmount = $invoice->updated_amount ?? $invoice->amount;
+                $writeOffAmount = floatval($writeOffAmount);
+                $updatedAmount = max(0, $currentAmount - $writeOffAmount);
+
+
+                // Update invoice
+                $invoice->update([
+                    'write_off_amount' => $writeOffAmount,
+                    'updated_amount' => $updatedAmount,
+                ]);
+
+                $invoiceJson[] = [
+                    'invoice' => $invNo,
+                    'write_off_amount' => $writeOffAmount
+                ];
+
+                $finalAmount += $writeOffAmount;
+            }
+
+            // 💳 Handle Credit Notes
+            foreach ($writeOffCreditNotes as $cnNo => $writeOffAmount) {
+                $credit = CreditNote::where('credit_note_id', $cnNo)->first();
+                if (!$credit) continue;
+
+                $currentAmount = $credit->updated_amount ?? $credit->amount;
+                $writeOffAmount = floatval($writeOffAmount);
+                $updatedAmount = max(0, $currentAmount - $writeOffAmount);
+
+
+                // Update credit note
+                $credit->update([
+                    'write_off_amount' => $writeOffAmount,
+                    'updated_amount' => $updatedAmount,
+                ]);
+
+                $creditNoteJson[] = [
+                    'credit_note' => $cnNo,
+                    'write_off_amount' => $writeOffAmount
+                ];
+            }
+
+            // Save Write-Off Record
+            WriteOffs::create([
+                'invoice_or_cheque_no' => $invoiceJson,
+                'extraPayment_or_creditNote_no' => $creditNoteJson,
+                'final_amount' => $finalAmount,
+                'reason' => $reason,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Write-Off successfully saved!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
-}
-
 }
