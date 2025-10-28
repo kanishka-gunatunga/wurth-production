@@ -162,7 +162,7 @@
 
 @section('footer-buttons')
 <div class="d-flex justify-content-end mt-4 gap-3">
-
+    <a href="{{ route('write_off.main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
     <button type="button" class="red-action-btn-lg submit-writeoff-btn">Submit</button>
 </div>
 @endsection

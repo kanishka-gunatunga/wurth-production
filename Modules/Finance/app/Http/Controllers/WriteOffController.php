@@ -129,4 +129,13 @@ class WriteOffController extends Controller
             return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
+
+    public function main()
+    {
+        $writeOffs = WriteOffs::select('id', 'final_amount', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('finance::write_off.write_off_main', compact('writeOffs'));
+    }
 }
