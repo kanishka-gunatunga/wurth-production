@@ -99,17 +99,25 @@
                         <th>Write-off ID</th>
                         <th>Date</th>
                         <th>Final write-off amount</th>
-
-
+                        <th class="sticky-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="cashDepositeTableBody">
                     @forelse ($writeOffs as $writeOff)
                     <tr class="clickable-row" data-href="/finance/write-off-details/{{ $writeOff->id }}">
-                        <td>{{ $writeOff->id }}</td> {{-- ✅ show actual DB id --}}
+                        <td>{{ $writeOff->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($writeOff->created_at)->format('Y-m-d') }}</td>
                         <td>{{ number_format($writeOff->final_amount, 2) }}</td>
+                        <td class="sticky-column">
+                            <a href="{{ route('write_off.download', $writeOff->id) }}"
+                                class="black-action-btn submit"
+                                style="text-decoration: none;"
+                                onclick="event.stopPropagation()">
+                                Download
+                            </a>
+                        </td>
                     </tr>
+
                     @empty
                     <tr>
                         <td colspan="3" class="text-center">No write-off records found.</td>
@@ -124,127 +132,8 @@
         </div>
 
     </div>
-
-
-
-
-
 </div>
 
-
-
-
-
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 </div>
 
 
@@ -292,16 +181,23 @@
 
 <!-- for toast message -->
 <script>
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('submit')) {
+    document.querySelectorAll('.submit').forEach(btn => {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Prevent row click
+            e.stopPropagation();
+
             const toast = document.getElementById('user-toast');
             toast.style.display = 'block';
+
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
-        }
+
+            // Simulate download action (for now)
+            setTimeout(() => {
+                window.location.href = this.getAttribute('href');
+            }, 500);
+        });
     });
 </script>
 

@@ -73,4 +73,5 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])->name('write_off.submit');
     Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
     Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
+    Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
 });

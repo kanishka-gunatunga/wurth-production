@@ -179,4 +179,23 @@ class WriteOffController extends Controller
             'creditNotesData'
         ));
     }
+
+    public function download($id)
+    {
+        // Temporary fake download (for now)
+        $writeOff = WriteOffs::findOrFail($id);
+
+        $content = "Write-Off Receipt\n\n" .
+            "Write-Off ID: {$writeOff->id}\n" .
+            "Final Amount: {$writeOff->final_amount}\n" .
+            "Date: {$writeOff->created_at}\n" .
+            "Reason: {$writeOff->reason}\n\n" .
+            "This is a placeholder receipt. Actual PDF format will be added later.";
+
+        $fileName = "write_off_receipt_{$writeOff->id}.txt";
+
+        return response($content)
+            ->header('Content-Type', 'text/plain')
+            ->header('Content-Disposition', "attachment; filename={$fileName}");
+    }
 }
