@@ -252,16 +252,22 @@
 
             dataArray.forEach(item => {
                 const idVal = String(item.fullName);
-                const fullAmount = safeParseFloat(item.invoiceNumber);
+                const fullAmount = safeParseFloat(item.amount);
+                const balanceAmount = safeParseFloat(item.balance ?? item.amount);
 
                 const state = (type === 'invoice' ? invoiceState : creditState);
-                if (!state[idVal]) state[idVal] = {
-                    selected: false,
-                    fullPayment: false,
-                    manualAmount: 0,
-                    fullAmount: fullAmount
-                };
-                else state[idVal].fullAmount = fullAmount;
+                if (!state[idVal]) {
+                    state[idVal] = {
+                        selected: false,
+                        fullPayment: false,
+                        manualAmount: 0,
+                        fullAmount: fullAmount,
+                        currentBalance: balanceAmount
+                    };
+                } else {
+                    state[idVal].fullAmount = fullAmount;
+                    state[idVal].currentBalance = balanceAmount;
+                }
 
                 const $tr = $(`
             <tr class="checkbox-item" data-id="${idVal}" data-type="${type}">
@@ -272,7 +278,7 @@
                     </div>
                 </td>
                 <td class="row-amount">${formatCurrency(fullAmount)}</td>
-                <td class="row-balance">${formatCurrency(fullAmount)}</td>
+                <td class="row-balance">${formatCurrency(balanceAmount)}</td>
             </tr>
         `);
 
@@ -281,6 +287,7 @@
 
             updateFinalWriteOff();
         }
+
 
 
 
@@ -516,10 +523,11 @@
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(invoices) {
-                    // ensure we send array of { fullName, invoiceNumber }
+                    // Backend now returns only the balance (amount - paid_amount)
                     const table1Data = (invoices || []).map(inv => ({
                         fullName: inv.invoice_or_cheque_no,
-                        invoiceNumber: inv.amount
+                        amount: safeParseFloat(inv.balance), // Use balance as main amount
+                        balance: safeParseFloat(inv.balance) // Same for dynamic updates
                     }));
                     renderTable('table1', table1Data, 'invoice');
                     updateFinalWriteOff();
@@ -541,7 +549,8 @@
                 success: function(creditNotes) {
                     const table2Data = (creditNotes || []).map(cn => ({
                         fullName: cn.credit_note_id,
-                        invoiceNumber: cn.amount
+                        amount: safeParseFloat(cn.amount), // ✅ Correct property
+                        balance: safeParseFloat(cn.amount) // ✅ Show same as amount initially
                     }));
                     renderTable('table2', table2Data, 'credit');
                     updateFinalWriteOff();

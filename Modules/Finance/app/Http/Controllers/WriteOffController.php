@@ -23,11 +23,19 @@ class WriteOffController extends Controller
         $customerIds = $request->customer_ids;
 
         $invoices = Invoices::whereIn('customer_id', $customerIds)
-            ->select('invoice_or_cheque_no', DB::raw('COALESCE(updated_amount, amount) AS amount'), 'customer_id')
+            ->whereRaw('amount - COALESCE(paid_amount, 0) > 0') // only unbalanced invoices
+            ->select(
+                'invoice_or_cheque_no',
+                'customer_id',
+                'amount',
+                'paid_amount',
+                DB::raw('(amount - COALESCE(paid_amount, 0)) AS balance')
+            )
             ->get();
 
         return response()->json($invoices);
     }
+
 
     public function getCreditNotes(Request $request)
     {
@@ -67,51 +75,48 @@ class WriteOffController extends Controller
             $creditNoteJson = [];
             $finalAmount = 0;
 
-            // Handle Invoices
+            // ✅ Handle Invoices
             foreach ($writeOffInvoices as $invNo => $writeOffAmount) {
                 $invoice = Invoices::where('invoice_or_cheque_no', $invNo)->first();
                 if (!$invoice) continue;
 
-                $currentAmount = $invoice->updated_amount ?? $invoice->amount;
                 $writeOffAmount = floatval($writeOffAmount);
-                $updatedAmount = max(0, $currentAmount - $writeOffAmount);
+                $balance = $invoice->amount - $invoice->paid_amount;
+                if ($balance <= 0) continue;
 
+                $writeOffAmount = min($writeOffAmount, $balance);
+                $newPaidAmount = $invoice->paid_amount + $writeOffAmount;
 
-                // Update invoice
+                // ✅ Update only existing columns
                 $invoice->update([
-                    'write_off_amount' => $writeOffAmount,
-                    'updated_amount' => $updatedAmount,
+                    'paid_amount' => $newPaidAmount,
                 ]);
 
                 $invoiceJson[] = [
                     'invoice' => $invNo,
+                    'write_off_amount' => $writeOffAmount,
+                ];
+
+                $finalAmount += $writeOffAmount;
+            }
+
+
+            // ✅ Handle Credit Notes
+            foreach ($writeOffCreditNotes as $cnNo => $writeOffAmount) {
+                $credit = CreditNote::where('credit_note_id', $cnNo)->first();
+                if (!$credit) continue;
+
+                $writeOffAmount = floatval($writeOffAmount);
+
+                // ✅ Just skip updating non-existent columns
+                $creditNoteJson[] = [
+                    'credit_note' => $cnNo,
                     'write_off_amount' => $writeOffAmount
                 ];
 
                 $finalAmount += $writeOffAmount;
             }
 
-            // 💳 Handle Credit Notes
-            foreach ($writeOffCreditNotes as $cnNo => $writeOffAmount) {
-                $credit = CreditNote::where('credit_note_id', $cnNo)->first();
-                if (!$credit) continue;
-
-                $currentAmount = $credit->updated_amount ?? $credit->amount;
-                $writeOffAmount = floatval($writeOffAmount);
-                $updatedAmount = max(0, $currentAmount - $writeOffAmount);
-
-
-                // Update credit note
-                $credit->update([
-                    'write_off_amount' => $writeOffAmount,
-                    'updated_amount' => $updatedAmount,
-                ]);
-
-                $creditNoteJson[] = [
-                    'credit_note' => $cnNo,
-                    'write_off_amount' => $writeOffAmount
-                ];
-            }
 
             // Save Write-Off Record
             WriteOffs::create([
