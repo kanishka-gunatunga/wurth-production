@@ -138,4 +138,45 @@ class WriteOffController extends Controller
 
         return view('finance::write_off.write_off_main', compact('writeOffs'));
     }
+
+    public function details($id)
+    {
+        // Fetch the write-off record
+        $writeOff = WriteOffs::findOrFail($id);
+
+        // Prepare Invoices/Return Cheque data
+        $invoicesData = collect($writeOff->invoice_or_cheque_no)->map(function ($item) {
+            $invoice = Invoices::where('invoice_or_cheque_no', $item['invoice'])->first();
+            if (!$invoice) return null;
+
+            $customer = $invoice->customer;
+            return [
+                'invoiceNo' => $item['invoice'],
+                'customerName' => $customer?->name ?? '-',
+                'customerId' => $customer?->customer_id ?? '-',
+                'admNo' => $customer?->adm ?? '-',
+                'writeOffAmount' => $item['write_off_amount'],
+            ];
+        })->filter()->values(); // remove nulls
+
+        // Prepare Extra Payment/Credit Note data
+        $creditNotesData = collect($writeOff->extraPayment_or_creditNote_no)->map(function ($item) {
+            $credit = CreditNote::where('credit_note_id', $item['credit_note'])->first();
+            if (!$credit) return null;
+
+            return [
+                'extraPaymentNo' => $item['credit_note'],
+                'customerName' => $credit->customer_name ?? '-',
+                'customerId' => $credit->customer_id ?? '-',
+                'admNo' => $credit->adm_id ?? '-',
+                'writeOffAmount' => $item['write_off_amount'],
+            ];
+        })->filter()->values();
+
+        return view('finance::write_off.write_off_details', compact(
+            'writeOff',
+            'invoicesData',
+            'creditNotesData'
+        ));
+    }
 }
