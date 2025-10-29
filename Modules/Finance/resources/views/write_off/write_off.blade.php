@@ -1,5 +1,33 @@
 @include('finance::layouts.header')
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+    .form-check-input {
+        width: 22px;
+        height: 22px;
+        border: 1px solid #D2D5DA;
+        border-radius: 4px;
+        background-color: #fff;
+        appearance: none;
+        /* hide default OS checkbox */
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Hover effect */
+    .form-check-input:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Checked state (red fill + tick icon) */
+    .form-check-input:checked {
+        background-color: #CC0000 !important;
+        border-color: #CC0000 !important;
+        background-image: url("https://img.icons8.com/?size=100&id=82769&format=png&color=FFFFFF");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 14px 14px;
+    }
+</style>
 
 <div class="main-wrapper">
     <div class="d-flex justify-content-between">
@@ -226,7 +254,6 @@
                 const idVal = String(item.fullName);
                 const fullAmount = safeParseFloat(item.invoiceNumber);
 
-                // State initialization
                 const state = (type === 'invoice' ? invoiceState : creditState);
                 if (!state[idVal]) state[idVal] = {
                     selected: false,
@@ -239,10 +266,10 @@
                 const $tr = $(`
             <tr class="checkbox-item" data-id="${idVal}" data-type="${type}">
                 <td>
-                    <label class="checkbox-item-wrapper mb-0">
-                        <input type="checkbox" class="row-select me-2">
-                        <span class="ms-2 row-label">${idVal}</span>
-                    </label>
+                    <div class="form-check d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input row-select me-2" ${state[idVal].selected ? 'checked' : ''}>
+                        <label class="form-check-label row-label m-0">${idVal}</label>
+                    </div>
                 </td>
                 <td class="row-amount">${formatCurrency(fullAmount)}</td>
                 <td class="row-balance">${formatCurrency(fullAmount)}</td>
@@ -256,25 +283,28 @@
         }
 
 
+
         // Expand row builder
         function buildExpandedRow(idVal, type) {
             const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
             const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state.fullPayment ? state.fullAmount : '');
 
             return $(`
-            <tr class="expanded-row">
-                <td colspan="2">
-                    <div class="d-flex align-items-center justify-content-start py-3 gap-3">
-                        <input type="text" class="form-control manual-input" placeholder="Write-off Amount" style="min-width:140px; max-width:180px;" value="${manualValue}">
-                        <label class="checkbox-item-wrapper mb-0">
-                            <input class="form-check-input full-pay" type="checkbox">
-                            <span class="ms-2">Full Payment</span>
-                        </label>
+        <tr class="expanded-row">
+            <td colspan="3">
+                <div class="d-flex align-items-center justify-content-start py-3 gap-3">
+                    <input type="text" class="form-control manual-input" placeholder="Write-off Amount"
+                        style="min-width:140px; max-width:180px;" value="${manualValue}">
+                    <div class="form-check">
+                        <input class="form-check-input full-pay" type="checkbox" ${state.fullPayment ? 'checked' : ''}>
+                        <label class="form-check-label ms-2">Full Payment</label>
                     </div>
-                </td>
-            </tr>
-        `);
+                </div>
+            </td>
+        </tr>
+    `);
         }
+
 
         // Update total based Only on sum invoices
         function updateFinalWriteOff() {
@@ -414,14 +444,27 @@
             const type = $tr.attr('data-type');
             const checked = $(this).is(':checked');
             const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
+            const $balanceCell = $tr.find('.row-balance');
 
-            // When user just checks outer checkbox, if manualAmount is 0 set manualAmount to fullAmount (so server receives an amount)
             state.selected = checked;
-            if (checked && !state.manualAmount && !state.fullPayment) {
-                state.manualAmount = state.fullAmount;
+
+            if (checked) {
+                // If unchecked before, now mark full amount as write-off
+                if (!state.manualAmount && !state.fullPayment) {
+                    state.manualAmount = state.fullAmount;
+                }
+                // Since checked = write off full amount → balance 0
+                $balanceCell.text(formatCurrency(0));
+            } else {
+                // When unchecked, reset manual and balance
+                state.manualAmount = 0;
+                state.fullPayment = false;
+                $balanceCell.text(formatCurrency(state.fullAmount));
             }
+
             updateFinalWriteOff();
         });
+
 
         // Also keep updateFinalWriteOff reacting to direct manual inputs inserted earlier (in case older code left inputs)
         $(document).on('input', 'table tbody .manual-input', function() {
