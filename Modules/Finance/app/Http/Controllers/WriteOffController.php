@@ -75,7 +75,7 @@ class WriteOffController extends Controller
             $creditNoteJson = [];
             $finalAmount = 0;
 
-            // ✅ Handle Invoices
+            // ✅ Handle Invoices (add to final total)
             foreach ($writeOffInvoices as $invNo => $writeOffAmount) {
                 $invoice = Invoices::where('invoice_or_cheque_no', $invNo)->first();
                 if (!$invoice) continue;
@@ -87,7 +87,6 @@ class WriteOffController extends Controller
                 $writeOffAmount = min($writeOffAmount, $balance);
                 $newPaidAmount = $invoice->paid_amount + $writeOffAmount;
 
-                // ✅ Update only existing columns
                 $invoice->update([
                     'paid_amount' => $newPaidAmount,
                 ]);
@@ -97,28 +96,31 @@ class WriteOffController extends Controller
                     'write_off_amount' => $writeOffAmount,
                 ];
 
-                $finalAmount += $writeOffAmount;
+                $finalAmount += $writeOffAmount; // ✅ Add to final total
             }
 
-
-            // ✅ Handle Credit Notes
+            // ✅ Handle Credit Notes (update remaining amount, but don’t affect final total)
             foreach ($writeOffCreditNotes as $cnNo => $writeOffAmount) {
                 $credit = CreditNote::where('credit_note_id', $cnNo)->first();
                 if (!$credit) continue;
 
                 $writeOffAmount = floatval($writeOffAmount);
 
-                // ✅ Just skip updating non-existent columns
+                // Determine current available amount
+                $currentAmount = $credit->updated_amount ?? $credit->amount;
+                $newRemaining = max(0, $currentAmount - $writeOffAmount);
+
+                // Update the credit note's updated_amount
+                $credit->update(['updated_amount' => $newRemaining]);
+
                 $creditNoteJson[] = [
                     'credit_note' => $cnNo,
-                    'write_off_amount' => $writeOffAmount
+                    'write_off_amount' => $writeOffAmount,
+                    'remaining_balance' => $newRemaining
                 ];
-
-                $finalAmount += $writeOffAmount;
             }
 
-
-            // Save Write-Off Record
+            // ✅ Save Write-Off Record (final_amount only from invoices)
             WriteOffs::create([
                 'invoice_or_cheque_no' => $invoiceJson,
                 'extraPayment_or_creditNote_no' => $creditNoteJson,
@@ -128,12 +130,19 @@ class WriteOffController extends Controller
 
             DB::commit();
 
-            return response()->json(['success' => true, 'message' => 'Write-Off successfully saved!']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Write-Off successfully saved!'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
     public function main()
     {
