@@ -13,6 +13,7 @@ use Modules\Finance\Http\Controllers\ChequeDepositsController;
 use Modules\Finance\Http\Controllers\FinanceCashController;
 use Modules\Finance\Http\Controllers\FinanceChequeController;
 use Modules\Finance\Http\Controllers\WriteOffController;
+use Modules\Finance\Http\Controllers\SetOffController;
 use Illuminate\Http\Request;
 
 /*
@@ -74,4 +75,12 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
     Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
     Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
+
+    Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
+    Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
+    Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+    Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
+    Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
+    Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
+    Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
 });
