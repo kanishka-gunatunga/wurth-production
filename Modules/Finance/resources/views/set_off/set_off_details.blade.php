@@ -2,20 +2,23 @@
 <div class="main-wrapper">
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
-        <h1 class="header-title">Write-off ID - {{ $writeOff->id }}</h1>
+        <h1 class="header-title">Set-Off ID - {{ $setOff->id }}</h1>
     </div>
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-md"></div>
         <div class="slip-details">
             <p>
-                <span class="bold-text">Date :</span><span class="slip-detail-text">&nbsp;{{ $writeOff->created_at->format('Y-m-d') }}</span>
+                <span class="bold-text">Date :</span>
+                <span class="slip-detail-text">&nbsp;{{ $setOff->created_at->format('Y-m-d') }}</span>
             </p>
             <p>
-                <span class="bold-text">Write-off reason :</span><span class="slip-detail-text">&nbsp;{{ $writeOff->reason ?? '-' }}</span>
+                <span class="bold-text">Set-Off reason :</span>
+                <span class="slip-detail-text">&nbsp;{{ $setOff->reason ?? '-' }}</span>
             </p>
             <p>
-                <span class="bold-text">Final Write-off Amount :</span><span class="slip-detail-text">&nbsp;Rs. {{ number_format($writeOff->final_amount, 2) }}</span>
+                <span class="bold-text">Final Set-Off Amount :</span>
+                <span class="slip-detail-text">&nbsp;Rs. {{ number_format($setOff->final_amount, 2) }}</span>
             </p>
         </div>
 
@@ -30,7 +33,7 @@
                         <th>Customer Name</th>
                         <th>Customer ID</th>
                         <th>ADM no.</th>
-                        <th>Write-off Amount</th>
+                        <th>Set-Off Amount</th>
                     </tr>
                 </thead>
                 <tbody id="paymentSlipsInvoices">
@@ -40,7 +43,7 @@
                         <td>{{ $invoice['customerName'] }}</td>
                         <td>{{ $invoice['customerId'] }}</td>
                         <td>{{ $invoice['admNo'] }}</td>
-                        <td>{{ number_format($invoice['writeOffAmount'], 2) }}</td>
+                        <td>{{ number_format($invoice['setOffAmount'], 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -61,7 +64,7 @@
                         <th>Customer Name</th>
                         <th>Customer ID</th>
                         <th>ADM no.</th>
-                        <th>Write-off Amount</th>
+                        <th>Set-Off Amount</th>
                     </tr>
                 </thead>
                 <tbody id="paymentSlipsExtra">
@@ -71,7 +74,7 @@
                         <td>{{ $credit['customerName'] }}</td>
                         <td>{{ $credit['customerId'] }}</td>
                         <td>{{ $credit['admNo'] }}</td>
-                        <td>{{ number_format($credit['writeOffAmount'], 2) }}</td>
+                        <td>{{ number_format($credit['setOffAmount'], 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -86,10 +89,9 @@
 
 @section('footer-buttons')
 <div class="d-flex justify-content-end mt-4 gap-3">
-    <a href="{{ route('write_off.main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+    <a href="{{ route('set_off.main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 </div>
 @endsection
-
 
 
 <!-- dropdown script -->
