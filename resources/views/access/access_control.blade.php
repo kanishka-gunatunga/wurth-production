@@ -74,6 +74,7 @@
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
+            // console.log(response);
             $('#role_permissions').html(response);
             },
             error: function(xhr) {

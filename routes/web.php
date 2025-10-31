@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\AuthAdmin;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReturnChequeController;
-
+use App\Http\Controllers\CollectionsController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -64,3 +64,7 @@ Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.show');
 Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
+
+
+Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
