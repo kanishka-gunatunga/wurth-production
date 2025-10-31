@@ -21,4 +21,8 @@ class InvoicePaymentBatches extends Model
     {
         return $this->hasMany(InvoicePayments::class, 'batch_id', 'id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'adm_id', 'id');
+    }
 }
