@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserDetails::class, 'supervisor', 'id');
     }
+
+    public function paymentBatches()
+{
+    return $this->hasMany(InvoicePaymentBatches::class, 'adm_id', 'id');
+}
 }

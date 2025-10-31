@@ -129,6 +129,7 @@ class CollectionsController extends Controller
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
+            $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
@@ -216,6 +217,7 @@ public function add_fund_transfer($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
+            $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
@@ -306,6 +308,7 @@ public function add_cheque_payment($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
+             $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
@@ -400,6 +403,7 @@ public function add_card_payment($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
+             $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
@@ -655,6 +659,7 @@ public function resend_receipt($id)
         
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
+             $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
@@ -803,6 +808,7 @@ public function add_bulk_fund_transfer(Request $request)
 
             if (empty($request->payment_batch_id)) {
                 $payment_batch = new InvoicePaymentBatches();
+                 $payment_batch->adm_id = Auth::user()->id;
                 $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
@@ -969,6 +975,7 @@ public function add_bulk_cheque_payment(Request $request)
 
             if (empty($request->payment_batch_id)) {
                 $payment_batch = new InvoicePaymentBatches();
+                 $payment_batch->adm_id = Auth::user()->id;
                 $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
@@ -1057,6 +1064,7 @@ public function add_bulk_card_payment(Request $request)
 
             if (empty($request->payment_batch_id)) {
                 $payment_batch = new InvoicePaymentBatches();
+                 $payment_batch->adm_id = Auth::user()->id;
                 $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
