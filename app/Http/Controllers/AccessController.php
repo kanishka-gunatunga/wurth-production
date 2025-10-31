@@ -57,7 +57,7 @@ public function get_role_permissions(Request $request)
     
     $rolePermissions = RolePermissions::where('user_role', $user_role)->first();
     
-    $permissions = $rolePermissions ? json_decode($rolePermissions->permissions, true) : [];
+    $permissions = $rolePermissions ? $rolePermissions->permissions : [];
     
     $availablePermissions = [
         "View User List",

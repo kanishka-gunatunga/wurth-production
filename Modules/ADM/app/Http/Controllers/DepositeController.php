@@ -22,7 +22,9 @@ use App\Models\Invoices;
 use App\Models\Customers;
 use App\Models\InvoicePayments;
 use App\Models\InvoicePaymentBatches;
-
+use App\Models\Bank;
+use App\Models\Branch;
+use App\Models\Deposits;
 use File;
 use Mail;
 use Image;
@@ -33,111 +35,123 @@ class DepositeController extends Controller
      * Display a listing of the resource.
      */
  
-    public function daily_deposit(Request $request)
-    { 
+public function daily_deposit(Request $request)
+{ 
     if ($request->isMethod('get')) {
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
+        $banks = Bank::all();
+         $deposites = Deposits::where('adm_id', auth()->id())
+        ->whereMonth('created_at', now()->month)
+        ->whereYear('created_at', now()->year)
+        ->get();
 
-        // Get all customers under this ADM
-        $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
+       $cashTotal = $deposites->filter(function($d) {
+            return in_array(strtolower($d->type), ['cash', 'finance - cash']);
+        })->sum('amount');
 
-        // Get all invoices belonging to those customers
-        $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
-        $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
-        $all_customers = Customers::where('adm', $adm_no)->get();
+        $chequeTotal = $deposites->filter(function($d) {
+            return in_array(strtolower($d->type), ['cheque', 'finance - cheque']);
+        })->sum('amount');
 
-        // ✅ Get all invoice payments related to those invoices
-        $receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-            ->whereHas('batch', function($query) {
-                $query->where('temp_receipt', 0);
-            })
-            ->whereHas('invoice', function($query) use ($customers) {
-                $query->whereIn('customer_id', $customers);
-            })
-            ->get();
-
-        return view('adm::deposite.daily_deposit', [
-            'receipts' => $receipts,
-        ]);
+         return view('adm::deposite.daily_deposit', [
+        'banks' => $banks,
+        'cashTotal' => $cashTotal,
+        'chequeTotal' => $chequeTotal
+    ]);
     }
 
-    if($request->isMethod('post')){
-        
-        try {
+    if ($request->isMethod('post')) {
         $request->validate([
-            'cash_amount'   => 'required',
+            'deposit_type' => 'required|string',
+            'deposit_total' => 'required|numeric|min:0.01',
+            'selected_receipts' => 'required|string',
+            'screenshot' => 'required',
+            'screenshot.*' => 'file',
         ]);
 
-        $discount =  ($request->cash_amount * ($request->cash_discount ?? 0)) / 100;
-        $final_payment = $request->cash_amount-$discount;
-
-        if($request->payment_batch_id == ''){
-            $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->save();  
-        }
-        else{
-            $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
-        }
-
-
-        $payment = new InvoicePayments();
-        $payment->invoice_id = $id;
-        $payment->batch_id = $payment_batch->id;
-        $payment->type = 'cash';
-        $payment->is_bulk = 0;
-        $payment->amount = $request->cash_amount;
-        $payment->discount = $request->cash_discount;
-        $payment->final_payment = $final_payment;
-        $payment->save();
-
-        $invoice =  Invoices::where('id', $id)->first();
-        $invoice->paid_amount = $invoice->paid_amount + $request->cash_amount;
-        $invoice->update();
-
-
-        $invoice= Invoices::where('id', $payment->invoice_id)->first();
-        $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('adm_number', $customer->adm)->first();
-
-        $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-            'is_duplicate' => 0,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
-
-        $folder = public_path('uploads/adm/collections/receipts/original/');
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
+        // Handle multiple file uploads
+        $attachmentPaths = [];
+        if ($request->hasFile('screenshot')) {
+            foreach ($request->file('screenshot') as $file) {
+                $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                $filePath = 'db_files/attachments/deposits/';
+                $file->move(public_path($filePath), $fileName);
+                $attachmentPaths[] = $filePath . $fileName;
+            }
         }
 
-        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
-        $filePath = $folder.'/'.$pdf_name;
-        $pdf->save($filePath);
+        // Decode selected receipts
+        $receiptIds = json_decode($request->selected_receipts, true);
 
-        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-        $payment->save();
+        if (!is_array($receiptIds) || empty($receiptIds)) {
+            return redirect()->back()->with('error', 'Invalid receipts selected.');
+        }
 
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        // Format receipts for DB
+        $receipts = collect($receiptIds)->map(fn($id) => ['reciept_id' => $id])->values();
 
-        return response()->json([
-            'status' => "success",
-            'message' => 'Payment added successfully',
-            'amount' => $request->cash_amount,
-            'discount' => $request->cash_discount,
-            'payment_batch_id' => $payment_batch->id,
-        ], 201);
-        
-    }
-    catch (\Exception $e) {
-        return response()->json([
-            'status' => "fail",
-            'message' => 'Request failed',
-            'error' => $e->getMessage()
-        ], 500);
-    }    
+        // Save deposit
+        $deposit = new Deposits();
+        $deposit->type = strtolower($request->deposit_type);
+        $deposit->date_time = now();
+        $deposit->amount = $request->deposit_total;
+        $deposit->reciepts = $receipts->toJson();
+        $deposit->adm_id = auth()->id();
+        $deposit->status = 'pending';
+        $deposit->bank_name = $request->cheque_bank;
+        $deposit->branch_name = $request->cheque_branch;
+        $deposit->attachment_path = json_encode($attachmentPaths);
+        $deposit->save();
+
+        foreach ($receiptIds as $receiptId) {
+            if ($receiptId) {
+                InvoicePayments::where('id', $receiptId)->update(['status' => 'deposited']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Deposit submitted successfully!');
     }
 }
+
+public function get_receipts(Request $request)
+{
+    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
+    $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
+
+    $paymentsQuery = InvoicePayments::with(['invoice.customer', 'batch'])
+        ->where('status', 'pending')
+        ->whereHas('invoice', function ($q) use ($customers) {
+            $q->whereIn('customer_id', $customers);
+        })
+        ->whereHas('batch', function ($q) {
+            $q->where('temp_receipt', 0); // exclude temp receipts
+        });
+
+    // ✅ Filter by deposit type (based on InvoicePayments.type)
+    if ($request->filled('deposit_type')) {
+        $depositType = strtolower($request->deposit_type);
+
+        if (in_array($depositType, ['cash', 'finance - cash'])) {
+            $paymentsQuery->where('type', 'cash');
+        } elseif (in_array($depositType, ['cheque', 'finance - cheque'])) {
+            $paymentsQuery->where('type', 'cheque');
+        }
+    }
+
+    // 🔍 Search filter (customer name or invoice number)
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $paymentsQuery->where(function ($q) use ($search) {
+            $q->whereHas('invoice.customer', function ($sub) use ($search) {
+                $sub->where('name', 'like', "%{$search}%");
+            })->orWhereHas('invoice', function ($sub) use ($search) {
+                $sub->where('invoice_or_cheque_no', 'like', "%{$search}%");
+            });
+        });
+    }
+
+    return response()->json($paymentsQuery->get());
+}
+
+
 
 }

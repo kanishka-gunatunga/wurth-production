@@ -3,165 +3,83 @@
             <div class="d-flex flex-row px-3 justify-content-center align-items-center w-100 text-start mb-3" style="border: solid 1px #9D9D9D;">
                 <div class="col-6 d-flex flex-column py-2 text-center">
                     <p class="gray-small-title mb-1">Daily Cash Deposit</p>
-                    <p class="black-large-text mb-1">Rs. 120,000</p>
+                     <p class="black-large-text mb-1">Rs. {{ number_format($cashTotal, 2, '.', ',') }}</p>
                 </div>
                 <div class="col-6 d-flex flex-column py-2 text-center" style="border-left: solid 1px #9D9D9D;">
                     <p class="gray-small-title mb-1">Daily Cheque Deposit</p>
-                    <p class="black-large-text mb-1">Rs. 325,000</p>
+                    <p class="black-large-text mb-1">Rs. {{ number_format($chequeTotal, 2, '.', ',') }}</p>
                 </div>
             </div>
             <div class="d-flex flex-row px-3 justify-content-between align-items-center w-100 text-start pt-2 mb-3">
                 <h3 class="page-title">Daily Deposit</h3>
             </div>
-
+             <form  method="POST" action="" enctype="multipart/form-data" >
+            @csrf
             <div class="container px-3 pb-2">
-                <div class="dropdown-overlay" id="dropdownOverlay" style="display: none;"></div>
-                <h4 class="black-title mb-0">Select Deposit Method</h4>
-                <div class="custom-select-wrapper" id="customSelectWrapper">
-                    <div class="custom-select" id="customSelect">
-                        <span>Select Deposit Method</span>
-                        <i class="bi bi-chevron-down chevron"></i>
-                    </div>
-                    <div class="custom-dropdown" id="customDropdown">
-                        <div class="custom-dropdown-item" data-value="1">Cash Deposit</div>
-                        <div class="custom-dropdown-item" data-value="2">Cheque Deposit</div>
-                    </div>
+                <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="deposit_type">Deposit Type</label>
+                    <select class="select2-no-search" name="deposit_type">
+                        <option></option>
+                        <option value="Cash">Cash</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Finance - Cash">Finance - Cash</option>
+                        <option value="Finance - Cheque">Finance - Cheque</option>
+                    </select>
+            </div>
+            <div id="chequeInputs">
+                    <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="cheque_bank">Bank <span style="color:red;">*</span></label>
+                    <select name="cheque_bank" id="cheque_bank" class="form-control select2" >
+                        <option value="">-- Select Bank --</option>
+                        @foreach($banks as $bank)
+                            <option value="{{ $bank->BankID }}||{{ $bank->BankName }}">{{ $bank->BankName }}</option>
+                        @endforeach
+                    </select>
                 </div>
+                
+                <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="cheque_branch">Branch <span style="color:red;">*</span></label>
+                    <select name="cheque_branch" id="cheque_branch" class="form-control select2" >
+                        <option value="">-- Select Branch --</option>
+                    </select>
+                </div>
+                
+                
             </div>
 
-            <div class="d-flex w-100 flex-column px-3 mb-3 mt-3">
-                <div class="card-view px-0 ">
-                    <div class="d-flex flex-row justify-content-between align-items-center px-3 mb-2">
+</div>
+<div class="d-flex w-100 flex-column px-3 mb-3 mt-3">  
+    <div class="card-view px-0 "> 
+                <div class="d-flex flex-row justify-content-between align-items-center px-3 mb-2">
                         <h4 class="black-title mb-3">Deposit Summery </h4>
-                    </div>
-                    <div class="px-3">
+                </div>
+                <div class="px-3">
                         <div class="input-group mb-3" style="border: solid 0.5px #9D9D9D !important; border-radius: 8px !important;">
                             <span class="input-group-text" id="basic-addon1"><i class="bi bi-search" style="color: #9D9D9D !important"></i></span>
                             <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon1" style="border-radius: 8px !important;">
                         </div>
                     </div>
-                    <div class="d-flex flex-row justify-content-between align-items-center px-3 pb-2 mb-2" style="border-bottom: 1px solid #D0D5DDAB;">
-                        <h4 class="black-title mb-0">Cash Payment Paid Customers</h4>
+                <div class="d-flex flex-row justify-content-between align-items-center px-3 pb-2 mb-2" style="border-bottom: 1px solid #D0D5DDAB;">
+                        <h4 class="black-title mb-0">Payment Paid Customers</h4>
+                    </div>    
+                <div class="scrollable-section-deposit">
+                    <div class="d-flex flex-column pe-3" id="receipts-container">
+                    
                     </div>
-                    <div class="scrollable-section-deposit">
-                        <div class="d-flex flex-column pe-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label d-flex flex-column" for="flexCheckDefault" style="border-bottom: 1px solid #D0D5DDAB;">
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Customers Name : </span>
-                                        <span class="label-value">Dimo Lanka - Negombo</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Invoice Numbers : </span>
-                                        <span class="label-value">1256845, 1256854</span>
-                                    </div>
-                                    <div class="d-flex flex-row mb-2">
-                                        <span class="label-name">Collected Cash Amount : </span>
-                                        <span class="label-value">Rs. 170,000.00</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="px-3">
-                        <div class="d-flex flex-row px-3 mt-2 justify-content-center align-items-center w-100 text-start mb-3 shadow-border" style=" border-radius: 8px;">
-                            <div class="col-12 d-flex flex-column py-4 text-center">
-                                <p class="gray-small-title mb-1" style="color: #595959;  font-weight: 500">Total Amount
-                                </p>
-                                <p class="black-large-text mb-1" style="color:#CC0000">Rs.
-                                    124,000.00</p>
-                            </div>
+                </div>
+
+                <div class="px-3 mt-3">
+                    <div class="d-flex flex-row px-3 justify-content-center align-items-center w-100 text-center shadow-border" style="border-radius: 8px;">
+                        <div class="col-12 d-flex flex-column py-4">
+                            <p class="gray-small-title mb-1" style="color: #595959; font-weight: 500">Total Amount</p>
+                            <p class="black-large-text mb-1" style="color:#CC0000" id="total-amount">Rs. 0.00</p>
+                            <input type="hidden" name="deposit_total" value="0" id="deposit_total">
                         </div>
                     </div>
                 </div>
             </div>
-
+    </div>
+</div>  
 
             <div class="input-group-collection-inner d-flex flex-column mb-3 px-3 pt-3">
                 <label for="screenshot" class="mb-1">Upload Transfer
@@ -183,7 +101,7 @@
                             </svg>
                             <label for="screenshot">Click to upload</label>
                         </div>
-                        <input type="file" id="screenshot" class="form-control position-absolute screenshot-input" name="screenshot" multiple="" style="opacity: 0;">
+                      <input type="file" id="screenshot" class="form-control position-absolute screenshot-input" name="screenshot[]" multiple style="opacity: 0;">
                         <div class="invalid-feedback">Upload Transfer Screenshot is
                             required</div>
                         <ul id="file-preview" class="mt-1 d-flex flex-column text-start ps-0 mb-0">
@@ -194,5 +112,166 @@
             <div class="d-flex w-100 justify-content-center align-items-center px-3">
                 <button class="styled-button-normal px-5" style="font-size: 14px !important; width: 100% !important;" type="submit">Submit Payment</button>
             </div>
-        </div>
+       </form>
 @include('adm::layouts.footer')
+<script>
+let selectedReceipts = new Set(); // store checked receipt IDs
+
+function loadReceipts(deposit_type, search = '') {
+    const container = $('#receipts-container');
+    container.html('<p class="text-center my-3 text-muted">Loading...</p>');
+    // console.log(deposit_type);
+    $.ajax({
+        url: "{{ url('adm/get-receipts') }}",
+        type: "GET",
+        data: { deposit_type, search },
+        success: function(receipts) {
+            renderReceipts(receipts);
+        },
+        error: function() {
+            container.html('<p class="text-center text-danger my-3">Error loading receipts.</p>');
+        }
+    });
+}
+
+function renderReceipts(receipts) {
+    const container = $('#receipts-container');
+    container.empty();
+
+    if (!receipts.length) {
+        container.html('<p class="text-center my-3 text-muted">No receipts found.</p>');
+        $('#total-amount').text('Rs. 0.00');
+        return;
+    }
+    // console.log(receipts);
+    receipts.forEach(receipt => {
+        const customerName = receipt.invoice?.customer?.name ?? '-';
+        const invoiceNo = receipt.invoice?.invoice_or_cheque_no ?? '-';
+        const amount = Number(receipt.final_payment || 0);
+        const checked = selectedReceipts.has(receipt.id) ? 'checked' : '';
+        
+        const html = `
+            <div class="form-check mb-2">
+                <input class="form-check-input me-2 receipt-checkbox" type="checkbox" value="${receipt.id}" data-amount="${amount}" ${checked}>
+                <label class="form-check-label d-flex flex-column" style="border-bottom: 1px solid #D0D5DDAB;">
+                    <div class="d-flex flex-row mb-2">
+                        <span class="label-name">Customer Name: </span>
+                        <span class="label-value">${customerName}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-2">
+                        <span class="label-name">Invoice No(s): </span>
+                        <span class="label-value">${invoiceNo}</span>
+                    </div>
+                    <div class="d-flex flex-row mb-2">
+                        <span class="label-name">Collected ${receipt.invoice?.type || ''} Amount: </span>
+                        <span class="label-value">Rs. ${amount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                </label>
+            </div>
+        `;
+        container.append(html);
+    });
+
+    updateTotal();
+
+    // Handle checkbox clicks
+    $('.receipt-checkbox').on('change', function() {
+        const id = parseInt($(this).val());
+        const amount = parseFloat($(this).data('amount')) || 0;
+
+        if ($(this).is(':checked')) {
+            selectedReceipts.add(id);
+        } else {
+            selectedReceipts.delete(id);
+        }
+
+        updateTotal();
+    });
+}
+
+function updateTotal() {
+    let total = 0;
+    $('.receipt-checkbox:checked').each(function() {
+        total += parseFloat($(this).data('amount')) || 0;
+    });
+    $('#total-amount').text('Rs. ' + total.toLocaleString('en-LK', { minimumFractionDigits: 2 }));
+   $('#deposit_total').val(total.toFixed(2));
+}
+
+// When deposit type changes
+$('select[name="deposit_type"]').on('change', function() {
+    const deposit_type = $(this).val();
+    selectedReceipts.clear(); // reset selections when changing deposit type
+    loadReceipts(deposit_type);
+});
+
+// Live search (server-side)
+let searchTimeout;
+$('input[placeholder="Search"]').on('input', function() {
+    const search = $(this).val();
+    const deposit_type = $('select[name="deposit_type"]').val();
+    if (!deposit_type) return;
+
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        loadReceipts(deposit_type, search);
+    }, 300); // debounce for smoother performance
+});
+
+$(document).ready(function () { 
+ $("#chequeInputs").hide();
+
+    $("select[name='deposit_type']").on("change", function () {
+        let method = $(this).val();
+        $("#chequeInputs").hide();
+
+        if (method === "Cheque") {
+            $("#chequeInputs").show();
+        }
+    });
+     $('#cheque_bank, #cheque_branch').select2({
+        placeholder: "Select an option",
+        allowClear: true,
+        width: '100%'
+    });
+    $('#cheque_bank').on('change', function() { 
+    let selectedValue = $(this).val();
+    let bankId = selectedValue.split('||')[0]; // take only the ID
+    let branchDropdown = $('#cheque_branch');
+
+    branchDropdown.empty().append('<option value="">Loading...</option>');
+
+    if (bankId) {
+        $.ajax({
+            url: "{{ url('get-branches') }}",
+            type: "GET",
+            data: { bank_id: bankId },
+            success: function(data) {
+                branchDropdown.empty().append('<option value="">-- Select Branch --</option>');
+                $.each(data, function(key, branch) {
+                    branchDropdown.append('<option value="'+ branch.BranchName +' - '+ branch.BranchCode +'">'+ branch.BranchName +' - '+ branch.BranchCode +'</option>');
+                });
+                branchDropdown.trigger('change');
+            }
+        });
+    } else {
+        branchDropdown.empty().append('<option value="">-- Select Branch --</option>');
+    }
+})
+$('form').on('submit', function (e) {
+    // Prevent empty submission
+    if (selectedReceipts.size === 0) {
+        alert('Please select at least one receipt.');
+        e.preventDefault();
+        return false;
+    }
+
+    // Create hidden input for selected receipts
+    $('<input>').attr({
+        type: 'hidden',
+        name: 'selected_receipts',
+        value: JSON.stringify(Array.from(selectedReceipts))
+    }).appendTo(this);
+});
+});
+</script>

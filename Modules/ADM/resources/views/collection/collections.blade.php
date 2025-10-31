@@ -22,77 +22,74 @@ use App\Models\Customers;
                     </li>
             </ul> -->
             <div class="tab-content" id="pills-tabContent">
-                <div class="tab-pane fade show active" id="pills-payment" role="tabpanel" aria-labelledby="pills-payment-tab">
-                        <div class="d-flex flex-row px-4 justify-content-center align-items-center w-100 text-start mb-3"
-                            style="border: solid 1px #9D9D9D;">
-                            <div class="col-6 d-flex flex-column py-2 text-center">
-                                <p class="gray-small-title mb-1">Total Invoices</p>
-                                <p class="black-large-text mb-1">{{number_format($all_invoices->count())}}</p>
-                            </div>
-                            <div class="col-6 d-flex flex-column py-2 text-center" style="border-left: solid 1px #9D9D9D;">
-                                <p class="gray-small-title mb-1">Total Outstanding Amount</p>
-                                <?php
-                                $outstanding_amount = 0;
-                                foreach($all_invoices as $all_invoice){
-                                    $amount_diff = $all_invoice->amount-$all_invoice->paid_amount;
-                                    $outstanding_amount = $outstanding_amount+ $amount_diff;
-                                } ?>
-                                <p class="black-large-text mb-1">Rs. {{number_format($outstanding_amount)}}</p>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <div class="mb-3 ">
-                                <div class="container">
-                                    <div class="search-container">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white border-end-0">
-                                                <i class="bi bi-search"></i>
-                                            </span>
-                                            <input type="text" class="form-control border-start-0" id="searchInput"
-                                                placeholder="Search here...">
-                                        </div>
-                                        <div class="search-dropdown" id="searchDropdown">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="table-container">
-                                <table class="table dashboard-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">In.No / Che.No</th>
-                                            <th scope="col">Customer Name</th>
-                                            <th scope="col">Invoice Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="invoice-data">
-                                    <?php
-                                    foreach($invoices as $invoice){
-                                    
-                                    ?>
-                                        <tr>
-                                            <td>
-                                            <a href="{{url('adm/view-invoice/'.$invoice->id.'')}}">
-                                                {{$invoice->invoice_or_cheque_no}}
-                                            </a>
-                                            </th>
-                                            <td>{{Customers::where('customer_id', $invoice->customer_id)->value('name')}}</th>
-                                            <td>{{$invoice->invoice_date}}</th>
-                                        
-                                        </tr>
-                                    <?php } ?>  
-                                    </tbody>
-                                </table>
-                            </div>
+    <div class="tab-pane fade show active" id="pills-payment" role="tabpanel" aria-labelledby="pills-payment-tab">
 
-                            <div class="col-12 d-flex justify-content-center laravel-pagination">
-                                {{ $invoices->links('pagination::bootstrap-5') }}
-                            </div>
-                        </div>
-                </div>
-
-                
+        <!-- Summary Section -->
+        <div class="d-flex flex-row px-4 justify-content-center align-items-center w-100 text-start mb-3" style="border: solid 1px #9D9D9D;">
+            <div class="col-6 d-flex flex-column py-2 text-center">
+                <p class="gray-small-title mb-1">Total Invoices</p>
+                <p class="black-large-text mb-1">{{ number_format($all_invoices->count()) }}</p>
             </div>
+            <div class="col-6 d-flex flex-column py-2 text-center" style="border-left: solid 1px #9D9D9D;">
+                <p class="gray-small-title mb-1">Total Outstanding Amount</p>
+                @php
+                    $outstanding_amount = $all_invoices->sum(fn($invoice) => $invoice->amount - $invoice->paid_amount);
+                @endphp
+                <p class="black-large-text mb-1">Rs. {{ number_format($outstanding_amount) }}</p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="d-flex flex-column">
+            <div class="mb-3">
+                <div class="container">
+                    <div class="search-container">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search here...">
+                        </div>
+                        <div class="search-dropdown" id="searchDropdown"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table class="table dashboard-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">In.No / Che.No</th>
+                            <th scope="col">Customer Name</th>
+                            <th scope="col">Invoice Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-data">
+                        @foreach($invoices as $invoice)
+                            <tr>
+                                <td>
+                                    <a href="{{ url('adm/view-invoice/' . $invoice->id) }}">
+                                        {{ $invoice->invoice_or_cheque_no }}
+                                    </a>
+                                </td>
+                                <td>{{ $invoice->customer->name ?? '-' }}</td>
+                                <td>{{ $invoice->invoice_date }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="col-12 d-flex justify-content-center laravel-pagination">
+                {{ $invoices->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
+
+    </div>
+</div>
+
            
         </div>
         @include('adm::layouts.footer')
