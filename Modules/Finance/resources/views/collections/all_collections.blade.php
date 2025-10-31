@@ -88,7 +88,7 @@
                 </thead>
                 <tbody id="outstandingTableBody">
                     @foreach($collections as $collection)
-                    <tr>
+                    <tr onclick="window.location='{{ route('collections.details', $collection['collection_id']) }}'" style="cursor:pointer;">
                         <td>{{ $collection['collection_id'] }}</td>
                         <td>{{ $collection['collection_date'] }}</td>
                         <td>{{ $collection['adm_number'] }}</td>

@@ -161,6 +161,31 @@ class CollectionsController extends Controller
         return view('finance::collections.all_collections', compact('collections'));
     }
 
+    public function collection_details($id)
+    {
+        // Validate and fetch the batch (collection)
+        $batch = InvoicePaymentBatches::with([
+            'payments.invoice.customer',
+        ])->findOrFail($id);
+
+        // Transform data for view
+        $payments = $batch->payments->map(function ($payment) {
+            return [
+                'receipt_no' => $payment->id, // Receipt number = id from invoice_payments
+                'customer_name' => optional($payment->invoice->customer)->name ?? 'N/A',
+                'invoice_no' => $payment->invoice_id,
+                'status' => $payment->status ?? 'N/A',
+                'payment_method' => $payment->type ?? 'N/A',
+                'amount' => number_format($payment->final_payment ?? 0, 2),
+            ];
+        });
+
+        return view('finance::collections.collection_details', [
+            'batch' => $batch,
+            'payments' => $payments,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

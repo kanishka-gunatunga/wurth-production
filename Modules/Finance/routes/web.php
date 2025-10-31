@@ -86,4 +86,6 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
 
     Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
         ->name('collections.all');
+    Route::get('/collection-details/{id}', [CollectionsController::class, 'collection_details'])
+        ->name('collections.details');
 });
