@@ -83,4 +83,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
     Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
     Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
+
+    Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
+        ->name('collections.all');
 });
