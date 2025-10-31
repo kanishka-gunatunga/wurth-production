@@ -124,7 +124,7 @@
                             <table class="table unlock-column-table ">
                                 <thead>
                                     <tr>
-                                        <th>Date <i class="sort-icon">▼</i></th>
+                                        <th>Date</th>
                                         <th>ADM Name</th>
                                         <th>ADM Number</th>
                                         <th>Amount</th>
@@ -133,42 +133,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @forelse($recentChequeDeposits as $deposit)
                                     <tr>
-                                        <td>12 Dec 2024</td>
-                                        <td>H.K Perera</td>
-                                        <td>254565214</td>
-                                        <td>Rs. 12,000.00</td>
-                                        <td>256554558</td>
+                                        <td>{{ $deposit['date'] }}</td>
+                                        <td>{{ $deposit['adm_name'] }}</td>
+                                        <td>{{ $deposit['adm_number'] }}</td>
+                                        <td>Rs. {{ $deposit['amount'] }}</td>
+                                        <td>{{ $deposit['payment_slip'] }}</td>
                                     </tr>
+                                    @empty
                                     <tr>
-                                        <td>12 Dec 2024</td>
-                                        <td>Pasan Randula</td>
-                                        <td>254565214</td>
-                                        <td>Rs. 21,000.00</td>
-                                        <td>256554558</td>
+                                        <td colspan="5" class="text-center">No recent cheque deposits found</td>
                                     </tr>
-                                    <tr>
-                                        <td>12 Dec 2024</td>
-                                        <td>H.K Perera</td>
-                                        <td>254565214</td>
-                                        <td>Rs. 14,000.00</td>
-                                        <td>256554558</td>
-                                    </tr>
-                                    <tr>
-                                        <td>12 Dec 2024</td>
-                                        <td>Pasan Randula</td>
-                                        <td>254565214</td>
-                                        <td>Rs. 15,000.00</td>
-                                        <td>256554558</td>
-                                    </tr>
-                                    <tr>
-                                        <td>12 Dec 2024</td>
-                                        <td>H.K Perera</td>
-                                        <td>254565214</td>
-                                        <td>Rs. 112,000.00</td>
-                                        <td>256554558</td>
-                                    </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                             </table>
                         </div>

@@ -32,7 +32,7 @@ class UserController extends Controller
 
     public function dashboard()
     {
-        // Fetch the 5 most recent cash deposits
+        // ✅ Recent Cash Deposits
         $recentCashDeposits = \App\Models\Deposits::where('type', 'cash')
             ->orderByDesc('date_time')
             ->take(5)
@@ -50,8 +50,26 @@ class UserController extends Controller
                 ];
             });
 
-        // You can later make the cheque table dynamic too if needed
-        return view('finance::dashboard.index', compact('recentCashDeposits'));
+        // ✅ Recent Cheque Deposits (5 latest)
+        $recentChequeDeposits = \App\Models\Deposits::where('type', 'cheque')
+            ->orderByDesc('date_time')
+            ->take(5)
+            ->get()
+            ->map(function ($deposit) {
+                $admDetails = \App\Models\UserDetails::where('user_id', $deposit->adm_id)->first();
+
+                return [
+                    'date' => $deposit->date_time
+                        ? date('d M Y', strtotime($deposit->date_time))
+                        : 'N/A',
+                    'adm_name' => $admDetails->name ?? 'N/A',
+                    'adm_number' => $admDetails->adm_number ?? 'N/A',
+                    'amount' => number_format($deposit->amount ?? 0, 2),
+                    'payment_slip' => $deposit->id, // ID column from deposits table
+                ];
+            });
+
+        return view('finance::dashboard.index', compact('recentCashDeposits', 'recentChequeDeposits'));
     }
 
 
