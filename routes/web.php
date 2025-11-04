@@ -13,6 +13,7 @@ use App\Http\Middleware\AuthAdmin;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReturnChequeController;
 use App\Http\Controllers\CollectionsController;
+use App\Http\Controllers\UploadController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -44,7 +45,7 @@ Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class,
 Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/import', [CustomerController::class, 'import'])->middleware(AuthAdmin::class);
 
-Route::match(['get', 'post'],'get-branches', [CommonController::class, 'get_branches']);
+Route::match(['get', 'post'], 'get-branches', [CommonController::class, 'get_branches']);
 
 Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(AuthAdmin::class);
 Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(AuthAdmin::class)->name('reminders.store');
@@ -68,3 +69,6 @@ Route::post('/return-cheques/import', [ReturnChequeController::class, 'importRet
 
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
+
+Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
+Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
