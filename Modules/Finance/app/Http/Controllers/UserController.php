@@ -23,22 +23,60 @@ use File;
 use Mail;
 use Image;
 use PDF;
+
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
+
     public function dashboard()
     {
-        return view('finance::dashboard.index');
+        // ✅ Recent Cash Deposits
+        $recentCashDeposits = \App\Models\Deposits::where('type', 'cash')
+            ->orderByDesc('date_time')
+            ->take(5)
+            ->get()
+            ->map(function ($deposit) {
+                $admDetails = \App\Models\UserDetails::where('user_id', $deposit->adm_id)->first();
+
+                return [
+                    'date' => $deposit->date_time
+                        ? date('d M Y', strtotime($deposit->date_time))
+                        : 'N/A',
+                    'adm_name' => $admDetails->name ?? 'N/A',
+                    'adm_number' => $admDetails->adm_number ?? 'N/A',
+                    'amount' => number_format($deposit->amount ?? 0, 2),
+                ];
+            });
+
+        // ✅ Recent Cheque Deposits (5 latest)
+        $recentChequeDeposits = \App\Models\Deposits::where('type', 'cheque')
+            ->orderByDesc('date_time')
+            ->take(5)
+            ->get()
+            ->map(function ($deposit) {
+                $admDetails = \App\Models\UserDetails::where('user_id', $deposit->adm_id)->first();
+
+                return [
+                    'date' => $deposit->date_time
+                        ? date('d M Y', strtotime($deposit->date_time))
+                        : 'N/A',
+                    'adm_name' => $admDetails->name ?? 'N/A',
+                    'adm_number' => $admDetails->adm_number ?? 'N/A',
+                    'amount' => number_format($deposit->amount ?? 0, 2),
+                    'payment_slip' => $deposit->id, // ID column from deposits table
+                ];
+            });
+
+        return view('finance::dashboard.index', compact('recentCashDeposits', 'recentChequeDeposits'));
     }
-    
-    
+
+
     function logout()
     {
-     Auth::logout();
-     return redirect('/');
+        Auth::logout();
+        return redirect('/');
     }
     /**
      * Show the form for creating a new resource.

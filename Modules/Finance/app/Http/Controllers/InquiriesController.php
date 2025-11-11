@@ -36,7 +36,7 @@ class InquiriesController extends Controller
         $inquiries = Inquiries::with([
             'invoice',
             'customer',
-            'admin.userDetails'
+            'user.userDetails'
         ])
             ->orderBy('created_at', 'desc') // newest first
             ->paginate(10); // show 10 per page
@@ -50,7 +50,7 @@ class InquiriesController extends Controller
         $inquiry = Inquiries::with([
             'invoice',
             'customer',
-            'admin.userDetails'
+            'user.userDetails'
         ])->findOrFail($id);
 
         return view('finance::inquiries.details', compact('inquiry'));

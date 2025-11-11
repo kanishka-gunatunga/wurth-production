@@ -280,6 +280,21 @@
                             <div id="flush-collapseOne" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
+
+                                    <li class="nav-item">
+                                        <a href="{{ url('finance/all-collections') }}" class="nav-link">
+                                            <span class="me-4">
+                                                <svg width="23" height="24" viewBox="0 0 23 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M3.59375 5.53125C3.40313 5.53125 3.22031 5.45552 3.08552 5.32073C2.95073 5.18594 2.875 5.00312 2.875 4.8125C2.875 4.62188 2.95073 4.43906 3.08552 4.30427C3.22031 4.16948 3.40313 4.09375 3.59375 4.09375H19.4062C19.5969 4.09375 19.7797 4.16948 19.9145 4.30427C20.0493 4.43906 20.125 4.62188 20.125 4.8125C20.125 5.00312 20.0493 5.18594 19.9145 5.32073C19.7797 5.45552 19.5969 5.53125 19.4062 5.53125H3.59375ZM6.46875 2.65625C6.27813 2.65625 6.09531 2.58052 5.96052 2.44573C5.82573 2.31094 5.75 2.12812 5.75 1.9375C5.75 1.74688 5.82573 1.56406 5.96052 1.42927C6.09531 1.29448 6.27813 1.21875 6.46875 1.21875H16.5312C16.7219 1.21875 16.9047 1.29448 17.0395 1.42927C17.1743 1.56406 17.25 1.74688 17.25 1.9375C17.25 2.12812 17.1743 2.31094 17.0395 2.44573C16.9047 2.58052 16.7219 2.65625 16.5312 2.65625H6.46875ZM0 19.1875C0 19.7594 0.227176 20.3078 0.631551 20.7122C1.03593 21.1166 1.58438 21.3438 2.15625 21.3438H20.8438C21.4156 21.3438 21.9641 21.1166 22.3685 20.7122C22.7728 20.3078 23 19.7594 23 19.1875V9.125C23 8.55313 22.7728 8.00468 22.3685 7.6003C21.9641 7.19593 21.4156 6.96875 20.8438 6.96875H2.15625C1.58438 6.96875 1.03593 7.19593 0.631551 7.6003C0.227176 8.00468 0 8.55313 0 9.125L0 19.1875ZM2.15625 19.9062C1.96563 19.9062 1.78281 19.8305 1.64802 19.6957C1.51323 19.5609 1.4375 19.3781 1.4375 19.1875V9.125C1.4375 8.93438 1.51323 8.75156 1.64802 8.61677C1.78281 8.48198 1.96563 8.40625 2.15625 8.40625H20.8438C21.0344 8.40625 21.2172 8.48198 21.352 8.61677C21.4868 8.75156 21.5625 8.93438 21.5625 9.125V19.1875C21.5625 19.3781 21.4868 19.5609 21.352 19.6957C21.2172 19.8305 21.0344 19.9062 20.8438 19.9062H2.15625Z"
+                                                        fill="#090909" />
+                                                </svg>
+                                            </span>
+                                            All Collections(admin + finance)
+                                        </a>
+                                    </li>
+
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('all-outstanding') }}">
                                             <span class="me-4">
@@ -383,6 +398,46 @@
                             <div id="flush-collapseTwo" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ url('finance/finance-cash') }}">
+                                            <span class="me-4">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M2 11L4.807 7.843C5.18228 7.42068 5.64276 7.08266 6.15812 6.85117C6.67348 6.61969 7.23204 6.50001 7.797 6.5H8M2 19.5H7.5L11.5 16.5C11.5 16.5 12.31 15.953 13.5 15C16 13 13.5 9.834 11 11.5C8.964 12.857 7 14 7 14"
+                                                        stroke="black" stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                    <path
+                                                        d="M8 13.5V7C8 6.46957 8.21071 5.96086 8.58579 5.58579C8.96086 5.21071 9.46957 5 10 5H20C20.5304 5 21.0391 5.21071 21.4142 5.58579C21.7893 5.96086 22 6.46957 22 7V13C22 13.5304 21.7893 14.0391 21.4142 14.4142C21.0391 14.7893 20.5304 15 20 15H13.5"
+                                                        stroke="black" stroke-width="1.5" />
+                                                    <path
+                                                        d="M19.5 10.01L19.51 9.999M10.5 10.01L10.51 9.999M15 12C14.4696 12 13.9609 11.7893 13.5858 11.4142C13.2107 11.0391 13 10.5304 13 10C13 9.46957 13.2107 8.96086 13.5858 8.58579C13.9609 8.21071 14.4696 8 15 8C15.5304 8 16.0391 8.21071 16.4142 8.58579C16.7893 8.96086 17 9.46957 17 10C17 10.5304 16.7893 11.0391 16.4142 11.4142C16.0391 11.7893 15.5304 12 15 12Z"
+                                                        stroke="black" stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+
+                                            </span>
+                                            Finance - Cash
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ url('finance/finance-cheque') }}">
+                                            <span class="me-4">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M7 14H10M7 10H17M3 5H21V17C21 17.5304 20.7893 18.0391 20.4142 18.4142C20.0391 18.7893 19.5304 19 19 19H5C4.46957 19 3.96086 18.7893 3.58579 18.4142C3.21071 18.0391 3 17.5304 3 17V5Z"
+                                                        stroke="black" stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+
+
+                                            </span>
+                                            Finance - Cheque
+                                        </a>
+                                    </li>
+
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('finance/cash-deposits') }}">
                                             <span class="me-4">
@@ -506,7 +561,7 @@
 
 
                         <li class="nav-item ">
-                            <a class="nav-link" href="{{ url('write-off') }}">
+                            <a class="nav-link" href="{{ url('finance/write-off-main') }}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -522,7 +577,7 @@
 
 
                         <li class="nav-item ">
-                            <a class="nav-link" href="{{ url('set-off') }}">
+                            <a class="nav-link" href="{{ url('finance/set-off-main') }}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">

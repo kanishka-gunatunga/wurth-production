@@ -26,118 +26,166 @@ use File;
 use Mail;
 use Image;
 use PDF;
+
 class CollectionsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
 
-   public function all_receipts()
-{
-    // Receipts where batch->temp_receipt = 0
-    $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-        ->whereHas('batch', function($query) {
-            $query->where('temp_receipt', 0);
-        })
-        ->paginate(15, ['*'], 'regular_page');
 
-    // Receipts where batch->temp_receipt != 0
-    $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-        ->whereHas('batch', function($query) {
-            $query->where('temp_receipt', '!=', 0);
-        })
-        ->paginate(5, ['*'], 'temp_page');
+    public function all_receipts()
+    {
+        // Receipts where batch->temp_receipt = 0
+        $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', function ($query) {
+                $query->where('temp_receipt', 0);
+            })
+            ->paginate(15, ['*'], 'regular_page');
 
-    $advanced_payments = AdvancedPayment::with(['customerData','adm.userDetails'])
-         ->paginate(15, ['*'], 'advance_page');
+        // Receipts where batch->temp_receipt != 0
+        $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', function ($query) {
+                $query->where('temp_receipt', '!=', 0);
+            })
+            ->paginate(5, ['*'], 'temp_page');
 
-    return view('finance::collections.all_receipts', [
-        'regular_receipts' => $regular_receipts,
-        'temp_receipts' => $temp_receipts,
-        'advanced_payments' => $advanced_payments,
-    ]);
-}
-public function resend_receipt()
-{
-     $request->validate([
-        'receipt_id' => 'required|exists:invoice_payments,id',
-        'mobile' => 'nullable|string',
-        'optional_number' => 'nullable|string',
-    ]);
+        $advanced_payments = AdvancedPayment::with(['customerData', 'adm.userDetails'])
+            ->paginate(15, ['*'], 'advance_page');
 
-    $id = $request->receipt_id;
-    $mobile = $request->optional_number ?: $request->mobile;
-
-    if (!$mobile) {
-        return back()->with('error', 'No mobile number provided.');
+        return view('finance::collections.all_receipts', [
+            'regular_receipts' => $regular_receipts,
+            'temp_receipts' => $temp_receipts,
+            'advanced_payments' => $advanced_payments,
+        ]);
     }
 
-    $payment = InvoicePayments::findOrFail($id);
-    $invoice = Invoices::findOrFail($payment->invoice_id);
-    $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
-    $adm = UserDetails::where('adm_number', $customer->adm)->first();
+    public function resend_receipt()
+    {
+        $request->validate([
+            'receipt_id' => 'required|exists:invoice_payments,id',
+            'mobile' => 'nullable|string',
+            'optional_number' => 'nullable|string',
+        ]);
 
-    // Folder for saving duplicate receipts
-    $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
-    if (!File::exists($folderPath)) {
-        File::makeDirectory($folderPath, 0755, true);
-    }
+        $id = $request->receipt_id;
+        $mobile = $request->optional_number ?: $request->mobile;
 
-    // Check if duplicate already exists
-    if ($payment->duplicate_pdf && File::exists(public_path($payment->duplicate_pdf))) {
-        // Use existing file
-        $filePath = public_path($payment->duplicate_pdf);
-    } else {
-        // Generate new duplicate PDF
-        $pdf_name = 'duplicate_receipt_' . $payment->id . '_' . time() . '.pdf';
-        $filePath = $folderPath . '/' . $pdf_name;
-
-        // Select correct receipt view by payment type
-        switch ($payment->type) {
-            case 'cash':
-                $view = 'pdfs.collections.receipts.cash';
-                break;
-            case 'fund-transfer':
-                $view = 'pdfs.collections.receipts.fund-transfer';
-                break;
-            case 'cheque':
-                $view = 'pdfs.collections.receipts.cheque';
-                break;
-            case 'card':
-                $view = 'pdfs.collections.receipts.card';
-                break;
-            default:
-                return back()->with('error', 'Invalid payment type');
+        if (!$mobile) {
+            return back()->with('error', 'No mobile number provided.');
         }
 
-        // Generate and save PDF
-        $pdf = PDF::loadView($view, [
-            'is_duplicate' => 1,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+        $payment = InvoicePayments::findOrFail($id);
+        $invoice = Invoices::findOrFail($payment->invoice_id);
+        $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
+        $adm = UserDetails::where('adm_number', $customer->adm)->first();
 
-        $pdf->save($filePath);
+        // Folder for saving duplicate receipts
+        $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
 
-        $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdf_name;
-        $payment->save();
+        // Check if duplicate already exists
+        if ($payment->duplicate_pdf && File::exists(public_path($payment->duplicate_pdf))) {
+            // Use existing file
+            $filePath = public_path($payment->duplicate_pdf);
+        } else {
+            // Generate new duplicate PDF
+            $pdf_name = 'duplicate_receipt_' . $payment->id . '_' . time() . '.pdf';
+            $filePath = $folderPath . '/' . $pdf_name;
+
+            // Select correct receipt view by payment type
+            switch ($payment->type) {
+                case 'cash':
+                    $view = 'pdfs.collections.receipts.cash';
+                    break;
+                case 'fund-transfer':
+                    $view = 'pdfs.collections.receipts.fund-transfer';
+                    break;
+                case 'cheque':
+                    $view = 'pdfs.collections.receipts.cheque';
+                    break;
+                case 'card':
+                    $view = 'pdfs.collections.receipts.card';
+                    break;
+                default:
+                    return back()->with('error', 'Invalid payment type');
+            }
+
+            // Generate and save PDF
+            $pdf = PDF::loadView($view, [
+                'is_duplicate' => 1,
+                'payment' => $payment,
+                'invoice' => $invoice,
+                'customer' => $customer,
+                'adm' => $adm
+            ])->setPaper('a4', 'portrait');
+
+            $pdf->save($filePath);
+
+            $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdf_name;
+            $payment->save();
+        }
+
+        // Send email with the duplicate PDF attachment
+        if ($customer->email) {
+            Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        }
+
+        return back()->with('success', 'Receipt resent successfully to the customer.');
     }
 
-    // Send email with the duplicate PDF attachment
-    if ($customer->email) {
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+    public function remove_advanced_payment($id)
+    {
+        AdvancedPayment::where('id', $id)->delete();
+        return back()->with('success', 'Advanced Payment Removed');
     }
 
-    return back()->with('success', 'Receipt resent successfully to the customer.');
-}
-public function remove_advanced_payment($id)
-{
-AdvancedPayment::where('id',$id)->delete();
-  return back()->with('success', 'Advanced Payment Removed');
-}
+    public function all_collections()
+    {
+        // Get all invoice payment batches with relationships
+        $collections = InvoicePaymentBatches::with(['payments', 'admDetails'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($batch) {
+                return [
+                    'collection_id' => $batch->id,
+                    'collection_date' => $batch->created_at->format('Y-m-d'),
+                    'adm_number' => $batch->admDetails->adm_number ?? 'N/A',
+                    'adm_name' => $batch->admDetails->name ?? 'N/A',
+                    'total_collected_amount' => $batch->payments->sum('final_payment'),
+                ];
+            });
+
+        return view('finance::collections.all_collections', compact('collections'));
+    }
+
+    public function collection_details($id)
+    {
+        // Validate and fetch the batch (collection)
+        $batch = InvoicePaymentBatches::with([
+            'payments.invoice.customer',
+        ])->findOrFail($id);
+
+        // Transform data for view
+        $payments = $batch->payments->map(function ($payment) {
+            return [
+                'receipt_no' => $payment->id, // Receipt number = id from invoice_payments
+                'customer_name' => optional($payment->invoice->customer)->name ?? 'N/A',
+                'invoice_no' => $payment->invoice_id,
+                'status' => $payment->status ?? 'N/A',
+                'payment_method' => $payment->type ?? 'N/A',
+                'amount' => number_format($payment->final_payment ?? 0, 2),
+            ];
+        });
+
+        return view('finance::collections.collection_details', [
+            'batch' => $batch,
+            'payments' => $payments,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -185,4 +233,4 @@ AdvancedPayment::where('id',$id)->delete();
     {
         //
     }
-} 
+}

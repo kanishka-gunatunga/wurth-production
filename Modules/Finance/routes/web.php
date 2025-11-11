@@ -10,6 +10,10 @@ use Modules\Finance\Http\Middleware\FinanceAuthenticated;
 use Modules\Finance\Http\Controllers\AdvancedPaymentsController;
 use Modules\Finance\Http\Controllers\CashDepositsController;
 use Modules\Finance\Http\Controllers\ChequeDepositsController;
+use Modules\Finance\Http\Controllers\FinanceCashController;
+use Modules\Finance\Http\Controllers\FinanceChequeController;
+use Modules\Finance\Http\Controllers\WriteOffController;
+use Modules\Finance\Http\Controllers\SetOffController;
 use Illuminate\Http\Request;
 
 /*
@@ -53,4 +57,35 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('cheque_deposits.show');
     Route::post('/cheque-deposits/update-status/{id}', [ChequeDepositsController::class, 'updateStatus'])
         ->name('cheque_deposits.update_status');
+
+    Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index');
+    Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show');
+    Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download');
+    Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status');
+
+    Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index');
+    Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download');
+    Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show');
+    Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
+
+    Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
+    Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
+    Route::post('/write-off/credit-notes', [WriteOffController::class, 'getCreditNotes'])->name('write_off.credit_notes');
+    Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])->name('write_off.submit');
+    Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
+    Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
+    Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
+
+    Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
+    Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
+    Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+    Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
+    Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
+    Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
+    Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
+
+    Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
+        ->name('collections.all');
+    Route::get('/collection-details/{id}', [CollectionsController::class, 'collection_details'])
+        ->name('collections.details');
 });

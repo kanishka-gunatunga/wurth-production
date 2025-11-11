@@ -19,6 +19,8 @@ class Invoices extends Model
         'invoice_date',
         'paid_amount',
         'amount',
+        'updated_amount',
+        'write_off_amount',
         'returned_date',
         'bank',
         'branch',
