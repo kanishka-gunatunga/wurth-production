@@ -160,7 +160,7 @@
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM Name</p>
             <select id="filter-adm-name" class="form-control select2" multiple="multiple">
-                @foreach ($payments->pluck('admin.userDetails.name')->unique() as $admName)
+                @foreach ($payments->pluck('adm.userDetails.name')->unique() as $admName)
                 @if($admName)
                 <option>{{ $admName }}</option>
                 @endif

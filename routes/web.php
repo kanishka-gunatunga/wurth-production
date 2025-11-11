@@ -14,6 +14,8 @@ use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReturnChequeController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\BackupController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -27,6 +29,8 @@ Route::match(['get', 'post'], '/activate-user/{id}', [UserController::class, 'ac
 Route::match(['get', 'post'], '/deactivate-user/{id}', [UserController::class, 'deactivate_user'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/get-supervisors/{role}', [UserController::class, 'get_supervisors'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_user'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(AuthAdmin::class);
+Route::get('unlock-user/{id}', [UserController::class, 'unlock_user']);
 
 Route::match(['get', 'post'], '/division-managment', [DivisionController::class, 'division_managment'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, 'add_new_division'])->middleware(AuthAdmin::class);
@@ -44,6 +48,7 @@ Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::
 Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class, 'edit_customer'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/import', [CustomerController::class, 'import'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/view-customer/{id}', [CustomerController::class, 'view_customer'])->middleware(AuthAdmin::class);
 
 Route::match(['get', 'post'], 'get-branches', [CommonController::class, 'get_branches']);
 
@@ -72,3 +77,6 @@ Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'a
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
+
+Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(AuthAdmin::class);

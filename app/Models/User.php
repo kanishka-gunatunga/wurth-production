@@ -14,7 +14,9 @@ class User extends Authenticatable
         'email',
         'password',
         'user_role',
-        'status'
+        'status',
+        'is_locked',
+        'failed_attempts'
     ];
 
     protected $hidden = [
@@ -66,5 +68,10 @@ class User extends Authenticatable
     public function paymentBatches()
 {
     return $this->hasMany(InvoicePaymentBatches::class, 'adm_id', 'id');
+}
+
+public function activityLogs()
+{
+    return $this->hasMany(ActivtiyLog::class, 'user_id', 'id');
 }
 }

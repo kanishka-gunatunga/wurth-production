@@ -20,10 +20,10 @@
                     <label for="deposit_type">Deposit Type</label>
                     <select class="select2-no-search" name="deposit_type">
                         <option></option>
-                        <option value="Cash">Cash</option>
-                        <option value="Cheque">Cheque</option>
-                        <option value="Finance - Cash">Finance - Cash</option>
-                        <option value="Finance - Cheque">Finance - Cheque</option>
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="finance-cash">Finance - Cash</option>
+                        <option value="finance-cheque">Finance - Cheque</option>
                     </select>
             </div>
             <div id="chequeInputs">

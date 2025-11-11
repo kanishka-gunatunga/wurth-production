@@ -188,9 +188,8 @@ use App\Models\UserDetails;
                                         <td>{{$customer->mobile_number}}</td>
                                         <td>{{$customer->email}}</td>
                                         <td>
-                                            <a href="{{url('edit-customer/'.$customer->id.'')}}"><button class="action-btn">View more</button></a>
-                                            <a href="{{url('activate-customer/'.$customer->id.'')}}"><button class="action-btn">Activate</button></a>
-                                            <a href="{{url('deactivate-customer/'.$customer->id.'')}}"><button class="action-btn">Deactivate</button></a>
+                                            <a href="{{url('view-customer/'.$customer->id.'')}}"><button class="action-btn">View More</button></a>
+                                          
                                         </td>
                                     </tr>
                                 <?php } ?>

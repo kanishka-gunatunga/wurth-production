@@ -28,41 +28,59 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if($request->isMethod('get')){
+        if ($request->isMethod('get')) {
             return view('user.login');
-         }
-         if($request->isMethod('post')){
+        }
+
+        if ($request->isMethod('post')) {
 
             $request->validate([
-                'email'   => 'required',
-                'password'  => 'required'
-               ]);
+                'email'    => 'required|email',
+                'password' => 'required',
+            ]);
 
-               $user_data = array(
-                'email'  => $request->get('email'),
-                'status'  => "active",
-                // 'user_role'  => 1,
-                'password' => $request->get('password')
-               );
+            // Find user by email
+            $user = User::where('email', $request->email)->first();
 
-               if(Auth::attempt($user_data))
-               {
-                if(Auth::user()->user_role == 6){
-                    return redirect('adm');
+            if (!$user) {
+                return back()->with('fail', 'Invalid login details');
+            }
+
+            // Check if account is locked
+            if ($user->is_locked) {
+                return back()->with('fail', 'Your account is locked due to multiple failed login attempts. Please contact admin.');
+            }
+
+            // Check password manually (to control attempt tracking)
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 'active'])) {
+
+                // Reset failed attempts on success
+                $user->failed_attempts = 0;
+                $user->save();
+
+                // Redirect based on role
+                switch ($user->user_role) {
+                    case 6:
+                        return redirect('adm');
+                    case 7:
+                        return redirect('finance');
+                    default:
+                        return redirect('dashboard');
                 }
-                elseif(Auth::user()->user_role == 7){
-                    return redirect('finance');
+            } else {
+                // Increment failed attempts
+                $user->failed_attempts += 1;
+
+                // Lock account if 3 failed attempts reached
+                if ($user->failed_attempts >= 3) {
+                    $user->is_locked = true;
                 }
-                else{
-                    return redirect('dashboard');
-                }
-                
-               }
-               else
-               {
-                return back()->with('fail', 'Wrong Login Details');
-               }
-         }
+
+                $user->save();
+
+                return back()->with('fail', 'Wrong login details. (' . $user->failed_attempts . '/3 attempts)');
+            }
+        }
     }
     public function dashboard()
     {
@@ -378,4 +396,33 @@ public function get_supervisors($role)
     }
     return response()->json($supervisors);
 }
+public function locked_users(Request $request)
+{
+    $query = User::where('is_locked', 1)->with('userDetails');
+
+    // Check if there's a search term
+    if ($request->has('search') && !empty($request->search)) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('id', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
+        });
+    }
+
+    $locked_users = $query->orderBy('created_at', 'desc')->paginate(15);
+
+    return view('user.locked_users', compact('locked_users'));
+}
+public function unlock_user($id)
+{
+    $user = User::findOrFail($id);
+    $user->is_locked = 0;
+    $user->failed_attempts = 0;
+    $user->save();
+
+    return back()->with('success', 'User unlocked successfully.');
+}
+
 }

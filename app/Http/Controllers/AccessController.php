@@ -19,6 +19,8 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
 use App\Models\RolePermissions;
+use App\Models\ActivtiyLog;
+use App\Services\ActivitLogService;
 
 use File;
 use Mail;
@@ -34,17 +36,45 @@ class AccessController extends Controller
         return view('access.access_control');
         }
         if($request->isMethod('post')){
+            if($request->user_role == '1'){
+                $role = 'System Administrator';
+                }   
+                if($request->user_role == '2'){
+                $role = 'Head of Division';
+                } 
+                if($request->user_role == '3'){
+                $role = 'Regional Sales Manager';
+                } 
+                if($request->user_role == '4'){
+                $role = 'Area Sales Manager';
+                } 
+                if($request->user_role == '5'){
+                $role = 'Team Leader';
+                } 
+                if($request->user_role == '6'){
+                $role = 'ADM (Sales Rep)';
+                } 
+                if($request->user_role == '7'){
+                $role = 'Finance Manager';
+                } 
+
             if(RolePermissions::where("user_role", $request->user_role)->exists()){
                 $permission =  RolePermissions::where("user_role", $request->user_role)->first();
                 $permission->permissions = json_encode($request->permissions);
                 $permission->update();
+
+               ActivitLogService::log('permission', $role . ' permissions updated');
             }
             else{
                 $permission = new RolePermissions();
                 $permission->user_role = $request->user_role;
                 $permission->permissions = json_encode($request->permissions);
                 $permission->save();
+
+                ActivitLogService::log('permission', $role . ' permissions added');
             }
+
+            
 
             return back()->with('success', 'Role Permissions Updated');
         }
