@@ -27,17 +27,82 @@ use App\Models\Invoices;
 use File;
 use Mail;
 use Image;
-use PDF;
+use PDF; 
 
 class CustomerController extends Controller
 {
-   
-    public function customers()
-    {
-        $customers = Customers::where('is_temp', 0)->paginate(15);
-        $temp_customers = Customers::where('is_temp', 1)->paginate(15);
-        return view('customer.customers',['customers' => $customers,'temp_customers' => $temp_customers]);
+ public function customers(Request $request)
+{
+    // Active tab (default = customer-list)
+    $activeTab = $request->input('active_tab', 'customer-list');
+
+    // === CUSTOMERS TAB FILTERS ===
+    $search = $request->input('search');
+    $selectedAdms = $request->input('adm', []);
+    if (is_string($selectedAdms)) {
+        $selectedAdms = array_filter(explode(',', $selectedAdms));
     }
+
+    // === TEMPORARY CUSTOMERS TAB FILTERS ===
+    $tempSearch = $request->input('temp_search');
+    $tempSelectedAdms = $request->input('temp_adm', []);
+    if (is_string($tempSelectedAdms)) {
+        $tempSelectedAdms = array_filter(explode(',', $tempSelectedAdms));
+    }
+
+    // --- BASE QUERIES ---
+    $customersQuery = Customers::where('is_temp', 0);
+    $tempCustomersQuery = Customers::where('is_temp', 1);
+
+    // --- APPLY FILTERS TO CUSTOMERS ---
+    if (!empty($selectedAdms)) {
+        $customersQuery->whereIn('adm', $selectedAdms);
+    }
+    if (!empty($search)) {
+        $customersQuery->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('mobile_number', 'LIKE', "%{$search}%")
+              ->orWhere('customer_id', 'LIKE', "%{$search}%");
+        });
+    }
+
+    // --- APPLY FILTERS TO TEMP CUSTOMERS ---
+    if (!empty($tempSelectedAdms)) {
+        $tempCustomersQuery->whereIn('adm', $tempSelectedAdms);
+    }
+    if (!empty($tempSearch)) {
+        $tempCustomersQuery->where(function ($q) use ($tempSearch) {
+            $q->where('name', 'LIKE', "%{$tempSearch}%")
+              ->orWhere('email', 'LIKE', "%{$tempSearch}%")
+              ->orWhere('mobile_number', 'LIKE', "%{$tempSearch}%")
+              ->orWhere('customer_id', 'LIKE', "%{$tempSearch}%");
+        });
+    }
+
+    // --- PAGINATION (with separate query page names) ---
+    $customers = $customersQuery->paginate(15, ['*'], 'customers_page')
+        ->appends($request->except('customers_page'));
+    $temp_customers = $tempCustomersQuery->paginate(15, ['*'], 'temp_page')
+        ->appends($request->except('temp_page'));
+
+    // --- ADM list for filters (ADM = users with user_role 6) ---
+    $adms = User::where('user_role', 6)->with('userDetails')->get();
+
+    // --- RETURN VIEW ---
+    return view('customer.customers', [
+        'customers' => $customers,
+        'temp_customers' => $temp_customers,
+        'adms' => $adms,
+        'selectedAdms' => $selectedAdms,
+        'tempSelectedAdms' => $tempSelectedAdms,
+        'search' => $search,
+        'tempSearch' => $tempSearch,
+        'activeTab' => $activeTab,
+    ]);
+}
+
+
 
     public function add_new_customer(Request $request)
     { if($request->isMethod('get')){

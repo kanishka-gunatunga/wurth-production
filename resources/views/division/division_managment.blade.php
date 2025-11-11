@@ -71,7 +71,15 @@ use App\Models\UserDetails;
                 <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3">
                     <div id="search-box-wrapper" class="collapsed">
                         <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                        <input type="text" class="search-input" placeholder="Search Division Name or Head of Division" />
+                         <form method="GET" action="{{ url('division-managment') }}" id="mainSearchForm">
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    name="search"
+                                    placeholder="Search Division Name or Head of Division"
+                                    value="{{ request('search') }}"
+                                />
+                            </form>
                     </div>
                     <button class="header-btn" id="search-toggle-button"><i
                             class="fa-solid fa-magnifying-glass fa-xl"></i></button>
@@ -218,4 +226,10 @@ use App\Models\UserDetails;
             startIdleTimer(); // Reset the timer on any keypress
         });
     });
+
+    function searchDivisions(val) {
+    if (event.key === "Enter") {
+        document.getElementById("mainSearchForm").submit();
+    }
+}
 </script>

@@ -3,6 +3,88 @@
 
 use App\Models\UserDetails;
 ?>
+
+<style>
+    /* Search box styles */
+    .search-box-wrapper {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        background-color: #fff;
+        transition: width 0.3s ease;
+        border-radius: 30px;
+        height: 45px;
+        width: 45px;
+        border: 1px solid transparent;
+        position: relative;
+        width: 0;
+    }
+
+    .search-box-wrapper.collapsed {
+        width: 0;
+        padding: 0;
+        margin: 0;
+        border: 1px solid transparent;
+        background-color: transparent;
+    }
+
+    .search-box-wrapper.expanded {
+        width: 450px;
+        padding: 0 15px;
+    }
+
+    .search-input {
+        flex-grow: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 16px;
+        color: #333;
+        width: 100%;
+        padding-left: 30px;
+        /* space for icon */
+    }
+
+    .search-input::placeholder {
+        color: #888;
+    }
+
+    .search-icon-inside {
+        position: absolute;
+        left: 10px;
+        color: #888;
+    }
+
+    /* Optional: Adjust button alignment if needed */
+    .col-12.d-flex.justify-content-lg-end {
+        align-items: center;
+    }
+
+    /* Checkbox styling (for advance payment tab) */
+    .form-check-input {
+        height: 20px;
+        width: 20px;
+        border-color: #D2D5DA;
+        margin-right: 15px;
+    }
+
+    .form-check-input:focus {
+        border-color: #dc3545 !important;
+        outline: 0 !important;
+        box-shadow: 0 0 0 2.1px #dc354533 !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+
+    .form-check-label {
+        font-family: "Inter", sans-serif;
+        font-size: 20px;
+        font-weight: 400;
+    }
+</style>
 <div class="container-fluid">
     <div class="main-wrapper">
 
@@ -10,12 +92,7 @@ use App\Models\UserDetails;
             <div class="col-lg-6 col-12">
                 <h1 class="header-title">Customers</h1>
             </div>
-            <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-                <button class="header-btn"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
-                <button class="header-btn" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i
-                        class="fa-solid fa-filter fa-xl"></i></button>
-            </div>
+          
         </div>
 
 
@@ -53,10 +130,33 @@ use App\Models\UserDetails;
 
 
             <div class="tab-content">
-
+                 
                 <!-- Customers List Tab Pane -->
                 <div id="customer-list" class="tab-pane fade show active" role="tabpanel"
                     aria-labelledby="customer-list-tab">
+                     <div class="row mb-3">
+                    <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
+                        <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
+                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                            <form method="GET" action="{{ url('customers') }}" id="mainSearchForm">
+                                 <input type="hidden" name="active_tab" value="customer-list">
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    name="search"
+                                    placeholder="Search Customer ID, Name, Email, Mobile Number"
+                                    value="{{ request('search') }}"
+                                />
+                            </form>
+                        </div>
+                        <button class="header-btn" id="tr-search-toggle-button">
+                            <i class="fa-solid fa-magnifying-glass fa-xl"></i>
+                        </button>
+                        <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#cusomerFilter">
+                            <i class="fa-solid fa-filter fa-xl"></i>
+                        </button>
+                    </div>
+                </div>    
                     <div class="col-12 d-flex justify-content-end pe-5 mb-5">
                         <a href="{{url('add-new-customer')}}">
                             <button class="add-new-division-btn">+ Add New Customer</button>
@@ -98,12 +198,36 @@ use App\Models\UserDetails;
                         </table>
                     </div>
                     <div class="col-12 d-flex justify-content-center laravel-pagination">
-                        {{ $customers->links('pagination::bootstrap-5') }}
+                       {{ $customers->appends(['active_tab' => 'customer-list'])->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
 
                 <!-- Temporary Customers Tab Pane -->
                 <div id="temporary" class="tab-pane fade" role="tabpanel" aria-labelledby="temporary-tab">
+<div class="row mb-3">
+                    <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
+                        <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
+                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                           <form method="GET" action="{{ url('customers') }}" id="mainSearchForm2">
+                            <input type="hidden" name="active_tab" value="temporary">
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    name="temp_search"
+                                    placeholder="Search Customer ID, Name, Email, Mobile Number"
+                                    value="{{ request('temp_search') }}"
+                                />
+                            </form>
+                        </div>
+                        <button class="header-btn" id="final-search-toggle-button">
+                            <i class="fa-solid fa-magnifying-glass fa-xl"></i>
+                        </button>
+                        <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#tempCusomerFilter">
+                            <i class="fa-solid fa-filter fa-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
                     <div class="d-flex justify-content-center">
                         <div class="col-7 mt-5">
                             <div class="table-responsive division-table">
@@ -134,7 +258,7 @@ use App\Models\UserDetails;
                                 </table>
                             </div>
                             <div class="col-12 d-flex justify-content-center laravel-pagination">
-                                {{ $temp_customers->links('pagination::bootstrap-5') }}
+                               {{ $temp_customers->appends(['active_tab' => 'temporary'])->links('pagination::bootstrap-5') }}
                             </div>
                         </div>
                     </div>
@@ -154,7 +278,7 @@ use App\Models\UserDetails;
 </div>
 
 
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="cusomerFilter"
     aria-labelledby="offcanvasRightLabel">
     <div class="row d-flex justify-content-end">
         <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
@@ -169,266 +293,85 @@ use App\Models\UserDetails;
         </div class="col-6">
 
         <div>
-            <button class="btn rounded-phill">Clear All</button>
+          <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
+     <form method="GET" action="{{ url('customers') }}" id="filterForm">
+        <input type="hidden" name="active_tab" value="customer-list">
     <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>ADMs</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>Marketing</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>Admin</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>Finance</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>Team Leaders</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between">
-                <span>Head of Division</span>
-                <button class="btn btn-sm p-0"><i class="fa-solid fa-xmark fa-lg"></i></button>
-            </div>
-        </div>
+      
 
 
         <div class="mt-5 filter-categories">
-            <p class="filter-title">AMD Number</p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    5643678
-                </label>
-            </div>
+            <p class="filter-title">ADM Number</p>
+            @foreach($adms as $adm)
+                <div class="form-check custom-circle-checkbox">
+                    <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        id="adm{{ $adm->id }}" 
+                        name="adm[]" 
+                        value="{{ $adm->userDetails->adm_number }}"
+                        {{ in_array( $adm->userDetails->adm_number, $selectedAdms ?? []) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="adm{{ $adm->id }}">
+                        {{ $adm->userDetails->adm_number }}
+                    </label>
+                </div>
+            @endforeach
 
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    5643678
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    5643678
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    5643678
-                </label>
-            </div>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    5643678
-                </label>
-            </div>
+            <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
         </div>
+        </form>
+    </div>
+ </div>
 
-        <!-- Divisions -->
-        <div class="mt-5 radio-selection filter-categories">
-            <p class="filter-title">Divisions</p>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 1
-                </label>
-            </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 2
-                </label>
-            </div>
+<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="tempCusomerFilter"
+    aria-labelledby="offcanvasRightLabel">
+    <div class="row d-flex justify-content-end">
+        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+    </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 3
-                </label>
-            </div>
+    <div class="offcanvas-header d-flex justify-content-between">
+        <div class="col-6">
+            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                Filter
+            </span>
+        </div class="col-6">
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 4
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 5
-                </label>
-            </div>
+        <div>
+          <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
+    </div>
+    <form method="GET" action="{{ url('customers') }}" id="tempFilterForm">
+        <input type="hidden" name="active_tab" value="temporary">
+    <div class="offcanvas-body">
+      
 
 
         <div class="mt-5 filter-categories">
-            <p class="filter-title">User Role</p>
+            <p class="filter-title">ADM Number</p>
+            @foreach($adms as $adm)
+                <div class="form-check custom-circle-checkbox">
+                    <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        id="adm{{ $adm->id }}" 
+                        name="adm[]" 
+                        value="{{ $adm->userDetails->adm_number }}"
+                        {{ in_array( $adm->userDetails->adm_number, $selectedAdms ?? []) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="adm{{ $adm->id }}">
+                        {{ $adm->userDetails->adm_number }}
+                    </label>
+                </div>
+            @endforeach
 
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    All
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    System Administration
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Head of Division
-                </label>
-            </div>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Regional Sales Managers
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Area Sales Managers
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Team Leaders
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    ADMs
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Finance Department Managers
-                </label>
-            </div>
+            <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
         </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Today
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Yesterday
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    This Week
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    This Month
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    This Year
-                </label>
-            </div>
-        </div>
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Time</p>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    09:00 AM - 1:00 PM
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    09:00 AM - 1:00 PM
-                </label>
-            </div>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    09:00 AM - 1:00 PM
-                </label>
-            </div>
-
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    09:00 AM - 1:00 PM
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    09:00 AM - 1:00 PM
-                </label>
-            </div>
-        </div>
+        </form>
+    </div>
+ </div>
         </body>
 
         </html>
@@ -451,3 +394,90 @@ use App\Models\UserDetails;
                 });
             });
         </script>
+        <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get active tab from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('active_tab');
+
+        if (activeTab) {
+            // Activate that tab
+            const triggerEl = document.querySelector(`a[href="#${activeTab}"]`);
+            if (triggerEl) {
+                const tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+        }
+
+        // Save tab state when user clicks tabs
+        const tabEls = document.querySelectorAll('a[data-bs-toggle="tab"]');
+        tabEls.forEach((el) => {
+            el.addEventListener('shown.bs.tab', function(event) {
+                const newTab = event.target.getAttribute('href').substring(1);
+                const url = new URL(window.location);
+                url.searchParams.set('active_tab', newTab);
+                history.replaceState(null, '', url);
+            });
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function setupSearch(wrapperId, toggleId) {
+            const searchWrapper = document.getElementById(wrapperId);
+            const searchToggleButton = document.getElementById(toggleId);
+            const searchInput = searchWrapper.querySelector(".search-input");
+
+            let idleTimeout;
+            const idleTime = 5000;
+
+            function collapseSearch() {
+                searchWrapper.classList.remove("expanded");
+                searchWrapper.classList.add("collapsed");
+                searchToggleButton.classList.remove("d-none");
+                clearTimeout(idleTimeout);
+            }
+
+            function startIdleTimer() {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    if (!searchInput.value) collapseSearch();
+                }, idleTime);
+            }
+
+            searchToggleButton.addEventListener("click", function() {
+                if (searchWrapper.classList.contains("collapsed")) {
+                    searchWrapper.classList.remove("collapsed");
+                    searchWrapper.classList.add("expanded");
+                    searchToggleButton.classList.add("d-none");
+                    searchInput.focus();
+                    startIdleTimer();
+                } else {
+                    collapseSearch();
+                }
+            });
+
+            searchInput.addEventListener("keydown", function() {
+                startIdleTimer();
+            });
+        }
+
+        // Apply for each tab
+        setupSearch("final-search-box-wrapper", "final-search-toggle-button");
+        setupSearch("tr-search-box-wrapper", "tr-search-toggle-button");
+        setupSearch("receipts-search-box-wrapper", "receipts-search-toggle-button");
+    });
+
+    function searchCustomers(val) {
+    if (event.key === "Enter") {
+        document.getElementById("mainSearchForm").submit();
+    }
+}
+function searchTempCustomers(val) {
+    if (event.key === "Enter") {
+        document.getElementById("mainSearchForm2").submit();
+    }
+}
+</script>

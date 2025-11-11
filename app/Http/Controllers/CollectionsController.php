@@ -32,29 +32,88 @@ class CollectionsController extends Controller
      * Display a listing of the resource.
      */
     
-
-public function all_outstanding()
+public function all_outstanding(Request $request)
 {
-    // Get invoices with outstanding amount (amount > paid_amount) and where batch->temp_receipt = 0
+    $search = $request->input('search');
+    $outstandingRanges = $request->input('adoutstanding_dates', []); // Array of selected ranges
+
     $invoices = Invoices::with(['customer.admDetails'])
         ->where('type', 'invoice')
-        ->whereColumn('amount', '>', 'paid_amount') // Outstanding condition
-        ->paginate(15);
+        ->whereColumn('amount', '>', 'paid_amount')
+        ->whereHas('customer', function ($query) {
+            $query->where('is_temp', 0);
+        });
 
-    return view('collections.all_outstanding', [
-        'invoices' => $invoices
+    // 🔍 Search Filter
+    if (!empty($search)) {
+        $invoices->where(function ($query) use ($search) {
+            $query->where('invoice_or_cheque_no', 'like', "%{$search}%")
+                ->orWhereHas('customer', function ($q) use ($search) {
+                    $q->where('customers.name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('admDetails', function ($q) use ($search) {
+                    $q->where('user_details.adm_number', 'like', "%{$search}%")
+                      ->orWhere('user_details.name', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    // 📅 Outstanding Days Filter
+    if (!empty($outstandingRanges)) {
+        $invoices->where(function ($query) use ($outstandingRanges) {
+            foreach ($outstandingRanges as $range) {
+                // Calculate based on current date and invoice_date
+                switch ($range) {
+                    case '0-30':
+                        $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 0 AND 30');
+                        break;
+                    case '31-60':
+                        $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 31 AND 60');
+                        break;
+                    case '61-90':
+                        $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 61 AND 90');
+                        break;
+                    case '91-120':
+                        $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 91 AND 120');
+                        break;
+                    case '120-plus':
+                        $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) > 120');
+                        break;
+                }
+            }
+        });
+    }
+
+    $invoices = $invoices->paginate(15)->appends([
+        'search' => $search,
+        'adoutstanding_dates' => $outstandingRanges,
     ]);
+
+    return view('collections.all_outstanding', compact('invoices', 'search', 'outstandingRanges'));
 }
+
 public function all_receipts()
 {
-    // Get invoices with outstanding amount (amount > paid_amount) and where batch->temp_receipt = 0
-    $invoices = Invoices::with(['customer.admDetails'])
-        ->where('type', 'invoice')
-        ->whereColumn('amount', '>', 'paid_amount') // Outstanding condition
-        ->paginate(15);
+    $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+        ->whereHas('batch', function($query) {
+            $query->where('temp_receipt', 0);
+        })
+        ->paginate(15, ['*'], 'regular_page');
+
+    // Receipts where batch->temp_receipt != 0
+    $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+        ->whereHas('batch', function($query) {
+            $query->where('temp_receipt', '!=', 0);
+        })
+        ->paginate(5, ['*'], 'temp_page');
+
+    $advanced_payments = AdvancedPayment::with(['customerData','adm.userDetails'])
+         ->paginate(15, ['*'], 'advance_page');
 
     return view('collections.all_receipts', [
-        'receipts' => $receipts
+        'regular_receipts' => $regular_receipts,
+        'temp_receipts' => $temp_receipts,
+        'advanced_payments' => $advanced_payments,
     ]);
 }
 public function resend_receipt()

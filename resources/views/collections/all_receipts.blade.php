@@ -1,4 +1,4 @@
-@include('finance::layouts.header')
+@include('layouts.dashboard-header')
 
 
 <style>
@@ -1093,3 +1093,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+@include('layouts.footer2')

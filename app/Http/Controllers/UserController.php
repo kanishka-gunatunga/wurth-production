@@ -140,11 +140,56 @@ class UserController extends Controller
             return redirect('/')->with('success', 'Password successfully updated');
         }
     }
-    public function user_managment()
-    {
-        $users = User::with('userDetails')->paginate(15);
-        return view('user.user_managment',['users' => $users]);
+  public function user_managment(Request $request)
+{
+    // Get the roles input
+    $selectedRoles = $request->input('roles', []);
+    $search = $request->input('search');
+
+    // If it's a string like "1,2,3", convert it to array
+    if (is_string($selectedRoles)) {
+        $selectedRoles = array_filter(explode(',', $selectedRoles));
     }
+
+    $selectedDivisions = $request->input('division', []);
+
+    $query = User::with('userDetails');
+
+    if (!empty($selectedRoles)) {
+        $query->whereIn('user_role', $selectedRoles);
+    }
+
+    if (!empty($selectedDivisions)) {
+        $query->whereHas('userDetails', function ($q) use ($selectedDivisions) {
+            $q->whereIn('division', $selectedDivisions);
+        });
+    }
+
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('email', 'LIKE', "%{$search}%")
+              ->orWhereHas('userDetails', function ($sub) use ($search) {
+                    $sub->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('adm_number', 'LIKE', "%{$search}%");
+              });
+        });
+    }
+
+    $users = $query->paginate(15)->appends($request->query());
+
+    $divisions = Divisions::get();
+
+    return view('user.user_managment', compact(
+        'users',
+        'divisions',
+        'selectedRoles',
+        'selectedDivisions',
+        'search'
+    ));
+}
+
+
+
 
 
     public function add_new_user(Request $request)

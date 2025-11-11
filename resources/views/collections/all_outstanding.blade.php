@@ -68,7 +68,16 @@
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search Invoice Number, Customer Name, ADM Number, ADM Name" />
+
+                <form method="GET" action="{{ url('all-outstanding') }}" id="mainSearchForm">
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    name="search"
+                                    placeholder="Search Invoice Number, Customer Name, ADM Number, ADM Name"
+                                    value="{{ request('search') }}"
+                                />
+                            </form>
             </div>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
@@ -141,7 +150,6 @@
 </div>
 
 
-
 <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
     aria-labelledby="offcanvasRightLabel">
     <div class="row d-flex justify-content-end">
@@ -157,125 +165,55 @@
         </div class="col-6">
 
         <div>
-            <button class="btn rounded-phill">Clear All</button>
+          <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
+    <form method="GET" action="{{ url('all-outstanding') }}" id="tempFilterForm">
     <div class="offcanvas-body">
-        <div class="row">
-            <p class="filter-title">User roles</p>
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
         <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
+            <p class="filter-title">Outstanding Dates</p>
 
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
+            @php
+                $selected = request('adoutstanding_dates', []);
+            @endphp
 
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Divisions -->
-        <div class="mt-5 radio-selection filter-categories">
-            <p class="filter-title">Divisions</p>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 1
-                </label>
+            <div class="form-check custom-circle-checkbox">
+                <input class="form-check-input" type="checkbox" id="outstanding1" name="adoutstanding_dates[]" value="0-30"
+                    {{ in_array('0-30', $selected) ? 'checked' : '' }}>
+                <label class="form-check-label" for="outstanding1">0–30 Days</label>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 2
-                </label>
+            <div class="form-check custom-circle-checkbox">
+                <input class="form-check-input" type="checkbox" id="outstanding2" name="adoutstanding_dates[]" value="31-60"
+                    {{ in_array('31-60', $selected) ? 'checked' : '' }}>
+                <label class="form-check-label" for="outstanding2">31–60 Days</label>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 3
-                </label>
+            <div class="form-check custom-circle-checkbox">
+                <input class="form-check-input" type="checkbox" id="outstanding3" name="adoutstanding_dates[]" value="61-90"
+                    {{ in_array('61-90', $selected) ? 'checked' : '' }}>
+                <label class="form-check-label" for="outstanding3">61–90 Days</label>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 4
-                </label>
+            <div class="form-check custom-circle-checkbox">
+                <input class="form-check-input" type="checkbox" id="outstanding4" name="adoutstanding_dates[]" value="91-120"
+                    {{ in_array('91-120', $selected) ? 'checked' : '' }}>
+                <label class="form-check-label" for="outstanding4">91–120 Days</label>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 5
-                </label>
+            <div class="form-check custom-circle-checkbox">
+                <input class="form-check-input" type="checkbox" id="outstanding5" name="adoutstanding_dates[]" value="120-plus"
+                    {{ in_array('120-plus', $selected) ? 'checked' : '' }}>
+                <label class="form-check-label" for="outstanding5">120+ Days</label>
             </div>
+
+            <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
         </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
+    </div>
+</form>
 
     </div>
-</div>
-</div>
+ </div>
 
 
 
@@ -614,5 +552,11 @@
             tag.classList.toggle('selected');
         });
     });
+    function searchUsers(val) {
+    if (event.key === "Enter") {
+        document.getElementById("mainSearchForm").submit();
+    }
+}
 </script>
+
 @include('layouts.footer2')

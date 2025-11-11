@@ -27,11 +27,32 @@ use PDF;
 class DivisionController extends Controller
 {
    
-    public function division_managment()
-    {
-        $divisions = Divisions::paginate(15);
-        return view('division.division_managment',['divisions' => $divisions]);
+    public function division_managment(Request $request)
+{
+    $search = $request->input('search');
+
+    // Base query with relations
+    $query = Divisions::with('userDetails');
+
+    // Apply search filter if keyword is given
+    if (!empty($search)) {
+        $query->where('division_name', 'like', "%{$search}%")
+              ->orWhereHas('userDetails', function ($q) use ($search) {
+                  $q->where('name', 'like', "%{$search}%");
+              });
     }
+
+    // Paginate final results
+    $divisions = $query->paginate(15);
+
+    // Keep search term in pagination links
+    $divisions->appends(['search' => $search]);
+
+    return view('division.division_managment', [
+        'divisions' => $divisions,
+    ]);
+}
+
 
 
     public function add_new_division(Request $request)

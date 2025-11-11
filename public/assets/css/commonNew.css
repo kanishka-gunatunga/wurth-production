@@ -154,27 +154,31 @@
 }
 
 .filter-tag {
-    width: fit-content !important;
-    height: 33px !important;
-    padding: 5px 15px 5px 15px !important;
-    border-radius: 8px !important;
-    box-shadow: 0px 4px 4px 0px #0000001A !important;
-    color: #EE2128 !important;
-    font-weight: 500 !important;
-    font-family: 'Poppins', sans-serif !important;
-    margin: 10px !important;
-    background-color: #FFF5F6 !important;
+    width: fit-content ;
+    height: 33px ;
+    padding: 5px 15px 5px 15px ;
+    border-radius: 8px ;
+    box-shadow: 0px 4px 4px 0px #0000001A ;
+    color: #EE2128;
+    font-weight: 500 ;
+    font-family: 'Poppins', sans-serif ;
+    margin: 10px ;
+    background-color: #FFF5F6 ;
 }
 
 
 .filter-tag button {
-    background: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    color: #EE2128 !important;
-    margin-left: 20px !important;
+    background: none ;
+    border: none ;
+    cursor: pointer ;
+    color: #EE2128 ;
+    margin-left: 20px ;
 }
-
+    .filter-tag.active {
+    background-color: #cc0000;
+    color: white;
+    border-color: #cc0000;
+}
 .filter-title {
     font-family: 'Inter', sans-serif !important;
     font-size: 20px !;
