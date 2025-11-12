@@ -114,14 +114,10 @@ public function daily_deposit(Request $request)
 
 public function get_receipts(Request $request)
 {
-    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
-    $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
 
     $paymentsQuery = InvoicePayments::with(['invoice.customer', 'batch'])
         ->where('status', 'pending')
-        ->whereHas('invoice', function ($q) use ($customers) {
-            $q->whereIn('customer_id', $customers);
-        })
+        ->where('adm_id', Auth::id())
         ->whereHas('batch', function ($q) {
             $q->where('temp_receipt', 0); // exclude temp receipts
         });
@@ -130,9 +126,9 @@ public function get_receipts(Request $request)
     if ($request->filled('deposit_type')) {
         $depositType = strtolower($request->deposit_type);
 
-        if (in_array($depositType, ['cash', 'finance - cash'])) {
+        if (in_array($depositType, ['cash', 'finance-cash'])) {
             $paymentsQuery->where('type', 'cash');
-        } elseif (in_array($depositType, ['cheque', 'finance - cheque'])) {
+        } elseif (in_array($depositType, ['cheque', 'finance-cheque'])) {
             $paymentsQuery->where('type', 'cheque');
         }
     }

@@ -18,7 +18,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
-
+use App\Services\ActivitLogService;
 use File;
 use Mail;
 use Image;
@@ -243,6 +243,8 @@ class UserController extends Controller
            $userDetails->save();
            DB::commit();
 
+            ActivitLogService::log('user management', $request->name . ' - user added');
+ 
         return back()->with('success', 'User Successfully Added');
 
     }
@@ -250,17 +252,23 @@ class UserController extends Controller
     }
 
     public function deactivate_user($id){
-        $user = User::find($id);
+        $user = User::with('userDetails')->find($id);
         $user->status = "inactive";
         $user->update();
+
+        ActivitLogService::log('user management',  $user->userDetails->name . ' - user deactivated');
+        
         return back()->with('success', 'User Deactivated');
 
     }
 
     public function activate_user($id){
-        $user = User::find($id);
+        $user = User::with('userDetails')->find($id);
         $user->status = "active";
         $user->update();
+
+        ActivitLogService::log('user management',  $user->userDetails->name . ' - user activated');
+
         return back()->with('success', 'User Activated');
 
     }
@@ -337,6 +345,8 @@ class UserController extends Controller
             $user->password = Hash::make($request->input('password'));
             $user->update();
 
+            ActivitLogService::log('user management',  $request->name . ' - user details updated');
+
             return back()->with('success', 'User Details Successfully  Updated');
 
     }
@@ -371,6 +381,9 @@ class UserController extends Controller
         $user = User::find($id);
         $user->email = $email;
         $user->update();
+
+        ActivitLogService::log('user management',  $request->name . ' - user details updated');
+
         return back()->with('success', 'User Details Successfully  Updated');
     }
 
@@ -417,12 +430,13 @@ public function locked_users(Request $request)
 }
 public function unlock_user($id)
 {
-    $user = User::findOrFail($id);
+    $user = User::with('userDetails')->find($id);
     $user->is_locked = 0;
     $user->failed_attempts = 0;
     $user->save();
 
-    return back()->with('success', 'User unlocked successfully.');
+    
+    ActivitLogService::log('user management',  $user->userDetails->name . ' - user unblocked');
 }
 
 }

@@ -23,6 +23,7 @@ use App\Models\Divisions;
 use App\Models\Customers;
 use App\Models\ImportedReports;
 use App\Models\Invoices;
+use App\Services\ActivitLogService;
 
 use File;
 use Mail;
@@ -135,6 +136,8 @@ class CustomerController extends Controller
            $customer->status = 'active';
            $customer->save();
 
+            ActivitLogService::log('customer',  'new customer added - '.$request->name);
+
         return back()->with('success', 'Customer Successfully Added');
 
     }
@@ -199,6 +202,8 @@ class CustomerController extends Controller
         $customer->avilable_time = $request->avilable_time;
         $customer->update();
 
+        ActivitLogService::log('customer',  'customer details updated - '.$request->name);
+
         return back()->with('success', 'Customer Details Successfully  Updated');
     }
 
@@ -222,6 +227,8 @@ class CustomerController extends Controller
         $sales_file->name = $fileName;
         $sales_file->date = date("Y-m-d");
         $sales_file->save();
+
+        ActivitLogService::log('import',  'data imported from file - '. $fileName);
         
         $file = public_path('imports/' . $fileName);
         $data = Excel::toArray([], $file);
@@ -242,6 +249,7 @@ class CustomerController extends Controller
            
         }
 
+        
         return back()->with('success', 'Customers Successfully Added');
 
     }
@@ -268,6 +276,8 @@ class CustomerController extends Controller
         $sales_file->date = date("Y-m-d");
         $sales_file->save();
         
+        ActivitLogService::log('import',  'data imported from file - '. $fileName);
+
         $file = public_path('imports/' . $fileName);
         $data = Excel::toArray([], $file);
         $rows = $data[0];

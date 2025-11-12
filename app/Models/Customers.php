@@ -47,6 +47,10 @@ class Customers extends Model
         return $this->belongsTo(UserDetails::class, 'adm', 'adm_number');
     }
 
+     public function secondaryAdm()
+    {
+        return $this->belongsTo(UserDetails::class, 'secondary_adm', 'adm_number');
+    }
     public function userDetail()
     {
         return $this->belongsTo(\App\Models\UserDetails::class, 'adm', 'adm_number');

@@ -33,55 +33,79 @@ class CollectionsController extends Controller
      * Display a listing of the resource.
      */
     
-     public function collections()
-    {
-        $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
+    public function collections()
+{
+    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
 
-        // Eager load related customer data for efficiency
-        $invoices = Invoices::with('customer')
-            ->whereHas('customer', function ($query) use ($adm_no) {
-                $query->where('adm', $adm_no);
-            })
-            ->paginate(15);
+    // Eager load related customer data for efficiency
+    $invoices = Invoices::with('customer')
+        ->whereHas('customer', function ($query) use ($adm_no) {
+            $query->where('adm', $adm_no)
+                  ->orWhere('secondary_adm', $adm_no);
+        })
+        ->paginate(15);
 
-        // Fetch all invoices (no pagination) for totals
-        $all_invoices = Invoices::with('customer')
-            ->whereHas('customer', function ($query) use ($adm_no) {
-                $query->where('adm', $adm_no);
-            })
-            ->get();
+    // Fetch all invoices (no pagination) for totals
+    $all_invoices = Invoices::with('customer')
+        ->whereHas('customer', function ($query) use ($adm_no) {
+            $query->where('adm', $adm_no)
+                  ->orWhere('secondary_adm', $adm_no);
+        })
+        ->get();
 
-        // Get all customers under this ADM
-        $all_customers = Customers::where('adm', $adm_no)->get();
+    // Get all customers under this ADM (primary or secondary)
+    $all_customers = Customers::where('adm', $adm_no)
+        ->orWhere('secondary_adm', $adm_no)
+        ->get();
 
-        return view('adm::collection.collections', [
-            'invoices' => $invoices,
-            'all_invoices' => $all_invoices,
-            'customers' => $all_customers,
-        ]);
-    }
+    return view('adm::collection.collections', [
+        'invoices' => $invoices,
+        'all_invoices' => $all_invoices,
+        'customers' => $all_customers,
+    ]);
+}
 
 
-      public function bulk_payment()
-     {
-         $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-         $customers = Customers::where('adm', $adm_no)->pluck('customer_id'); 
-         $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
-         $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
-         $all_customers = Customers::where('adm', $adm_no)->get(); 
 
-         return view('adm::collection.bulk_payment', ['invoices' => $invoices,'all_invoices' => $all_invoices,'customers' => $all_customers]);
-     }
-     
- public function search_invoices(Request $request)
+     public function bulk_payment()
+{
+    $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
+
+    // Get all customers under this ADM (primary or secondary)
+    $customers = Customers::where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->pluck('customer_id');
+
+    // Get invoices of those customers
+    $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
+    $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+
+    // Get full customer details (primary or secondary ADM)
+    $all_customers = Customers::where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->get();
+
+    return view('adm::collection.bulk_payment', [
+        'invoices' => $invoices,
+        'all_invoices' => $all_invoices,
+        'customers' => $all_customers,
+    ]);
+}
+
+  public function search_invoices(Request $request)
 {
     $query = $request->input('query');
     $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
 
-    // Fetch invoices with related customer data
+    // Fetch invoices with related customer data (include primary + secondary ADM)
     $invoices = Invoices::with('customer')
         ->whereHas('customer', function ($q) use ($adm_no) {
-            $q->where('adm', $adm_no);
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
         })
         ->where(function ($q) use ($query) {
             $q->where('invoice_or_cheque_no', 'LIKE', "%{$query}%")
@@ -104,6 +128,7 @@ class CollectionsController extends Controller
 
     return response()->json($invoice_data);
 }
+
 
     public function view_invoice($id,Request $request)
     {
@@ -145,6 +170,8 @@ class CollectionsController extends Controller
         $payment->amount = $request->cash_amount;
         $payment->discount = $request->cash_discount;
         $payment->final_payment = $final_payment;
+        $payment->adm_id = Auth::user()->id;
+        $payment->status = 'pending';
         $payment->save();
 
         $invoice =  Invoices::where('id', $id)->first();
@@ -154,7 +181,7 @@ class CollectionsController extends Controller
 
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('adm_number', $customer->adm)->first();
+        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
         $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
             'is_duplicate' => 0,
@@ -235,6 +262,9 @@ public function add_fund_transfer($id,Request $request)
         $payment->transfer_date = $request->transfer_date;
         $payment->transfer_reference_number = $request->transfer_reference_number;
         $payment->screenshot = $screenshot_name;
+        $payment->status = 'pending';
+        $payment->adm_id = Auth::user()->id;
+        
         $payment->save();
         
         $invoice =  Invoices::where('id', $id)->first();
@@ -243,7 +273,7 @@ public function add_fund_transfer($id,Request $request)
 
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('adm_number', $customer->adm)->first();
+        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
         $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
             'is_duplicate' => 0,
@@ -330,6 +360,8 @@ public function add_cheque_payment($id,Request $request)
         $payment->bank_name = $request->bank_name;
         $payment->branch_name = $request->branch_name;
         $payment->post_dated = $request->post_dated;
+        $payment->adm_id = Auth::user()->id;
+        $payment->status = 'pending';
         $payment->save();
         
        
@@ -340,7 +372,7 @@ public function add_cheque_payment($id,Request $request)
 
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('adm_number', $customer->adm)->first();
+        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
         $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
@@ -420,6 +452,8 @@ public function add_card_payment($id,Request $request)
         $payment->card_transfer_date = $request->card_transfer_date;
         $payment->final_payment = $final_payment;
         $payment->card_image = $image_name;
+        $payment->adm_id = Auth::user()->id;
+        $payment->status = 'pending';
         $payment->save();
         
        
@@ -430,7 +464,7 @@ public function add_card_payment($id,Request $request)
 
         $invoice= Invoices::where('id', $payment->invoice_id)->first();
         $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('adm_number', $customer->adm)->first();
+        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
         $pdf = PDF::loadView('pdfs.collections.receipts.card', [
@@ -536,7 +570,7 @@ public function resend_receipt($id)
     $payment = InvoicePayments::findOrFail($id);
     $invoice = Invoices::findOrFail($payment->invoice_id);
     $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
-    $adm = UserDetails::where('adm_number', $customer->adm)->first();
+    $adm = UserDetails::where('user_id', $payment->adm_id)->first();
 
     // Folder for saving duplicate receipts
     $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
@@ -677,6 +711,8 @@ public function resend_receipt($id)
             $payment_data->amount = $payment['amount'];
             $payment_data->discount = $payment['discount'];
             $payment_data->final_payment = $final_payment;
+            $payment_data->adm_id = Auth::user()->id;
+            $payment_data->status = 'pending';
             $payment_data->save();
 
             $invoice = Invoices::where('id', $payment['invoice_id'])->first();
@@ -685,7 +721,7 @@ public function resend_receipt($id)
 
             $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
             $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-            $adm= UserDetails::where('adm_number', $customer->adm)->first();
+            $adm= UserDetails::where('user_id', Auth::user()->id)->first();
             
             $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
                 'is_duplicate' => 0,
@@ -843,6 +879,8 @@ public function add_bulk_fund_transfer(Request $request)
                 $payment_data->transfer_date = $request->transfer_date;
                 $payment_data->transfer_reference_number = $request->transfer_reference_number;
                 $payment_data->screenshot = $screenshot_name;
+                $payment_data->adm_id = Auth::user()->id;
+                $payment_data->status = 'pending';
                 $payment_data->save();
 
                 // update invoice
@@ -852,7 +890,7 @@ public function add_bulk_fund_transfer(Request $request)
 
                 // generate receipt + email
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
                 $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
                 'is_duplicate' => 0,
@@ -1007,6 +1045,8 @@ public function add_bulk_cheque_payment(Request $request)
                 $payment_data->bank_name = $request->bank_name;
                 $payment_data->branch_name = $request->branch_name;
                 $payment_data->post_dated = $request->post_dated == 1 ? 1 : 0;
+                $payment_data->adm_id = Auth::user()->id;
+                $payment_data->status = 'pending';
                 $payment_data->save();
 
                 $invoice = Invoices::find($data['invoice_id']);
@@ -1015,7 +1055,7 @@ public function add_bulk_cheque_payment(Request $request)
 
                 // Send receipt
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
                 $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
@@ -1092,6 +1132,8 @@ public function add_bulk_card_payment(Request $request)
                 $payment_data->final_payment = $final_payment;
                 $payment_data->card_transfer_date = $request->card_transfer_date;
                 $payment_data->card_image = $screenshot_name;
+                $payment_data->adm_id = Auth::user()->id;
+                $payment_data->status = 'pending';
                 $payment_data->save();
 
                 $invoice = Invoices::find($data['invoice_id']);
@@ -1100,7 +1142,7 @@ public function add_bulk_card_payment(Request $request)
 
                 // Send receipt
                 $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm = UserDetails::where('adm_number', $customer->adm)->first();
+                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
                 $pdf = PDF::loadView('pdfs.collections.receipts.card', [
                 'is_duplicate' => 0,
@@ -1201,11 +1243,7 @@ public function save_bulk_payment(Request $request)
 
 public function receipts()
 {
-    $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
-
-    $receipts = InvoicePayments::whereHas('invoice.customer', function ($query) use ($adm_no) {
-        $query->where('adm', $adm_no);
-    })
+    $receipts = InvoicePayments::where('adm_id', Auth::id())
     ->with(['invoice.customer'])
     ->paginate(15);
 

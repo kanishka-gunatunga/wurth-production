@@ -27,8 +27,5 @@ class InvoicePaymentBatches extends Model
         return $this->belongsTo(User::class, 'adm_id', 'id');
     }
 
-    public function admDetails()
-    {
-        return $this->belongsTo(UserDetails::class, 'adm_id', 'id');
-    }
+
 }

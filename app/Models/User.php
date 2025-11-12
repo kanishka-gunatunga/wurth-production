@@ -74,4 +74,9 @@ public function activityLogs()
 {
     return $this->hasMany(ActivtiyLog::class, 'user_id', 'id');
 }
+
+    public function payment()
+{
+    return $this->hasMany(InvoicePayments::class, 'adm_id', 'id');
+}
 }
