@@ -104,7 +104,7 @@
                 </thead>
                 <tbody id="cashDepositeTableBody">
                     @forelse ($writeOffs as $writeOff)
-                    <tr class="clickable-row" data-href="/finance/write-off-details/{{ $writeOff->id }}">
+                    <tr class="clickable-row" data-href="{{ route('write_off.details', $writeOff->id) }}">
                         <td>{{ $writeOff->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($writeOff->created_at)->format('Y-m-d') }}</td>
                         <td>{{ number_format($writeOff->final_amount, 2) }}</td>
