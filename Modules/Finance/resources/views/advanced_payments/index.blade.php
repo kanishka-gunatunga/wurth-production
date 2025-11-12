@@ -65,10 +65,19 @@
             <h1 class="header-title">Advance Payments</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <div id="search-box-wrapper" class="collapsed">
-                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search ADM Number or Name, Customer Name" />
-            </div>
+            <form id="searchForm" method="POST" action="{{ route('advanced_payments.search') }}">
+                @csrf
+                <div id="search-box-wrapper" class="collapsed">
+                    <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-input"
+                        placeholder="Search ADM Number or Name, Customer Name"
+                        value="{{ $filters['search'] ?? '' }}" />
+                </div>
+            </form>
+
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
@@ -137,65 +146,83 @@
 
 
 
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
+<form id="filterForm" method="POST" action="{{ route('advanced_payments.search') }}">
+    @csrf
 
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
 
-        <div>
-            <button class="btn rounded-phill" id="clear-filters">Clear All</button>
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title">Search</span>
+                <span class="title-rest">&nbsp;by Filter</span>
+            </div>
+
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($payments->pluck('admDetails.name')->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($payments->pluck('adm_id')->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                    @foreach ($payments->pluck('customerData.name')->unique() as $customer)
+                    @if($customer)
+                    <option value="{{ $customer }}"
+                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Date Range -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
         </div>
     </div>
-    <div class="offcanvas-body">
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select id="filter-adm-name" class="form-control select2" multiple="multiple">
-                @foreach ($payments->pluck('adm.userDetails.name')->unique() as $admName)
-                @if($admName)
-                <option>{{ $admName }}</option>
-                @endif
-                @endforeach
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select id="filter-adm-id" class="form-control select2" multiple="multiple">
-                @foreach ($payments->pluck('adm_id')->unique() as $admId)
-                <option>{{ $admId }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select id="filter-customer" class="form-control select2" multiple="multiple">
-                @foreach ($payments->pluck('customerData.name')->unique() as $customer)
-                @if($customer)
-                <option>{{ $customer }}</option>
-                @endif
-                @endforeach
-            </select>
-        </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
-        </div>
-    </div>
-</div>
+</form>
 
 
 
@@ -229,36 +256,6 @@
 
     });
 </script>
-
-<!-- Dynamic Search for ADM Number, ADM Name, and Customer Name -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.querySelector("#search-box-wrapper .search-input");
-        const rows = document.querySelectorAll(".custom-table-locked tbody tr.clickable-row");
-
-        searchInput.addEventListener("input", function() {
-            const query = searchInput.value.toLowerCase().trim();
-
-            rows.forEach(row => {
-                const admNumber = row.children[1].innerText.toLowerCase();
-                const admName = row.children[2].innerText.toLowerCase();
-                const customerName = row.children[3].innerText.toLowerCase();
-
-                // Show row only if query matches any of these fields
-                if (
-                    admNumber.includes(query) ||
-                    admName.includes(query) ||
-                    customerName.includes(query)
-                ) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            });
-        });
-    });
-</script>
-
 
 <!-- expand search bar  -->
 <script>
@@ -304,6 +301,23 @@
     });
 </script>
 
+<!-- search form submit on enter key -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.querySelector("#search-box-wrapper .search-input");
+        const searchForm = document.getElementById("searchForm");
+
+        // If user presses Enter, submit the form
+        searchInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                searchForm.submit();
+            }
+        });
+    });
+</script>
+
+
 <script>
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
@@ -338,68 +352,14 @@
 </script>
 
 
-<!-- filtering script & close all button functionality -->
+<!-- close all button functionality -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const rows = document.querySelectorAll(".custom-table-locked tbody tr.clickable-row");
-
-        // Filter elements
-        const admNameFilter = $('#filter-adm-name');
-        const admIdFilter = $('#filter-adm-id');
-        const customerFilter = $('#filter-customer');
-        const dateFilter = document.getElementById('filter-date');
-        const clearAllBtn = document.getElementById('clear-filters'); // make sure button has id="clear-filters"
-
-        // Helper: get selected values (Select2 safe)
-        function getSelectedValues(selectEl) {
-            return $(selectEl).val() ? $(selectEl).val().map(v => v.toLowerCase()) : [];
-        }
-
-        // Main filtering function
-        function applyFilters() {
-            const selectedAdms = getSelectedValues(admNameFilter);
-            const selectedAdmIds = getSelectedValues(admIdFilter);
-            const selectedCustomers = getSelectedValues(customerFilter);
-            const dateRange = dateFilter.value.trim(); // format: "YYYY-MM-DD to YYYY-MM-DD"
-
-            rows.forEach(row => {
-                const cells = row.children;
-                const rowDate = new Date(cells[0].innerText);
-                const admId = cells[1].innerText.toLowerCase();
-                const admName = cells[2].innerText.toLowerCase();
-                const customerName = cells[3].innerText.toLowerCase();
-
-                let visible = true;
-
-                if (selectedAdms.length && !selectedAdms.includes(admName)) visible = false;
-                if (selectedAdmIds.length && !selectedAdmIds.includes(admId)) visible = false;
-                if (selectedCustomers.length && !selectedCustomers.includes(customerName)) visible = false;
-
-                // ✅ Date range filter (same logic as second code)
-                if (dateRange.includes("to")) {
-                    const [startStr, endStr] = dateRange.split("to").map(d => d.trim());
-                    const startDate = new Date(startStr);
-                    const endDate = new Date(endStr);
-                    if (rowDate < startDate || rowDate > endDate) visible = false;
-                }
-
-                row.style.display = visible ? "" : "none";
-            });
-        }
-
-        // Hook into changes
-        [admNameFilter, admIdFilter, customerFilter].forEach(select => {
-            select.on('change', applyFilters);
-        });
-        dateFilter.addEventListener('change', applyFilters);
-
-        // ✅ Clear All button
-        clearAllBtn.addEventListener('click', function() {
-            [admNameFilter, admIdFilter, customerFilter].forEach(select => {
-                $(select).val(null).trigger('change');
-            });
-            dateFilter.value = '';
-            rows.forEach(row => row.style.display = '');
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+            document.getElementById('filter-date').value = '';
+            setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
 </script>
