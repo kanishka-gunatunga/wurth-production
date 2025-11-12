@@ -95,7 +95,7 @@
                     <tr class="clickable-row" data-href="{{ route('advanced_payments.show', $payment->id) }}">
                         <td>{{ $payment->date }}</td>
                         <td>{{ $payment->adm_id }}</td>
-                        <td>{{ $payment->admin?->userDetails?->name ?? 'N/A' }}</td>
+                        <td>{{ $payment->admDetails?->name ?? 'N/A' }}</td>
                         <td>{{ $payment->customerData?->name ?? 'N/A' }}</td>
                         <td>{{ number_format($payment->payment_amount, 2) }}</td>
                         <td class="sticky-column">

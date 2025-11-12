@@ -12,10 +12,10 @@ class AdvancedPayment extends Model
     protected $table = 'advanced_payments';
     protected $primaryKey = 'id';
 
-  public function customerData()
-{
-    return $this->belongsTo(Customers::class, 'customer', 'customer_id');
-}
+    public function customerData()
+    {
+        return $this->belongsTo(Customers::class, 'customer', 'customer_id');
+    }
 
 
 
@@ -23,5 +23,10 @@ class AdvancedPayment extends Model
     {
         // adm_id in inquiries → id in users
         return $this->belongsTo(User::class, 'adm_id', 'id');
+    }
+
+    public function admDetails()
+    {
+        return $this->hasOne(\App\Models\UserDetails::class, 'user_id', 'adm_id');
     }
 }
