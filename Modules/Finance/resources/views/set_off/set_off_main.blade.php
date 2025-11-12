@@ -92,7 +92,7 @@
                 </thead>
                 <tbody id="cashDepositeTableBody">
                     @forelse ($setOffs as $setOff)
-                    <tr class="clickable-row" data-href="/finance/set-off-details/{{ $setOff->id }}">
+                    <tr class="clickable-row" data-href="{{ route('set_off.details', $setOff->id) }}">
                         <td>{{ $setOff->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($setOff->created_at)->format('Y-m-d') }}</td>
                         <td>{{ number_format($setOff->final_amount, 2) }}</td>

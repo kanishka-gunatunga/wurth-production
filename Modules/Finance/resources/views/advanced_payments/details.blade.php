@@ -24,7 +24,7 @@
         <div class="slip-details">
             <p>
                 <span class="bold-text">ADM Name :</span>
-                <span class="slip-detail-text">&nbsp;{{ $payment->admin?->userDetails?->name ?? 'N/A' }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $payment->admDetails?->name ?? $payment->admUser?->name ?? 'N/A' }}</span>
             </p>
             <p>
                 <span class="bold-text">ADM No. :</span>
