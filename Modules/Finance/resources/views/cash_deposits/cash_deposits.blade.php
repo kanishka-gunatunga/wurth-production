@@ -56,6 +56,10 @@
     .col-12.d-flex.justify-content-lg-end {
         align-items: center;
     }
+
+    .custom-dropdown-menu li {
+        list-style: none !important;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -203,57 +207,65 @@
         <!-- ADM Name Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
+            <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                @foreach ($cashDeposits->pluck('adm_name')->unique() as $admName)
+                @if($admName)
+                <option value="{{ $admName }}"
+                    {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                    {{ $admName }}
+                </option>
+                @endif
+                @endforeach
             </select>
         </div>
 
         <!-- ADM ID Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
+            <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                @foreach ($cashDeposits->pluck('adm_number')->unique() as $admId)
+                <option value="{{ $admId }}"
+                    {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                    {{ $admId }}
+                </option>
+                @endforeach
             </select>
         </div>
 
         <!-- Customers Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
+            <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                @foreach ($cashDeposits->pluck('customer_name')->unique() as $customer)
+                @if($customer)
+                <option value="{{ $customer }}"
+                    {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                    {{ $customer }}
+                </option>
+                @endif
+                @endforeach
             </select>
         </div>
 
         <div class="mt-5 filter-categories">
             <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
+            <input type="text" id="filter-date" name="date_range" class="form-control"
+                placeholder="Select date range"
+                value="{{ $filters['date_range'] ?? '' }}" />
         </div>
 
         <!-- Styled Status Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
+            <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
                     Choose Status
-                    <span class="custom-arrow"></span>
                 </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
+                <ul id="custom-status-menu" class="custom-dropdown-menu"
+                    style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                    @foreach ($cashDeposits->pluck('status')->unique() as $status)
+                    <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                    @endforeach
                 </ul>
             </div>
         </div>
@@ -303,24 +315,30 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-<!-- dropdown selector -->
+<!-- for dropdown -->
 <script>
-    document.querySelectorAll('#status-dropdown + .dropdown-menu .dropdown-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            const button = document.getElementById('status-dropdown');
-            button.innerHTML = value + ' <span class="custom-arrow"></span>';
+    document.addEventListener("DOMContentLoaded", function() {
+        const btn = document.getElementById("custom-status-btn");
+        const menu = document.getElementById("custom-status-menu");
+
+        btn.addEventListener("click", () => {
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        menu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.preventDefault();
+                btn.textContent = e.target.textContent;
+                btn.setAttribute("data-value", e.target.dataset.value);
+                menu.style.display = "none";
+            });
+        });
+
+        // Close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
+            }
         });
     });
 </script>
