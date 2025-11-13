@@ -150,6 +150,9 @@ use App\Models\Divisions;
                                  if($user->user_role == '7'){
                                     $role = 'Finance Manager';
                                  } 
+                                 if($user->user_role == '8'){
+                                    $role = 'Recovery Manager';
+                                 } 
                                  $division = Divisions::where('id', $user->userDetails->division)->value('division_name');
                                 ?> 
                                 <tr>

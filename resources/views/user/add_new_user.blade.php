@@ -53,6 +53,9 @@ use App\Models\UserDetails;
                                      if(old('user_role') == '7'){
                                         $role = 'Finance Manager';
                                      } 
+                                     if(old('user_role') == '8'){
+                                        $role = 'Recovery Manager';
+                                     } 
                                     ?>
                                     <option selected hidden value="{{old('user_role')}}">{{$role}}</option>
                                     <?php } ?>
@@ -63,10 +66,23 @@ use App\Models\UserDetails;
                                     <option value="5">Team Leader</option>
                                     <option value="6">ADM (Sales Rep)</option>
                                     <option value="7">Finance Manager</option>
+                                    <option value="8">Recovery Manager</option>
                                 </select>
                                 @if($errors->has("user_role")) <div class="alert alert-danger mt-2">{{ $errors->first('user_role') }}</div>@endif
                             </div>
-
+                            <div class="mb-4 col-12 col-lg-6">
+                                <label for="head-of-division-select" class="form-label custom-input-label">Division</label>
+                                <select class="form-select custom-input" aria-label="Default select example"
+                                    id="head-of-division-select" name="division">
+                                    <?php if(old('division')) {  ?>
+                                        <option selected hidden value="{{old('division')}}">{{Divisions::where('id', old('division'))->value('division_name')}}</option>
+                                    <?php } ?>   
+                                    <?php foreach($divisions as $division){  ?> 
+                                        <option value="{{$division->id}}">{{$division->division_name}}</option>
+                                    <?php } ?>
+                                </select>
+                                @if($errors->has("division")) <div class="alert alert-danger mt-2">{{ $errors->first('division') }}</div>@endif
+                            </div>         
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Phone Number</label>
                                 <input type="tel" class="form-control custom-input" id="division-input" placeholder="Phone Number"  name="phone_number" value="{{old('phone_number')}}">
@@ -97,21 +113,19 @@ use App\Models\UserDetails;
                                 </select>
                                 @if($errors->has("supervisor")) <div class="alert alert-danger mt-2">{{ $errors->first('supervisor') }}</div>@endif
                             </div>
-
-
-                            <div class="mb-4 col-12 col-lg-6">
-                                <label for="head-of-division-select" class="form-label custom-input-label">Division</label>
+                            
+                             <div class="mb-4 col-12 col-lg-6">
+                                <label for="head-of-division-select" class="form-label custom-input-label">2nd Level Supervisor</label>
                                 <select class="form-select custom-input" aria-label="Default select example"
-                                    id="head-of-division-select" name="division">
-                                    <?php if(old('division')) {  ?>
-                                        <option selected hidden value="{{old('division')}}">{{Divisions::where('id', old('division'))->value('division_name')}}</option>
+                                    id="head-of-division-select" name="second_supervisor">
+                                    <?php if(old('second_supervisor')) {  ?>
+                                        <option selected hidden value="{{old('second_supervisor')}}">{{UserDetails::where('user_id', old('second_supervisor'))->value('name')}}</option>
                                     <?php } ?>   
-                                    <?php foreach($divisions as $division){  ?> 
-                                        <option value="{{$division->id}}">{{$division->division_name}}</option>
-                                    <?php } ?>
                                 </select>
-                                @if($errors->has("division")) <div class="alert alert-danger mt-2">{{ $errors->first('division') }}</div>@endif
+                                @if($errors->has("second_supervisor")) <div class="alert alert-danger mt-2">{{ $errors->first('second_supervisor') }}</div>@endif
                             </div>
+
+                            
 
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Password</label>
@@ -159,18 +173,24 @@ use App\Models\UserDetails;
         const sidebar = document.getElementById('sidebar');
         const userRoleSelect = document.getElementById('head-of-division-select');
         const supervisorField = document.querySelector('select[name="supervisor"]').parentElement;
+         const secondSupervisorField = document.querySelector('select[name="second_supervisor"]').parentElement;
         const divisionField = document.querySelector('select[name="division"]').parentElement;
         const admField = document.querySelector('input[name="adm_number"]').parentElement;
 
-        const rolesToHide = ["1", "2", "7"];
+        const rolesToHide = ["1", "2"];
 
         function toggleFields() {
             const selectedRole = userRoleSelect.value;
             if (rolesToHide.includes(selectedRole)) {
                 supervisorField.style.display = 'none';
+                secondSupervisorField.style.display = 'none';
                 divisionField.style.display = 'none';
             } else {
                 supervisorField.style.display = 'block';
+                secondSupervisorField.style.display = 'block';
+                divisionField.style.display = 'block';
+            }
+            if(selectedRole == '2'){
                 divisionField.style.display = 'block';
             }
 
@@ -195,9 +215,11 @@ use App\Models\UserDetails;
     $('select[name="user_role"]').on('change', function () {
         var user_role = $(this).val();
         var supervisor = $('select[name="supervisor"]');
+        var second_supervisor = $('select[name="second_supervisor"]');
 
         // Clear existing leave types
         supervisor.empty();
+        second_supervisor.empty();
 
         if (user_role) {
             $.ajax({
@@ -210,6 +232,12 @@ use App\Models\UserDetails;
 
                     $.each(data, function (key, value) {
                         supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
+                    });
+
+                    second_supervisor.append('<option value="">Select Supervisor</option>');
+
+                    $.each(data, function (key, value) {
+                        second_supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
                     });
                 },
                 error: function (xhr, status, error) {

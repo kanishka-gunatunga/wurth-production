@@ -26,7 +26,7 @@ class Customers extends Model
      */
         public function invoices()
         {
-                return $this->hasMany(Invoices::class, 'customer_id', 'id');
+                return $this->hasMany(Invoices::class, 'customer_id', 'customer_id');
         }
 
     /**
@@ -47,8 +47,20 @@ class Customers extends Model
         return $this->belongsTo(UserDetails::class, 'adm', 'adm_number');
     }
 
+     public function secondaryAdm()
+    {
+        return $this->belongsTo(UserDetails::class, 'secondary_adm', 'adm_number');
+    }
     public function userDetail()
     {
         return $this->belongsTo(\App\Models\UserDetails::class, 'adm', 'adm_number');
+    }
+    public function creditNote()
+    {
+        return $this->hasMany(CreditNote::class, 'customer_id', 'customer_id');
+    }
+    public function extraPayment()
+    {
+        return $this->hasMany(ExtraPayment::class, 'customer_id', 'customer_id');
     }
 }

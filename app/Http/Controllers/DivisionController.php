@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
+use App\Services\ActivitLogService;
 
 use File;
 use Mail;
@@ -75,6 +76,8 @@ class DivisionController extends Controller
            $division->status = 'active';
            $division->save();
 
+        ActivitLogService::log('division', $request->division_name . ' - new division added');
+
         return back()->with('success', 'Division Successfully Added');
 
     }
@@ -85,6 +88,9 @@ class DivisionController extends Controller
         $division = Divisions::find($id);
         $division->status = "inactive";
         $division->update();
+
+        ActivitLogService::log('division', $division->division_name . ' - division deactivated');
+
         return back()->with('success', 'Division Deactivated');
 
     }
@@ -93,6 +99,9 @@ class DivisionController extends Controller
         $division = Divisions::find($id);
         $division->status = "active";
         $division->update();
+
+         ActivitLogService::log('division', $division->division_name . ' - division activated');
+
         return back()->with('success', 'Division Activated');
 
     }
@@ -115,6 +124,9 @@ class DivisionController extends Controller
         $division->head_of_division = $request->head_of_division;
         $division->division_description = $request->division_description;
         $division->update();
+
+         ActivitLogService::log('division', $request->division_name . ' - division details updated');
+
         return back()->with('success', 'Division Details Successfully  Updated');
     }
 

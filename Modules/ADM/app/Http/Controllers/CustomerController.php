@@ -30,58 +30,107 @@ class CustomerController extends Controller
      */
     
      public function customers()
-    {
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-        $customers = Customers::where('is_temp', 0)->where('adm', $adm_no)->paginate(15);
-        $temp_customers = Customers::where('is_temp', 1)->where('adm', $adm_no)->paginate(15);
+{
+    $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
-        $customers_count = Customers::where('is_temp', 0)->where('adm', $adm_no)->count();
-        $temp_customers_count = Customers::where('is_temp', 1)->where('adm', $adm_no)->count();
+    // Permanent customers (primary or secondary ADM)
+    $customers = Customers::where('is_temp', 0)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->paginate(15);
 
-        return view('adm::customer.customers',['customers' => $customers,'temp_customers' => $temp_customers
-        ,'customers_count' => $customers_count,'temp_customers_count' => $temp_customers_count]);
-    }
+    // Temporary customers (primary or secondary ADM)
+    $temp_customers = Customers::where('is_temp', 1)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->paginate(15);
+
+    // Counts for both
+    $customers_count = Customers::where('is_temp', 0)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->count();
+
+    $temp_customers_count = Customers::where('is_temp', 1)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
+        ->count();
+
+    return view('adm::customer.customers', [
+        'customers' => $customers,
+        'temp_customers' => $temp_customers,
+        'customers_count' => $customers_count,
+        'temp_customers_count' => $temp_customers_count,
+    ]);
+}
+
 
     public function search_customers(Request $request)
-    {
-        $query = $request->input('query');
+{
+    $query = $request->input('query');
+    $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-        $customers = Customers::where('is_temp', 0)
-        ->where('adm', $adm_no)
+    $customers = Customers::where('is_temp', 0)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
         ->where(function($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%")
               ->orWhere('customer_id', 'LIKE', "%{$query}%");
         })
         ->get();
-        $customer_data = '';
-        foreach($customers as $customer){
-            $customer_data .= ' <tr><td>'.$customer->customer_id.'</td>
-                                            <td>'.$customer->name .'</td>
-                                            <td>'.$customer->mobile_number.'</td></tr>';
-        }
-        return response()->json($customer_data);
-    }
-    public function search_temp_customers(Request $request)
-    {
-        $query = $request->input('query');
 
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-        $customers = Customers::where('is_temp', 1)
-        ->where('adm', $adm_no)
+    $customer_data = '';
+    foreach ($customers as $customer) {
+        $customer_data .= '
+            <tr>
+                <td>' . $customer->customer_id . '</td>
+                <td>' . $customer->name . '</td>
+                <td>' . $customer->mobile_number . '</td>
+            </tr>';
+    }
+
+    return response()->json($customer_data);
+}
+
+   public function search_temp_customers(Request $request)
+{
+    $query = $request->input('query');
+    $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
+
+    $customers = Customers::where('is_temp', 1)
+        ->where(function($q) use ($adm_no) {
+            $q->where('adm', $adm_no)
+              ->orWhere('secondary_adm', $adm_no);
+        })
         ->where(function($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%")
               ->orWhere('customer_id', 'LIKE', "%{$query}%");
         })
         ->get();
-        $customer_data = '';
-        foreach($customers as $customer){
-            $customer_data .= ' <tr><td>'.$customer->customer_id.'</td>
-                                            <td>'.$customer->name .'</td>
-                                            <td>'.$customer->mobile_number.'</td></tr>';
-        }
-        return response()->json($customer_data);
+
+    $customer_data = '';
+    foreach ($customers as $customer) {
+        $customer_data .= '
+            <tr>
+                <td>' . $customer->customer_id . '</td>
+                <td>' . $customer->name . '</td>
+                <td>' . $customer->mobile_number . '</td>
+            </tr>';
     }
+
+    return response()->json($customer_data);
+}
+
     /**
      * Show the form for creating a new resource.
      */

@@ -37,7 +37,7 @@ public function all_outstanding(Request $request)
     $search = $request->input('search');
     $outstandingRanges = $request->input('adoutstanding_dates', []); // Array of selected ranges
 
-    $invoices = Invoices::with(['customer.admDetails'])
+    $invoices = Invoices::with(['customer.admDetails','customer.secondaryAdm'])
         ->where('type', 'invoice')
         ->whereColumn('amount', '>', 'paid_amount')
         ->whereHas('customer', function ($query) {
@@ -51,9 +51,13 @@ public function all_outstanding(Request $request)
                 ->orWhereHas('customer', function ($q) use ($search) {
                     $q->where('customers.name', 'like', "%{$search}%");
                 })
-                ->orWhereHas('admDetails', function ($q) use ($search) {
+                ->orWhereHas('customer.admDetails', function ($q) use ($search) {
                     $q->where('user_details.adm_number', 'like', "%{$search}%")
-                      ->orWhere('user_details.name', 'like', "%{$search}%");
+                    ->orWhere('user_details.name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('customer.secondaryAdm', function ($q) use ($search) {
+                    $q->where('user_details.adm_number', 'like', "%{$search}%")
+                    ->orWhere('user_details.name', 'like', "%{$search}%");
                 });
         });
     }
@@ -94,14 +98,14 @@ public function all_outstanding(Request $request)
 
 public function all_receipts()
 {
-    $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+    $regular_receipts = InvoicePayments::with(['invoice.customer', 'batch', 'adm.userDetails'])
         ->whereHas('batch', function($query) {
             $query->where('temp_receipt', 0);
         })
         ->paginate(15, ['*'], 'regular_page');
 
     // Receipts where batch->temp_receipt != 0
-    $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+    $temp_receipts = InvoicePayments::with(['invoice.customer', 'batch', 'adm.userDetails'])
         ->whereHas('batch', function($query) {
             $query->where('temp_receipt', '!=', 0);
         })

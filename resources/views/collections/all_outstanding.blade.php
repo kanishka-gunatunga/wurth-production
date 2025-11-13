@@ -103,37 +103,54 @@
                     </tr>
                 </thead>
                 <tbody >
-                             @foreach($invoices as $invoice)
-                            <tr>
-                                 <td>{{$invoice->invoice_or_cheque_no ?? 'N/A' }}</td>
-                                <td>{{ $invoice->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $invoice->invoice_date ?? 'N/A' }}</td>
-                                <td>{{ $invoice->admDetails->adm_number ?? 'N/A' }}</td>
-                                <td>{{ $invoice->admDetails->name ?? 'N/A' }}</td>
-                                <td>{{ number_format($invoice->amount, 2) ?? '0.00' }}</td>
-                               <td>{{ number_format(($invoice->amount ?? 0) - ($invoice->paid_amount ?? 0), 2) }}</td>
+                           @foreach($invoices as $invoice)
+                                <tr>
+                                    <td>{{ $invoice->invoice_or_cheque_no ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->customer->name ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->invoice_date ?? 'N/A' }}</td>
 
-                        <!-- Outstanding Days -->
-                        <td class="sticky-column">
-                            @php
-                                $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date);
-                                $now = \Carbon\Carbon::now();
+                                    @php
+                                        $primaryAdm = $invoice->customer->admDetails;
+                                        $secondaryAdm = $invoice->customer->secondaryAdm;
+                                    @endphp
 
-                                // Calculate signed difference (can be negative)
-                                $daysDifference = $invoiceDate->diffInDays($now, false);
+                                    <td>
+                                        @if($primaryAdm)
+                                            {{ $primaryAdm->adm_number }}
+                                        @endif
 
-                                if ($daysDifference >= 0) {
-                                    $displayDays = number_format($daysDifference) . ' days';
-                                } else {
-                                    $displayDays = number_format(abs($daysDifference)) . ' days (Upcoming)';
-                                }
-                            @endphp
-                            {{ $displayDays }} 
-                        </td>
-                               
-                             
-                            </tr>
-                            @endforeach
+                                        @if($secondaryAdm)
+                                            <br><small>({{ $secondaryAdm->adm_number }} - Secondary)</small>
+                                        @endif
+                                    </td>
+
+                                    <td>
+                                        @if($primaryAdm)
+                                            {{ $primaryAdm->name }}
+                                        @endif
+
+                                        @if($secondaryAdm)
+                                            <br><small>({{ $secondaryAdm->name }} - Secondary)</small>
+                                        @endif
+                                    </td>
+
+                                    <td>{{ number_format($invoice->amount ?? 0, 2) }}</td>
+                                    <td>{{ number_format(($invoice->amount ?? 0) - ($invoice->paid_amount ?? 0), 2) }}</td>
+
+                                    <td class="sticky-column">
+                                        @php
+                                            $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date);
+                                            $now = \Carbon\Carbon::now();
+                                            $daysDifference = $invoiceDate->diffInDays($now, false);
+                                            $displayDays = $daysDifference >= 0
+                                                ? number_format($daysDifference) . ' days'
+                                                : number_format(abs($daysDifference)) . ' days (Upcoming)';
+                                        @endphp
+                                        {{ $displayDays }}
+                                    </td>
+                                </tr>
+                                @endforeach
+
                         </tbody>
             </table>
 

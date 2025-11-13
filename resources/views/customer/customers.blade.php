@@ -164,32 +164,52 @@ use App\Models\UserDetails;
                     </div>
                     @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
                     @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
-                    <div class="table-responsive division-table">
-                        <table class="table">
+                    <div class="table-responsive">
+                            <table class="table custom-table-locked">
                             <thead>
                                 <tr>
                                     <th scope="col">Customer ID</th>
-                                    <th scope="col">Full Name</th>
+                                    <th scope="col">Customer Name</th>
                                     <th scope="col">Address</th>
+                                    <th scope="col">Secondary Address</th>
                                     <th scope="col">Mobile Number</th>
+                                    <th scope="col">Secondary Mobile Number</th>
                                     <th scope="col">Email</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col">Whatsapp Number</th>
+                                    <th scope="col">ADM Name</th>
+                                    <th scope="col">Contact Person</th>
+                                    <th scope="col">Outstanding Amount</th>
+                                    <th scope="col" class="sticky-column">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
                                 foreach ($customers as $customer) {
+                                   
                                 ?>
 
                                     <tr>
-                                        <td>{{$customer->customer_id}}</th>
-                                        <td>{{$customer->name}}</td>
-                                        <td>{{$customer->address}}</td>
-                                        <td>{{$customer->mobile_number}}</td>
-                                        <td>{{$customer->email}}</td>
+                                        <td>{{$customer->customer_id ?? '-'}}</th>
+                                        <td>{{$customer->name ?? '-'}}</td>
+                                        <td>{{$customer->address ?? '-'}}</td>
+                                        <td>{{$customer->secondary_address ?? '-'}}</td>
+                                        <td>{{$customer->mobile_number ?? '-'}}</td>
+                                        <td>{{$customer->secondary_mobile_number ?? '-'}}</td>
+                                        <td>{{$customer->email ?? '-'}}</td>
+                                        <td>{{$customer->whatsapp_numbe ?? '-'}}</td>
+                                        <td>{{$customer->admDetails->name ?? '-'}}</td>
+                                        <td>{{$customer->contact_person ?? '-'}}</td>
                                         <td>
+                                        @php
+                                        $outstanding = $customer->invoices->sum(function ($invoice) {
+                                            $paid = $invoice->paid_amount ?? 0; // Treat null as 0
+                                            return max($invoice->amount - $paid, 0); // Only positive outstanding
+                                        });
+                                        @endphp
+                                        Rs. {{ number_format($outstanding ?? 0, 2) }}</td>
+                                        <td class="sticky-column">
                                             <a href="{{url('view-customer/'.$customer->id.'')}}"><button class="action-btn">View More</button></a>
-                                          
+                                              <a href="{{url('edit-customer/'.$customer->id.'')}}"><button class="action-btn">Edit</button></a>
                                         </td>
                                     </tr>
                                 <?php } ?>
@@ -229,14 +249,14 @@ use App\Models\UserDetails;
                 
                     <div class="d-flex justify-content-center">
                         <div class="col-7 mt-5">
-                            <div class="table-responsive division-table">
-                                <table class="table">
+                            <div class="table-responsive">
+                            <table class="table custom-table-locked">
                                     <thead>
                                         <tr>
                                             <th scope="col">ADM Name</th>
                                             <th scope="col">ADM Number</th>
                                             <th scope="col">Customer ID</th>
-                                            <th scope="col">Actions</th>
+                                            <th scope="col"  class="sticky-column">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -245,10 +265,10 @@ use App\Models\UserDetails;
 
                                         ?>
                                             <tr>
-                                                <td>{{UserDetails::where('adm_number', $temp_customer->adm)->value('name')}}</th>
+                                                <td>{{$temp_customer->admDetails->name ?? '-'}}</td>
                                                 <td>{{$temp_customer->adm}}</th>
                                                 <td>{{$temp_customer->customer_id}}</th>
-                                                <td>
+                                                <td class="sticky-column">
                                                     <a href="{{url('edit-customer/'.$temp_customer->id.'')}}"><button class="action-btn">Edit</button></a>
                                                 </td>
                                             </tr>

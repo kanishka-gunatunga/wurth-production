@@ -23,6 +23,7 @@ use App\Models\Divisions;
 use App\Models\Customers;
 use App\Models\ImportedReports;
 use App\Models\Invoices;
+use App\Services\ActivitLogService;
 
 use File;
 use Mail;
@@ -51,8 +52,8 @@ class CustomerController extends Controller
     }
 
     // --- BASE QUERIES ---
-    $customersQuery = Customers::where('is_temp', 0);
-    $tempCustomersQuery = Customers::where('is_temp', 1);
+    $customersQuery = Customers::where('is_temp', 0)->with('admDetails','invoices');
+    $tempCustomersQuery = Customers::where('is_temp', 1)->with('admDetails');
 
     // --- APPLY FILTERS TO CUSTOMERS ---
     if (!empty($selectedAdms)) {
@@ -127,13 +128,18 @@ class CustomerController extends Controller
            $customer->customer_id = $request->customer_id;
            $customer->name = $request->name;
            $customer->address = $request->address;
+           $customer->secondary_address = $request->secondary_address;
            $customer->mobile_number = $request->mobile_number;
+           $customer->secondary_mobile_number = $request->secondary_mobile_number;
            $customer->email = $request->email;
            $customer->whatsapp_number = $request->whatsapp_number;
            $customer->adm = $request->adm;
-           $customer->avilable_time = $request->avilable_time;
+           $customer->secondary_adm = $request->secondary_adm;
+           $customer->contact_person = $request->contact_person;
            $customer->status = 'active';
            $customer->save();
+
+            ActivitLogService::log('customer',  'new customer added - '.$request->name);
 
         return back()->with('success', 'Customer Successfully Added');
 
@@ -189,15 +195,20 @@ class CustomerController extends Controller
         
         $customer =  Customers::where('id', '=', $id)->first();
         $customer->is_temp = 0;
-        $customer->customer_id = $customer_id;
+        $customer->customer_id = $request->customer_id;
         $customer->name = $request->name;
         $customer->address = $request->address;
+        $customer->secondary_address = $request->secondary_address;
         $customer->mobile_number = $request->mobile_number;
+        $customer->secondary_mobile_number = $request->secondary_mobile_number;
         $customer->email = $request->email;
         $customer->whatsapp_number = $request->whatsapp_number;
         $customer->adm = $request->adm;
-        $customer->avilable_time = $request->avilable_time;
+        $customer->secondary_adm = $request->secondary_adm;
+        $customer->contact_person = $request->contact_person;
         $customer->update();
+
+        ActivitLogService::log('customer',  'customer details updated - '.$request->name);
 
         return back()->with('success', 'Customer Details Successfully  Updated');
     }
@@ -222,6 +233,8 @@ class CustomerController extends Controller
         $sales_file->name = $fileName;
         $sales_file->date = date("Y-m-d");
         $sales_file->save();
+
+        ActivitLogService::log('import',  'data imported from file - '. $fileName);
         
         $file = public_path('imports/' . $fileName);
         $data = Excel::toArray([], $file);
@@ -242,6 +255,7 @@ class CustomerController extends Controller
            
         }
 
+        
         return back()->with('success', 'Customers Successfully Added');
 
     }
@@ -268,6 +282,8 @@ class CustomerController extends Controller
         $sales_file->date = date("Y-m-d");
         $sales_file->save();
         
+        ActivitLogService::log('import',  'data imported from file - '. $fileName);
+
         $file = public_path('imports/' . $fileName);
         $data = Excel::toArray([], $file);
         $rows = $data[0];
@@ -337,7 +353,7 @@ class CustomerController extends Controller
     public function view_customer($id,Request $request)
     {
     if($request->isMethod('get')){
-    $customer_details = Customers::where('id',$id)->with('admDetails')->first();
+    $customer_details = Customers::where('id',$id)->with('admDetails','secondaryAdm','invoices')->first();
     return view('customer.view_customer', ['customer_details' => $customer_details]);
     }
    

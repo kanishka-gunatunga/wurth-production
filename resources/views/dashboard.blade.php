@@ -12,35 +12,35 @@ use App\Models\UserDetails;
             <div class="col-md-3">
               <div class="stat-card p-3">
                 <p class="stat-label">Current Month Actual Deposits</p>
-                <h3 class="stat-number">LKR 12,500.00</h3>
+                <h3 class="stat-number">Rs. {{ number_format($currentMonthDeposits, 2) }}</h3>
               </div>
             </div>
 
             <div class="col-md-3">
               <div class="stat-card p-3">
                 <p class="stat-label">On-Hand Collection</p>
-                <h3 class="stat-number">LKR 34,500.00</h3>
+                <h3 class="stat-number">Rs. {{ number_format($onHandCollections, 2) }}</h3>
               </div>
             </div>
 
             <div class="col-md-3">
               <div class="stat-card p-3">
                 <p class="stat-label">Current Month Collection</p>
-                <h3 class="stat-number">LKR 92,500.00</h3>
+                <h3 class="stat-number">Rs. {{ number_format($monthCollections, 2) }}</h3>
               </div>
             </div>
 
             <div class="col-md-3">
               <div class="stat-card p-3">
                 <p class="stat-label">Current Month Cheque Collection</p>
-                <h3 class="stat-number">LKR 120,500.00</h3>
+                <h3 class="stat-number">Rs. {{ number_format($monthChequeCollections, 2) }}</h3>
               </div>
             </div>
 
             <div class="col-md-3">
               <div class="stat-card p-3">
                 <p class="stat-label">Cash on Hand</p>
-                <h3 class="stat-number">LKR 13,500.00</h3>
+                <h3 class="stat-number">Rs. {{ number_format($monthCashOnHand, 2) }}</h3>
               </div>
             </div>
 
@@ -66,54 +66,21 @@ use App\Models\UserDetails;
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>H.K Perera</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>Pasan Randula</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>H.K Perera</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>Pasan Randula</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>H.K Perera</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>12 Dec 2024</td>
-                        <td>Pasan Randula</td>
-                        <td>254565214</td>
-                        <td>
-                          <button class="btn unlock-btn">Unlock</button>
-                        </td>
-                      </tr>
+                      @forelse ($locked_users as $user)
+                          <tr>
+                              <td>{{ $user->updated_at->format('d M Y') }}</td>
+                              <td>{{ $user->userDetails->name }}</td>
+                              <td>{{ $user->id }}</td>
+                              <td>
+                                      <a href="{{ url('unlock-user/'.$user->id) }}"><button class="btn unlock-btn">Unlock</button></a>
+
+                              </td>
+                          </tr>
+                      @empty
+                          <tr>
+                              <td colspan="4" class="text-center">No locked users found.</td>
+                          </tr>
+                      @endforelse
                     </tbody>
                   </table>
                 </div>
@@ -125,71 +92,16 @@ use App\Models\UserDetails;
               <div class="section-card activities-card">
                 <h3 class="page-title">Recent Activities</h3>
                 <div class="activities-list">
+                @foreach ($logs as $log)
                   <div class="activity-item">
                     <div class="activity-text">
-                      <strong>25651487 -</strong> User level
-                      <span class="highlight-red">Finance Manager</span>
-                      change access controls
+                      <strong> {{ $log->userData->userDetails->user_id ?? '-' }} -</strong> 
+                      <span class="highlight-red">{{ $log->userData->userDetails->name ?? '-' }}</span>
+                      - {{ $log->changes }}
                     </div>
                     <div class="activity-time">30 min ago</div>
                   </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
-                  <div class="activity-item">
-                    <div class="activity-text">
-                      <strong>25651487 -</strong> Update
-                      <span class="highlight-red">1256543</span> user's email
-                      address & phone number
-                    </div>
-                    <div class="activity-time">35 min ago</div>
-                  </div>
+                 @endforeach  
                 </div>
               </div>
             </div>

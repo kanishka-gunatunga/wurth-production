@@ -32,4 +32,9 @@ class InvoicePayments extends Model
     {
         return $this->belongsTo(InvoicePaymentBatches::class, 'batch_id', 'id');
     }
+
+      public function adm()
+    {
+        return $this->belongsTo(User::class, 'adm_id', 'id');
+    }
 }

@@ -193,8 +193,8 @@
                             @foreach($regular_receipts as $payment)
                             <tr>
                                 <td>{{ $payment->invoice->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $payment->invoice->customer->admDetails->name ?? 'N/A' }}</td>
-                                <td>{{ $payment->invoice->customer->adm ?? 'N/A' }}</td>
+                                <td>{{ $payment->adm->userDetails->name ?? 'N/A' }}</td>
+                                <td>{{ $payment->adm->userDetails->adm_number ?? 'N/A' }}</td>
                                 <td>{{ $payment->id ?? 'N/A' }}</td>
                                 <td>{{ $payment->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($payment->amount, 2) ?? '0.00' }}</td>
@@ -278,11 +278,12 @@
                             @foreach($temp_receipts as $temp_receipt)
                             <tr>
                                 <td>{{ $temp_receipt->invoice->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $temp_receipt->invoice->customer->admDetails->name ?? 'N/A' }}</td>
-                                <td>{{ $temp_receipt->invoice->customer->adm ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->id ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($temp_receipt->amount, 2) ?? '0.00' }}</td>
+                                <td>{{ $temp_receipt->adm->userDetails->name ?? 'N/A' }}</td>
+                                <td>{{ $temp_receipt->adm->userDetails->adm_number ?? 'N/A' }}</td>
+                                
                               
 
                                 <!-- Actions -->
