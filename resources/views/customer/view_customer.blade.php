@@ -127,7 +127,7 @@ use App\Models\Divisions;
 
                         <div class="detail-row">
                             <span class="detail-label">Secondary Address :</span>
-                            <span class="detail-value"></span>
+                            <span class="detail-value">{{$customer_details->secondary_address ?? '-'}}</span>
                         </div>
 
                         <div class="detail-row">
@@ -137,7 +137,7 @@ use App\Models\Divisions;
 
                         <div class="detail-row">
                             <span class="detail-label">Secondary Mobile Number :</span>
-                            <span class="detail-value"></span>
+                            <span class="detail-value">{{$customer_details->secondary_mobile_number ?? '-'}}</span>
                         </div>
 
                         <div class="detail-row">
@@ -162,31 +162,43 @@ use App\Models\Divisions;
 
                         <div class="detail-row">
                             <span class="detail-label">Secondary ADM Name :</span>
-                            <span class="detail-value"></span>
+                            <span class="detail-value">{{$customer_details->secondaryAdm->name ?? '-'}}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Secondary ADM No. :</span>
-                            <span class="detail-value"></span>
+                            <span class="detail-value">{{$customer_details->secondaryAdm->adm_number ?? '-'}}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Contact Person Name :</span>
-                            <span class="detail-value"></span>
+                            <span class="detail-value">{{$customer_details->contact_person ?? '-'}}</span>
                         </div>
                     </div>
-
+                    @php
+                    $outstandingInvoicesCount = $customer_details->invoices->where('type', 'invoice')
+                        ->filter(function ($invoice) {
+                            $paid = $invoice->paid_amount ?? 0; 
+                            return ($invoice->amount - $paid) > 0;
+                        })
+                        ->count();
+                    $returnChequeCount = $customer_details->invoices->where('type', 'return_cheque')->count();
+                    $outstanding = $customer_details->invoices->where('type', 'invoice')->sum(function ($invoice) {
+                            $paid = $invoice->paid_amount ?? 0; // Treat null as 0
+                            return max($invoice->amount - $paid, 0); // Only positive outstanding
+                        });
+                    @endphp  
                     <div class="mb-4 col-12 col-lg-6">
                         <h2 class="section-title mb-4">Payment Details</h2>
 
                         <div class="detail-row">
                             <span class="detail-label">Outstanding Invoices :</span>
-                            <span class="detail-value payment-highlight">15</span>
+                            <span class="detail-value payment-highlight">{{ number_format($outstandingInvoicesCount ?? 0, 0) }}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Return Cheques :</span>
-                            <span class="detail-value payment-highlight">1</span>
+                            <span class="detail-value payment-highlight">{{ number_format($returnChequeCount ?? 0, 0) }}</span>
                         </div>
 
                         <div class="detail-row">

@@ -34,17 +34,16 @@ class DepositeController extends Controller
     /**
      * Display a listing of the resource.
      */
- 
-public function daily_deposit(Request $request)
+ public function daily_deposit(Request $request)
 { 
     if ($request->isMethod('get')) {
         $banks = Bank::all();
-         $deposites = Deposits::where('adm_id', auth()->id())
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
-        ->get();
+        $deposites = Deposits::where('adm_id', auth()->id())
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->get();
 
-       $cashTotal = $deposites->filter(function($d) {
+        $cashTotal = $deposites->filter(function($d) {
             return in_array(strtolower($d->type), ['cash', 'finance - cash']);
         })->sum('amount');
 
@@ -52,11 +51,11 @@ public function daily_deposit(Request $request)
             return in_array(strtolower($d->type), ['cheque', 'finance - cheque']);
         })->sum('amount');
 
-         return view('adm::deposite.daily_deposit', [
-        'banks' => $banks,
-        'cashTotal' => $cashTotal,
-        'chequeTotal' => $chequeTotal
-    ]);
+        return view('adm::deposite.daily_deposit', [
+            'banks' => $banks,
+            'cashTotal' => $cashTotal,
+            'chequeTotal' => $chequeTotal
+        ]);
     }
 
     if ($request->isMethod('post')) {
@@ -67,6 +66,8 @@ public function daily_deposit(Request $request)
             'screenshot' => 'required',
             'screenshot.*' => 'file',
         ]);
+
+        $depositType = strtolower($request->deposit_type);
 
         // Handle multiple file uploads
         $attachmentPaths = [];
@@ -81,29 +82,48 @@ public function daily_deposit(Request $request)
 
         // Decode selected receipts
         $receiptIds = json_decode($request->selected_receipts, true);
-
         if (!is_array($receiptIds) || empty($receiptIds)) {
             return redirect()->back()->with('error', 'Invalid receipts selected.');
         }
 
-        // Format receipts for DB
-        $receipts = collect($receiptIds)->map(fn($id) => ['reciept_id' => $id])->values();
+        // 🧩 Handle "finance-cheque" differently
+        if ($depositType === 'finance - cheque' || $depositType === 'finance-cheque') {
+            foreach ($receiptIds as $receiptId) {
+                $receipt = InvoicePayments::find($receiptId);
+                if (!$receipt) continue;
 
-        // Save deposit
-        $deposit = new Deposits();
-        $deposit->type = strtolower($request->deposit_type);
-        $deposit->date_time = now();
-        $deposit->amount = $request->deposit_total;
-        $deposit->reciepts = $receipts->toJson();
-        $deposit->adm_id = auth()->id();
-        $deposit->status = 'pending';
-        $deposit->bank_name = $request->cheque_bank;
-        $deposit->branch_name = $request->cheque_branch;
-        $deposit->attachment_path = json_encode($attachmentPaths);
-        $deposit->save();
+                $deposit = new Deposits();
+                $deposit->type = $depositType;
+                $deposit->date_time = now();
+                $deposit->amount = $receipt->final_payment ?? 0; // Use individual receipt amount
+                $deposit->reciepts = json_encode([['reciept_id' => $receiptId]]);
+                $deposit->adm_id = auth()->id();
+                $deposit->status = 'pending';
+                $deposit->bank_name = $request->cheque_bank;
+                $deposit->branch_name = $request->cheque_branch;
+                $deposit->attachment_path = json_encode($attachmentPaths);
+                $deposit->save();
 
-        foreach ($receiptIds as $receiptId) {
-            if ($receiptId) {
+                // Update receipt status
+                $receipt->update(['status' => 'deposited']);
+            }
+        } else {
+            // 🧩 All other deposit types can group receipts together
+            $receipts = collect($receiptIds)->map(fn($id) => ['reciept_id' => $id])->values();
+
+            $deposit = new Deposits();
+            $deposit->type = $depositType;
+            $deposit->date_time = now();
+            $deposit->amount = $request->deposit_total;
+            $deposit->reciepts = $receipts->toJson();
+            $deposit->adm_id = auth()->id();
+            $deposit->status = 'pending';
+            $deposit->bank_name = $request->cheque_bank;
+            $deposit->branch_name = $request->cheque_branch;
+            $deposit->attachment_path = json_encode($attachmentPaths);
+            $deposit->save();
+
+            foreach ($receiptIds as $receiptId) {
                 InvoicePayments::where('id', $receiptId)->update(['status' => 'deposited']);
             }
         }

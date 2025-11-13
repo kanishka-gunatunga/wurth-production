@@ -19,6 +19,9 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
 use App\Services\ActivitLogService;
+use App\Models\Deposits;
+use App\Models\InvoicePayments;
+use App\Models\ActivtiyLog;
 use File;
 use Mail;
 use Image;
@@ -84,7 +87,36 @@ class UserController extends Controller
     }
     public function dashboard()
     {
-        return view('dashboard');
+        // Get current month and year
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Sum deposits for the current month with status 'accepted'
+        $currentMonthDeposits = Deposits::whereYear('date_time', $currentYear)
+            ->whereMonth('date_time', $currentMonth)
+            ->where('status', 'accepted')
+            ->sum('amount');
+
+        $onHandCollections = InvoicePayments::where('status', 'pending')
+        ->whereIn('type', ['cash', 'cheque'])
+        ->sum('final_payment');
+
+        $monthCollections = InvoicePayments::where('status', 'accepted')
+        ->sum('final_payment');
+
+        $monthChequeCollections = InvoicePayments::where('status', 'accepted')
+        ->where('type', 'cheque')
+        ->sum('final_payment');
+
+        $monthCashOnHand = InvoicePayments::where('status', 'pending')
+        ->where('type', 'cash')
+        ->sum('final_payment');
+
+        $locked_users = User::where('is_locked', 1)->with('userDetails')->take(10)->get();
+        $logs = ActivtiyLog::with('userData.userDetails')->orderBy('id', 'DESC')->take(10)->get();
+
+        return view('dashboard', compact('currentMonthDeposits','onHandCollections',
+        'monthCollections','monthChequeCollections','monthCashOnHand','locked_users','logs'));
     }
     function logout()
     {
@@ -239,6 +271,7 @@ class UserController extends Controller
            $userDetails->phone_number = $request->phone_number;
            $userDetails->adm_number = $request->adm_number;
            $userDetails->supervisor = $request->supervisor;
+           $userDetails->second_supervisor = $request->second_supervisor;
            $userDetails->division = $request->division;
            $userDetails->save();
            DB::commit();
@@ -280,7 +313,7 @@ class UserController extends Controller
     $other_details = UserDetails::where('user_id',$id)->first();
     $divisions = Divisions::where('status', 'active')->get();
     $role = $login_details->user_role;
-    if($role == '1' || $role == '2' || $role == '7'){
+    if($role == '1' || $role == '2' || $role == '7' || $role == '8'){
         $supervisors = []; 
     }
     if($role == '3'){
@@ -338,6 +371,7 @@ class UserController extends Controller
             $userDetails->adm_number = $adm_number;
             $userDetails->supervisor = $request->supervisor;
             $userDetails->division = $request->division;
+            $userDetails->second_supervisor = $request->second_supervisor;
             $userDetails->update();
 
             $user = User::find($id);

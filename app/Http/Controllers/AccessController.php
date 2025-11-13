@@ -57,6 +57,9 @@ class AccessController extends Controller
                 if($request->user_role == '7'){
                 $role = 'Finance Manager';
                 } 
+                if($request->user_role == '8'){
+                $role = 'Recovery Manager';
+                } 
 
             if(RolePermissions::where("user_role", $request->user_role)->exists()){
                 $permission =  RolePermissions::where("user_role", $request->user_role)->first();

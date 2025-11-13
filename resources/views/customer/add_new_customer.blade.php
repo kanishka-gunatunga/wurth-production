@@ -30,12 +30,21 @@ use App\Models\UserDetails;
                                 <input type="text" class="form-control custom-input" id="division-input" placeholder="Address" name="address" value="{{old('address')}}">
                                 @if($errors->has("address")) <div class="alert alert-danger mt-2">{{ $errors->first('address') }}</div>@endif
                             </div>
+                             <div class="mb-4 col-12 col-lg-6">
+                                <label for="division-input" class="form-label custom-input-label">Secondary Address</label>
+                                <input type="text" class="form-control custom-input" id="division-input" placeholder="Secondary Address" name="secondary_address" value="{{old('secondary_address')}}">
+                                @if($errors->has("secondary_address")) <div class="alert alert-danger mt-2">{{ $errors->first('secondary_address') }}</div>@endif
+                            </div>
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Mobile Number</label>
                                 <input type="tel" class="form-control custom-input" id="division-input" placeholder="Mobile Number" name="mobile_number" value="{{old('mobile_number')}}">
                                 @if($errors->has("mobile_number")) <div class="alert alert-danger mt-2">{{ $errors->first('mobile_number') }}</div>@endif
                             </div>
-                            
+                            <div class="mb-4 col-12 col-lg-6">
+                                <label for="division-input" class="form-label custom-input-label">Secondary Mobile Number</label>
+                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Secondary Mobile Number" name="secondary_mobile_number" value="{{old('secondary_mobile_number')}}">
+                                @if($errors->has("secondary_mobile_number")) <div class="alert alert-danger mt-2">{{ $errors->first('secondary_mobile_number') }}</div>@endif
+                            </div>
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Email</label>
                                 <input type="email" class="form-control custom-input" id="division-input" placeholder="Email" name="email" value="{{old('email')}}">
@@ -62,12 +71,31 @@ use App\Models\UserDetails;
                                 @if($errors->has("adm")) <div class="alert alert-danger mt-2">{{ $errors->first('adm') }}</div>@endif
                             </div>
 
+                             <div class="mb-4 col-12 col-lg-6">
+                                <label for="head-of-division-select" class="form-label custom-input-label">Select Secondary ADM
+                                </label>
+                                <select class="form-select custom-input" aria-label="Default select example"
+                                    id="head-of-division-select" name="secondary_adm">
+                                    <?php if(old('secondary_adm')){ ?> 
+                                        <option selected hidden value="{{old('secondary_adm')}}">{{UserDetails::where('adm_number', old('secondary_adm'))->value('name')}}</option>
+                                    <?php } ?>
+                                   <?php foreach($adms as $adm){ ?> 
+                                        <option value="{{$adm->userDetails->adm_number}}">{{$adm->userDetails->name}}</option>
+                                    <?php } ?>
+                                </select>
+                                @if($errors->has("secondary_adm")) <div class="alert alert-danger mt-2">{{ $errors->first('secondary_adm') }}</div>@endif
+                            </div>
                             <div class="mb-4 col-12 col-lg-6">
+                                <label for="division-input" class="form-label custom-input-label">Contact Person</label>
+                                <input type="text" class="form-control custom-input" id="division-input" placeholder="Contact Person" name="contact_person" value="{{old('contact_person')}}">
+                                @if($errors->has("contact_person")) <div class="alert alert-danger mt-2">{{ $errors->first('contact_person') }}</div>@endif
+                            </div>
+                            <!-- <div class="mb-4 col-12 col-lg-6">
                                 <label for="head-of-division-select" class="form-label custom-input-label">Available Time for Contact
                                 </label>
                                 <input type="time" class="form-control custom-input" id="division-input"  name="avilable_time" value="{{old('avilable_time')}}">
                                 @if($errors->has("avilable_time")) <div class="alert alert-danger mt-2">{{ $errors->first('avilable_time') }}</div>@endif
-                            </div>
+                            </div> -->
 
                             
                         </div>
