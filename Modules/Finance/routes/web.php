@@ -34,6 +34,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
     Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
     Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
+    Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
+    Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
 
     Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])
         ->name('advanced_payments.index');

@@ -74,6 +74,65 @@ class InquiriesController extends Controller
         return response()->json(['success' => true, 'status' => $inquiry->status]);
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $inquiries = Inquiries::with(['invoice', 'customer', 'user.userDetails'])
+            ->when($query, function ($q) use ($query) {
+                $q->where('id', 'LIKE', "%{$query}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('finance::inquiries.index', compact('inquiries'))
+            ->with('searchQuery', $query);
+    }
+
+    public function filter(Request $request)
+    {
+        $admIds = $request->input('adm_ids', []);
+        $customers = $request->input('customers', []);
+        $types = $request->input('types', []);
+        $status = $request->input('status');
+        $dateRange = $request->input('date_range'); // e.g. "2025-01-01 to 2025-01-31"
+
+        $inquiries = Inquiries::with(['invoice', 'customer', 'user.userDetails'])
+            ->when(!empty($admIds), function ($q) use ($admIds) {
+                $q->whereIn('adm_id', $admIds);
+            })
+            ->when(!empty($customers), function ($q) use ($customers) {
+                $q->whereIn('customer', $customers);
+            })
+            ->when(!empty($types), function ($q) use ($types) {
+                $q->whereIn('type', $types);
+            })
+            ->when(!empty($status), function ($q) use ($status) {
+                $q->where('status', $status);
+            })
+            ->when(!empty($dateRange), function ($q) use ($dateRange) {
+                $dates = explode(' to ', $dateRange);
+                if (count($dates) === 2) {
+                    $from = trim($dates[0]);
+                    $to = trim($dates[1]);
+                    $q->whereBetween('created_at', [$from, $to]);
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('finance::inquiries.index', compact('inquiries'))
+            ->with([
+                'filters' => [
+                    'adm_ids' => $admIds,
+                    'customers' => $customers,
+                    'types' => $types,
+                    'status' => $status,
+                    'date_range' => $dateRange
+                ]
+            ]);
+    }
+
 
 
 

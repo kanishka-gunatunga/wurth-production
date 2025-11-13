@@ -68,10 +68,18 @@
             <h1 class="header-title">Inquiries</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <div id="search-box-wrapper" class="collapsed">
-                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search Inquiry no." />
-            </div>
+            <form id="searchForm" action="{{ route('inquiries.search') }}" method="POST">
+                @csrf
+                <div id="search-box-wrapper" class="collapsed">
+                    <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                    <input
+                        type="text"
+                        name="query"
+                        class="search-input"
+                        placeholder="Search Inquiry no."
+                        value="{{ $searchQuery ?? '' }}" />
+                </div>
+            </form>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
@@ -96,7 +104,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($inquiries as $inquiry)
+                    @forelse ($inquiries as $inquiry)
                     <tr class="clickable-row"
                         data-href="{{ route('inquiry.details', $inquiry->id) }}"
                         data-adm="{{ $inquiry->adm_id }}"
@@ -104,7 +112,6 @@
                         data-type="{{ $inquiry->type }}"
                         data-status="{{ $inquiry->status }}"
                         data-date="{{ $inquiry->created_at }}">
-
 
                         <td>{{ $inquiry->id }}</td>
                         <td>{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</td>
@@ -145,17 +152,18 @@
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
                         </td>
-
-
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No inquiries found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
-
             </table>
 
         </div>
         <div class="col-12 d-flex justify-content-center laravel-pagination mt-4">
-            {{ $inquiries->links('pagination::bootstrap-5') }}
+            {{ $inquiries->appends(['query' => request('query')])->links('pagination::bootstrap-5') }}
         </div>
 
     </div>
@@ -173,114 +181,101 @@
 
 </div>
 
+<form action="{{ route('inquiries.filter') }}" method="POST">
+    @csrf
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
 
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button id="clear-filters" class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <!-- <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div> -->
-
-        <!-- ADM Number Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select id="filter-adm" class="form-control select2" multiple="multiple">
-                @foreach ($inquiries->pluck('adm_id')->unique() as $admId)
-                <option>{{ $admId }}</option>
-                @endforeach
-            </select>
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
         </div>
 
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select id="filter-customer" class="form-control select2" multiple="multiple">
-                @foreach ($inquiries->pluck('customer')->unique() as $customer)
-                <option>{{ $customer }}</option>
-                @endforeach
-            </select>
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span>
+                <span class="title-rest">&nbsp;by Filter</span>
+            </div>
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
         </div>
 
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Inquiry type</p>
-            <select id="filter-type" class="form-control select2" multiple="multiple">
-                @foreach ($inquiries->pluck('type')->unique() as $type)
-                <option>{{ $type }}</option>
-                @endforeach
-            </select>
-        </div>
-
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
-                    Choose Status
-                </button>
-                <ul id="custom-status-menu" class="custom-dropdown-menu"
-                    style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
-                    @foreach ($inquiries->pluck('status')->unique() as $status)
-                    <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+        <div class="offcanvas-body">
+            <!-- ADM ID -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select name="adm_ids[]" id="filter-adm" class="form-control select2" multiple="multiple">
+                    @foreach ($inquiries->pluck('adm_id')->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ isset($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
                     @endforeach
-                </ul>
+                </select>
+
+            </div>
+
+            <!-- Customers -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select name="customers[]" id="filter-customer" class="form-control select2" multiple="multiple">
+                    @foreach ($inquiries->pluck('customer')->unique() as $customer)
+                    <option value="{{ $customer }}"
+                        {{ isset($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+
+            </div>
+
+            <!-- Inquiry Type -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Inquiry type</p>
+                <select name="types[]" id="filter-type" class="form-control select2" multiple="multiple">
+                    @foreach ($inquiries->pluck('type')->unique() as $type)
+                    <option value="{{ $type }}"
+                        {{ isset($filters['types']) && in_array($type, $filters['types']) ? 'selected' : '' }}>
+                        {{ $type }}
+                    </option>
+                    @endforeach
+                </select>
+
+            </div>
+
+            <!-- Status -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <input type="hidden" name="status" id="status-input" value="{{ $filters['status'] ?? '' }}">
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ $filters['status'] ?? 'Choose Status' }}
+                    </button>
+                    <ul id="custom-status-menu" class="custom-dropdown-menu"
+                        style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($inquiries->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" name="date_range" id="filter-date" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
             </div>
         </div>
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
-        </div>
     </div>
-</div>
-</div>
+</form>
+
 
 
 <!-- Toast message -->
@@ -305,45 +300,6 @@
 
 
 
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
-    });
-</script>
 
 <!-- link entire row of table -->
 <script>
@@ -392,20 +348,11 @@
             }
         });
 
-        // Filter table rows by Inquiry Ref. No
-        searchInput.addEventListener("input", function() {
-            const query = this.value.trim().toLowerCase();
-
-            tableRows.forEach(row => {
-                const inquiryRefNo = row.querySelector("td").textContent.trim().toLowerCase();
-                if (inquiryRefNo.includes(query)) {
-                    row.style.display = ""; // show
-                } else {
-                    row.style.display = "none"; // hide
-                }
-            });
-
-            startIdleTimer();
+        searchInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                document.getElementById("searchForm").submit();
+            }
         });
 
         searchInput.addEventListener("keydown", startIdleTimer);
@@ -505,6 +452,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const btn = document.getElementById("custom-status-btn");
         const menu = document.getElementById("custom-status-menu");
+        const statusInput = document.getElementById("status-input");
 
         btn.addEventListener("click", () => {
             menu.style.display = menu.style.display === "block" ? "none" : "block";
@@ -513,103 +461,40 @@
         menu.querySelectorAll(".dropdown-item").forEach(item => {
             item.addEventListener("click", (e) => {
                 e.preventDefault();
+                const value = e.target.dataset.value;
                 btn.textContent = e.target.textContent;
-                btn.setAttribute("data-value", e.target.dataset.value);
+                statusInput.value = value;
                 menu.style.display = "none";
             });
-        });
-
-        // Close if clicked outside
-        document.addEventListener("click", (e) => {
-            if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.style.display = "none";
-            }
         });
     });
 </script>
 
-<!-- filtering script & close all button functionality -->
+<!-- clear all button functionality -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const rows = document.querySelectorAll(".custom-table-locked tbody tr");
+        const clearBtn = document.getElementById('clear-filters');
+        const form = clearBtn.closest('form');
 
-        const admFilter = document.getElementById("filter-adm");
-        const customerFilter = document.getElementById("filter-customer");
-        const typeFilter = document.getElementById("filter-type");
-        const statusBtn = document.getElementById("custom-status-btn");
-        const dateFilter = document.getElementById("filter-date");
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
 
-        function applyFilters() {
-            const selectedAdms = $(admFilter).val() || [];
-            const selectedCustomers = $(customerFilter).val() || [];
-            const selectedTypes = $(typeFilter).val() || [];
-            const selectedStatus = statusBtn.getAttribute("data-value") || "";
-            const dateRange = dateFilter.value.split(" to ");
+            // Clear Select2 dropdowns
+            $('#filter-adm').val(null).trigger('change');
+            $('#filter-customer').val(null).trigger('change');
+            $('#filter-type').val(null).trigger('change');
 
-            rows.forEach(row => {
-                const rowAdm = row.dataset.adm;
-                const rowCustomer = row.dataset.customer;
-                const rowType = row.dataset.type;
-                const rowStatus = row.dataset.status;
-                const rowDate = row.dataset.date;
+            // Clear custom status dropdown
+            document.getElementById('status-input').value = '';
+            document.getElementById('custom-status-btn').textContent = 'Choose Status';
 
-                let visible = true;
+            // Clear date range
+            document.getElementById('filter-date').value = '';
 
-                if (selectedAdms.length && !selectedAdms.includes(rowAdm)) visible = false;
-                if (selectedCustomers.length && !selectedCustomers.includes(rowCustomer)) visible = false;
-                if (selectedTypes.length && !selectedTypes.includes(rowType)) visible = false;
-                if (selectedStatus && rowStatus !== selectedStatus) visible = false;
-
-                // Date range filter
-                if (dateRange.length === 2 && dateRange[0] && dateRange[1]) {
-                    const rowD = new Date(rowDate);
-                    const from = new Date(dateRange[0]);
-                    const to = new Date(dateRange[1]);
-                    if (rowD < from || rowD > to) visible = false;
-                }
-
-                row.style.display = visible ? "" : "none";
-            });
-        }
-
-        // Hook into change events
-        $(admFilter).on("change", applyFilters);
-        $(customerFilter).on("change", applyFilters);
-        $(typeFilter).on("change", applyFilters);
-        dateFilter.addEventListener("change", applyFilters);
-
-        // Custom status dropdown
-        document.querySelectorAll("#custom-status-menu .dropdown-item").forEach(item => {
-            item.addEventListener("click", e => {
-                e.preventDefault();
-                statusBtn.textContent = e.target.textContent;
-                statusBtn.setAttribute("data-value", e.target.dataset.value);
-                document.getElementById("custom-status-menu").style.display = "none";
-                applyFilters();
-            });
-        });
-
-        // ✅ Clear All button (now inside)
-        document.getElementById("clear-filters").addEventListener("click", function() {
-            // Reset Select2 dropdowns
-            $(admFilter).val(null).trigger("change");
-            $(customerFilter).val(null).trigger("change");
-            $(typeFilter).val(null).trigger("change");
-
-            // Reset status button
-            statusBtn.textContent = "Choose Status";
-            statusBtn.removeAttribute("data-value");
-
-            // Reset date
-            dateFilter.value = "";
-
-            // Show all rows
-            rows.forEach(row => row.style.display = "");
+            // Submit form to refresh the view
+            form.submit();
         });
     });
 </script>
-
-
-
 
 @include('finance::layouts.footer')
