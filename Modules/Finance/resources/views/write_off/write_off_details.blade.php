@@ -67,7 +67,7 @@
                 <tbody id="paymentSlipsExtra">
                     @foreach ($creditNotesData as $credit)
                     <tr>
-                        <td>{{ $credit['extraPaymentNo'] }}</td>
+                        <td>{{ $credit['id'] }}</td>
                         <td>{{ $credit['customerName'] }}</td>
                         <td>{{ $credit['customerId'] }}</td>
                         <td>{{ $credit['admNo'] }}</td>

@@ -83,6 +83,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
     Route::post('/write-off/credit-notes', [WriteOffController::class, 'getCreditNotes'])->name('write_off.credit_notes');
+    Route::post('/write-off/extra-payments', [WriteOffController::class, 'getExtraPayments'])->name('write_off.extra_payments');
     Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])->name('write_off.submit');
     Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
     Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
