@@ -352,7 +352,7 @@
 </script>
 
 
-<!-- close all button functionality -->
+<!-- clear all button functionality -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const clearBtn = document.getElementById('clear-filters');

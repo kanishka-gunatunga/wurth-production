@@ -52,6 +52,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('cash_deposits.download');
     Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class, 'updateStatus'])
         ->name('cash_deposits.update_status');
+    Route::post('/cash-deposits/search', [CashDepositsController::class, 'search'])->name('cash_deposits.search');
+    Route::post('/cash-deposits/filter', [CashDepositsController::class, 'filter'])->name('cash_deposits.filter');
 
     Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
     Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');

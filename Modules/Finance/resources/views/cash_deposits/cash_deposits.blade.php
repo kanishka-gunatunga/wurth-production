@@ -69,13 +69,22 @@
             <h1 class="header-title">Cash Deposits</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <div id="search-box-wrapper" class="collapsed">
-                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search customer ID, Name or ADM ID, Name" />
-            </div>
+            <form id="searchForm" method="POST" action="{{ route('cash_deposits.search') }}">
+                @csrf
+                <div id="search-box-wrapper" class="collapsed">
+                    <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-input"
+                        placeholder="Search customer ID, Name or ADM ID, Name"
+                        value="{{ $filters['search'] ?? '' }}" />
+                </div>
+            </form>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
+
     </div>
 
 
@@ -138,41 +147,35 @@
 
         </div>
         <div class="d-flex justify-content-center mt-4">
-            {{ $cashDeposits->links('pagination::bootstrap-5') }}
+            {{ $cashDeposits->appends(request()->query())->links('pagination::bootstrap-5') }}
         </div>
 
     </div>
-
-
-
-
-
 </div>
 
 
-
-
-
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
+<form method="POST" action="{{ route('cash_deposits.filter') }}">
+    @csrf
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
         </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <!-- <div class="row">
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
 
@@ -202,76 +205,79 @@
                 <span>Head of Division</span>
 
             </div>
-        </div>
+        </div> -->
 
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                @foreach ($cashDeposits->pluck('adm_name')->unique() as $admName)
-                @if($admName)
-                <option value="{{ $admName }}"
-                    {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                    {{ $admName }}
-                </option>
-                @endif
-                @endforeach
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                @foreach ($cashDeposits->pluck('adm_number')->unique() as $admId)
-                <option value="{{ $admId }}"
-                    {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                    {{ $admId }}
-                </option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                @foreach ($cashDeposits->pluck('customer_name')->unique() as $customer)
-                @if($customer)
-                <option value="{{ $customer }}"
-                    {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                    {{ $customer }}
-                </option>
-                @endif
-                @endforeach
-            </select>
-        </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="filter-date" name="date_range" class="form-control"
-                placeholder="Select date range"
-                value="{{ $filters['date_range'] ?? '' }}" />
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
-                    Choose Status
-                </button>
-                <ul id="custom-status-menu" class="custom-dropdown-menu"
-                    style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
-                    @foreach ($cashDeposits->pluck('status')->unique() as $status)
-                    <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($cashDeposits->pluck('adm_name')->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
                     @endforeach
-                </ul>
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($cashDeposits->pluck('adm_number')->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                    @foreach ($cashDeposits->pluck('customer_name')->unique() as $customer)
+                    @if($customer)
+                    <option value="{{ $customer }}"
+                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        Choose Status
+                    </button>
+                    <ul id="custom-status-menu" class="custom-dropdown-menu"
+                        style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($cashDeposits->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
             </div>
         </div>
     </div>
-</div>
-</div>
+</form>
 
 
 <!-- Toast message -->
@@ -411,24 +417,6 @@
 
         searchInput.addEventListener("keydown", startIdleTimer);
     });
-
-    // Filter table based on Deposit Type, ADM Number, or ADM Name
-    function filterTable(query) {
-        const searchQuery = query.toLowerCase();
-        const tableRows = document.querySelectorAll("#cashDepositeTableBody tr");
-
-        tableRows.forEach(row => {
-            const depositType = row.children[1].textContent.toLowerCase();
-            const admNumber = row.children[3].textContent.toLowerCase();
-            const admName = row.children[4].textContent.toLowerCase();
-
-            if (depositType.includes(searchQuery) || admNumber.includes(searchQuery) || admName.includes(searchQuery)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        });
-    }
 </script>
 
 <!-- for approve/reject buttons -->
@@ -440,7 +428,7 @@
 
         // Approve / Reject buttons
         if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
-            e.target.classList.contains('success-action-btn-lg') || e.target.classList.contains('red-action-btn-lg')) {
+            e.target.classList.contains('success-action-btn-lg') ) {
 
             e.preventDefault();
             e.stopPropagation();
@@ -505,6 +493,34 @@
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
             tag.classList.toggle('selected');
+        });
+    });
+</script>
+
+<!-- for search on enter key -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.querySelector("#search-box-wrapper .search-input");
+        const searchForm = document.getElementById("searchForm");
+
+        // Submit form when Enter is pressed
+        searchInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                searchForm.submit();
+            }
+        });
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+            document.getElementById('filter-date').value = '';
+            setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
 </script>
