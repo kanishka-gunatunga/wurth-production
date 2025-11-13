@@ -125,4 +125,147 @@ class FinanceCashController extends Controller
             'status' => $request->status,
         ]);
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+
+        $financeCashDeposits = Deposits::where('type', 'finance_cash')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $filtered = $financeCashDeposits->filter(function ($deposit) use ($search) {
+            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $admMatch = false;
+            if ($admDetails) {
+                $admMatch = str_contains(strtolower($admDetails->name), strtolower($search)) ||
+                    str_contains(strtolower($admDetails->adm_number), strtolower($search));
+            }
+
+            $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+            $customerMatch = false;
+            foreach ($invoicePayments as $payment) {
+                $invoice = Invoices::find($payment->invoice_id);
+                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+
+                if ($customer && (str_contains(strtolower($customer->name), strtolower($search)) ||
+                    str_contains(strtolower($customer->customer_id), strtolower($search)))) {
+                    $customerMatch = true;
+                    break;
+                }
+            }
+
+            return $admMatch || $customerMatch;
+        });
+
+        $page = request('page', 1);
+        $perPage = 10;
+
+        $financeCashDeposits = new \Illuminate\Pagination\LengthAwarePaginator(
+            $filtered->forPage($page, $perPage),
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $financeCashDeposits->getCollection()->transform(function ($deposit) {
+            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') $status = 'deposited';
+
+            return [
+                'id' => $deposit->id,
+                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'adm_number' => $admDetails->adm_number ?? 'N/A',
+                'adm_name' => $admDetails->name ?? 'N/A',
+                'amount' => $deposit->amount ?? 0,
+                'status' => ucfirst($status ?: 'Deposited'),
+                'attachment_path' => $deposit->attachment_path ?? null,
+            ];
+        });
+
+        $filters = ['search' => $search];
+
+        return view('finance::finance_cash.finance_cash', compact('financeCashDeposits', 'filters'));
+    }
+
+    public function filter(Request $request)
+    {
+        $query = Deposits::where('type', 'finance_cash');
+
+        if ($request->filled('adm_names')) {
+            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
+                ->pluck('user_id')->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('adm_ids')) {
+            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
+                ->pluck('user_id')->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('customers')) {
+            $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                    if ($customer && in_array($customer->name, $request->customers)) return true;
+                }
+                return false;
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('date_time', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end))
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', ucfirst(strtolower($request->status)));
+        }
+
+        $financeCashDeposits = $query->orderByDesc('created_at')->paginate(10);
+
+        $financeCashDeposits->getCollection()->transform(function ($deposit) {
+            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') $status = 'deposited';
+
+            return [
+                'id' => $deposit->id,
+                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'adm_number' => $admDetails->adm_number ?? 'N/A',
+                'adm_name' => $admDetails->name ?? 'N/A',
+                'amount' => $deposit->amount ?? 0,
+                'status' => ucfirst($status ?: 'Deposited'),
+                'attachment_path' => $deposit->attachment_path ?? null,
+            ];
+        });
+
+        $filters = $request->all();
+
+        return view('finance::finance_cash.finance_cash', compact('financeCashDeposits', 'filters'));
+    }
 }
