@@ -112,33 +112,34 @@
 
             </table>
         </div>
-        <nav class="d-flex justify-content-center mt-5">
-            <ul id="finalPagination" class="pagination"></ul>
-        </nav>
+        <div class="d-flex justify-content-center mt-5">
+            {{ $collections->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 </div>
 
-
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
+<form id="filterForm" method="POST" action="{{ route('collections.filter') }}">
+    @csrf
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
         </div>
-    </div>
-    <div class="offcanvas-body">
-        <!-- <div class="row">
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <!-- <div class="row">
             <p class="filter-title">User roles</p>
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
@@ -171,71 +172,75 @@
             </div>
         </div> -->
 
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                @foreach ($collections->pluck('adm_name')->unique() as $admName)
-                @if($admName)
-                <option value="{{ $admName }}"
-                    {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                    {{ $admName }}
-                </option>
-                @endif
-                @endforeach
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                @foreach ($collections->pluck('adm_number')->unique() as $admId)
-                <option value="{{ $admId }}"
-                    {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                    {{ $admId }}
-                </option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                @foreach ($collections->getCollection()->flatMap->customers->unique() as $customer)
-                @if($customer)
-                <option value="{{ $customer }}"
-                    {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                    {{ $customer }}
-                </option>
-                @endif
-                @endforeach
-            </select>
-
-        </div>
-
-        <!-- Divisions -->
-        <div class="mt-5 radio-selection filter-categories">
-            <p class="filter-title">Divisions</p>
-            @foreach ($collections->getCollection()->pluck('division')->filter()->unique() as $division)
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="divisions[]" value="{{ $division }}">
-                <label class="form-check-label">{{ $division }}</label>
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($collections->pluck('adm_name')->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
             </div>
-            @endforeach
-        </div>
 
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="filter-date" name="date_range" class="form-control"
-                placeholder="Select date range"
-                value="{{ $filters['date_range'] ?? '' }}" />
-        </div>
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($collections->pluck('adm_number')->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
 
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                    @foreach ($collections->getCollection()->flatMap->customers->filter()->unique() as $customer)
+                    @if($customer)
+                    <option value="{{ $customer }}"
+                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+
+            </div>
+
+            <!-- Divisions -->
+            <div class="mt-5 radio-selection filter-categories">
+                <p class="filter-title">Divisions</p>
+                @foreach ($collections->pluck('division')->filter()->unique() as $division)
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="divisions[]" value="{{ $division }}">
+                    <label class="form-check-label">{{ $division }}</label>
+                </div>
+                @endforeach
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+
+        </div>
     </div>
-</div>
-</div>
+</form>
 
 
 
@@ -304,6 +309,18 @@
 
         searchInput.addEventListener("keydown", function() {
             startIdleTimer(); // Reset the timer on any keypress
+        });
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+            document.getElementById('filter-date').value = '';
+            setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
 </script>
