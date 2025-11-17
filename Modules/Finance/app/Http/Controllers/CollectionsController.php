@@ -186,6 +186,88 @@ class CollectionsController extends Controller
         ]);
     }
 
+    public function search_collections(Request $request)
+    {
+        $search = $request->input('search');
+
+        // Load all collections
+        $allCollections = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Manual filtering (same pattern as Cash Deposits)
+        $filtered = $allCollections->filter(function ($batch) use ($search) {
+
+            $search = strtolower($search);
+
+            // Check Collection ID
+            if (str_contains((string)$batch->id, $search)) return true;
+
+            // Check ADM details
+            if ($batch->admDetails) {
+                if (
+                    str_contains(strtolower($batch->admDetails->adm_number), $search) ||
+                    str_contains(strtolower($batch->admDetails->name), $search)
+                ) return true;
+            }
+
+            // Check invoice number & customer name
+            foreach ($batch->payments as $payment) {
+
+                // invoice number
+                if (str_contains(strtolower((string)$payment->invoice_id), $search)) {
+                    return true;
+                }
+
+                // customer
+                $customer = $payment->invoice->customer ?? null;
+
+                if ($customer) {
+                    if (str_contains(strtolower($customer->name), $search)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        // Manual pagination (same as cash deposits)
+        $page = request('page', 1);
+        $perPage = 10;
+
+        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+            $filtered->forPage($page, $perPage),
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Transform dataset for Blade
+        $collections->getCollection()->transform(function ($batch) {
+            return [
+                'collection_id' => $batch->id,
+                'collection_date' => $batch->created_at->format('Y-m-d'),
+                'adm_number' => $batch->admDetails->adm_number ?? 'N/A',
+                'adm_name' => $batch->admDetails->name ?? 'N/A',
+                'division' => $batch->division,
+                'customers' => $batch->payments
+                    ->pluck('invoice.customer.name')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->toArray(),
+                'total_collected_amount' => $batch->payments->sum('final_payment'),
+            ];
+        });
+
+        // Keep search value for Blade
+        $filters = ['search' => $search];
+
+        return view('finance::collections.all_collections', compact('collections', 'filters'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */

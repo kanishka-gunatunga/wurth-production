@@ -101,4 +101,6 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('collections.all');
     Route::get('/collection-details/{id}', [CollectionsController::class, 'collection_details'])
         ->name('collections.details');
+    Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
+        ->name('collections.search');
 });
