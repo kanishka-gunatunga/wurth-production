@@ -105,7 +105,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted">No cash deposits found.</td>
+                        <td colspan="6" class="text-center text-muted">No collections found.</td>
                     </tr>
                     @endforelse
                 </tbody>

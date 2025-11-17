@@ -34,30 +34,69 @@ class CollectionsController extends Controller
      */
 
 
-    public function all_receipts()
+    public function all_receipts(Request $request)
     {
-        // Receipts where batch->temp_receipt = 0
-        $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-            ->whereHas('batch', function ($query) {
-                $query->where('temp_receipt', 0);
-            })
-            ->paginate(15, ['*'], 'regular_page');
+        // Final Receipts Search
+        $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
 
-        // Receipts where batch->temp_receipt != 0
-        $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-            ->whereHas('batch', function ($query) {
-                $query->where('temp_receipt', '!=', 0);
-            })
-            ->paginate(5, ['*'], 'temp_page');
+        if ($request->filled('final_search')) {
+            $search = $request->final_search;
+            $regularQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'invoice.customer',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm', 'like', "%{$search}%")
+                    );
+            });
+        }
 
-        $advanced_payments = AdvancedPayment::with(['customerData', 'adm.userDetails'])
-            ->paginate(15, ['*'], 'advance_page');
+        $regular_receipts = $regularQuery->paginate(15, ['*'], 'regular_page');
 
-        return view('finance::collections.all_receipts', [
-            'regular_receipts' => $regular_receipts,
-            'temp_receipts' => $temp_receipts,
-            'advanced_payments' => $advanced_payments,
-        ]);
+        // Temporary Receipts Search
+        $tempQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', fn($q) => $q->where('temp_receipt', '!=', 0));
+
+        if ($request->filled('temp_search')) {
+            $search = $request->temp_search;
+            $tempQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'invoice.customer',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm', 'like', "%{$search}%")
+                    );
+            });
+        }
+
+        $temp_receipts = $tempQuery->paginate(5, ['*'], 'temp_page');
+
+        // Advance Payments Search
+        $advanceQuery = AdvancedPayment::with(['customerData', 'adm.userDetails']);
+        if ($request->filled('advance_search')) {
+            $search = $request->advance_search;
+            $advanceQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'customerData',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                    )
+                    ->orWhereHas(
+                        'adm.userDetails',
+                        fn($q3) =>
+                        $q3->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm_number', 'like', "%{$search}%")
+                    );
+            });
+        }
+
+        $advanced_payments = $advanceQuery->paginate(15, ['*'], 'advance_page');
+
+        return view('finance::collections.all_receipts', compact('regular_receipts', 'temp_receipts', 'advanced_payments'));
     }
 
     public function resend_receipt()

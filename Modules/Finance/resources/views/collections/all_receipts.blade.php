@@ -1,4 +1,7 @@
 @include('finance::layouts.header')
+@php
+$activeTab = request('active_tab', 'final');
+@endphp
 
 
 <style>
@@ -96,7 +99,7 @@
     <div class="styled-tab-main">
         <ul class="nav nav-tabs">
             <li class="nav-item mb-3">
-                <a class="nav-link active" aria-current="page" href="#" id="final-reciepts-invoices"
+                <a class="nav-link {{ $activeTab == 'final' ? 'active' : '' }}" aria-current="page" href="#" id="final-reciepts-invoices"
                     data-bs-toggle="tab" data-bs-target="#final-reciepts-invoices-pane" type="button"
                     role="tab" aria-controls="final-reciepts-invoices-pane" aria-selected="true">
 
@@ -115,7 +118,7 @@
 
 
             <li class="nav-item mb-3">
-                <a class="nav-link" aria-current="page" href="#" id="temporary-receipts-invoices"
+                <a class="nav-link {{ $activeTab == 'temporary' ? 'active' : '' }}" aria-current="page" href="#" id="temporary-receipts-invoices"
                     data-bs-toggle="tab" data-bs-target="#temporary-receipts-invoices-pane" type="button"
                     role="tab" aria-controls="temporary-receipts-invoices-pane" aria-selected="false">
                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
@@ -132,7 +135,7 @@
 
 
             <li class="nav-item mb-3">
-                <a class="nav-link" aria-current="page" href="#" id="temporary-receipts-advance-payment"
+                <a class="nav-link {{ $activeTab == 'advance' ? 'active' : '' }}" aria-current="page" href="#" id="temporary-receipts-advance-payment"
                     data-bs-toggle="tab" data-bs-target="#temporary-receipts-advance-payment-pane"
                     type="button" role="tab" aria-controls="temporary-receipts-advance-payment-pane"
                     aria-selected="false">
@@ -151,14 +154,16 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="final-reciepts-invoices-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'final' ? 'show active' : '' }}" id="final-reciepts-invoices-pane" role="tabpanel"
                 aria-labelledby="final-reciepts-invoices" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('finance/all-receipts') }}">
+                            <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="final_search" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" value="{{ request('final_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="final-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -190,7 +195,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($regular_receipts as $payment)
+                            @forelse($regular_receipts as $payment)
                             <tr>
                                 <td>{{ $payment->invoice->customer->name ?? 'N/A' }}</td>
                                 <td>{{ $payment->invoice->customer->admDetails->name ?? 'N/A' }}</td>
@@ -218,41 +223,45 @@
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $payment->id }}"
                                             data-primary="{{ $payment->invoice->customer->mobile_number ?? '' }}"
-                                            data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}" >
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}">
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
                                         <a href="{{ url('finace/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
-                            </tbody>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
 
                     </table>
 
                 </div>
                 <nav class="d-flex justify-content-center mt-5">
-
-                    {{ $regular_receipts->appends(['active_tab' => 'final'])->links('pagination::bootstrap-5') }}
+                    {{ $regular_receipts->appends(['final_search' => request('final_search'), 'active_tab' => 'final'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
 
-            <div class="tab-pane fade" id="temporary-receipts-invoices-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'temporary' ? 'show active' : '' }}" id="temporary-receipts-invoices-pane" role="tabpanel"
                 aria-labelledby="temporary-receipts-invoices" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('finance/all-receipts') }}">
+                            <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="temp_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('temp_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="tr-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -274,8 +283,8 @@
                                 <th class="sticky-column">Actions</th>
                             </tr>
                         </thead>
-                        <tbody >
-                            @foreach($temp_receipts as $temp_receipt)
+                        <tbody>
+                            @forelse($temp_receipts as $temp_receipt)
                             <tr>
                                 <td>{{ $temp_receipt->invoice->customer->name ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->invoice->customer->admDetails->name ?? 'N/A' }}</td>
@@ -283,45 +292,50 @@
                                 <td>{{ $temp_receipt->id ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($temp_receipt->amount, 2) ?? '0.00' }}</td>
-                              
+
 
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $temp_receipt->id }}"
                                             data-primary="{{ $temp_receipt->invoice->customer->mobile_number ?? '' }}"
-                                            data-secondary="{{ $temp_receipt->invoice->customer->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $temp_receipt->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}" >
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}">
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
                                         <a href="{{ url('finace/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
                 </div>
-               <nav class="d-flex justify-content-center mt-5">
-                    {{ $temp_receipts->appends(['active_tab' => 'temporary'])->links('pagination::bootstrap-5') }}
+                <nav class="d-flex justify-content-center mt-5">
+                    {{ $temp_receipts->appends(['temp_search' => request('temp_search'), 'active_tab' => 'temporary'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
 
 
-            <div class="tab-pane fade" id="temporary-receipts-advance-payment-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'advance' ? 'show active' : '' }}" id="temporary-receipts-advance-payment-pane" role="tabpanel"
                 aria-labelledby="temporary-receipts-advance-payment" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('finance/all-receipts') }}">
+                            <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="advance_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('advance_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="receipts-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -355,8 +369,8 @@
                                 <th class="sticky-column">Actions</th>
                             </tr>
                         </thead>
-                        <tbody >
-                             @foreach($advanced_payments as $advanced_payment)
+                        <tbody>
+                            @forelse($advanced_payments as $advanced_payment)
                             <tr>
                                 <td>{{ $advanced_payment->customerData->name ?? 'N/A' }}</td>
                                 <td>{{ $advanced_payment->id ?? 'N/A' }}</td>
@@ -367,38 +381,37 @@
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $advanced_payment->id }}"
                                             data-primary="{{ $advanced_payment->customerData->mobile_number ?? '' }}"
-                                            data-secondary="{{ $advanced_payment->customerData->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $advanced_payment->customerData->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
                                         <a href="{{ url('finace/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a>
                                         <a href="{{ url('finace/remove-advanced-payment/'.$advanced_payment->id) }}"><button class="red-action-btn">Remove</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
                 </div>
                 <nav class="d-flex justify-content-center mt-5">
-                     {{ $advanced_payments->appends(['active_tab' => 'advance'])->links('pagination::bootstrap-5') }}
+                    {{ $advanced_payments->appends(['advance_search' => request('advance_search'), 'active_tab' => 'advance'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
         </div>
-
     </div>
-
-
 </div>
-
 
 
 <!-- Final reciepts Filter Offcanvas -->
@@ -748,26 +761,6 @@
 
 </div>
 
-
-<!-- Toast message -->
-<!-- <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
-    role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
-    <div class="d-flex align-items-center">
-        <span class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="12" fill="#fff" />
-                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </span>
-        <div class="toast-body flex-grow-1">
-            Downloaded successfully
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"
-            onclick="document.getElementById('user-toast').style.display='none';"></button>
-    </div>
-</div> -->
-
 <!-- Resend SMS Modal -->
 <div id="resend-sms-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
     <div style="background:#fff; border-radius:12px; max-width:400px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
@@ -812,55 +805,10 @@
     });
 </script>
 
-
 <script>
     // Enable/Disable Optional Input
     document.getElementById("optional-checkbox").addEventListener("change", function() {
         document.getElementById("optional-number").disabled = !this.checked;
-    });
-</script>
-
-
-
-
-
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
     });
 </script>
 
@@ -959,9 +907,6 @@
     });
 </script>
 
-
-
-
 <script>
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
@@ -998,98 +943,139 @@
 
 <!-- pop-up resend SMS modal -->
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('resend-sms-modal');
+        const closeBtn = document.getElementById('resend-sms-close');
+        const mobileSelect = document.getElementById('mobile-number');
+        const optionalCheckbox = document.getElementById('optional-checkbox');
+        const optionalNumber = document.getElementById('optional-number');
+        const receiptInput = document.getElementById('sms-receipt-id');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('resend-sms-modal');
-    const closeBtn = document.getElementById('resend-sms-close');
-    const mobileSelect = document.getElementById('mobile-number');
-    const optionalCheckbox = document.getElementById('optional-checkbox');
-    const optionalNumber = document.getElementById('optional-number');
-    const receiptInput = document.getElementById('sms-receipt-id');
+        // Open modal when "Resend SMS" is clicked
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('resend-sms-btn')) {
+                e.preventDefault();
 
-    // Open modal when "Resend SMS" is clicked
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('resend-sms-btn')) {
-            e.preventDefault();
+                const primary = e.target.getAttribute('data-primary');
+                const secondary = e.target.getAttribute('data-secondary');
+                const receiptId = e.target.getAttribute('data-receipt-id');
+                console.log(primary);
+                // Reset modal fields
+                mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
+                if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
+                if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
+                optionalNumber.value = '';
+                optionalCheckbox.checked = false;
+                optionalNumber.disabled = true;
+                receiptInput.value = receiptId;
 
-            const primary = e.target.getAttribute('data-primary');
-            const secondary = e.target.getAttribute('data-secondary');
-            const receiptId = e.target.getAttribute('data-receipt-id');
-            console.log(primary);
-            // Reset modal fields
-            mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
-            if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
-            if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
-            optionalNumber.value = '';
-            optionalCheckbox.checked = false;
-            optionalNumber.disabled = true;
-            receiptInput.value = receiptId;
+                modal.style.display = 'block';
+            }
+        });
 
-            modal.style.display = 'block';
-        }
+        // Close modal
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Enable/disable optional number input
+        optionalCheckbox.addEventListener('change', function() {
+            optionalNumber.disabled = !this.checked;
+            if (!this.checked) optionalNumber.value = '';
+        });
+
+        // Close modal if clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        });
     });
-
-    // Close modal
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    // Enable/disable optional number input
-    optionalCheckbox.addEventListener('change', function() {
-        optionalNumber.disabled = !this.checked;
-        if (!this.checked) optionalNumber.value = '';
-    });
-
-    // Close modal if clicking outside
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-});
 </script>
+
+<!-- active tab persistence script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the active_tab value from the query string
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('active_tab');
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('active_tab');
 
-    // If a tab was active before reload, open it again
-    if (activeTab) {
-        // Try matching either "-pane" or full ID
-        const tabTrigger = document.querySelector(`[data-bs-target="#${activeTab}-pane"]`) 
-                        || document.querySelector(`[data-bs-target="#${activeTab}"]`);
-        const tabPane = document.querySelector(`#${activeTab}-pane`) 
-                     || document.querySelector(`#${activeTab}`);
+        if (activeTab) {
+            const tabMap = {
+                final: 'final-reciepts-invoices-pane',
+                temporary: 'temporary-receipts-invoices-pane',
+                advance: 'temporary-receipts-advance-payment-pane'
+            };
 
-        if (tabTrigger && tabPane) {
-            const tab = new bootstrap.Tab(tabTrigger);
-            tab.show();
+            const tabId = tabMap[activeTab];
+            if (tabId) {
+                const tabTrigger = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                if (tabTrigger) {
+                    const tab = new bootstrap.Tab(tabTrigger);
+                    tab.show();
+                }
+            }
         }
-    }
 
-    // Update pagination links to keep the current tab active
-    const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
-    allTabs.forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(e) {
-            const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
-            const links = document.querySelectorAll('.pagination a');
-            links.forEach(link => {
-                const url = new URL(link.href);
-                url.searchParams.set('active_tab', targetId.replace('-pane', ''));
-                link.href = url.toString();
+        // Update pagination links to keep the current tab active
+        const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+        allTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+                const links = document.querySelectorAll('.pagination a');
+                links.forEach(link => {
+                    const url = new URL(link.href);
+                    // reverse map tab ID to active_tab value
+                    const activeValue = Object.keys(tabMap).find(key => tabMap[key] === targetId);
+                    if (activeValue) url.searchParams.set('active_tab', activeValue);
+                    link.href = url.toString();
+                });
             });
         });
     });
+</script>
 
-    // Also ensure pagination links always include the active tab when first loaded
-    const links = document.querySelectorAll('.pagination a');
-    const currentTab = document.querySelector('.nav-link.active');
-    if (currentTab) {
-        const targetId = currentTab.getAttribute('data-bs-target').replace('#', '').replace('-pane', '');
-        links.forEach(link => {
-            const url = new URL(link.href);
-            url.searchParams.set('active_tab', targetId);
-            link.href = url.toString();
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the active_tab value from the query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('active_tab');
+
+        // If a tab was active before reload, open it again
+        if (activeTab) {
+            // Try matching either "-pane" or full ID
+            const tabTrigger = document.querySelector(`[data-bs-target="#${activeTab}-pane"]`) ||
+                document.querySelector(`[data-bs-target="#${activeTab}"]`);
+            const tabPane = document.querySelector(`#${activeTab}-pane`) ||
+                document.querySelector(`#${activeTab}`);
+
+            if (tabTrigger && tabPane) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+
+        // Update pagination links to keep the current tab active
+        const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+        allTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+                const links = document.querySelectorAll('.pagination a');
+                links.forEach(link => {
+                    const url = new URL(link.href);
+                    url.searchParams.set('active_tab', targetId.replace('-pane', ''));
+                    link.href = url.toString();
+                });
+            });
         });
-    }
-});
+
+        // Also ensure pagination links always include the active tab when first loaded
+        const links = document.querySelectorAll('.pagination a');
+        const currentTab = document.querySelector('.nav-link.active');
+        if (currentTab) {
+            const targetId = currentTab.getAttribute('data-bs-target').replace('#', '').replace('-pane', '');
+            links.forEach(link => {
+                const url = new URL(link.href);
+                url.searchParams.set('active_tab', targetId);
+                link.href = url.toString();
+            });
+        }
+    });
 </script>

@@ -50,6 +50,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(FinanceAuthenticated::class);
     Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt']);
     Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment']);
+    
     Route::get('/cash-deposits/download/{id}', [CashDepositsController::class, 'downloadAttachment'])
         ->name('cash_deposits.download');
     Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class, 'updateStatus'])
