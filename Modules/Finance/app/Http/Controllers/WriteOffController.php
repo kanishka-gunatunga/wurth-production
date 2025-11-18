@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use App\Models\Customers;
 use App\Models\Invoices;
 use App\Models\CreditNote;
+use App\Models\ExtraPayment;
 use App\Models\WriteOffs;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +47,17 @@ class WriteOffController extends Controller
             ->get();
 
         return response()->json($creditNotes);
+    }
+
+    public function getExtraPayments(Request $request)
+    {
+        $customerIds = $request->customer_ids;
+
+        $extraPayments = \App\Models\ExtraPayment::whereIn('customer_id', $customerIds)
+            ->select('extra_payment_id', DB::raw('COALESCE(updated_amount, amount) AS amount'), 'customer_id')
+            ->get();
+
+        return response()->json($extraPayments);
     }
 
     public function submitWriteOff(Request $request)
@@ -99,25 +111,42 @@ class WriteOffController extends Controller
                 $finalAmount += $writeOffAmount; // ✅ Add to final total
             }
 
-            // ✅ Handle Credit Notes (update remaining amount, but don’t affect final total)
-            foreach ($writeOffCreditNotes as $cnNo => $writeOffAmount) {
-                $credit = CreditNote::where('credit_note_id', $cnNo)->first();
-                if (!$credit) continue;
+            // ✅ Handle Credit Notes + Extra Payments (update remaining amount, no effect on final total)
+            $creditNoteJson = [];
 
+            foreach ($writeOffCreditNotes as $itemId => $writeOffAmount) {
                 $writeOffAmount = floatval($writeOffAmount);
 
-                // Determine current available amount
-                $currentAmount = $credit->updated_amount ?? $credit->amount;
-                $newRemaining = max(0, $currentAmount - $writeOffAmount);
+                // Try Credit Note first
+                $credit = CreditNote::where('credit_note_id', $itemId)->first();
 
-                // Update the credit note's updated_amount
-                $credit->update(['updated_amount' => $newRemaining]);
+                if ($credit) {
+                    $currentAmount = $credit->updated_amount ?? $credit->amount;
+                    $newRemaining = max(0, $currentAmount - $writeOffAmount);
+                    $credit->update(['updated_amount' => $newRemaining]);
 
-                $creditNoteJson[] = [
-                    'credit_note' => $cnNo,
-                    'write_off_amount' => $writeOffAmount,
-                    'remaining_balance' => $newRemaining
-                ];
+                    $creditNoteJson[] = [
+                        'id' => $itemId,
+                        'write_off_amount' => $writeOffAmount,
+                        'type' => 'credit_note', // ✅ Add this
+                    ];
+                    continue;
+                }
+
+                // Try Extra Payment next
+                $extra = \App\Models\ExtraPayment::where('extra_payment_id', $itemId)->first();
+
+                if ($extra) {
+                    $currentAmount = $extra->updated_amount ?? $extra->amount;
+                    $newRemaining = max(0, $currentAmount - $writeOffAmount);
+                    $extra->update(['updated_amount' => $newRemaining]);
+
+                    $creditNoteJson[] = [
+                        'id' => $itemId,
+                        'write_off_amount' => $writeOffAmount,
+                        'type' => 'extra_payment', // ✅ Add this
+                    ];
+                }
             }
 
             // ✅ Save Write-Off Record (final_amount only from invoices)
@@ -173,18 +202,34 @@ class WriteOffController extends Controller
             ];
         })->filter()->values(); // remove nulls
 
-        // Prepare Extra Payment/Credit Note data
+        // Prepare Extra Payment / Credit Note data
         $creditNotesData = collect($writeOff->extraPayment_or_creditNote_no)->map(function ($item) {
-            $credit = CreditNote::where('credit_note_id', $item['credit_note'])->first();
-            if (!$credit) return null;
 
-            return [
-                'extraPaymentNo' => $item['credit_note'],
-                'customerName' => $credit->customer_name ?? '-',
-                'customerId' => $credit->customer_id ?? '-',
-                'admNo' => $credit->adm_id ?? '-',
-                'writeOffAmount' => $item['write_off_amount'],
-            ];
+            $credit = CreditNote::where('credit_note_id', $item['id'])->first();
+            if ($credit) {
+                return [
+                    'type' => 'Credit Note',
+                    'id' => $item['id'],
+                    'customerName' => $credit->customer_name ?? '-',
+                    'customerId' => $credit->customer_id ?? '-',
+                    'admNo' => $credit->adm_id ?? '-',
+                    'writeOffAmount' => $item['write_off_amount'],
+                ];
+            }
+
+            $extra = ExtraPayment::where('extra_payment_id', $item['id'])->first();
+            if ($extra) {
+                return [
+                    'type' => 'Extra Payment',
+                    'id' => $item['id'],
+                    'customerName' => $extra->customer_name ?? '-',
+                    'customerId' => $extra->customer_id ?? '-',
+                    'admNo' => $extra->adm_id ?? '-',
+                    'writeOffAmount' => $item['write_off_amount'],
+                ];
+            }
+
+            return null;
         })->filter()->values();
 
         return view('finance::write_off.write_off_details', compact(

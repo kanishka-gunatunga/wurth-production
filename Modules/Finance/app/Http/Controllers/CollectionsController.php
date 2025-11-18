@@ -34,30 +34,69 @@ class CollectionsController extends Controller
      */
 
 
-    public function all_receipts()
+    public function all_receipts(Request $request)
     {
-        // Receipts where batch->temp_receipt = 0
-        $regular_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-            ->whereHas('batch', function ($query) {
-                $query->where('temp_receipt', 0);
-            })
-            ->paginate(15, ['*'], 'regular_page');
+        // Final Receipts Search
+        $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
 
-        // Receipts where batch->temp_receipt != 0
-        $temp_receipts = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
-            ->whereHas('batch', function ($query) {
-                $query->where('temp_receipt', '!=', 0);
-            })
-            ->paginate(5, ['*'], 'temp_page');
+        if ($request->filled('final_search')) {
+            $search = $request->final_search;
+            $regularQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'invoice.customer',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm', 'like', "%{$search}%")
+                    );
+            });
+        }
 
-        $advanced_payments = AdvancedPayment::with(['customerData', 'adm.userDetails'])
-            ->paginate(15, ['*'], 'advance_page');
+        $regular_receipts = $regularQuery->paginate(15, ['*'], 'regular_page');
 
-        return view('finance::collections.all_receipts', [
-            'regular_receipts' => $regular_receipts,
-            'temp_receipts' => $temp_receipts,
-            'advanced_payments' => $advanced_payments,
-        ]);
+        // Temporary Receipts Search
+        $tempQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
+            ->whereHas('batch', fn($q) => $q->where('temp_receipt', '!=', 0));
+
+        if ($request->filled('temp_search')) {
+            $search = $request->temp_search;
+            $tempQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'invoice.customer',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm', 'like', "%{$search}%")
+                    );
+            });
+        }
+
+        $temp_receipts = $tempQuery->paginate(5, ['*'], 'temp_page');
+
+        // Advance Payments Search
+        $advanceQuery = AdvancedPayment::with(['customerData', 'adm.userDetails']);
+        if ($request->filled('advance_search')) {
+            $search = $request->advance_search;
+            $advanceQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'customerData',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                    )
+                    ->orWhereHas(
+                        'adm.userDetails',
+                        fn($q3) =>
+                        $q3->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm_number', 'like', "%{$search}%")
+                    );
+            });
+        }
+
+        $advanced_payments = $advanceQuery->paginate(15, ['*'], 'advance_page');
+
+        return view('finance::collections.all_receipts', compact('regular_receipts', 'temp_receipts', 'advanced_payments'));
     }
 
     public function resend_receipt()
@@ -144,21 +183,38 @@ class CollectionsController extends Controller
 
     public function all_collections()
     {
-        // Get all invoice payment batches with relationships
+        // Use paginate instead of get()
         $collections = InvoicePaymentBatches::with(['payments', 'admDetails'])
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($batch) {
+            ->paginate(10) // 10 per page, adjust as needed
+            ->through(function ($batch) {
                 return [
                     'collection_id' => $batch->id,
                     'collection_date' => $batch->created_at->format('Y-m-d'),
                     'adm_number' => $batch->admDetails->adm_number ?? 'N/A',
                     'adm_name' => $batch->admDetails->name ?? 'N/A',
+                    'division' => $batch->division ?? null,
+                    'customers' => $batch->payments
+                        ->pluck('invoice.customer.name')
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->toArray(),
                     'total_collected_amount' => $batch->payments->sum('final_payment'),
                 ];
             });
 
-        return view('finance::collections.all_collections', compact('collections'));
+        // Initialize filters
+        $filters = [
+            'search' => '',
+            'adm_names' => [],
+            'adm_ids' => [],
+            'customers' => [],
+            'divisions' => [],
+            'date_range' => '',
+        ];
+
+        return view('finance::collections.all_collections', compact('collections', 'filters'));
     }
 
     public function collection_details($id)
@@ -184,6 +240,167 @@ class CollectionsController extends Controller
             'batch' => $batch,
             'payments' => $payments,
         ]);
+    }
+
+    public function search_collections(Request $request)
+    {
+        $search = $request->input('search');
+
+        // Load all collections
+        $allCollections = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Manual filtering (same pattern as Cash Deposits)
+        $filtered = $allCollections->filter(function ($batch) use ($search) {
+
+            $search = strtolower($search);
+
+            // Check Collection ID
+            if (str_contains((string)$batch->id, $search)) return true;
+
+            // Check ADM details
+            if ($batch->admDetails) {
+                if (
+                    str_contains(strtolower($batch->admDetails->adm_number), $search) ||
+                    str_contains(strtolower($batch->admDetails->name), $search)
+                ) return true;
+            }
+
+            // Check invoice number & customer name
+            foreach ($batch->payments as $payment) {
+
+                // invoice number
+                if (str_contains(strtolower((string)$payment->invoice_id), $search)) {
+                    return true;
+                }
+
+                // customer
+                $customer = $payment->invoice->customer ?? null;
+
+                if ($customer) {
+                    if (str_contains(strtolower($customer->name), $search)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        // Manual pagination (same as cash deposits)
+        $page = request('page', 1);
+        $perPage = 10;
+
+        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+            $filtered->forPage($page, $perPage),
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Transform dataset for Blade
+        $collections->getCollection()->transform(function ($batch) {
+            return [
+                'collection_id' => $batch->id,
+                'collection_date' => $batch->created_at->format('Y-m-d'),
+                'adm_number' => $batch->admDetails->adm_number ?? 'N/A',
+                'adm_name' => $batch->admDetails->name ?? 'N/A',
+                'division' => $batch->division,
+                'customers' => $batch->payments
+                    ->pluck('invoice.customer.name')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->toArray(),
+                'total_collected_amount' => $batch->payments->sum('final_payment'),
+            ];
+        });
+
+        // Keep search value for Blade
+        $filters = ['search' => $search];
+
+        return view('finance::collections.all_collections', compact('collections', 'filters'));
+    }
+
+    public function filter_collections(Request $request)
+    {
+        $query = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by ADM Names
+        if ($request->filled('adm_names')) {
+            $query->whereHas('admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        // Filter by ADM Numbers / IDs
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('admDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->adm_ids);
+            });
+        }
+
+        // Filter by Customers
+        if ($request->filled('customers')) {
+            $query->whereHas('payments.invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->customers);
+            });
+        }
+
+        // Filter by Divisions
+        if ($request->filled('divisions')) {
+            $query->whereHas('admDetails', function ($q) use ($request) {
+                $q->whereIn('division', $request->divisions);
+            });
+        }
+
+        // Filter by Date Range (your working code)
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range, 2)); // limit to 2 parts
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        // Pagination + transform
+        $collections = $query->paginate(10)
+            ->through(function ($batch) {
+                return [
+                    'collection_id' => $batch->id,
+                    'collection_date' => $batch->created_at->format('Y-m-d'),
+                    'adm_number' => $batch->admDetails->adm_number ?? 'N/A',
+                    'adm_name' => $batch->admDetails->name ?? 'N/A',
+                    'division' => $batch->division ?? null,
+                    'customers' => $batch->payments
+                        ->pluck('invoice.customer.name')
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->toArray(),
+                    'total_collected_amount' => $batch->payments->sum('final_payment'),
+                ];
+            });
+
+        // Pass back filters to preserve in Blade
+        $filters = $request->only(['adm_names', 'adm_ids', 'customers', 'divisions', 'date_range']);
+
+        return view('finance::collections.all_collections', compact('collections', 'filters'));
     }
 
     /**

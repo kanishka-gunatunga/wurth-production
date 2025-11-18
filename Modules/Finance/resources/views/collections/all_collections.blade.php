@@ -63,10 +63,18 @@
             <h1 class="header-title">All Collection</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <div id="search-box-wrapper" class="collapsed">
-                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search Invoice Number, Customer Name, ADM Number, ADM Name" />
-            </div>
+            <form id="searchForm" method="POST" action="{{ route('collections.search') }}">
+                @csrf
+                <div id="search-box-wrapper" class="collapsed">
+                    <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-input"
+                        placeholder="Search Invoice Number, Customer Name, ADM Number, ADM Name"
+                        value="{{ $filters['search'] ?? '' }}" />
+                </div>
+            </form>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
@@ -87,7 +95,7 @@
                     </tr>
                 </thead>
                 <tbody id="outstandingTableBody">
-                    @foreach($collections as $collection)
+                    @forelse($collections as $collection)
                     <tr onclick="window.location='{{ route('collections.details', $collection['collection_id']) }}'" style="cursor:pointer;">
                         <td>{{ $collection['collection_id'] }}</td>
                         <td>{{ $collection['collection_date'] }}</td>
@@ -95,38 +103,43 @@
                         <td>{{ $collection['adm_name'] }}</td>
                         <td class="sticky-column">{{ number_format($collection['total_collected_amount'], 2) }}</td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No collections found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
 
             </table>
         </div>
-        <nav class="d-flex justify-content-center mt-5">
-            <ul id="finalPagination" class="pagination"></ul>
-        </nav>
+        <div class="d-flex justify-content-center mt-5">
+            {{ $collections->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 </div>
 
-
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
+<form id="filterForm" method="POST" action="{{ route('collections.filter') }}">
+    @csrf
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
         </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <!-- <div class="row">
             <p class="filter-title">User roles</p>
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
@@ -157,131 +170,79 @@
                 <span>Head of Division</span>
 
             </div>
-        </div>
+        </div> -->
 
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Divisions -->
-        <div class="mt-5 radio-selection filter-categories">
-            <p class="filter-title">Divisions</p>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 1
-                </label>
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($collections->pluck('adm_name')->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 2
-                </label>
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($collections->pluck('adm_number')->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 3
-                </label>
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                    @foreach ($collections->getCollection()->flatMap->customers->filter()->unique() as $customer)
+                    @if($customer)
+                    <option value="{{ $customer }}"
+                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 4
-                </label>
+            <!-- Divisions -->
+            <div class="mt-5 radio-selection filter-categories">
+                <p class="filter-title">Divisions</p>
+                @foreach ($collections->pluck('division')->filter()->unique() as $division)
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="divisions[]" value="{{ $division }}">
+                    <label class="form-check-label">{{ $division }}</label>
+                </div>
+                @endforeach
             </div>
 
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                <label class="form-check-label" for="flexRadioDefault1">
-                    Division 5
-                </label>
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
             </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+
         </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
     </div>
-</div>
-</div>
+</form>
 
 
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
-    });
-</script>
 
 <!-- link entire row of table -->
 <script>
@@ -293,93 +254,18 @@
     });
 </script>
 
-<!-- search function -->
+<!-- search on enter -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.querySelector("#search-box-wrapper .search-input");
+        const searchForm = document.getElementById("searchForm");
 
-        searchInput.addEventListener("input", function() {
-            const query = searchInput.value.toLowerCase();
-
-            // Filter the outstanding data
-            const filteredData = outstandingTableData.filter(item =>
-                item.invoice.toLowerCase().includes(query) ||
-                item.customer.toLowerCase().includes(query) ||
-                item.admNumber.toLowerCase().includes(query) ||
-                item.admName.toLowerCase().includes(query)
-            );
-
-            // Reset current page for filtered results
-            currentPages.outstanding = 1;
-
-            renderOutstandingTable(filteredData);
-            renderOutstandingPagination(filteredData);
+        searchInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                searchForm.submit();
+            }
         });
-
-        function renderOutstandingTable(data) {
-            const tableBody = document.getElementById("outstandingTableBody");
-            tableBody.innerHTML = "";
-
-            const startIndex = (currentPages.outstanding - 1) * rowsPerPage;
-            const endIndex = Math.min(startIndex + rowsPerPage, data.length);
-
-            for (let i = startIndex; i < endIndex; i++) {
-                const row = `
-                <tr>
-                    <td>${data[i].invoice}</td>
-                    <td>${data[i].customer}</td>
-                    <td>${data[i].date}</td>
-                    <td>${data[i].admNumber}</td>
-                    <td>${data[i].admName}</td>
-                    <td>${data[i].totalAmount.toFixed(2)}</td>
-                    <td>${data[i].outstandingBalance.toFixed(2)}</td>
-                    <td class="sticky-column">${data[i].outstandingDays}</td>
-                </tr>
-            `;
-                tableBody.innerHTML += row;
-            }
-        }
-
-        function renderOutstandingPagination(data) {
-            const pagination = document.getElementById("outstandingPagination");
-            pagination.innerHTML = "";
-
-            const totalPages = Math.ceil(data.length / rowsPerPage);
-            const currentPage = currentPages.outstanding;
-
-            // Prev button
-            pagination.innerHTML += `
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="changeOutstandingPage(${currentPage - 1}, data)">Prev</a>
-            </li>
-        `;
-
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                pagination.innerHTML += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" onclick="changeOutstandingPage(${i}, data)">${i}</a>
-                </li>
-            `;
-            }
-
-            // Next button
-            pagination.innerHTML += `
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="changeOutstandingPage(${currentPage + 1}, data)">Next</a>
-            </li>
-        `;
-        }
-
-        // Page change for filtered data
-        window.changeOutstandingPage = function(page, data) {
-            const totalPages = Math.ceil(data.length / rowsPerPage);
-            if (page < 1 || page > totalPages) return;
-
-            currentPages.outstanding = page;
-            renderOutstandingTable(data);
-            renderOutstandingPagination(data);
-        };
     });
 </script>
 
@@ -423,6 +309,18 @@
 
         searchInput.addEventListener("keydown", function() {
             startIdleTimer(); // Reset the timer on any keypress
+        });
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+            document.getElementById('filter-date').value = '';
+            setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
 </script>

@@ -538,27 +538,39 @@
                 }
             });
 
-            // credit notes
-            $.ajax({
-                url: "{{ route('write_off.credit_notes') }}",
-                method: "POST",
-                data: {
-                    customer_ids: selectedCustomers,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(creditNotes) {
-                    const table2Data = (creditNotes || []).map(cn => ({
-                        fullName: cn.credit_note_id,
-                        amount: safeParseFloat(cn.amount), // ✅ Correct property
-                        balance: safeParseFloat(cn.amount) // ✅ Show same as amount initially
-                    }));
-                    renderTable('table2', table2Data, 'credit');
-                    updateFinalWriteOff();
-                },
-                error: function(xhr) {
-                    console.error('Failed to fetch credit notes', xhr);
-                    alert('Failed to fetch credit notes');
-                }
+            // credit notes + extra payments
+            $.when(
+                $.ajax({
+                    url: "{{ route('write_off.credit_notes') }}",
+                    method: "POST",
+                    data: {
+                        customer_ids: selectedCustomers,
+                        _token: "{{ csrf_token() }}"
+                    }
+                }),
+                $.ajax({
+                    url: "{{ route('write_off.extra_payments') }}",
+                    method: "POST",
+                    data: {
+                        customer_ids: selectedCustomers,
+                        _token: "{{ csrf_token() }}"
+                    }
+                })
+            ).done(function(creditNotes, extraPayments) {
+                const combined = [
+                    ...(creditNotes[0] || []).map(c => ({
+                        fullName: c.credit_note_id,
+                        amount: safeParseFloat(c.amount),
+                        balance: safeParseFloat(c.amount)
+                    })),
+                    ...(extraPayments[0] || []).map(e => ({
+                        fullName: e.extra_payment_id,
+                        amount: safeParseFloat(e.amount),
+                        balance: safeParseFloat(e.amount)
+                    }))
+                ];
+
+                renderTable('table2', combined, 'credit');
             });
         });
 
