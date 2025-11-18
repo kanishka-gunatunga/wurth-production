@@ -353,7 +353,18 @@ class CustomerController extends Controller
     public function view_customer($id,Request $request)
     {
     if($request->isMethod('get')){
-    $customer_details = Customers::where('id',$id)->with('admDetails','secondaryAdm','invoices')->first();
+        $customer_details = Customers::where('id', $id)
+            ->with([
+                'admDetails',
+                'secondaryAdm',
+                'invoices',
+                'creditNote',
+                'extraPayment',
+                'invoicePayments.invoice' => function ($q) {
+                    $q->orderBy('created_at', 'desc');
+                },
+            ])
+            ->first();
     return view('customer.view_customer', ['customer_details' => $customer_details]);
     }
    

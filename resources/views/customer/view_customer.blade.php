@@ -66,7 +66,7 @@ use App\Models\Divisions;
 
     <div class="row d-flex justify-content-between">
         <div class="col-lg-6 col-12">
-            <h1 class="header-title">H.K Perera - 254565214</h1>
+            <h1 class="header-title">{{$customer_details->name ?? '-'}} - {{$customer_details->customer_id ?? '-'}}</h1>
         </div>
         <!-- <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 ">
             <div id="search-box-wrapper" class="collapsed">
@@ -187,6 +187,27 @@ use App\Models\Divisions;
                             $paid = $invoice->paid_amount ?? 0; // Treat null as 0
                             return max($invoice->amount - $paid, 0); // Only positive outstanding
                         });
+                    $extraPayment = $customer_details->extraPayment->sum(function ($payment) {
+                            $amount = $payment->updated_amount ?? 0; // Treat null as 0
+                            return max($amount, 0); // Only positive outstanding
+                        });
+                    $creditNote = $customer_details->creditNote->sum(function ($note) {
+                            $amount = $note->updated_amount ?? 0; // Treat null as 0
+                            return max($amount, 0); // Only positive outstanding
+                        });
+                    $lastCredit = $customer_details->creditNote
+                    ->sortByDesc('created_at') 
+                    ->first();
+                    $lastCreditDate = $lastCredit ? \Carbon\Carbon::parse($lastCredit->created_at)->format('d.m.Y') : '-';
+
+                    $totalPendingAmount = $customer_details->invoicePayments
+                    ->filter(fn($payment) => $payment->status === 'pending') 
+                    ->sum(fn($payment) => $payment->amount ?? 0);
+
+                    $lastPayment = $customer_details->invoicePayments
+                    ->sortByDesc('created_at')
+                    ->first();
+                    $lastPaymentDate = $lastPayment ? \Carbon\Carbon::parse($lastPayment->created_at)->format('d.m.Y') : '-';
                     @endphp  
                     <div class="mb-4 col-12 col-lg-6">
                         <h2 class="section-title mb-4">Payment Details</h2>
@@ -203,32 +224,32 @@ use App\Models\Divisions;
 
                         <div class="detail-row">
                             <span class="detail-label">Extra Payment :</span>
-                            <span class="detail-value">Rs. 12 000</span>
+                            <span class="detail-value">Rs. {{ number_format($extraPayment ?? 0, 2) }}</span>
                         </div>
 
                         <div class="detail-row">
-                            <span class="detail-label">Credit limit :</span>
-                            <span class="detail-value">Rs. 1000</span>
+                            <span class="detail-label">Credit Note :</span>
+                            <span class="detail-value">Rs. {{ number_format($creditNote ?? 0, 2) }}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Last Credit Added Date :</span>
-                            <span class="detail-value">03.06.2025</span>
+                            <span class="detail-value">{{ $lastCreditDate }}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Total Outstanding Balance :</span>
-                            <span class="detail-value payment-highlight">Rs. 120,000</span>
+                            <span class="detail-value payment-highlight">Rs. {{ number_format($outstanding ?? 0, 2) }}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Total pending Amount :</span>
-                            <span class="detail-value payment-highlight">Rs. 2,350,000</span>
+                           <span class="detail-value payment-highlight">Rs. {{ number_format($totalPendingAmount ?? 0, 2) }}</span>
                         </div>
 
                         <div class="detail-row">
                             <span class="detail-label">Last Payment Date :</span>
-                            <span class="detail-value">04.04.2025</span>
+                             <span class="detail-value">{{ $lastPaymentDate }}</span>
                         </div>
                     </div>
                 </div>
@@ -336,7 +357,28 @@ use App\Models\Divisions;
                                                 <th>Outstanding Days</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="paymentInvoicesTableBody">
+                                        <tbody>
+                                            <?php
+                                            if($customer_details->invoices){
+                                                foreach($customer_details->invoices as $invoice){
+                                                if($invoice->type == 'invoice'){ ?> 
+                                            <tr>
+                                                <td>{{$invoice->invoice_or_cheque_no}}</td>
+                                                <td>{{$invoice->invoice_date}}</td>
+                                                <td>Rs.{{number_format($invoice->amount ?? 0, 2)}}</td>
+                                                 <td>Rs.{{ number_format($invoice->amount - ($invoice->paid_amount ?? 0), 2) }}</td>
+                                                <td> @php
+                                                        $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date);
+                                                        $now = \Carbon\Carbon::now();
+                                                        $daysDifference = $invoiceDate->diffInDays($now, false);
+                                                        $displayDays = $daysDifference >= 0
+                                                            ? number_format($daysDifference) . ' days'
+                                                            : number_format(abs($daysDifference)) . ' days (Upcoming)';
+                                                    @endphp
+                                                    {{ $displayDays }}
+                                                </td>
+                                            </tr>
+                                            <?php }}}?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -383,7 +425,28 @@ use App\Models\Divisions;
                                                 <th>Outstanding Days</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="paymentReturnChequeTableBody">
+                                        <tbody >
+                                            <?php
+                                            if($customer_details->invoices){
+                                                foreach($customer_details->invoices as $invoice){
+                                                if($invoice->type == 'return_cheque'){ ?> 
+                                            <tr>
+                                                <td>{{$invoice->invoice_or_cheque_no}}</td>
+                                                <td>{{$invoice->invoice_date}}</td>
+                                                <td>Rs.{{number_format($invoice->amount ?? 0, 2)}}</td>
+                                                <td>Rs.{{ number_format($invoice->amount - ($invoice->paid_amount ?? 0), 2) }}</td>
+                                                <td> @php
+                                                        $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date);
+                                                        $now = \Carbon\Carbon::now();
+                                                        $daysDifference = $invoiceDate->diffInDays($now, false);
+                                                        $displayDays = $daysDifference >= 0
+                                                            ? number_format($daysDifference) . ' days'
+                                                            : number_format(abs($daysDifference)) . ' days (Upcoming)';
+                                                    @endphp
+                                                    {{ $displayDays }}
+                                                </td>
+                                            </tr>
+                                            <?php }}}?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -429,7 +492,18 @@ use App\Models\Divisions;
                                                 <th>Total Amount</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="extraPaymentTableBody">
+                                        <tbody >
+                                            <?php
+                                            if($customer_details->extraPayment){
+                                                foreach($customer_details->extraPayment as $extraPayment){
+                                                ?> 
+                                            <tr>
+                                                <td>{{$extraPayment->extra_payment_id}}</td>
+                                                <td>{{$extraPayment->created_at}}</td>
+                                                <td>Rs.{{number_format($extraPayment->amount ?? 0, 2)}}</td>
+                                               
+                                            </tr>
+                                            <?php }}?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -474,7 +548,18 @@ use App\Models\Divisions;
                                                 <th>Total Amount</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="paymentCreditNoteTableBody">
+                                        <tbody >
+                                             <?php
+                                            if($customer_details->creditNote){
+                                                foreach($customer_details->creditNote as $creditNote){
+                                                ?> 
+                                            <tr>
+                                                <td>{{$creditNote->credit_note_id}}</td>
+                                                <td>{{$creditNote->created_at}}</td>
+                                                <td>Rs.{{number_format($creditNote->amount ?? 0, 2)}}</td>
+                                               
+                                            </tr>
+                                            <?php }}?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -516,18 +601,49 @@ use App\Models\Divisions;
 
                 <div class="row d-flex justify-content-between">
                     <div class="table-responsive">
-                        <table class="table">
+                    <table class="table custom-table-locked" style="min-width: 1300px;">
                             <thead>
                                 <tr>
                                     <th>Receipt No</th>
+                                    <th>In. No / Return Che.</th>
                                     <th>Payment Method</th>
                                     <th>Paid Amount</th>
                                     <th>Paid Date</th>
-                                    <th>Actions</th>
+                                    <th class="sticky-column">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="paymentHistoryTableBody">
-                            </tbody>
+                            @forelse($customer_details->invoicePayments as $payment)
+                                <tr>
+                                    <td>{{ $payment->id }}</td>
+                                    <td>{{ $payment->invoice->invoice_or_cheque_no ?? 'N/A' }}</td>
+                                    <td>{{ ucfirst($payment->type ?? 'N/A') }}</td>
+                                    <td>Rs. {{ number_format($payment->amount ?? 0, 2) }}</td>
+                                    <td>{{ $payment->created_at ? $payment->created_at->format('d/m/Y') : 'N/A' }}</td>
+                                   <td class="sticky-column">
+                                    <div class="sticky-actions">
+                                         <button class="red-action-btn resend-sms-btn"
+                                            data-receipt-id="{{ $payment->id }}"
+                                            data-primary="{{$customer_details->mobile_number ?? '-'}}"
+                                            data-secondary="{{$customer_details->secondary_number ?? '-'}}"
+                                            >
+                                            Resend SMS
+                                        </button>
+                                       <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}" >
+                                                <button class="black-action-btn">Download</button>
+                                            </a>
+
+                                        <a href="{{ url('finace/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                    </div>
+                                </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No payments found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+
                         </table>
                     </div>
 
@@ -543,4 +659,88 @@ use App\Models\Divisions;
 </div>
 
 @include('layouts.footer2')
- 
+ <div id="resend-sms-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div style="background:#fff; border-radius:12px; max-width:400px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
+        <form id="resend-sms-form" method="POST" action="{{ url('finance/resend-receipt') }}">
+            @csrf
+            <input type="hidden" name="receipt_id" id="sms-receipt-id">
+
+            <h5 style="margin-bottom:1.5rem; font-size:1.25rem; font-weight:600;">Resend SMS</h5>
+
+            <label style="font-weight:600; margin-bottom:0.5rem; display:block;">Select Mobile Number</label>
+            <select id="mobile-number" name="mobile" class="form-control" style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid #ddd; margin-bottom:1rem;">
+                <option value="">-- Select Number --</option>
+            </select>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="optional-checkbox">
+                <label for="optional-checkbox" style="font-weight:600;">Optional Number</label>
+            </div>
+            <input type="text" id="optional-number" class="form-control" name="optional_number" placeholder="Enter Optional number" style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid #ddd; margin-bottom:1.5rem;" disabled>
+
+            <button type="submit" id="resend-sms-btn" style="background:#CC0000; color:#fff; border:none; border-radius:8px; width:100%; padding:0.75rem; font-weight:600; cursor:pointer;">
+                Resend SMS
+            </button>
+
+            <button type="button" id="resend-sms-close" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </form>
+    </div>
+</div>
+<script>
+    // Enable/Disable Optional Input
+    document.getElementById("optional-checkbox").addEventListener("change", function() {
+        document.getElementById("optional-number").disabled = !this.checked;
+    });
+</script>
+
+
+<!-- pop-up resend SMS modal -->
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('resend-sms-modal');
+    const closeBtn = document.getElementById('resend-sms-close');
+    const mobileSelect = document.getElementById('mobile-number');
+    const optionalCheckbox = document.getElementById('optional-checkbox');
+    const optionalNumber = document.getElementById('optional-number');
+    const receiptInput = document.getElementById('sms-receipt-id');
+
+    // Open modal when "Resend SMS" is clicked
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('resend-sms-btn')) {
+            e.preventDefault();
+
+            const primary = e.target.getAttribute('data-primary');
+            const secondary = e.target.getAttribute('data-secondary');
+            const receiptId = e.target.getAttribute('data-receipt-id');
+            console.log(primary);
+            // Reset modal fields
+            mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
+            if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
+            if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
+            optionalNumber.value = '';
+            optionalCheckbox.checked = false;
+            optionalNumber.disabled = true;
+            receiptInput.value = receiptId;
+
+            modal.style.display = 'block';
+        }
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Enable/disable optional number input
+    optionalCheckbox.addEventListener('change', function() {
+        optionalNumber.disabled = !this.checked;
+        if (!this.checked) optionalNumber.value = '';
+    });
+
+    // Close modal if clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+});
+</script>

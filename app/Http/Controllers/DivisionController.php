@@ -33,7 +33,7 @@ class DivisionController extends Controller
     $search = $request->input('search');
 
     // Base query with relations
-    $query = Divisions::with('userDetails');
+    $query = Divisions::with(['userDetails.user', 'head.user']);
 
     // Apply search filter if keyword is given
     if (!empty($search)) {
@@ -65,7 +65,6 @@ class DivisionController extends Controller
         
         $request->validate([
             'division_name'   => 'required',
-            'head_of_division'   => 'required',
         ]);
 
            $division = new Divisions();
@@ -116,7 +115,6 @@ class DivisionController extends Controller
     if($request->isMethod('post')){
         $request->validate([
             'division_name'   => 'required',
-            'head_of_division'   => 'required',
         ]);
    
         $division =  Divisions::where('id', '=', $id)->first();;

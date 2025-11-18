@@ -124,14 +124,13 @@ use App\Models\UserDetails;
                         </thead>
                         <tbody>
                             <?php foreach ($divisions as $division) {
-                                $hod = UserDetails::where('user_id', $division->head_of_division)->value('name');
-                                $user_count = UserDetails::where('division', $division->id)->count();
+ 
                             ?>
                                 <tr>
                                     <td>{{ $division->division_name ?? '-' }}</td>
-                                    <td>{{ $hod ?? '-' }}</td>
+                                    <td>{{ $division->head->user->name ?? '-' }}</td>
                                     <td>{{$division->registered_date}}</td>
-                                    <td>{{$user_count}}</td>
+                                    <td>{{ $division->userDetails->count() }}</td>
                                     <td>
                                         <a href="{{url('edit-division/'.$division->id.'')}}"><button class="action-btn">View more</button></a>
                                         <a href="{{url('activate-division/'.$division->id.'')}}"><button class="action-btn">Activate</button></a>

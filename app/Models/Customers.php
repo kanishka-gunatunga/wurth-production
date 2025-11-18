@@ -63,4 +63,16 @@ class Customers extends Model
     {
         return $this->hasMany(ExtraPayment::class, 'customer_id', 'customer_id');
     }
+
+    public function invoicePayments()
+{
+    return $this->hasManyThrough(
+        InvoicePayments::class, // Final model
+        Invoices::class,        // Intermediate model
+        'customer_id',          // Foreign key on invoices table (link to customer)
+        'invoice_id',           // Foreign key on invoice_payments table (link to invoice)
+        'customer_id',          // Local key on customers table
+        'id'                    // Local key on invoices table
+    );
+}
 }

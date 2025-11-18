@@ -20,4 +20,11 @@ class Divisions extends Model
     {
         return $this->hasMany(UserDetails::class, 'division', 'id');
     }
+    public function head()
+{
+    return $this->hasOne(UserDetails::class, 'division', 'id')
+                ->whereHas('user', function ($q) {
+                    $q->where('user_role', 2); // Role 2 = HOD
+                });
+}
 }
