@@ -119,7 +119,7 @@ use App\Models\Divisions;
                                 <thead>
                                      <tr>
                                     <th scope="col">Name</th>
-                                    <th scope="col">ADM Number</th>
+                                    <th scope="col">User ID</th>
                                     <th scope="col">User Role</th>
                                     <th scope="col">Division</th>
                                     <th scope="col">Mobile Number</th>
@@ -157,7 +157,7 @@ use App\Models\Divisions;
                                 ?> 
                                 <tr>
                                     <td>{{ $user->userDetails->name ?? '-' }}</td>
-                                    <td>{{ $user->userDetails->adm_number ?? '-' }}</td>
+                                    <td>{{ $user->id ?? '-' }}</td>
                                     <td>{{$role}}</td>
                                     <td>{{ $division ?? '-' }}</td>
                                     <td>{{ $user->userDetails->phone_number ?? '-' }}</td>
