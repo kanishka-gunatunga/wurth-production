@@ -250,7 +250,7 @@ $currentStatus = strtolower($deposit['status']);
             confirmModal.style.display = 'none';
 
             try {
-                const response = await fetch(`/finance/cheque-deposits/update-status/${depositId}`, {
+                const response = await fetch(`{{ url('finance/cheque-deposits/update-status') }}/${depositId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

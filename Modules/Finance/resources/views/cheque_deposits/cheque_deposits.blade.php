@@ -503,7 +503,7 @@
 
                 try {
                     // 🔥 Send AJAX request to backend
-                    const response = await fetch(`/finance/cheque-deposits/update-status/${depositId}`, {
+                    const response = await fetch(`{{ url('finance/cheque-deposits/update-status') }}/${depositId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
