@@ -154,9 +154,9 @@
 <a href="{{ route('finance_cash.index') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 
 @if(strtolower($status) !== 'approved')
-    <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+<!-- Show buttons only if status is NOT Approved -->
+<button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+<button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
 @endif
 @endsection
 
@@ -204,62 +204,65 @@
     let newStatus = '';
 
     document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('update-status-btn')) {
-        e.preventDefault();
+        if (e.target.classList.contains('update-status-btn')) {
+            e.preventDefault();
 
-        const button = e.target;
-        const depositId = button.dataset.id;
-        const newStatus = button.dataset.status;
+            const button = e.target;
+            const depositId = button.dataset.id;
+            const newStatus = button.dataset.status;
 
-        // Show confirmation modal
-        document.getElementById('confirm-status-text').innerText = newStatus;
-        const modal = document.getElementById('confirm-status-modal');
-        modal.style.display = 'block';
+            // Show confirmation modal
+            document.getElementById('confirm-status-text').innerText = newStatus;
+            const modal = document.getElementById('confirm-status-modal');
+            modal.style.display = 'block';
 
-        const yesBtn = document.getElementById('confirm-yes-btn');
-        const noBtn = document.getElementById('confirm-no-btn');
-        const closeBtn = document.getElementById('confirm-modal-close');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            const noBtn = document.getElementById('confirm-no-btn');
+            const closeBtn = document.getElementById('confirm-modal-close');
 
-        function closeModal() { modal.style.display = 'none'; }
-        noBtn.onclick = closeModal;
-        closeBtn.onclick = closeModal;
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+            noBtn.onclick = closeModal;
+            closeBtn.onclick = closeModal;
 
-        yesBtn.onclick = function() {
-            modal.style.display = 'none';
+            yesBtn.onclick = function() {
+                modal.style.display = 'none';
 
-            // Send AJAX request to update status
-            fetch(`/finance/cash-deposits/update-status/${depositId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    // Update status button visually
-                    const statusBtn = document.querySelector('.slip-detail-text button');
-                    statusBtn.innerText = data.status;
-                    statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+                // Send AJAX request to update status
+                fetch(`{{ url('finance/cash-deposits/update-status') }}/${depositId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update status button visually
+                            const statusBtn = document.querySelector('.slip-detail-text button');
+                            statusBtn.innerText = data.status;
+                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
-                    // Hide buttons if approved, else keep them visible
-                    if(data.status.toLowerCase() === 'approved') {
-                        document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
-                    }
-                } else {
-                    alert('Failed to update status.');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error updating status.');
-            });
-        };
-    }
-});
-
+                            // Hide buttons if approved, else keep them visible
+                            if (data.status.toLowerCase() === 'approved') {
+                                document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
+                            }
+                        } else {
+                            alert('Failed to update status.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Error updating status.');
+                    });
+            };
+        }
+    });
 </script>
 
 @include('finance::layouts.footer2')

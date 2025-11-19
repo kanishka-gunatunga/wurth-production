@@ -1,77 +1,80 @@
 @include('finance::layouts.header')
+
+<style>
+    .stat-card {
+        text-align: center;
+        /* centers EVERYTHING inside */
+    }
+
+    .stat-label {
+        text-align: center;
+    }
+
+    .stat-extra {
+        font-family: Poppins;
+        font-weight: 600;
+        font-style: normal;
+        /* Semibold handled by weight */
+        font-size: 10px;
+        line-height: 100%;
+        letter-spacing: 0;
+        color: #8a8a8a;
+        display: block;
+        margin-top: 4px;
+        text-align: center;
+    }
+</style>
+
 <div class="main-wrapper">
     <h1 class="header-title">Dashboard</h1>
 
     <div class="dashboard-main-container">
-        <div class="row gx-4 gy-3 dashboard-stats">
+        <div class="row gx-4 gy-0 dashboard-stats">
 
-
+            <!-- FIRST ROW (1 CARD ONLY) -->
             <div class="col-md-2">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Total No of Receipts</p>
-                    <h3 class="stat-number">1245</h3>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="stat-card p-3">
-                    <p class="stat-label">No of Invoices</p>
-                    <h3 class="stat-number">45</h3>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="stat-card p-3">
-                    <p class="stat-label">No of Pending</p>
-                    <h3 class="stat-number">38</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Invoiced Amount</p>
-                    <h3 class="stat-number">Rs. 1,500,000</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Collected Amount</p>
-                    <h3 class="stat-number">Rs. 1,200,000</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Monthly Deposit Amount</p>
-                    <h3 class="stat-number">Rs. 1,100,000</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Pending Deposit Amount</p>
-                    <h3 class="stat-number">Rs. 100,000</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="stat-card p-3">
-                    <p class="stat-label">Outstanding Amount</p>
-                    <h3 class="stat-number">Rs. 300,000</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
                 <div class="stat-card p-3">
                     <p class="stat-label">Collection Target</p>
-                    <h3 class="stat-number">Rs. 2,700,000</h3>
+                    <h3 class="stat-number">LKR 545,500</h3>
                 </div>
             </div>
 
+            <!-- Force row break -->
+            <div class="w-100"></div>
+
+            <!-- SECOND ROW (4 CARDS) -->
+            <div class="col-md-2">
+                <div class="stat-card p-3">
+                    <p class="stat-label">Verified deposit</p>
+                    <h3 class="stat-number">LKR 1,100,000</h3>
+                    <small class="stat-extra">342 Receipts</small>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="stat-card p-3">
+                    <p class="stat-label">Pending deposit Verification</p>
+                    <h3 class="stat-number">LKR 560,000</h3>
+                    <small class="stat-extra">342 Receipts</small>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="stat-card p-3">
+                    <p class="stat-label">On hand cash</p>
+                    <h3 class="stat-number">LKR 389,500</h3>
+                    <small class="stat-extra">342 Receipts</small>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="stat-card p-3">
+                    <p class="stat-label">On hand cheques</p>
+                    <h3 class="stat-number">LKR 143,000</h3>
+                    <small class="stat-extra">342 Receipts</small>
+                </div>
+            </div>
         </div>
-
-
 
 
         <div class="row mt-4">

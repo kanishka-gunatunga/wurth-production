@@ -451,7 +451,7 @@
             if (currentStatusButton) {
                 const depositId = currentStatusButton.dataset.id;
 
-                fetch(`/finance/cash-deposits/update-status/${depositId}`, {
+                fetch(`{{ url('finance/cash-deposits/update-status') }}/${depositId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
