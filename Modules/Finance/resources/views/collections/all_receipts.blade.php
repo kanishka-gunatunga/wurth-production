@@ -84,6 +84,10 @@ $activeTab = request('active_tab', 'final');
         font-size: 20px;
         font-weight: 400;
     }
+
+    .custom-dropdown-menu li {
+        list-style: none !important;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -415,349 +419,268 @@ $activeTab = request('active_tab', 'final');
 
 
 <!-- Final reciepts Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="finalFilter" aria-labelledby="finalFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('finance/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="final">
+    <input type="hidden" name="final_status" id="final-status-value" value="{{ request('final_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="finalFilter" aria-labelledby="finalFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span>
+                <span class="title-rest"> &nbsp;by Filter</span>
+            </div>
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearFinalFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="final-filter-adm-name" name="final_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($finalAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('final_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="final-filter-adm-id" name="final_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($finalAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('final_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="final-filter-customer" name="final_customers[]" class="form-control select2" multiple>
+                    @foreach ($finalCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('final_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="final-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('final_status') ? ucfirst(request('final_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="final-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($regular_receipts->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="final-filter-date" name="final_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('final_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 <!-- temp reciepts - invoices Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="trFilter" aria-labelledby="trFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('finance/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="temporary">
+    <input type="hidden" name="temp_status" id="temp-status-value" value="{{ request('temp_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="trFilter" aria-labelledby="trFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearTempFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="temp-filter-adm-name" name="temp_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($tempAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('temp_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="temp-filter-adm-id" name="temp_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($tempAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('temp_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="temp-filter-customer" name="temp_customers[]" class="form-control select2" multiple>
+                    @foreach ($tempCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('temp_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="temp-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('temp_status') ? ucfirst(request('temp_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="temp-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($temp_receipts->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="temp-filter-date" name="temp_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('temp_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 <!-- temp reciepts - advance payment Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="receiptsFilter" aria-labelledby="receiptsFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('finance/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="advance">
+    <input type="hidden" name="advance_status" id="advance-status-value" value="{{ request('advance_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="receiptsFilter" aria-labelledby="receiptsFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearAdvanceFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="advance-filter-adm-name" name="advance_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($advanceAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('advance_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="advance-filter-adm-id" name="advance_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($advanceAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('advance_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="advance-filter-customer" name="advance_customers[]" class="form-control select2" multiple>
+                    @foreach ($advanceCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('advance_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="advance-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('advance_status') ? ucfirst(request('advance_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="advance-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($advanced_payments->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="advance-filter-date" name="advance_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('advance_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 </div>
 
@@ -793,16 +716,193 @@ $activeTab = request('active_tab', 'final');
 
 @include('finance::layouts.footer')
 
-<!-- dropdown selector -->
+
+<!-- for dropdown -->
 <script>
-    document.querySelectorAll('#status-dropdown + .dropdown-menu .dropdown-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            const button = document.getElementById('status-dropdown');
-            button.innerHTML = value + ' <span class="custom-arrow"></span>';
+    // Initialize Select2 and set initial values when offcanvas opens
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for all dropdowns
+        $('.select2').select2({
+            placeholder: "Select options",
+            allowClear: true
         });
+
+        // Initialize status dropdowns with current values
+        initializeStatusDropdownWithCurrentValue('final-custom-status-btn', 'final-custom-status-menu', 'final-status-value', "{{ request('final_status') }}");
+        initializeStatusDropdownWithCurrentValue('temp-custom-status-btn', 'temp-custom-status-menu', 'temp-status-value', "{{ request('temp_status') }}");
+        initializeStatusDropdownWithCurrentValue('advance-custom-status-btn', 'advance-custom-status-menu', 'advance-status-value', "{{ request('advance_status') }}");
     });
+
+    // Enhanced status dropdown initialization with current values
+    function initializeStatusDropdownWithCurrentValue(btnId, menuId, hiddenInputId, currentValue) {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+
+        if (!btn || !menu || !hiddenInput) {
+            console.log('Element not found:', btnId, menuId, hiddenInputId);
+            return;
+        }
+
+        // Set current value if exists
+        if (currentValue && currentValue !== '') {
+            const menuItem = menu.querySelector(`[data-value="${currentValue}"]`);
+            if (menuItem) {
+                btn.textContent = menuItem.textContent;
+                btn.setAttribute('data-value', currentValue);
+                hiddenInput.value = currentValue;
+            }
+        }
+
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        menu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.preventDefault();
+                const value = e.target.dataset.value;
+                const text = e.target.textContent;
+
+                btn.textContent = text;
+                btn.setAttribute("data-value", value);
+                hiddenInput.value = value;
+                menu.style.display = "none";
+            });
+        });
+
+        // Close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
+            }
+        });
+    }
+
+    // Clear Final Receipts Filters and Submit
+    function clearFinalFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#final-filter-adm-name').val(null).trigger('change');
+        $('#final-filter-adm-id').val(null).trigger('change');
+        $('#final-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const finalDateInput = document.getElementById('final-filter-date');
+        if (finalDateInput) {
+            finalDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const finalStatusBtn = document.getElementById('final-custom-status-btn');
+        const finalStatusInput = document.getElementById('final-status-value');
+        if (finalStatusBtn) {
+            finalStatusBtn.textContent = 'Choose Status';
+            finalStatusBtn.removeAttribute('data-value');
+        }
+        if (finalStatusInput) {
+            finalStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const finalStatusMenu = document.getElementById('final-custom-status-menu');
+        if (finalStatusMenu) {
+            finalStatusMenu.style.display = 'none';
+        }
+
+        console.log('Final filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#finalFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
+
+    // Clear Temporary Receipts Filters and Submit
+    function clearTempFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#temp-filter-adm-name').val(null).trigger('change');
+        $('#temp-filter-adm-id').val(null).trigger('change');
+        $('#temp-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const tempDateInput = document.getElementById('temp-filter-date');
+        if (tempDateInput) {
+            tempDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const tempStatusBtn = document.getElementById('temp-custom-status-btn');
+        const tempStatusInput = document.getElementById('temp-status-value');
+        if (tempStatusBtn) {
+            tempStatusBtn.textContent = 'Choose Status';
+            tempStatusBtn.removeAttribute('data-value');
+        }
+        if (tempStatusInput) {
+            tempStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const tempStatusMenu = document.getElementById('temp-custom-status-menu');
+        if (tempStatusMenu) {
+            tempStatusMenu.style.display = 'none';
+        }
+
+        console.log('Temp filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#trFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
+
+    // Clear Advance Payments Filters and Submit
+    function clearAdvanceFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#advance-filter-adm-name').val(null).trigger('change');
+        $('#advance-filter-adm-id').val(null).trigger('change');
+        $('#advance-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const advanceDateInput = document.getElementById('advance-filter-date');
+        if (advanceDateInput) {
+            advanceDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const advanceStatusBtn = document.getElementById('advance-custom-status-btn');
+        const advanceStatusInput = document.getElementById('advance-status-value');
+        if (advanceStatusBtn) {
+            advanceStatusBtn.textContent = 'Choose Status';
+            advanceStatusBtn.removeAttribute('data-value');
+        }
+        if (advanceStatusInput) {
+            advanceStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const advanceStatusMenu = document.getElementById('advance-custom-status-menu');
+        if (advanceStatusMenu) {
+            advanceStatusMenu.style.display = 'none';
+        }
+
+        console.log('Advance filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#receiptsFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
 </script>
 
 <script>
@@ -1078,4 +1178,129 @@ $activeTab = request('active_tab', 'final');
             });
         }
     });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    // Clear Final Receipts Filters
+    function clearFinalFilters() {
+        // Clear Select2 dropdowns
+        $('#final-filter-adm-name').val(null).trigger('change');
+        $('#final-filter-adm-id').val(null).trigger('change');
+        $('#final-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const finalDateInput = document.getElementById('final-filter-date');
+        if (finalDateInput) {
+            finalDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const finalStatusBtn = document.getElementById('final-custom-status-btn');
+        const finalStatusInput = document.getElementById('final-status-value');
+        if (finalStatusBtn) {
+            finalStatusBtn.textContent = 'Choose Status';
+            finalStatusBtn.removeAttribute('data-value');
+        }
+        if (finalStatusInput) {
+            finalStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const finalStatusMenu = document.getElementById('final-custom-status-menu');
+        if (finalStatusMenu) {
+            finalStatusMenu.style.display = 'none';
+        }
+
+        console.log('Final filters cleared');
+    }
+
+    // Clear Temporary Receipts Filters
+    function clearTempFilters() {
+        // Clear Select2 dropdowns
+        $('#temp-filter-adm-name').val(null).trigger('change');
+        $('#temp-filter-adm-id').val(null).trigger('change');
+        $('#temp-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const tempDateInput = document.getElementById('temp-filter-date');
+        if (tempDateInput) {
+            tempDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const tempStatusBtn = document.getElementById('temp-custom-status-btn');
+        const tempStatusInput = document.getElementById('temp-status-value');
+        if (tempStatusBtn) {
+            tempStatusBtn.textContent = 'Choose Status';
+            tempStatusBtn.removeAttribute('data-value');
+        }
+        if (tempStatusInput) {
+            tempStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const tempStatusMenu = document.getElementById('temp-custom-status-menu');
+        if (tempStatusMenu) {
+            tempStatusMenu.style.display = 'none';
+        }
+
+        console.log('Temp filters cleared');
+    }
+
+    // Clear Advance Payments Filters
+    function clearAdvanceFilters() {
+        // Clear Select2 dropdowns
+        $('#advance-filter-adm-name').val(null).trigger('change');
+        $('#advance-filter-adm-id').val(null).trigger('change');
+        $('#advance-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const advanceDateInput = document.getElementById('advance-filter-date');
+        if (advanceDateInput) {
+            advanceDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const advanceStatusBtn = document.getElementById('advance-custom-status-btn');
+        const advanceStatusInput = document.getElementById('advance-status-value');
+        if (advanceStatusBtn) {
+            advanceStatusBtn.textContent = 'Choose Status';
+            advanceStatusBtn.removeAttribute('data-value');
+        }
+        if (advanceStatusInput) {
+            advanceStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const advanceStatusMenu = document.getElementById('advance-custom-status-menu');
+        if (advanceStatusMenu) {
+            advanceStatusMenu.style.display = 'none';
+        }
+
+        console.log('Advance filters cleared');
+    }
+
+    // Auto-submit version of clear filters
+    function clearFinalFiltersAndSubmit() {
+        clearFinalFilters();
+        // Submit the form after a short delay to ensure fields are cleared
+        setTimeout(() => {
+            document.querySelector('#finalFilter form').submit();
+        }, 100);
+    }
+
+    function clearTempFiltersAndSubmit() {
+        clearTempFilters();
+        setTimeout(() => {
+            document.querySelector('#trFilter form').submit();
+        }, 100);
+    }
+
+    function clearAdvanceFiltersAndSubmit() {
+        clearAdvanceFilters();
+        setTimeout(() => {
+            document.querySelector('#receiptsFilter form').submit();
+        }, 100);
+    }
 </script>

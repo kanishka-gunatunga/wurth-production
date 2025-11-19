@@ -36,6 +36,8 @@ class CollectionsController extends Controller
 
     public function all_receipts(Request $request)
     {
+        $activeTab = request('active_tab', 'final');
+
         // Final Receipts Search
         $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])
             ->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
@@ -51,6 +53,50 @@ class CollectionsController extends Controller
                             ->orWhere('adm', 'like', "%{$search}%")
                     );
             });
+        }
+
+        // Final Receipts Filters
+        if ($request->filled('final_adm_names')) {
+            $regularQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->final_adm_names);
+            });
+        }
+
+        if ($request->filled('final_adm_ids')) {
+            $regularQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->final_adm_ids);
+            });
+        }
+
+        if ($request->filled('final_customers')) {
+            $regularQuery->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->final_customers);
+            });
+        }
+
+        if ($request->filled('final_status')) {
+            $regularQuery->where('status', $request->final_status);
+        }
+
+        if ($request->filled('final_date_range')) {
+            $range = trim($request->final_date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            // Make sure both dates are valid
+            if (!empty($start) && !empty($end)) {
+                $regularQuery->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
         $regular_receipts = $regularQuery->paginate(15, ['*'], 'regular_page');
@@ -70,6 +116,50 @@ class CollectionsController extends Controller
                             ->orWhere('adm', 'like', "%{$search}%")
                     );
             });
+        }
+
+        // Temp Receipts Filters
+        if ($request->filled('temp_adm_names')) {
+            $tempQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->temp_adm_names);
+            });
+        }
+
+        if ($request->filled('temp_adm_ids')) {
+            $tempQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->temp_adm_ids);
+            });
+        }
+
+        if ($request->filled('temp_customers')) {
+            $tempQuery->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->temp_customers);
+            });
+        }
+
+        if ($request->filled('temp_status')) {
+            $tempQuery->where('status', $request->temp_status);
+        }
+
+        if ($request->filled('temp_date_range')) {
+            $range = trim($request->temp_date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            // Make sure both dates are valid
+            if (!empty($start) && !empty($end)) {
+                $tempQuery->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
         $temp_receipts = $tempQuery->paginate(5, ['*'], 'temp_page');
@@ -94,9 +184,137 @@ class CollectionsController extends Controller
             });
         }
 
+        // Advance Payments Filters
+        if ($request->filled('advance_adm_names')) {
+            $advanceQuery->whereHas('adm.userDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->advance_adm_names);
+            });
+        }
+
+        if ($request->filled('advance_adm_ids')) {
+            $advanceQuery->whereHas('adm.userDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->advance_adm_ids);
+            });
+        }
+
+        if ($request->filled('advance_customers')) {
+            $advanceQuery->whereHas('customerData', function ($q) use ($request) {
+                $q->whereIn('name', $request->advance_customers);
+            });
+        }
+
+        if ($request->filled('advance_status')) {
+            $advanceQuery->where('status', $request->advance_status);
+        }
+
+        if ($request->filled('advance_date_range')) {
+            $range = trim($request->advance_date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            // Make sure both dates are valid
+            if (!empty($start) && !empty($end)) {
+                $advanceQuery->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
         $advanced_payments = $advanceQuery->paginate(15, ['*'], 'advance_page');
 
-        return view('finance::collections.all_receipts', compact('regular_receipts', 'temp_receipts', 'advanced_payments'));
+        // Separate dropdown data for each tab (your existing code remains the same)
+        $finalAdmNames = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $finalAdmIds = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.adm_number')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $finalCustomers = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer')
+            ->get()
+            ->pluck('invoice.customer.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $tempAdmNames = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', '!=', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $tempAdmIds = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', '!=', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.adm_number')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $tempCustomers = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', '!=', 0))
+            ->with('invoice.customer')
+            ->get()
+            ->pluck('invoice.customer.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $advanceAdmNames = AdvancedPayment::with('adm.userDetails')
+            ->get()
+            ->pluck('adm.userDetails.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $advanceAdmIds = AdvancedPayment::with('adm.userDetails')
+            ->get()
+            ->pluck('adm.userDetails.adm_number')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $advanceCustomers = AdvancedPayment::with('customerData')
+            ->get()
+            ->pluck('customerData.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        return view('finance::collections.all_receipts', compact(
+            'regular_receipts',
+            'temp_receipts',
+            'advanced_payments',
+            'finalAdmNames',
+            'finalAdmIds',
+            'finalCustomers',
+            'tempAdmNames',
+            'tempAdmIds',
+            'tempCustomers',
+            'advanceAdmNames',
+            'advanceAdmIds',
+            'advanceCustomers',
+            'activeTab'
+        ));
     }
 
     public function resend_receipt()
