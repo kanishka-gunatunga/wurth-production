@@ -25,7 +25,7 @@ use App\Models\UserDetails;
                                 @if($errors->has("division_name")) <div class="alert alert-danger mt-2">{{ $errors->first('division_name') }}</div>@endif
                             </div>
     
-                            <div class="mb-4 col-12 col-lg-6">
+                            <!-- <div class="mb-4 col-12 col-lg-6">
                                 <label for="head-of-division-select" class="form-label custom-input-label">User
                                 Head of Division
                                 </label>
@@ -39,7 +39,7 @@ use App\Models\UserDetails;
                                     <?php } ?>
                                 </select>
                                 @if($errors->has("head_of_division")) <div class="alert alert-danger mt-2">{{ $errors->first('head_of_division') }}</div>@endif
-                            </div>
+                            </div> -->
 
                             <div class="mb-4 col-12 col-lg-12">
                                 <label for="division-input" class="form-label custom-input-label">Division Description</label>

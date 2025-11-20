@@ -20,7 +20,6 @@ class CreditNote extends Model
         'adm_name',
         'amount',
         'updated_amount',
-        'write_off_amount',
     ];
 
     /**
