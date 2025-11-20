@@ -14,6 +14,7 @@ use Modules\Finance\Http\Controllers\FinanceCashController;
 use Modules\Finance\Http\Controllers\FinanceChequeController;
 use Modules\Finance\Http\Controllers\WriteOffController;
 use Modules\Finance\Http\Controllers\SetOffController;
+use Modules\Finance\Http\Controllers\FundTransferController;
 use Illuminate\Http\Request;
 
 /*
@@ -50,7 +51,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(FinanceAuthenticated::class);
     Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt']);
     Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment']);
-    
+
     Route::get('/cash-deposits/download/{id}', [CashDepositsController::class, 'downloadAttachment'])
         ->name('cash_deposits.download');
     Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class, 'updateStatus'])
@@ -80,6 +81,11 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
     Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search');
     Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter');
+
+    Route::get('/fund-transfers', [\Modules\Finance\Http\Controllers\FundTransferController::class, 'index'])
+        ->name('fund_transfers.index');
+    Route::get('/fund-transfers/{id}', [FundTransferController::class, 'show'])
+        ->name('fund_transfers.show');
 
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
