@@ -15,6 +15,7 @@ use Modules\Finance\Http\Controllers\FinanceChequeController;
 use Modules\Finance\Http\Controllers\WriteOffController;
 use Modules\Finance\Http\Controllers\SetOffController;
 use Modules\Finance\Http\Controllers\FundTransferController;
+use Modules\Finance\Http\Controllers\CardPaymentController;
 use Illuminate\Http\Request;
 
 /*
@@ -88,6 +89,9 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('fund_transfers.show');
     Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
         ->name('fund_transfers.update_status');
+
+    Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index');
+    Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
 
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
