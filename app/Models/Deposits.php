@@ -17,7 +17,7 @@ class Deposits extends Model
      * Automatically cast the receipts JSON into an array.
      */
     protected $casts = [
-        'receipts' => 'array',
+        'reciepts' => 'array',
     ];
 
     /**

@@ -86,6 +86,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('fund_transfers.index');
     Route::get('/fund-transfers/{id}', [FundTransferController::class, 'show'])
         ->name('fund_transfers.show');
+    Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
+        ->name('fund_transfers.update_status');
 
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');

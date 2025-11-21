@@ -47,8 +47,8 @@ class FinanceCashController extends Controller
         $deposit = Deposits::findOrFail($id);
         $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
 
-        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
-        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+        $decodedReceipts = $deposit->reciepts ?? [] ?? [];
+        $receiptIds = collect($deposit->reciepts ?? [])->pluck('reciept_id')->toArray();
         $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->paginate(10);
 
         $receiptDetails = $invoicePayments->map(function ($payment) {
@@ -111,7 +111,7 @@ class FinanceCashController extends Controller
         $deposit->status = $request->status;
         $deposit->save();
 
-        $receiptIds = collect(json_decode($deposit->reciepts, true))
+        $receiptIds = collect($deposit->reciepts ?? [])
             ->pluck('reciept_id')
             ->toArray();
 
@@ -142,7 +142,7 @@ class FinanceCashController extends Controller
                     str_contains(strtolower($admDetails->adm_number), strtolower($search));
             }
 
-            $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+            $decodedReceipts = $deposit->reciepts ?? [] ?? [];
             $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
             $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
@@ -211,7 +211,7 @@ class FinanceCashController extends Controller
 
         if ($request->filled('customers')) {
             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+                $decodedReceipts = $deposit->reciepts ?? [] ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 

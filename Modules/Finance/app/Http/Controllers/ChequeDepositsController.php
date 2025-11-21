@@ -58,7 +58,7 @@ class ChequeDepositsController extends Controller
         $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
 
         // ✅ Decode the JSON field properly (correct key: reciepts)
-        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+        $decodedReceipts = $deposit->reciepts ?? [];
 
         // ✅ Extract reciept IDs safely
         $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
@@ -137,7 +137,7 @@ class ChequeDepositsController extends Controller
         $deposit->save();
 
         // ✅ Update all related invoice payments too
-        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+        $decodedReceipts = $deposit->reciepts ?? [];
         $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
 
         if (!empty($receiptIds)) {
@@ -168,7 +168,7 @@ class ChequeDepositsController extends Controller
             }
 
             // Check Customer (through receipts → invoice_payments → invoices → customers)
-            $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+            $decodedReceipts = $deposit->reciepts ?? [];
             $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
             $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
@@ -252,7 +252,7 @@ class ChequeDepositsController extends Controller
         // Customers
         if ($request->filled('customers')) {
             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+                $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 

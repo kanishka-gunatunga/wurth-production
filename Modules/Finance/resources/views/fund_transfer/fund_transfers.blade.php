@@ -101,8 +101,7 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr onclick="window.location='{{ route('fund_transfers.show', $payment->id) }}'"
-                        style="cursor: pointer;">
+                    <tr class="clickable-row" data-href="{{ route('fund_transfers.show', $payment['id']) }}" style="cursor:pointer;">
                         <td>{{ $payment->transfer_date }}</td>
 
                         <td>{{ $payment->invoice->customer->adm ?? '-' }}</td>
@@ -116,8 +115,15 @@
                         <td><button class="{{ $statusClass }}">{{ ucfirst($payment['status']) }}</button></td>
 
                         <td class="sticky-column">
+                            @if(strtolower($payment['status']) === 'pending')
                             <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="Approved">Approve</button>
                             <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="Rejected">Reject</button>
+                            @endif
+                            <a href="{{ route('fund_transfers.show', $payment->id) }}"
+                                class="black-action-btn"
+                                onclick="event.stopPropagation()" style="text-decoration: none;">
+                                View More
+                            </a>
                         </td>
                     </tr>
                     @endforeach
@@ -271,67 +277,22 @@
     </div>
 </div>
 
-<!-- Approve Modal -->
-<div id="approve-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
-    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
+<!-- Confirmation Modal -->
+<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
 
         <!-- Close button -->
-        <button id="approve-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
 
         <!-- Title -->
-        <h4 style="margin:0 0 0.5rem 0; font-weight:600; color:#000;">Payment Approval</h4>
+        <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
-        <!-- Subtitle -->
-        <p style="margin:0 0 1.5rem 0; color:#6c757d; font-size:0.95rem; line-height:1.4;">
-            You're about to confirm this payment. Please provide a reason for approval.
-        </p>
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
 
-        <!-- Textarea with button inside -->
-        <div style="position:relative;">
-            <textarea id="approve-modal-input" rows="3" placeholder="Enter your reason here...."
-                style="width:100%; border:1px solid #ddd; border-radius:12px; padding:0.75rem 3rem 0.75rem 1rem; font-size:0.95rem; resize:none; outline:none;"></textarea>
-
-            <!-- Green tick button -->
-            <button id="approve-modal-tick" style="position:absolute; bottom:10px; right:10px; background:#2E7D32; border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path d="M7 12.5l3 3 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
-        </div>
-    </div>
-</div>
-
-
-<!-- Reject Modal -->
-<div id="reject-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
-    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
-
-        <!-- Close button -->
-        <button id="reject-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
-
-        <!-- Title -->
-        <h4 style="margin:0 0 0.5rem 0; font-weight:600; color:#000;">Payment Rejection</h4>
-
-        <!-- Subtitle -->
-        <p style="margin:0 0 1.5rem 0; color:#6c757d; font-size:0.95rem; line-height:1.4;">
-            You're about to reject this payment. Please provide a reason for rejection.
-        </p>
-
-        <!-- Input fields -->
-        <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1rem;">
-            <input type="text" placeholder="Header"
-                style="width:100%; border:1px solid #ddd; border-radius:20px; padding:0.6rem 1rem; font-size:0.95rem; outline:none;">
-            <input type="text" placeholder="GL"
-                style="width:100%; border:1px solid #ddd; border-radius:20px; padding:0.6rem 1rem; font-size:0.95rem; outline:none;">
-        </div>
-
-        <!-- Red tick button -->
-        <div style="display:flex; justify-content:flex-end;">
-            <button id="reject-modal-tick" style="background:#CC0000; border:none; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path d="M7 12.5l3 3 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
+        <!-- Action buttons -->
+        <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
+            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
         </div>
     </div>
 </div>
@@ -356,6 +317,82 @@
             const button = document.getElementById('status-dropdown');
             button.innerHTML = value + ' <span class="custom-arrow"></span>';
         });
+    });
+</script>
+
+<!-- for approve/reject buttons -->
+<script>
+    let currentStatusButton = null;
+    let newStatus = '';
+
+    document.addEventListener('click', function(e) {
+
+        // Approve / Reject buttons
+        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
+            e.target.classList.contains('success-action-btn-lg')) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            currentStatusButton = e.target; // Save clicked button reference
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+
+            // Show modal
+            document.getElementById('confirm-status-text').innerText = newStatus;
+            document.getElementById('confirm-status-modal').style.display = 'block';
+        }
+
+        // Close modal
+        if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
+            document.getElementById('confirm-status-modal').style.display = 'none';
+        }
+
+        // Yes button
+        if (e.target.id === 'confirm-yes-btn') {
+            document.getElementById('confirm-status-modal').style.display = 'none';
+
+            if (currentStatusButton) {
+                const depositId = currentStatusButton.dataset.id;
+
+                fetch(`{{ url('finance/fund-transfers/update-status') }}/${depositId}`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    })
+                    .then(async (res) => {
+                        const data = await res.json().catch(() => null);
+
+                        if (!res.ok || !data || !data.success) {
+                            throw new Error(data?.message || "Request failed");
+                        }
+
+                        // SUCCESS — update UI
+                        let row = currentStatusButton.closest("tr");
+                        let statusCell = row.querySelector("td:nth-child(6) button");
+
+                        statusCell.innerText = data.status;
+                        statusCell.className =
+                            data.status.toLowerCase() === "approved" ?
+                            "success-status-btn" :
+                            "danger-status-btn";
+
+                        row.querySelectorAll(".success-action-btn, .red-action-btn")
+                            .forEach(btn => btn.style.display = "none");
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        alert("Failed to update status:\n" + err.message);
+                    });
+
+            }
+        }
+
     });
 </script>
 
