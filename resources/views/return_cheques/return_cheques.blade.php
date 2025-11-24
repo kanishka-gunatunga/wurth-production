@@ -229,26 +229,26 @@
     </div>
 </div>
 
-
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+<form id="filterForm" method="GET" action="{{ route('returncheques.index') }}">
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    </div>
-    <div class="offcanvas-body">
-        <!-- <div class="row">
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <!-- <div class="row">
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
 
@@ -280,56 +280,64 @@
             </div>
         </div> -->
 
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                @foreach ($returnCheques->pluck('adm_name')->unique() as $admName)
-                @if($admName)
-                <option value="{{ $admName }}"
-                    {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                    {{ $admName }}
-                </option>
-                @endif
-                @endforeach
-            </select>
-        </div>
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($returnCheques->pluck('customer.admDetails.name')->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
 
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                @foreach ($returnCheques->pluck('adm_number')->unique() as $admId)
-                <option value="{{ $admId }}"
-                    {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                    {{ $admId }}
-                </option>
-                @endforeach
-            </select>
-        </div>
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($returnCheques->pluck('customer.adm')->unique() as $admId)
+                    @if($admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Return Type</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>Invalid amount</option>
-                <option>Invalid number</option>
-                <option>Invalid date</option>
-            </select>
-        </div>
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Return Type</p>
+                <select id="filter-return-type" name="return_type[]" class="form-control select2" multiple>
+                    @foreach ($returnCheques->pluck('return_type')->unique() as $type)
+                    @if($type)
+                    <option value="{{ $type }}"
+                        {{ !empty($filters['return_type']) && in_array($type, $filters['return_type']) ? 'selected' : '' }}>
+                        {{ $type }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Returned Date</p>
-            <input type="text" id="filter-date" name="date_range" class="form-control"
-                placeholder="Select date range"
-                value="{{ $filters['date_range'] ?? '' }}" />
-        </div>
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Returned Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
 
-        <div class="mt-4 d-flex justify-content-start">
-            <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
         </div>
     </div>
-</div>
-</div>
+    </div>
+</form>
 
 
 <!-- expand search bar  -->
@@ -482,5 +490,25 @@
             }
         });
 
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            // Clear multi-select dropdowns (ADM Name, ADM ID, Return Type)
+            $('#filter-adm-name, #filter-adm-id, #filter-return-type').val(null).trigger('change');
+
+            // Clear date range input
+            document.getElementById('filter-date').value = '';
+
+            // Clear search input if needed
+            // document.getElementById('backendSearchInput').value = '';
+
+            // Submit the form to reload page without filters
+            document.getElementById('filterForm').submit();
+        });
     });
 </script>

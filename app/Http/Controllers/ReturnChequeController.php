@@ -85,22 +85,56 @@ class ReturnChequeController extends Controller
             $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-
-                // Search by ADM Number or Customer ID
                 $q->whereHas('customer', function ($customer) use ($search) {
                     $customer->where('adm', 'like', "%$search%")
                         ->orWhere('customer_id', 'like', "%$search%")
                         ->orWhere('name', 'like', "%$search%");
                 });
 
-                // Search by ADM Name
                 $q->orWhereHas('customer.admDetails', function ($adm) use ($search) {
                     $adm->where('name', 'like', "%$search%");
                 });
 
-                // Search by Return Cheque Number
                 $q->orWhere('invoice_or_cheque_no', 'like', "%$search%");
             });
+        }
+
+        // ----------------------
+        // FILTERS
+        // ----------------------
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->whereIn('adm', $request->adm_ids);
+            });
+        }
+
+        if ($request->filled('adm_names')) {
+            $query->whereHas('customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        if ($request->filled('return_type')) {
+            $query->whereIn('return_type', $request->return_type);
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('returned_date', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
         // ----------------------
