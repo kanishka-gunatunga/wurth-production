@@ -15,16 +15,84 @@ class CardPaymentController extends Controller
 {
     public function index(Request $request)
     {
-        // Fetch card payments with relations
-        $cardPayments = InvoicePayments::with([
-            'invoice.customer',      // invoice -> customer
-            'invoice.customer.userDetail'  // customer -> user_detail
-        ])
-            ->where('type', 'card')
-            ->orderBy('card_transfer_date', 'desc')
-            ->paginate(10); // Laravel pagination
+        $query = InvoicePayments::with([
+            'invoice.customer.userDetail' // Keep relation for ADM Name
+        ])->where('type', 'card'); // Only card payments
 
-        return view('finance::card_payment.card_payments', compact('cardPayments'));
+        // ----------------------
+        // SEARCH
+        // ----------------------
+        if ($request->search) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+
+                // Search Customer (ID / Name / ADM ID)
+                $q->whereHas('invoice.customer', function ($customer) use ($search) {
+                    $customer->where('customer_id', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%")
+                        ->orWhere('adm', 'like', "%$search%");
+                });
+
+                // Search ADM Name
+                $q->orWhereHas('invoice.customer.userDetail', function ($adm) use ($search) {
+                    $adm->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        // ----------------------
+        // APPLY FILTERS
+        // ----------------------
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('adm', $request->adm_ids);
+            });
+        }
+
+        if ($request->filled('adm_names')) {
+            $query->whereHas('invoice.customer.userDetail', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->customers);
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('card_transfer_date', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $status = strtolower($request->status);
+            $query->whereRaw('LOWER(status) = ?', [$status]);
+        }
+
+        // ----------------------
+        // PAGINATION
+        // ----------------------
+        $cardPayments = $query->orderBy('card_transfer_date', 'desc')->paginate(10);
+        $filters = $request->all();
+
+        return view('finance::card_payment.card_payments', compact('cardPayments', 'filters'));
     }
 
     public function show($id)

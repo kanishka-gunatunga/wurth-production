@@ -56,6 +56,10 @@
     .col-12.d-flex.justify-content-lg-end {
         align-items: center;
     }
+
+    .custom-dropdown-menu li {
+        list-style: none !important;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -67,7 +71,11 @@
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search Deposit Type, ADM Number or Name" />
+                <input type="text"
+                    class="search-input"
+                    placeholder="Search customer ID, Name or ADM ID, Name"
+                    id="backendSearchInput"
+                    value="{{ request('search') }}">
             </div>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
@@ -91,7 +99,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($cardPayments as $payment)
+                    @forelse($cardPayments as $payment)
                     @php
                     $customer = $payment->invoice->customer ?? null;
                     $userDetail = $customer->userDetail ?? null;
@@ -120,7 +128,11 @@
                             </a>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No card payments found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
 
@@ -140,118 +152,132 @@
 
 </div>
 
+<form id="filterForm" method="GET" action="{{ route('card_payments.index') }}">
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+        aria-labelledby="offcanvasRightLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
 
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-    aria-labelledby="offcanvasRightLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-    </div>
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
 
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
+            <div>
+                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <!-- <div class="row">
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>ADMs</span>
 
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>Marketing</span>
+
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>Admin</span>
+
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>Finance</span>
+
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>Team Leaders</span>
+
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
+                    <span>Head of Division</span>
+
+                </div>
+            </div> -->
+
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                    @foreach ($cardPayments->map(fn($p) => $p->invoice->customer->admDetails->name)->unique() as $admName)
+                    @if($admName)
+                    <option value="{{ $admName }}"
+                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($cardPayments->map(fn($p) => $p->invoice->customer->adm)->unique() as $admId)
+                    <option value="{{ $admId }}"
+                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
+                    @foreach ($cardPayments->map(fn($p) => $p->invoice->customer->name)->unique() as $customer)
+                    @if($customer)
+                    <option value="{{ $customer }}"
+                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="filter-date" name="date_range" class="form-control"
+                    placeholder="Select date range"
+                    value="{{ $filters['date_range'] ?? '' }}" />
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        Choose Status
+                    </button>
+                    <ul id="custom-status-menu" class="custom-dropdown-menu"
+                        style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($cardPayments->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+                <input type="hidden" name="status" id="filter-status-input" value="{{ $filters['status'] ?? '' }}">
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
         </div>
     </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                </ul>
-            </div>
-        </div>
     </div>
-</div>
-</div>
+</form>
 
 
 <!-- Toast message -->
@@ -295,14 +321,43 @@
 
 
 
-<!-- dropdown selector -->
+<!-- for dropdown -->
 <script>
-    document.querySelectorAll('#status-dropdown + .dropdown-menu .dropdown-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            const button = document.getElementById('status-dropdown');
-            button.innerHTML = value + ' <span class="custom-arrow"></span>';
+    document.addEventListener("DOMContentLoaded", function() {
+        const btn = document.getElementById("custom-status-btn");
+        const menu = document.getElementById("custom-status-menu");
+        const hiddenInput = document.getElementById('filter-status-input');
+
+        // 1️⃣ Set button text from hidden input on page load
+        if (hiddenInput.value) {
+            btn.textContent = hiddenInput.value;
+            btn.setAttribute("data-value", hiddenInput.value);
+        }
+
+        // 2️⃣ Toggle menu
+        btn.addEventListener("click", () => {
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        // 3️⃣ Click item
+        menu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.preventDefault();
+                btn.textContent = e.target.textContent;
+                btn.setAttribute("data-value", e.target.dataset.value);
+
+                // Update hidden input
+                hiddenInput.value = e.target.dataset.value;
+
+                menu.style.display = "none";
+            });
+        });
+
+        // 4️⃣ Close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
+            }
         });
     });
 </script>
@@ -499,6 +554,50 @@
         if (e.target.id === 'reject-modal-close') {
             document.getElementById('reject-modal').style.display = 'none';
         }
+    });
+</script>
+
+<!-- search on enter key press -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const input = document.getElementById("backendSearchInput");
+
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                const value = input.value.trim();
+
+                // Redirect to backend route with ?search= query
+                const url = new URL(window.location.href);
+                url.searchParams.set("search", value);
+
+                window.location.href = url.toString();
+            }
+        });
+
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const clearBtn = document.getElementById('clear-filters');
+        clearBtn.addEventListener('click', function() {
+            // Clear multi-select dropdowns
+            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+
+            // Clear date input
+            document.getElementById('filter-date').value = '';
+
+            // Clear custom status dropdown
+            const statusBtn = document.getElementById('custom-status-btn');
+            const statusInput = document.getElementById('filter-status-input');
+            statusBtn.textContent = 'Choose Status';
+            statusInput.value = '';
+
+            // Submit the form after a short delay
+            setTimeout(() => document.getElementById('filterForm').submit(), 200);
+        });
     });
 </script>
 
