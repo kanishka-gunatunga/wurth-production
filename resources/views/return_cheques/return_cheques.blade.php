@@ -68,7 +68,7 @@
                 <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 ">
                     <div id="search-box-wrapper" class="collapsed">
                         <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                        <input type="text" class="search-input" placeholder="Search ADM No. or Name, Return Cheque Number" />
+                        <input type="text" class="search-input" id="backendSearchInput" value="{{ request('search') }}" placeholder="Search ADM No. or Name, Return Cheque Number">
                     </div>
                     <button class="header-btn" id="search-toggle-button"><i
                             class="fa-solid fa-magnifying-glass fa-xl"></i></button>
@@ -165,7 +165,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">No return cheques found.</td>
+                            <td colspan="10" class="text-center text-muted">No return cheques found.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -244,11 +244,11 @@
         </div class="col-6">
 
         <div>
-            <button class="btn rounded-phill">Clear All</button>
+            <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
         </div>
     </div>
     <div class="offcanvas-body">
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                 <span>ADMs</span>
 
@@ -278,29 +278,33 @@
                 <span>Head of Division</span>
 
             </div>
-        </div>
+        </div> -->
 
         <!-- ADM Name Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
+            <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
+                @foreach ($returnCheques->pluck('adm_name')->unique() as $admName)
+                @if($admName)
+                <option value="{{ $admName }}"
+                    {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
+                    {{ $admName }}
+                </option>
+                @endif
+                @endforeach
             </select>
         </div>
 
         <!-- ADM ID Dropdown -->
         <div class="mt-5 filter-categories">
             <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
+            <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
+                @foreach ($returnCheques->pluck('adm_number')->unique() as $admId)
+                <option value="{{ $admId }}"
+                    {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
+                    {{ $admId }}
+                </option>
+                @endforeach
             </select>
         </div>
 
@@ -315,14 +319,17 @@
 
         <div class="mt-5 filter-categories">
             <p class="filter-title">Returned Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
+            <input type="text" id="filter-date" name="date_range" class="form-control"
+                placeholder="Select date range"
+                value="{{ $filters['date_range'] ?? '' }}" />
+        </div>
+
+        <div class="mt-4 d-flex justify-content-start">
+            <button type="submit" class="red-action-btn-lg">Apply Filters</button>
         </div>
     </div>
 </div>
 </div>
-
-
-
 
 
 <!-- expand search bar  -->
@@ -368,53 +375,6 @@
         });
     });
 </script>
-
-<!-- search functionality -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.querySelector("#search-box-wrapper .search-input");
-
-        searchInput.addEventListener("input", function() {
-            const query = this.value.toLowerCase();
-
-            // Filter the returnChequeData
-            const filteredData = returnChequeData.filter(item =>
-                item.admNo.toLowerCase().includes(query) ||
-                item.admName.toLowerCase().includes(query) ||
-                item.chequeNo.toLowerCase().includes(query)
-            );
-
-            // Render table with filtered results
-            renderFilteredReturnChequeTable(filteredData);
-        });
-    });
-
-    // New function to render filtered data without breaking pagination
-    function renderFilteredReturnChequeTable(data) {
-        const tableBody = document.getElementById("returnChequeTableBody");
-        tableBody.innerHTML = "";
-
-        data.forEach(item => {
-            const row = `<tr>
-                <td>${item.admNo}</td>
-                <td>${item.admName}</td>
-                <td>${item.chequeNo}</td>
-                <td>${item.amount}</td>
-                <td>${item.returnedDate}</td>
-                <td>${item.bank}</td>
-                <td>${item.branch}</td>
-                <td>${item.type}</td>
-                <td class="sticky-column">
-                    <a href="{{url('return-cheque-details')}}" style="text-decoration: none;">
-                        <button class="action-btn btn-sm btn-dark">View More</button>
-                    </a>
-                </td>
-            </tr>`;
-            tableBody.innerHTML += row;
-        });
-    }
-</script>
-
 
 <script>
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
@@ -500,6 +460,27 @@
                 });
         });
 
+
+    });
+</script>
+
+<!-- search on enter key press -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const input = document.getElementById("backendSearchInput");
+
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                const value = input.value.trim();
+
+                // Redirect to backend route with ?search= query
+                const url = new URL(window.location.href);
+                url.searchParams.set("search", value);
+
+                window.location.href = url.toString();
+            }
+        });
 
     });
 </script>

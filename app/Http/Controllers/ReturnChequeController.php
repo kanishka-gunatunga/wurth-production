@@ -73,14 +73,43 @@ class ReturnChequeController extends Controller
     /**
      * Show list of return cheques
      */
-    public function index()
+    public function index(Request $request)
     {
-        $returnCheques = Invoices::where('type', 'return_cheque')
-            ->with(['customer.admDetails']) // Eager load customer & ADM
-            ->orderByDesc('created_at')
-            ->paginate(10);
+        $query = Invoices::where('type', 'return_cheque')
+            ->with(['customer.admDetails']); // Eager load customer & ADM
 
-        return view('return_cheques.return_cheques', compact('returnCheques'));
+        // ----------------------
+        // SEARCH
+        // ----------------------
+        if ($request->search) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+
+                // Search by ADM Number or Customer ID
+                $q->whereHas('customer', function ($customer) use ($search) {
+                    $customer->where('adm', 'like', "%$search%")
+                        ->orWhere('customer_id', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%");
+                });
+
+                // Search by ADM Name
+                $q->orWhereHas('customer.admDetails', function ($adm) use ($search) {
+                    $adm->where('name', 'like', "%$search%");
+                });
+
+                // Search by Return Cheque Number
+                $q->orWhere('invoice_or_cheque_no', 'like', "%$search%");
+            });
+        }
+
+        // ----------------------
+        // PAGINATION
+        // ----------------------
+        $returnCheques = $query->orderByDesc('created_at')->paginate(10);
+        $filters = $request->all();
+
+        return view('return_cheques.return_cheques', compact('returnCheques', 'filters'));
     }
 
 
