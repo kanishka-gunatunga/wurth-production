@@ -708,6 +708,13 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         // Initialize each date picker with their unique IDs
+                        flatpickr("#filter-date", {
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            allowInput: true,
+                            clickOpens: true
+                        });
+
                         flatpickr("#final-filter-date", {
                             mode: "range",
                             dateFormat: "Y-m-d",

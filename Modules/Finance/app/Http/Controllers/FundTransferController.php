@@ -38,9 +38,58 @@ class FundTransferController extends Controller
             });
         }
 
-        $fundTransfers = $query->paginate(10);
+        // ----------------------
+        // APPLY FILTERS
+        // ----------------------
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('adm', $request->adm_ids);
+            });
+        }
 
-        return view('finance::fund_transfer.fund_transfers', compact('fundTransfers'));
+        if ($request->filled('adm_names')) {
+            $query->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->customers);
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            // Normalize the input format
+            $range = trim($request->date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            // Make sure both dates are valid
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('transfer_date', [ // <-- FIXED: removed extra backtick
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $status = strtolower($request->status);
+            $query->whereRaw('LOWER(status) = ?', [$status]);
+        }
+
+        $fundTransfers = $query->paginate(10);
+        $filters = $request->all();
+
+        return view('finance::fund_transfer.fund_transfers', compact('fundTransfers', 'filters'));
     }
 
     public function show($id)
