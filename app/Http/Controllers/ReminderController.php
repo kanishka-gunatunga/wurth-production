@@ -66,21 +66,75 @@ class ReminderController extends Controller
         $userId = Auth::id();
 
         $query = Reminders::query()
-            ->where('send_to', $userId); // show reminders sent to this user
+            ->where('send_to', $userId);
 
-        // optional search by title (GET ?q=..)
+        // ------------------------------
+        // SEARCH BY TITLE
+        // ------------------------------
         if ($request->filled('q')) {
-            $q = $request->q;
-            $query->where('reminder_title', 'like', "%{$q}%");
+            $query->where('reminder_title', 'like', "%{$request->q}%");
         }
 
-        // order by reminder_date (or created_at) and paginate
-        $reminders = $query->orderByDesc('reminder_date')
-            ->paginate(10)            // adjust per page
-            ->withQueryString();      // keep `q` during pages
+        // ------------------------------
+        // FILTER: FROM (send_from column)
+        // ------------------------------
+        if ($request->filled('from_users')) {
+            $query->whereIn('sent_user_id', $request->from_users);
+        }
 
-        // pass to view
-        return view('reminders.all_reminders', compact('reminders'));
+        // ------------------------------
+        // FILTER: TO (send_to)
+        // ------------------------------
+        if ($request->filled('to_users')) {
+            $query->whereIn('send_to', $request->to_users);
+        }
+
+        // ------------------------------
+        // FILTER: DATE RANGE
+        // ------------------------------
+        if ($request->filled('date_range')) {
+            $range = $request->date_range;
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            $query->whereBetween('reminder_date', [
+                date('Y-m-d 00:00:00', strtotime($start)),
+                date('Y-m-d 23:59:59', strtotime($end)),
+            ]);
+        }
+
+        $reminders = $query->orderByDesc("reminder_date")
+            ->paginate(10)
+            ->withQueryString();
+
+        // Unique user IDs for FROM dropdown (senders)
+        $fromUserIds = Reminders::distinct()
+            ->pluck('sent_user_id')
+            ->toArray();
+
+        $fromUsers = User::whereIn('id', $fromUserIds)
+            ->with('userDetails')
+            ->get();
+
+        // Unique user IDs for TO dropdown (receivers)
+        $toUserIds = Reminders::distinct()
+            ->pluck('send_to')
+            ->toArray();
+
+        $toUsers = User::whereIn('id', $toUserIds)
+            ->with('userDetails')
+            ->get();
+
+        return view('reminders.all_reminders', [
+            'reminders' => $reminders,
+            'filters'   => $request->all(),
+            'fromUsers' => $fromUsers,
+            'toUsers'   => $toUsers
+        ]);
     }
 
     public function show($id)

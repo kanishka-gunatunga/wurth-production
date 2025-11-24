@@ -57,16 +57,13 @@
         }
     </style>
 
-
     <div class="main-wrapper">
-
         <div class="p-4 pt-0">
             <div class="row d-flex justify-content-between">
                 <div class="col-lg-6 col-12">
                     <h1 class="header-title">Reminders</h1>
                 </div>
             </div>
-
 
             <div class="styled-tab-main">
                 <ul class="nav nav-tabs" role="tablist">
@@ -178,32 +175,29 @@
                 </div>
             </div>
         </div>
-
-
-
     </div>
 
-
     <!-- Payment Notifications Filter Offcanvas -->
-    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
-        aria-labelledby="offcanvasRightLabel">
-        <div class="row d-flex justify-content-end">
-            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-
-        <div class="offcanvas-header d-flex justify-content-between">
-            <div class="col-6">
-                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                    Filter
-                </span>
-            </div class="col-6">
-
-            <div>
-                <button class="btn rounded-phill">Clear All</button>
+    <form method="GET" action="{{ route('reminders.index') }}" id="filterForm">
+        <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
+            aria-labelledby="offcanvasRightLabel">
+            <div class="row d-flex justify-content-end">
+                <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="offcanvas-body">
-            <div class="row">
+
+            <div class="offcanvas-header d-flex justify-content-between">
+                <div class="col-6">
+                    <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                        Filter
+                    </span>
+                </div class="col-6">
+
+                <div>
+                    <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+                </div>
+            </div>
+            <div class="offcanvas-body">
+                <!-- <div class="row">
                 <p class="filter-title">User roles</p>
                 <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
                     <span>ADMs</span>
@@ -234,36 +228,49 @@
                     <span>Head of Division</span>
 
                 </div>
-            </div>
+            </div> -->
 
-            <div class="mt-5 filter-categories">
-                <p class="filter-title">From</p>
-                <select class="form-control select2" multiple="multiple">
-                    <option>John Doe</option>
-                    <option>Jane Smith</option>
-                    <option>Robert Lee</option>
-                    <option>Emily Johnson</option>
-                    <option>Michael Brown</option>
-                </select>
-            </div>
+                <!-- FROM -->
+                <div class="mt-5 filter-categories">
+                    <p class="filter-title">From</p>
+                    <select class="form-control select2" name="from_users[]" multiple>
+                        @foreach($fromUsers as $u)
+                        <option value="{{ $u->id }}"
+                            {{ in_array($u->id, $filters['from_users'] ?? []) ? 'selected' : '' }}>
+                            {{ $u->userDetails->name ?? $u->email }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="mt-5 filter-categories">
-                <p class="filter-title">To</p>
-                <select class="form-control select2" multiple="multiple">
-                    <option>John Doe</option>
-                    <option>Jane Smith</option>
-                    <option>Robert Lee</option>
-                    <option>Emily Johnson</option>
-                    <option>Michael Brown</option>
-                </select>
-            </div>
+                <!-- TO -->
+                <div class="mt-5 filter-categories">
+                    <p class="filter-title">To</p>
+                    <select class="form-control select2" name="to_users[]" multiple>
+                        @foreach($toUsers as $u)
+                        <option value="{{ $u->id }}"
+                            {{ in_array($u->id, $filters['to_users'] ?? []) ? 'selected' : '' }}>
+                            {{ $u->userDetails->name ?? $u->email }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="mt-5 filter-categories">
-                <p class="filter-title">Date</p>
-                <input type="text" id="filter-date" class="form-control" placeholder="Select date range" />
+                <!-- DATE RANGE -->
+                <div class="mt-5 filter-categories">
+                    <p class="filter-title">Date</p>
+                    <input type="text" id="filter-date" name="date_range"
+                        class="form-control"
+                        placeholder="Select date range"
+                        value="{{ $filters['date_range'] ?? '' }}" />
+                </div>
+
+                <div class="mt-4 d-flex justify-content-start">
+                    <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- System Notifications Filter Offcanvas -->
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="systemFilter"
@@ -311,7 +318,6 @@
 
         </div>
     </div>
-
 
 
     <script>
@@ -441,85 +447,6 @@
         }
     </style>
 
-
-
-    <!-- expand search bar  -->
-    <!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchWrapper = document.getElementById("search-box-wrapper");
-        const searchToggleButton = document.getElementById("search-toggle-button");
-        const searchInput = searchWrapper.querySelector(".search-input");
-
-        let idleTimeout;
-        const idleTime = 5000; // 5 seconds (5000 milliseconds)
-
-        function collapseSearch() {
-            searchWrapper.classList.remove("expanded");
-            searchWrapper.classList.add("collapsed");
-            searchToggleButton.classList.remove("d-none"); // Show the button
-            clearTimeout(idleTimeout); // Clear any existing timer
-        }
-
-        function startIdleTimer() {
-            clearTimeout(idleTimeout); // Clear previous timer
-            idleTimeout = setTimeout(() => {
-                if (!searchInput.value) { // Only collapse if input is empty
-                    collapseSearch();
-                }
-            }, idleTime);
-        }
-
-        searchToggleButton.addEventListener("click", function() {
-            if (searchWrapper.classList.contains("collapsed")) {
-                searchWrapper.classList.remove("collapsed");
-                searchWrapper.classList.add("expanded");
-                searchToggleButton.classList.add("d-none"); // Hide the button
-                searchInput.focus();
-                startIdleTimer();
-            } else {
-                collapseSearch();
-            }
-        });
-
-        searchInput.addEventListener("keydown", function() {
-            startIdleTimer(); // Reset the timer on any keypress
-        });
-    });
-</script> -->
-
-    <!-- Search functionality -->
-    <!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.querySelector("#search-box-wrapper .search-input");
-
-        searchInput.addEventListener("input", function() {
-            const query = this.value.trim().toLowerCase();
-
-            // filter by title instead of sender
-            const filteredPayment = notificationsData.paymentNotifications.filter(n =>
-                n.title.toLowerCase().includes(query)
-            );
-            const filteredTemporary = notificationsData.temporaryNotifications.filter(n =>
-                n.title.toLowerCase().includes(query)
-            );
-
-            // temporarily swap data, render, then restore
-            const originalPayment = notificationsData.paymentNotifications;
-            const originalTemporary = notificationsData.temporaryNotifications;
-
-            notificationsData.paymentNotifications = filteredPayment;
-            notificationsData.temporaryNotifications = filteredTemporary;
-
-            renderNotifications("paymentNotifications");
-            renderNotifications("temporaryNotifications");
-
-            // restore originals so pagination always works correctly
-            notificationsData.paymentNotifications = originalPayment;
-            notificationsData.temporaryNotifications = originalTemporary;
-        });
-    });
-</script> -->
-
     <!-- for search bar in each tab -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -605,3 +532,18 @@
         });
     </script>
 </div>
+
+<!-- clear all button functionality -->
+<script>
+    document.getElementById("clear-filters").addEventListener("click", function() {
+        // Reset selects
+        $('select[name="from_users[]"]').val(null).trigger('change');
+        $('select[name="to_users[]"]').val(null).trigger('change');
+
+        // Reset date
+        document.getElementById("filter-date").value = '';
+
+        // Submit without filters
+        window.location.href = "{{ route('reminders.index') }}";
+    });
+</script>
