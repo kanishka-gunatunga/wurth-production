@@ -639,7 +639,7 @@
                 <div class="sidebar-footer">
                     <ul class="sidebar-list">
                         <li class="nav-item">
-                            <a href="../settings" class="nav-link">
+                            <a class="nav-link" href="{{ url('/finance/settings') }}">
                                 <span class="me-4">
                                     <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">

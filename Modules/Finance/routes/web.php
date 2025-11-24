@@ -33,6 +33,10 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::match(['get', 'post'], '/', [UserController::class, 'dashboard']);
     Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
 
+    Route::get('/settings', function () {
+        return view('finance::settings.settings');
+    })->name('finance.settings');
+
     Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
     Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
     Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
