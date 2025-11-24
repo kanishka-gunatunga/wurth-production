@@ -243,7 +243,7 @@ $activeTab = request('active_tab', 'final');
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                                <td colspan="8" class="text-center text-muted">No reciepts found.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -317,7 +317,7 @@ $activeTab = request('active_tab', 'final');
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                                <td colspan="7" class="text-center text-muted">No reciepts found.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -402,7 +402,7 @@ $activeTab = request('active_tab', 'final');
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No reciepts found.</td>
+                                <td colspan="7" class="text-center text-muted">No reciepts found.</td>
                             </tr>
                             @endforelse
                         </tbody>

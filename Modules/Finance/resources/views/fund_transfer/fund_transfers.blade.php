@@ -67,7 +67,11 @@
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <input type="text" class="search-input" placeholder="Search customer ID, Name or ADM ID, Name" />
+                <input type="text"
+                    class="search-input"
+                    placeholder="Search customer ID, Name or ADM ID, Name"
+                    id="backendSearchInput"
+                    value="{{ request('search') }}">
             </div>
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
@@ -92,7 +96,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($fundTransfers as $payment)
+                    @forelse ($fundTransfers as $payment)
                     @php
                     $statusClass = match (strtolower($payment['status'])) {
                     'approved' => 'success-status-btn',
@@ -126,7 +130,11 @@
                             </a>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No fund transfers found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
 
             </table>
@@ -504,5 +512,27 @@
         }
     });
 </script>
+
+<!-- search on enter key press -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const input = document.getElementById("backendSearchInput");
+
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                const value = input.value.trim();
+
+                // Redirect to backend route with ?search= query
+                const url = new URL(window.location.href);
+                url.searchParams.set("search", value);
+
+                window.location.href = url.toString();
+            }
+        });
+
+    });
+</script>
+
 
 @include('finance::layouts.footer')

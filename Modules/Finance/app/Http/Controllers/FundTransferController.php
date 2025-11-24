@@ -19,18 +19,22 @@ class FundTransferController extends Controller
         ])
             ->where('type', 'fund-transfer');
 
-        // Search
         if ($request->search) {
-            $search = $request->search;
+            $search = trim($request->search);
 
-            $query->whereHas('invoice.customer', function ($q) use ($search) {
-                $q->where('customer_id', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search%")
-                    ->orWhere('adm', 'like', "%$search%");
-            });
+            $query->where(function ($q) use ($search) {
 
-            $query->orWhereHas('invoice.customer.admDetails', function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%");
+                // Search Customer (ID / Name / ADM ID)
+                $q->whereHas('invoice.customer', function ($customer) use ($search) {
+                    $customer->where('customer_id', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%")
+                        ->orWhere('adm', 'like', "%$search%");
+                });
+
+                // Search ADM Name
+                $q->orWhereHas('invoice.customer.admDetails', function ($adm) use ($search) {
+                    $adm->where('name', 'like', "%$search%");
+                });
             });
         }
 
