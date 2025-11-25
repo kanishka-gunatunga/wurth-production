@@ -95,68 +95,7 @@
                                             <th scope="col column-title">Invoice Number</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr class="checkbox-item" data-name="Apple">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="item1" name="item1">
-                                                    <label class="form-check-label ms-2" for="item1">
-                                                        John
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>6567878</td>
-                                        </tr>
-
-
-                                        <tr class="checkbox-item" data-name="Banana">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="item2" name="item2">
-                                                    <label class="form-check-label ms-2" for="item2">
-                                                        George
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>6567879</td>
-                                        </tr>
-
-                                        <tr class="checkbox-item" data-name="Grapes">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="item3" name="item3">
-                                                    <label class="form-check-label ms-2" for="item3">
-                                                        Sam
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>6567880</td>
-                                        </tr>
-
-                                        <tr class="checkbox-item" data-name="Apple">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="item4" name="item4">
-                                                    <label class="form-check-label ms-2" for="item4">
-                                                        Nimal
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>6567881</td>
-                                        </tr>
-
-                                        <tr class="checkbox-item" data-name="Strawberry">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="item5" name="item5">
-                                                    <label class="form-check-label ms-2" for="item5">
-                                                        Yot
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>6567882</td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="invoiceList"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -233,13 +172,6 @@
 <script>
     $(document).ready(function() {
 
-        // Initialize Select2
-        $('#customerSelect').select2({
-            placeholder: "Select Customer",
-            allowClear: true,
-            width: '100%'
-        });
-
         let selectedCustomers = [];
 
         // When user selects a customer
@@ -247,18 +179,24 @@
             let id = e.params.data.id;
             if (!selectedCustomers.includes(id)) {
                 selectedCustomers.push(id);
-                loadCustomer(id);
+                loadCustomerDetails(id);
+                loadInvoices();
             }
         });
 
         // When user unselects a customer
         $('#customerSelect').on('select2:unselect', function(e) {
-            let id = e.params.data.id;
-            selectedCustomers = selectedCustomers.filter(x => x != id);
-            $("#customer-card-" + id).remove();
-        });
+    let id = e.params.data.id;
 
-        function loadCustomer(id) {
+    selectedCustomers = selectedCustomers.filter(x => x != id);
+
+    $("#customer-card-" + id).remove();
+
+    loadInvoices(); 
+});
+
+        // Load customer details on the left
+        function loadCustomerDetails(id) {
             $.ajax({
                 url: "{{ url('finance/collections/customer/details') }}/" + id,
                 type: 'GET',
@@ -267,25 +205,17 @@
                         let cardHtml = `
 <div class="details-card mb-3" id="customer-card-${data.id}">
     <div class="card-content">
-        <p>
-            <span class="bold-text-sm">Customer Name :</span>
-            <span class="slip-detail-text-sm value" data-field="name">&nbsp;${data.name}</span>
-        </p>
-        <p>
-            <span class="bold-text-sm">Customer’s Mobile No. :</span>
-            <span class="slip-detail-text-sm value" data-field="mobile">&nbsp;${data.mobile_number ?? 'N/A'}</span>
-        </p>
-        <p>
-            <span class="bold-text-sm">Customer’s Email :</span>
-            <span class="slip-detail-text-sm value" data-field="email">&nbsp;${data.email ?? 'N/A'}</span>
-        </p>
-        <p>
-            <span class="bold-text-sm">Customer’s Address :</span>
-            <span class="slip-detail-text-sm value" data-field="address">&nbsp;${data.address ?? 'N/A'}</span>
-        </p>
+        <p><span class="bold-text-sm">Customer Name :</span>
+            <span class="slip-detail-text-sm value" data-field="name">&nbsp;${data.name}</span></p>
+        <p><span class="bold-text-sm">Mobile No. :</span>
+            <span class="slip-detail-text-sm value" data-field="mobile">&nbsp;${data.mobile_number ?? 'N/A'}</span></p>
+        <p><span class="bold-text-sm">Email :</span>
+            <span class="slip-detail-text-sm value" data-field="email">&nbsp;${data.email ?? 'N/A'}</span></p>
+        <p><span class="bold-text-sm">Address :</span>
+            <span class="slip-detail-text-sm value" data-field="address">&nbsp;${data.address ?? 'N/A'}</span></p>
     </div>
 
-    <div class="d-block">
+<div class="d-block">
         <div class="d-flex gap-2 mb-3">
             <button class="red-edit-button-sm" onclick="toggleEdit(this)">
                 <svg width="13" height="12" viewBox="0 0 13 12" fill="none"
@@ -303,7 +233,6 @@
         </div>
     </div>
 </div>`;
-
                         $("#customerDetailsList").append(cardHtml);
                     }
                 },
@@ -312,12 +241,55 @@
                 }
             });
         }
+
+        // Load invoices for selected customers
+        function loadInvoices() {
+            // Clear existing invoices
+            $("#invoiceList").empty();
+
+            if (selectedCustomers.length === 0) return;
+
+            selectedCustomers.forEach(id => {
+                $.ajax({
+                    url: "{{ url('finance/collections/customer/invoices') }}/" + id,
+                    type: 'GET',
+                    success: function(invoices) {
+                        let tbody = $(".invoices-card tbody");
+                        invoices.forEach(inv => {
+                            tbody.append(`
+<tr class="checkbox-item" data-customer-id="${id}">
+    <td>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="invoice-${inv.id}" name="invoice[]" value="${inv.id}">
+            <label class="form-check-label ms-2" for="invoice-${inv.id}">
+                ${inv.customer_name}
+            </label>
+        </div>
+    </td>
+    <td>${inv.invoice_or_cheque_no}</td>
+</tr>
+`);
+                        });
+                    },
+                    error: function(err) {
+                        console.error("Error fetching invoices:", err);
+                    }
+                });
+            });
+        }
+
     });
 
     function removeDynamicCard(id) {
+        // Remove the customer card
         $("#customer-card-" + id).remove();
+
+        // Deselect from Select2
         let val = $('#customerSelect').val().filter(v => v != id.toString());
         $('#customerSelect').val(val).trigger('change');
+
+        // Remove invoices belonging to this customer
+        $("#invoiceList tr[data-customer-id='" + id + "']").remove();
     }
 </script>
 

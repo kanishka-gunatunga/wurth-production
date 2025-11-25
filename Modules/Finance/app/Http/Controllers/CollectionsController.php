@@ -644,6 +644,31 @@ class CollectionsController extends Controller
         return response()->json($customer);
     }
 
+    public function getCustomerInvoices($customerId)
+    {
+        // Fetch invoices for this customer
+        $invoices = Invoices::where('customer_id', function ($query) use ($customerId) {
+            $query->select('customer_id')
+                ->from('customers')
+                ->where('id', $customerId)
+                ->limit(1);
+        })->get(['id', 'invoice_or_cheque_no', 'customer_id']);
+
+        // Get the customer name
+        $customer = Customers::find($customerId);
+
+        // Map invoices to include customer name
+        $result = $invoices->map(function ($invoice) use ($customer) {
+            return [
+                'id' => $invoice->id,
+                'invoice_or_cheque_no' => $invoice->invoice_or_cheque_no,
+                'customer_name' => $customer->name,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
