@@ -621,6 +621,29 @@ class CollectionsController extends Controller
         return view('finance::collections.all_collections', compact('collections', 'filters'));
     }
 
+    public function add_new_collection()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return view('finance::collections.add_new_collection', compact('customers'));
+    }
+
+    public function getAllCustomers()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return response()->json($customers);
+    }
+
+    public function getCustomerDetails($id)
+    {
+        $customer = Customers::select('id', 'name', 'mobile_number', 'email', 'address')
+            ->where('id', $id)
+            ->first();
+
+        return response()->json($customer);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

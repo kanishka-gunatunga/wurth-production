@@ -123,4 +123,9 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
         ->name('collections.search');
     Route::post('/collections/filter', [CollectionsController::class, 'filter_collections'])->name('collections.filter');
+    Route::get('/collections/add', [CollectionsController::class, 'add_new_collection'])
+    ->name('collections.add');
+    Route::get('/collections/customers/all', [CollectionsController::class, 'getAllCustomers'])
+    ->name('collections.customers.all');
+    Route::get('/collections/customer/details/{id}', [CollectionsController::class, 'getCustomerDetails']);
 });

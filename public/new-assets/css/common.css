@@ -1,22 +1,21 @@
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
 :body {
-  --primary-red: #cc0000;
-
+    --primary-red: #cc0000;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 .wrapper {
-  overflow: hidden;
+    overflow: hidden;
 }
 
-.text-muted, .fw-bold{
-  font-family: 'Poppins', sans-serif;
+.text-muted,
+.fw-bold {
+    font-family: "Poppins", sans-serif;
 }
-
 
 /* .main-wrapper {
   background-color: #fff5f6;
@@ -29,389 +28,422 @@ body {
 } */
 
 .header-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 24px;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  margin-bottom: 3rem;
+    font-family: "Poppins", sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    margin-bottom: 3rem;
 }
 
 .header-and-content-gap-lg {
-  margin-top: 5rem;
+    margin-top: 5rem;
 }
 
 .header-and-content-gap-md {
-  margin-top: 2rem;
+    margin-top: 2rem;
 }
 
 .form-select:focus,
 .form-control:focus {
-  border-color: none !important; /* keeps original border */
-  outline: 0 !important;            /* removes default blue outline */
-  box-shadow: none !important;      /* removes focus glow */
+    border-color: none !important; /* keeps original border */
+    outline: 0 !important; /* removes default blue outline */
+    box-shadow: none !important; /* removes focus glow */
 }
 
-
 .form-control:focus {
-  color: var(--bs-body-color);
+    color: var(--bs-body-color);
+}
+
+/* Select2 container like your custom dropdown */
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #d2d5da;
+    border-radius: 8px;
+    min-height: 45px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    position: relative;
+}
+
+/* Add SVG inside placeholder */
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__rendered {
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown items style */
+.select2-container--default .select2-results__option {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #d0d5dd1a;
+    font-family: var(--font-secondary);
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.select2-container--default .select2-results__option--highlighted {
+    background-color: #fff;
+}
+
+/* Custom arrow removed (optional, you can add your own) */
+.select2-container--default .select2-selection__arrow {
+    display: none;
 }
 
 /* Dashboard Specific Styles - Add these to your common.css */
 
 /* Dashboard Container */
 .dashboard-container {
-  background-color: #fff5f6 !important;
-  min-height: calc(100vh - 6rem);
-  padding: 1.5rem;
-  border-radius: 8px;
+    background-color: #fff5f6 !important;
+    min-height: calc(100vh - 6rem);
+    padding: 1.5rem;
+    border-radius: 8px;
 }
 
 /* Center the cards */
 .dashboard-stats {
-  display: flex;
-  flex-wrap: wrap;  /* ✅ allow wrapping */
-  justify-content: center;
-  gap: 1rem; /* optional: spacing between cards */
+    display: flex;
+    flex-wrap: wrap; /* ✅ allow wrapping */
+    justify-content: center;
+    gap: 1rem; /* optional: spacing between cards */
 }
 
 /* Stats Cards */
 .stat-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-  height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-
-
 .stat-label {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: #484848;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #484848;
 }
 
 .stat-number {
-  font-family: 'Poppins', sans-serif;
-  color: #cc0000;
-  font-size: 25px;
-  font-weight: 600;
+    font-family: "Poppins", sans-serif;
+    color: #cc0000;
+    font-size: 25px;
+    font-weight: 600;
 }
 
 /* Section Cards */
 .section-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
 }
 
 /* Fixed height cards for consistent layout */
 .locked-users-card {
-  height: 400px;
-  display: flex;
-  flex-direction: column;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
 }
 
 .activities-card {
-  height: 400px;
-  display: flex;
-  flex-direction: column;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 1.5rem;
-  font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-family: "Poppins", sans-serif;
 }
 
 /* Users Table Container */
 .locked-users-table {
-  flex: 1;
-  overflow-y: auto;
-  max-height: calc(400px - 80px);
-  /* Account for header and padding */
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(400px - 80px);
+    /* Account for header and padding */
 }
 
 /* Users Table */
 .users-table {
-  width: 100%;
-  margin-bottom: 0;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 .users-table th {
-  background-color: #f8f9fa;
-  padding: 12px 15px;
-  text-align: left;
-  font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  font-size: 14px;
-  font-family: 'Poppins', sans-serif;
-  border-top: none;
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    border-top: none;
 }
 
 .users-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 14px;
-  color: #333;
-  vertical-align: middle;
-  border-top: none;
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 14px;
+    color: #333;
+    vertical-align: middle;
+    border-top: none;
 }
 
 .users-table tbody tr:hover {
-  background-color: #f8f9fa;
+    background-color: #f8f9fa;
 }
 
 .users-table tbody tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 /* Unlock Button */
 .unlock-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 6px 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .unlock-btn:hover {
-  background-color: #218838;
-  color: white;
+    background-color: #218838;
+    color: white;
 }
 
 .unlock-btn:focus {
-  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
-  outline: none;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
+    outline: none;
 }
 
 /* Sort Icon */
 .sort-icon {
-  margin-left: 0.5rem;
-  font-size: 10px;
-  color: #6c757d;
-  font-style: normal;
+    margin-left: 0.5rem;
+    font-size: 10px;
+    color: #6c757d;
+    font-style: normal;
 }
 
 /* Activities Section */
 .activities-list {
-  flex: 1;
-  overflow-y: auto;
-  max-height: calc(400px - 80px);
-  /* Account for header and padding */
-  padding-right: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(400px - 80px);
+    /* Account for header and padding */
+    padding-right: 0.5rem;
 }
 
 /* Custom scrollbar for activities */
 .activities-list::-webkit-scrollbar {
-  width: 4px;
+    width: 4px;
 }
 
 .activities-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+    background: #f1f1f1;
+    border-radius: 4px;
 }
 
 .activities-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+    background: #c1c1c1;
+    border-radius: 4px;
 }
 
 .activities-list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+    background: #a8a8a8;
 }
 
 /* ✅ Below 1238px: keep width, add horizontal scroll */
 @media (max-width: 1238px) {
-  .activities-card {
-    overflow-x: auto;                /* allow horizontal scroll */
-    -webkit-overflow-scrolling: touch;
-  }
+    .activities-card {
+        overflow-x: auto; /* allow horizontal scroll */
+        -webkit-overflow-scrolling: touch;
+    }
 
-  .activities-list {
-    min-width: 200px;                /* lock to same width as large screens */
-    max-width: 100%;                 /* prevent overflow beyond card */
-    overflow-x: auto;                /* horizontal scroll if needed */
-  }
+    .activities-list {
+        min-width: 200px; /* lock to same width as large screens */
+        max-width: 100%; /* prevent overflow beyond card */
+        overflow-x: auto; /* horizontal scroll if needed */
+    }
 }
 
 .activity-item {
-  padding: 1rem 0;
-  border-bottom: 1px solid #f0f0f0;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .activity-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .activity-item:first-child {
-  padding-top: 0;
+    padding-top: 0;
 }
 
 .activity-text {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 0.25rem;
-  line-height: 1.4;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
 }
 
 .activity-time {
-  font-size: 12px;
-  color: #6c757d;
+    font-size: 12px;
+    color: #6c757d;
 }
 
 .highlight-red {
-  color: #cc0000;
-  font-weight: 600;
+    color: #cc0000;
+    font-weight: 600;
 }
 
 .highlight-blue {
-  color: #0066cc;
-  font-weight: 600;
+    color: #0066cc;
+    font-weight: 600;
 }
 
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
-  .stat-card {
-    margin-bottom: 1rem;
-  }
+    .stat-card {
+        margin-bottom: 1rem;
+    }
 
-  .section-card {
-    margin-bottom: 1.5rem;
-  }
+    .section-card {
+        margin-bottom: 1.5rem;
+    }
 }
 
 @media (max-width: 576px) {
-  .stat-number {
-    font-size: 24px;
-  }
+    .stat-number {
+        font-size: 24px;
+    }
 
-  .stat-label {
-    font-size: 13px;
-  }
+    .stat-label {
+        font-size: 13px;
+    }
 
-  .users-table th,
-  .users-table td {
-    padding: 8px 10px;
-    font-size: 13px;
-  }
+    .users-table th,
+    .users-table td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
 
-  .section-title {
-    font-size: 16px;
-  }
+    .section-title {
+        font-size: 16px;
+    }
 }
 
 /* Horizontal Scrolling Table Container */
 .locked-users-table {
-  flex: 1;
-  position: relative;
-  overflow-x: auto;
-  overflow-y: hidden;
-  /* Remove vertical scrolling */
-  max-height: calc(400px - 80px);
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+    flex: 1;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Remove vertical scrolling */
+    max-height: calc(400px - 80px);
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
 }
 
 /* Custom horizontal scrollbar */
 .locked-users-table::-webkit-scrollbar {
-  height: 6px;
+    height: 6px;
 }
 
 .locked-users-table::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+    background: #f1f1f1;
+    border-radius: 3px;
 }
 
 .locked-users-table::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+    background: #c1c1c1;
+    border-radius: 3px;
 }
 
 /* Table Wrapper for horizontal scroll */
 .table-wrapper {
-  position: relative;
-  width: 100%;
-  min-width: 600px;
+    position: relative;
+    width: 100%;
+    min-width: 600px;
 }
 
 /* Updated table layout */
 .users-table {
-  width: 100%;
-  margin-bottom: 0;
-  table-layout: fixed;
-  border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
 }
 
 /* Column widths */
 .users-table th:nth-child(1),
 .users-table td:nth-child(1) {
-  width: 200px;
-  min-width: 200px;
+    width: 200px;
+    min-width: 200px;
 }
 
 .users-table th:nth-child(2),
 .users-table td:nth-child(2) {
-  width: 180px;
-  min-width: 180px;
+    width: 180px;
+    min-width: 180px;
 }
 
 .users-table th:nth-child(3),
 .users-table td:nth-child(3) {
-  width: 120px;
-  min-width: 120px;
+    width: 120px;
+    min-width: 120px;
 }
 
 /* Fixed Actions Column */
 .users-table th:nth-child(4),
 .users-table td:nth-child(4) {
-  width: 100px;
-  min-width: 100px;
-  position: sticky;
-  right: 0;
-  background-color: white;
-  text-align: center;
-  z-index: 5;
-  border-left: 1px solid #dee2e6;
+    width: 100px;
+    min-width: 100px;
+    position: sticky;
+    right: 0;
+    background-color: white;
+    text-align: center;
+    z-index: 5;
+    border-left: 1px solid #dee2e6;
 }
 
 .users-table th:nth-child(4) {
-  z-index: 15;
+    z-index: 15;
 }
 
-
 .sticky-column {
-  position: sticky;
-  right: 0;
-  background-color: white;
-  z-index: 5;
-  text-align: center;      /* center text horizontally */
-  vertical-align: middle;  /* center text vertically */
+    position: sticky;
+    right: 0;
+    background-color: white;
+    z-index: 5;
+    text-align: center; /* center text horizontally */
+    vertical-align: middle; /* center text vertically */
 }
 
 .sticky-actions {
-  display: flex;
-  flex-direction: row;   /* stack buttons horizontally */
-  align-items: center;      /* center horizontally */
-  justify-content: center;  /* center vertically */
-  height: 100%;             /* match the cell height */
-  gap: 8px;                 /* add gap between buttons */
+    display: flex;
+    flex-direction: row; /* stack buttons horizontally */
+    align-items: center; /* center horizontally */
+    justify-content: center; /* center vertically */
+    height: 100%; /* match the cell height */
+    gap: 8px; /* add gap between buttons */
 }
-
-
