@@ -60,6 +60,13 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            'dump' => [
+                'dump_binary_path' => 'C:/wamp64/bin/mysql/mysql8.3.0/bin',
+                'useSingleTransaction' => true,
+                'timeout' => 300,
+                'add_extra_option' => '--protocol=TCP',
+            ],
+
         ],
 
         'mariadb' => [
