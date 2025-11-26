@@ -19,6 +19,7 @@ use Modules\Finance\Http\Controllers\CardPaymentController;
 use Modules\Finance\Http\Controllers\CustomerController;
 use Modules\Finance\Http\Controllers\ReturnChequeController;
 use Modules\Finance\Http\Controllers\ReminderController;
+use Modules\Finance\Http\Controllers\UploadController;
 use Illuminate\Http\Request;
 
 /*
@@ -165,4 +166,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/collections/invoices', function () {
         return view('finance::collections.invoices');
     })->name('collections.invoices');
+
+    Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
+    Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
 });
