@@ -16,6 +16,7 @@ use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\InquiriesController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -61,6 +62,13 @@ Route::get('/reminders', [ReminderController::class, 'index'])
 Route::get('/reminders/{id}', [ReminderController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('reminders.show');
+
+    Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
+    Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
+    Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
+    Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
+    Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
+    Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
 
 Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(AuthAdmin::class);
 Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(AuthAdmin::class)->name('returncheques.store');
