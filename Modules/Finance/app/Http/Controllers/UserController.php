@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ActivitLogService;
 
 use App\Models\User;
 use App\Models\UserDetails;
@@ -78,12 +79,90 @@ class UserController extends Controller
         Auth::logout();
         return redirect('/');
     }
+
+    public function settings(Request $request)
+    {
+        if ($request->isMethod('get')) {
+            $user = User::where('id', Auth::user()->id)->with('userDetails')->first();
+            return view('finance::settings.settings', ['user' => $user]);
+        }
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'name'   => 'required',
+                'user_role'   => 'required',
+                'phone_number'   => 'required',
+                'email'   => 'required | email',
+            ]);
+
+            if (!$request->password == null || !$request->password_confirmation == null || !$request->current_password == null) {
+
+                $request->validate([
+                    "password" => "required | confirmed | min:6",
+                    "current_password" => "required",
+                ]);
+                if (Hash::check($request->input('current_password'), User::where('id', $id)->value('password'))) {
+                    if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
+                        $email = $request->email;
+                    } elseif (User::where("email", "=", $request->email)->exists()) {
+                        return back()->with('fail', 'This email is already in use');
+                    } else {
+                        $email = $request->email;
+                    }
+
+                    $userDetails =  UserDetails::where('user_id', '=', $id)->first();
+                    $userDetails->name = $request->name;
+                    $userDetails->phone_number = $request->phone_number;
+                    $userDetails->update();
+
+                    $user = User::find($id);
+                    $user->email = $email;
+                    $user->password = Hash::make($request->input('password'));
+                    $user->update();
+
+                    ActivitLogService::log('user management',  $request->name . ' - user details updated');
+
+                    return back()->with('success', 'User Details Successfully  Updated');
+                } else {
+                    return back()->with('fail', 'Current password is incorrect.');
+                }
+            } else {
+                if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
+                    $email = $request->email;
+                } elseif (User::where("email", "=", $request->email)->exists()) {
+                    return back()->with('fail', 'This email is already in use');
+                } else {
+                    $email = $request->email;
+                }
+
+                if (UserDetails::where("user_id", "=", $id)->where("adm_number", "=", $request->adm_number)->exists()) {
+                    $adm_number = $request->adm_number;
+                } elseif (UserDetails::where("adm_number", "=", $request->adm_number)->exists()) {
+                    return back()->with('fail', 'This adm number is already in use');
+                } else {
+                    $adm_number = $adm_number;
+                }
+
+                $userDetails =  UserDetails::where('user_id', '=', $id)->first();;
+                $userDetails->name = $request->name;
+                $userDetails->phone_number = $request->phone_number;
+                $userDetails->update();
+                $user = User::find($id);
+                $user->email = $email;
+                $user->update();
+
+                ActivitLogService::log('user management',  $request->name . ' - user details updated');
+
+                return back()->with('success', 'User Details Successfully  Updated');
+            }
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('admin::create');
+        return view('finance::create');
     }
 
     /**
@@ -99,7 +178,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return view('admin::show');
+        return view('finance::show');
     }
 
     /**
@@ -107,7 +186,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        return view('admin::edit');
+        return view('finance::edit');
     }
 
     /**

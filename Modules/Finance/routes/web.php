@@ -36,10 +36,7 @@ use Illuminate\Http\Request;
 Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(function () {
     Route::match(['get', 'post'], '/', [UserController::class, 'dashboard']);
     Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
-
-    Route::get('/settings', function () {
-        return view('finance::settings.settings');
-    })->name('finance.settings');
+    Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(FinanceAuthenticated::class);
 
     Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers']);
     Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer']);
