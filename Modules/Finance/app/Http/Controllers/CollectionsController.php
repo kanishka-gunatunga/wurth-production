@@ -33,6 +33,69 @@ class CollectionsController extends Controller
      * Display a listing of the resource.
      */
 
+    public function all_outstanding(Request $request)
+    {
+        $search = $request->input('search');
+        $outstandingRanges = $request->input('adoutstanding_dates', []); // Array of selected ranges
+
+        $invoices = Invoices::with(['customer.admDetails', 'customer.secondaryAdm'])
+            ->where('type', 'invoice')
+            ->whereColumn('amount', '>', 'paid_amount')
+            ->whereHas('customer', function ($query) {
+                $query->where('is_temp', 0);
+            });
+
+        // 🔍 Search Filter
+        if (!empty($search)) {
+            $invoices->where(function ($query) use ($search) {
+                $query->where('invoice_or_cheque_no', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($q) use ($search) {
+                        $q->where('customers.name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer.admDetails', function ($q) use ($search) {
+                        $q->where('user_details.adm_number', 'like', "%{$search}%")
+                            ->orWhere('user_details.name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer.secondaryAdm', function ($q) use ($search) {
+                        $q->where('user_details.adm_number', 'like', "%{$search}%")
+                            ->orWhere('user_details.name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // 📅 Outstanding Days Filter
+        if (!empty($outstandingRanges)) {
+            $invoices->where(function ($query) use ($outstandingRanges) {
+                foreach ($outstandingRanges as $range) {
+                    // Calculate based on current date and invoice_date
+                    switch ($range) {
+                        case '0-30':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 0 AND 30');
+                            break;
+                        case '31-60':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 31 AND 60');
+                            break;
+                        case '61-90':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 61 AND 90');
+                            break;
+                        case '91-120':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 91 AND 120');
+                            break;
+                        case '120-plus':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) > 120');
+                            break;
+                    }
+                }
+            });
+        }
+
+        $invoices = $invoices->paginate(15)->appends([
+            'search' => $search,
+            'adoutstanding_dates' => $outstandingRanges,
+        ]);
+
+        return view('finance::collections.all_outstanding', compact('invoices', 'search', 'outstandingRanges'));
+    }
 
     public function all_receipts(Request $request)
     {

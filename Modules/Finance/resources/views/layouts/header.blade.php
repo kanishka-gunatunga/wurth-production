@@ -208,7 +208,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('all-outstanding') }}">
+                                        <a class="nav-link" href="{{ url('finance/all-outstanding') }}">
                                             <span class="me-4">
                                                 <svg width="17" height="22" viewBox="0 0 17 22" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
