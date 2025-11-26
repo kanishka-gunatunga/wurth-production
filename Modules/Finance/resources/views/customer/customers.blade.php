@@ -134,7 +134,7 @@ use App\Models\UserDetails;
                         <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                             <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <form method="GET" action="{{ url('customers') }}" id="mainSearchForm">
+                                <form method="GET" action="{{ url('finance/customers') }}" id="mainSearchForm">
                                     <input type="hidden" name="active_tab" value="customer-list">
                                     <input
                                         type="text"
@@ -222,7 +222,7 @@ use App\Models\UserDetails;
                         <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                             <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <form method="GET" action="{{ url('customers') }}" id="mainSearchForm2">
+                                <form method="GET" action="{{ url('finance/customers') }}" id="mainSearchForm2">
                                     <input type="hidden" name="active_tab" value="temporary">
                                     <input
                                         type="text"
@@ -300,10 +300,10 @@ use App\Models\UserDetails;
         </div class="col-6">
 
         <div>
-            <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
+            <a href="{{url('finance/customers')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
-    <form method="GET" action="{{ url('customers') }}" id="filterForm">
+    <form method="GET" action="{{ url('finance/customers') }}" id="filterForm">
         <input type="hidden" name="active_tab" value="customer-list">
         <div class="offcanvas-body">
 
@@ -348,10 +348,10 @@ use App\Models\UserDetails;
         </div class="col-6">
 
         <div>
-            <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
+            <a href="{{url('finance/customers')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
-    <form method="GET" action="{{ url('customers') }}" id="tempFilterForm">
+    <form method="GET" action="{{ url('finance/customers') }}" id="tempFilterForm">
         <input type="hidden" name="active_tab" value="temporary">
         <div class="offcanvas-body">
 

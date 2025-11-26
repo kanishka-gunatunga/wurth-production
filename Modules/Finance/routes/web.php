@@ -17,6 +17,7 @@ use Modules\Finance\Http\Controllers\SetOffController;
 use Modules\Finance\Http\Controllers\FundTransferController;
 use Modules\Finance\Http\Controllers\CardPaymentController;
 use Modules\Finance\Http\Controllers\CustomerController;
+use Modules\Finance\Http\Controllers\ReturnChequeController;
 use Illuminate\Http\Request;
 
 /*
@@ -52,6 +53,16 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
     Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
     Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
+
+    Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(FinanceAuthenticated::class);
+    Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(FinanceAuthenticated::class)->name('returncheques.store');
+    Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('returncheques.index');
+    Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('returncheques.show');
+    Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
 
     Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])
         ->name('advanced_payments.index');
