@@ -16,6 +16,7 @@ use Modules\Finance\Http\Controllers\WriteOffController;
 use Modules\Finance\Http\Controllers\SetOffController;
 use Modules\Finance\Http\Controllers\FundTransferController;
 use Modules\Finance\Http\Controllers\CardPaymentController;
+use Modules\Finance\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 
 /*
@@ -36,6 +37,15 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/settings', function () {
         return view('finance::settings.settings');
     })->name('finance.settings');
+
+    Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers']);
+    Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer']);
+    Route::match(['get', 'post'], '/activate-customer/{id}', [CustomerController::class, 'activate_customer']);
+    Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::class, 'deactivate_customer']);
+    Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class, 'edit_customer']);
+    Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers']);
+    Route::match(['get', 'post'], '/import', [CustomerController::class, 'import']);
+    Route::match(['get', 'post'], '/view-customer/{id}', [CustomerController::class, 'view_customer']);
 
     Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
     Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
