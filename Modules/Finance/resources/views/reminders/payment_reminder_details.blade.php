@@ -1,4 +1,4 @@
-@include('layouts.dashboard-header')
+@include('finance::layouts.header')
 
 <div class="container-fluid">
     <div class="main-wrapper">
@@ -80,7 +80,7 @@
     @section('bottom-bar')
     <div class="py-3">
         <div class="action-button-lg-row" style="margin-right: 40px;">
-            <a href="{{ url('reminders') }}" class="grey-action-btn-lg" style="text-decoration: none;">
+            <a href="{{ url('notifications-admin') }}" class="grey-action-btn-lg" style="text-decoration: none;">
     Back
     </a>
 </div>
@@ -91,7 +91,7 @@
 --}}
 
 @section('footer-buttons')
-<a href="{{ url('reminders') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+<a href="{{ url('finance/reminders') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 @endsection
 
 

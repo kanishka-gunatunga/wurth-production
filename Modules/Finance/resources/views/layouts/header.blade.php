@@ -531,7 +531,7 @@
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/create-notification') }}">
+                                        <a class="nav-link" href="{{ url('finance/create-reminder') }}">
                                             <span class="me-4">
                                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -546,7 +546,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/notifications') }}">
+                                        <a class="nav-link" href="{{ url('finance/reminders') }}">
                                             <span class="me-4">
                                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -569,7 +569,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/notifications') }}">
+                                        <a class="nav-link" href="{{ url('finance/reminders') }}">
                                             <span class="me-4">
                                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">

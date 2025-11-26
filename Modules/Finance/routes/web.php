@@ -18,6 +18,7 @@ use Modules\Finance\Http\Controllers\FundTransferController;
 use Modules\Finance\Http\Controllers\CardPaymentController;
 use Modules\Finance\Http\Controllers\CustomerController;
 use Modules\Finance\Http\Controllers\ReturnChequeController;
+use Modules\Finance\Http\Controllers\ReminderController;
 use Illuminate\Http\Request;
 
 /*
@@ -138,6 +139,15 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
     Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
     Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
+
+    Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(FinanceAuthenticated::class);
+    Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(FinanceAuthenticated::class)->name('reminders.store');
+    Route::get('/reminders', [ReminderController::class, 'index'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.index');
+    Route::get('/reminders/{id}', [ReminderController::class, 'show'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.show');
 
     Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
         ->name('collections.all');

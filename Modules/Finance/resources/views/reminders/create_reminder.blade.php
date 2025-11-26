@@ -1,4 +1,4 @@
-@include('layouts.dashboard-header')
+@include('finance::layouts.header')
 
 <div class="container-fluid">
     <div class="main-wrapper">
@@ -103,7 +103,7 @@
                 </div>
 
                 <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
-                    <a href="{{ url('reminders') }}" class="btn btn-dark cancel">Cancel</a>
+                    <a href="{{ url('finance/reminders') }}" class="btn btn-dark cancel">Cancel</a>
                     <button type="submit" class="btn btn-danger submit">Submit</button>
                 </div>
             </form>
@@ -157,8 +157,6 @@
     });
 </script>
 
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         @if(session('toast'))
@@ -173,3 +171,5 @@
 
 
 </div>
+
+@include('finance::layouts.footer2')
