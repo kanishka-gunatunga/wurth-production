@@ -108,13 +108,13 @@
 
 @section('footer-buttons')
 <div class="action-button-lg-row ">
-    <a href="{{ url('dashboard')}}">
+    <a href="{{ url('finance')}}">
         <button class="black-action-btn-lg mb-3 ">
             Cancel
         </button>
     </a>
 
-    <a href="{{ url('invoices-inner') }}">
+    <a href="{{ route('collections.invoices') }}">
         <button class="red-action-btn-lg mb-3">
             Submit
         </button>
