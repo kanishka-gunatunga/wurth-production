@@ -68,7 +68,7 @@
             <h1 class="header-title">Inquiries</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <form id="searchForm" action="{{ route('inquiries.search') }}" method="POST">
+            <form id="searchForm" action="{{ url('/inquiries/search') }}" method="POST">
                 @csrf
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
@@ -181,7 +181,7 @@
 
 </div>
 
-<form action="{{ route('inquiries.filter') }}" method="POST">
+<form action="{{ url('/inquiries/filter') }}" method="POST">
     @csrf
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
