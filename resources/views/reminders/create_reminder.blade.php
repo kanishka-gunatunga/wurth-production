@@ -9,7 +9,7 @@
             <hr class="red-line">
 
             <!-- ✅ Connected Form -->
-            <form action="{{ route('reminders.store') }}" method="POST">
+            <form action="{{ url('/create-reminder') }}" method="POST">
                 @csrf
 
                 <div class="row">
