@@ -133,6 +133,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
     Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
     Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+    Route::post('/set-off/extra-payments', [SetOffController::class, 'getExtraPayments'])
+        ->name('set_off.extra_payments');
     Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
     Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
     Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');

@@ -47,6 +47,17 @@ class SetOffController extends Controller
         return response()->json($creditNotes);
     }
 
+    public function getExtraPayments(Request $request)
+    {
+        $customerIds = $request->customer_ids;
+
+        $extraPayments = \App\Models\ExtraPayment::whereIn('customer_id', $customerIds)
+            ->select('extra_payment_id', DB::raw('COALESCE(updated_amount, amount) AS amount'), 'customer_id')
+            ->get();
+
+        return response()->json($extraPayments);
+    }
+
     public function submitSetOff(Request $request)
     {
         $request->validate([
@@ -98,25 +109,45 @@ class SetOffController extends Controller
                 $finalAmount += $setOffAmount; // ✅ Add to final total
             }
 
-            // ✅ Handle Credit Notes (update remaining amount, but don’t affect final total)
-            foreach ($setOffCreditNotes as $cnNo => $setOffAmount) {
-                $credit = CreditNote::where('credit_note_id', $cnNo)->first();
-                if (!$credit) continue;
+            // ✅ Handle Credit Notes + Extra Payments (update remaining amount, no effect on final total)
+            $creditNoteJson = [];
+
+            foreach ($setOffCreditNotes as $itemId => $setOffAmount) {
 
                 $setOffAmount = floatval($setOffAmount);
 
-                // Determine current available amount
-                $currentAmount = $credit->updated_amount ?? $credit->amount;
-                $newRemaining = max(0, $currentAmount - $setOffAmount);
+                // Try Credit Note
+                $credit = CreditNote::where('credit_note_id', $itemId)->first();
+                if ($credit) {
+                    $currentAmount = $credit->updated_amount ?? $credit->amount;
+                    $newRemaining = max(0, $currentAmount - $setOffAmount);
 
-                // Update the credit note's updated_amount
-                $credit->update(['updated_amount' => $newRemaining]);
+                    $credit->update(['updated_amount' => $newRemaining]);
 
-                $creditNoteJson[] = [
-                    'credit_note' => $cnNo,
-                    'set_off_amount' => $setOffAmount,
-                    'remaining_balance' => $newRemaining
-                ];
+                    // Save simplified structure
+                    $creditNoteJson[] = [
+                        'id' => $itemId,
+                        'set_off_amount' => $setOffAmount
+                    ];
+
+                    continue;
+                }
+
+                // Try Extra Payment
+                $extra = \App\Models\ExtraPayment::where('extra_payment_id', $itemId)->first();
+                if ($extra) {
+
+                    $currentAmount = $extra->updated_amount ?? $extra->amount;
+                    $newRemaining = max(0, $currentAmount - $setOffAmount);
+
+                    $extra->update(['updated_amount' => $newRemaining]);
+
+                    // Save simplified structure
+                    $creditNoteJson[] = [
+                        'id' => $itemId,
+                        'set_off_amount' => $setOffAmount
+                    ];
+                }
             }
 
             // ✅ Save Set-Off Record (final_amount only from invoices)
@@ -171,18 +202,41 @@ class SetOffController extends Controller
             ];
         })->filter()->values(); // remove nulls
 
-        // Prepare Extra Payment/Credit Note data
+        // Prepare Extra Payment / Credit Note data
         $creditNotesData = collect($setOff->extraPayment_or_creditNote_no)->map(function ($item) {
-            $credit = CreditNote::where('credit_note_id', $item['credit_note'])->first();
-            if (!$credit) return null;
 
-            return [
-                'extraPaymentNo' => $item['credit_note'],
-                'customerName' => $credit->customer_name ?? '-',
-                'customerId' => $credit->customer_id ?? '-',
-                'admNo' => $credit->adm_id ?? '-',
-                'setOffAmount' => $item['set_off_amount'],
-            ];
+            $id = $item['id'];
+            $setOffAmount = $item['set_off_amount'] ?? 0;
+
+            // Try to find a Credit Note first
+            $credit = CreditNote::where('credit_note_id', $id)->first();
+            if ($credit) {
+                $customer = $credit->customer;
+                return [
+                    'id' => $id,
+                    'type' => 'Credit Note',
+                    'customerName' => $customer?->name ?? '-',
+                    'customerId' => $customer?->customer_id ?? '-',
+                    'admNo' => $customer?->adm ?? '-',
+                    'setOffAmount' => $setOffAmount,
+                ];
+            }
+
+            // Try Extra Payment
+            $extra = \App\Models\ExtraPayment::where('extra_payment_id', $id)->first();
+            if ($extra) {
+                $customer = $extra->customer;
+                return [
+                    'id' => $id,
+                    'type' => 'Extra Payment',
+                    'customerName' => $customer?->name ?? '-',
+                    'customerId' => $customer?->customer_id ?? '-',
+                    'admNo' => $customer?->adm ?? '-',
+                    'setOffAmount' => $setOffAmount,
+                ];
+            }
+
+            return null; // not found
         })->filter()->values();
 
         return view('finance::set_off.set_off_details', compact(
