@@ -642,6 +642,19 @@
         });
 
 
-    }); // end ready
+    });
+
+    function filterTable(tableId, searchText) {
+        searchText = searchText.toLowerCase();
+
+        $(`#${tableId} tbody tr`).each(function() {
+            let rowText = $(this).text().toLowerCase();
+            if (rowText.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
 </script>
 @include('finance::layouts.footer2')
