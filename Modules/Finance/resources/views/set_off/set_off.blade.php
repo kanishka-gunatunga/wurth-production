@@ -506,13 +506,24 @@
            ---------------------------*/
         $('.red-edit-button-sm').on('click', function() {
             let selectedCustomers = [];
+            let selectedCustomerNames = [];
+
             $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
                 selectedCustomers.push($(this).val());
+                const name = $(this).closest('tr').find('td:first').text().trim();
+                selectedCustomerNames.push(name);
             });
+
             if (selectedCustomers.length === 0) {
                 alert("Select at least one customer");
                 return;
             }
+
+            // Close dropdown
+            $('.dropdown-menu').removeClass('show');
+
+            // --- NEW: Show selected customer(s) in the search field ---
+            $('#invoiceDropdownSearch').val(selectedCustomerNames.join(', '));
 
             // invoices
             $.ajax({
@@ -630,6 +641,34 @@
         });
 
 
-    }); // end ready
+    });
 </script>
+
+<script>
+    // Generic table filter
+    function filterTable(tableId, searchValue) {
+        const filter = searchValue.toLowerCase();
+        const table = document.getElementById(tableId);
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) { // start at 1 to skip the header row
+            const tds = tr[i].getElementsByTagName("td");
+            let match = false;
+
+            for (let j = 0; j < tds.length; j++) {
+                const td = tds[j];
+                if (td) {
+                    const text = td.textContent || td.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = match ? "" : "none";
+        }
+    }
+</script>
+
 @include('finance::layouts.footer2')
