@@ -15,7 +15,15 @@ class ReminderController extends Controller
     public function create()
     {
         // Get all users so admin can pick who to send to
-        $users = User::with('userDetails')->get();
+        $currentUserId = Auth::id();
+        $currentUserRole = User::where('id', $currentUserId)->value('user_role');
+
+        $users = User::with('userDetails')
+            ->where(function ($query) use ($currentUserId, $currentUserRole) {
+                $query->where('id', $currentUserId) // include yourself
+                    ->orWhere('user_role', '!=', $currentUserRole); // exclude same level users
+            })
+            ->get();
 
         // Get current admin name (if you store name in user_details)
         $name = UserDetails::where('user_id', Auth::id())->value('name');
@@ -39,7 +47,24 @@ class ReminderController extends Controller
         $selectedUserId = (int)$request->input('send_to');
 
         // Get all users within the selected level range
-        $users = User::where('user_role', '<=', $selectedLevel)->get();
+        $currentUserId = Auth::id();
+        $currentUserRole = User::where('id', $currentUserId)->value('user_role');
+
+        // Get users to send reminder
+        $users = User::where('user_role', '<=', $selectedLevel)
+            ->where(function ($query) use ($currentUserId, $selectedUserId, $currentUserRole, $selectedLevel) {
+                if ($selectedLevel == $currentUserRole) {
+                    // If selected level is same as current user level, only include:
+                    // 1) the currently logged-in user
+                    // 2) users of other levels
+                    $query->where('id', $currentUserId)
+                        ->orWhere('user_role', '!=', $currentUserRole);
+                } else {
+                    // Otherwise, include all users up to the selected level
+                    $query->where('user_role', '<=', $selectedLevel);
+                }
+            })
+            ->get();
 
         foreach ($users as $user) {
             $reminder = new Reminders();
