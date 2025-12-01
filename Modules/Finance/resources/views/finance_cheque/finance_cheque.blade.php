@@ -121,19 +121,42 @@
                             'approved' => 'success-status-btn',
                             'deposited' => 'blue-status-btn',
                             'rejected' => 'danger-status-btn',
+                            'over_to_finance' => 'blue-status-btn',
                             default => 'grey-status-btn'
                             };
                             @endphp
                             <button class="{{ $statusClass }}">{{ $item['status'] }}</button>
                         </td>
                         <td class="sticky-column">
-                            @if (strtolower($item['status']) === 'deposited')
-                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="Approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="Rejected">Reject</button>
+                            @php $status = strtolower($item['status']); @endphp
+
+                            {{-- Deposited → Show Approve 1 + Reject --}}
+                            @if ($status === 'deposited')
+                            <button class="success-action-btn update-status"
+                                data-id="{{ $item['id'] }}"
+                                data-status="over_to_finance">Approve 1</button>
+
+                            <button class="red-action-btn update-status"
+                                data-id="{{ $item['id'] }}"
+                                data-status="rejected">Reject</button>
                             @endif
 
+                            {{-- Over to finance → Show Approve 2 + Reject --}}
+                            @if ($status === 'over_to_finance')
+                            <button class="success-action-btn update-status"
+                                data-id="{{ $item['id'] }}"
+                                data-status="approved">Approve 2</button>
+
+                            <button class="red-action-btn update-status"
+                                data-id="{{ $item['id'] }}"
+                                data-status="rejected">Reject</button>
+                            @endif
+
+                            {{-- Always show Download --}}
                             @if ($item['attachment_path'])
-                            <a href="{{ route('finance_cheque.download', $item['id']) }}" class="black-action-btn submit" style="text-decoration: none;">Download</a>
+                            <a href="{{ route('finance_cheque.download', $item['id']) }}"
+                                class="black-action-btn submit"
+                                style="text-decoration: none;">Download</a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
@@ -459,65 +482,90 @@
 
 <!-- for approve/reject buttons -->
 <script>
-    let currentStatusButton = null;
-    let newStatus = '';
+    let currentButton = null;
+    let selectedStatus = '';
 
-    document.addEventListener('click', async function(e) {
-        // Approve / Reject buttons
-        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn')) {
+    document.addEventListener('click', function(e) {
+
+        // Detect status update buttons
+        if (e.target.classList.contains('update-status')) {
             e.preventDefault();
             e.stopPropagation();
 
-            currentStatusButton = e.target;
-            newStatus = e.target.classList.contains('success-action-btn') ? 'approved' : 'rejected';
+            currentButton = e.target;
+            selectedStatus = currentButton.dataset.status; // ← correct status!
 
-            // Show confirmation modal
-            document.getElementById('confirm-status-text').innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-            document.getElementById('confirm-status-modal').style.display = 'block';
+            // Set text in modal
+            document.getElementById("confirm-status-text").innerText =
+                selectedStatus.replaceAll('_', ' ').toUpperCase();
+
+            // Show modal
+            document.getElementById("confirm-status-modal").style.display = "block";
         }
 
-        // Close modal
-        if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
+        // Close modal (No or X)
+        if (e.target.id === "confirm-modal-close" || e.target.id === "confirm-no-btn") {
+            document.getElementById("confirm-status-modal").style.display = "none";
         }
 
-        // Yes button clicked
-        if (e.target.id === 'confirm-yes-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
+        // YES BUTTON LOGIC
+        if (e.target.id === "confirm-yes-btn") {
+            document.getElementById("confirm-status-modal").style.display = "none";
 
-            if (currentStatusButton) {
-                const row = currentStatusButton.closest('tr');
-                const depositId = row.getAttribute('data-href').split('/').pop();
+            if (!currentButton) return;
 
-                try {
-                    // 🔥 Send AJAX request to backend
-                    const response = await fetch(`{{ url('finance/cheque-deposits/update-status') }}/${depositId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    });
+            const row = currentButton.closest("tr");
+            const depositId = row.getAttribute("data-href").split("/").pop();
 
-                    if (response.ok) {
-                        // Update UI instantly
-                        const statusButton = row.querySelector('td:nth-child(8) button');
-                        statusButton.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                        statusButton.className = newStatus === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+            // Send request
+            fetch("{{ route('finance_cheque.update_status', '') }}/" + depositId, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        status: selectedStatus
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) return;
 
-                        // Hide Approve/Reject buttons
-                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
+                    // Update status badge in UI
+                    const statusBtn = row.querySelector("td:nth-child(8) button");
+                    let label = selectedStatus.replaceAll('_', ' ');
+
+                    statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
+
+                    if (selectedStatus === "approved") {
+                        statusBtn.className = "success-status-btn";
+                    } else if (selectedStatus === "rejected") {
+                        statusBtn.className = "danger-status-btn";
                     } else {
-                        alert('Failed to update status. Please try again.');
+                        statusBtn.className = "blue-status-btn";
                     }
-                } catch (error) {
-                    console.error(error);
-                    alert('Error occurred while updating status.');
-                }
-            }
+
+                    // Remove all action buttons except download
+                    const actionButtons = row.querySelectorAll(".success-action-btn, .red-action-btn");
+                    actionButtons.forEach(btn => btn.remove());
+
+                    // AFTER APPROVE 1 (over_to_finance) → show Approve 2 + Reject
+                    if (selectedStatus === "over_to_finance") {
+                        row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
+                        <button class="success-action-btn update-status"
+                            data-id="${depositId}"
+                            data-status="approved">Approve 2</button>
+
+                        <button class="red-action-btn update-status"
+                            data-id="${depositId}"
+                            data-status="rejected">Reject</button>
+                    `);
+                    }
+
+                    // AFTER APPROVE 2 or REJECT → show only Download (already exists)
+                })
+                .catch(err => console.error(err));
         }
     });
 </script>

@@ -95,19 +95,22 @@ class FinanceChequeController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:approved,rejected',
+            'status' => 'required|in:approved,rejected,over_to_finance',
         ]);
 
         $deposit = Deposits::findOrFail($id);
         $deposit->status = strtolower($request->status);
         $deposit->save();
 
-        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
-        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+        // update invoice payment only when approved or rejected
+        if (in_array($request->status, ['approved', 'rejected'])) {
+            $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
 
-        if (!empty($receiptIds)) {
-            InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => strtolower($request->status)]);
+            if (!empty($receiptIds)) {
+                InvoicePayments::whereIn('id', $receiptIds)
+                    ->update(['status' => strtolower($request->status)]);
+            }
         }
 
         return response()->json(['success' => true]);
