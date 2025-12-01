@@ -17,4 +17,9 @@ class Reminders extends Model
         // adm_id in inquiries → id in users
         return $this->belongsTo(User::class, 'sent_user_id', 'id');
     }
+
+    public function recipient()
+    {
+        return $this->belongsTo(User::class, 'send_to', 'id');
+    }
 }

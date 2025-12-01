@@ -148,6 +148,9 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/reminders/{id}', [ReminderController::class, 'show'])
         ->middleware(FinanceAuthenticated::class)
         ->name('reminders.show');
+    Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.sent');
 
     Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
         ->name('collections.all');
