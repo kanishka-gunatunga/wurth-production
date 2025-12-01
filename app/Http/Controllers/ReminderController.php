@@ -177,4 +177,25 @@ class ReminderController extends Controller
 
         return view('reminders.payment_reminder_details', compact('reminder', 'sender', 'receiver'));
     }
+
+    public function sentReminders()
+    {
+        $currentUserName = UserDetails::where('user_id', Auth::id())->value('name');
+
+        $reminders = Reminders::where('send_from', $currentUserName)
+            ->where('is_direct', 1)
+            ->with(['recipient' => function ($query) {
+                $query->with('userDetails');
+            }])
+            ->orderByDesc('reminder_date')
+            ->get();
+
+        $reminders = Reminders::where('send_from', $currentUserName)
+            ->where('is_direct', 1)
+            ->with(['recipient.userDetails'])
+            ->orderByDesc('reminder_date')
+            ->paginate(10);
+
+        return view('reminders.reminders', compact('reminders'));
+    }
 }
