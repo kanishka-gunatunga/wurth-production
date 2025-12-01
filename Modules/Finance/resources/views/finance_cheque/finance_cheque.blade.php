@@ -124,8 +124,12 @@
                             'over_to_finance' => 'blue-status-btn',
                             default => 'grey-status-btn'
                             };
+
+                            // Format status label
+                            $statusLabel = str_replace('_', ' ', $item['status']);
+                            $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                             @endphp
-                            <button class="{{ $statusClass }}">{{ $item['status'] }}</button>
+                            <button class="{{ $statusClass }}">{{ $statusLabel }}</button>
                         </td>
                         <td class="sticky-column">
                             @php $status = strtolower($item['status']); @endphp

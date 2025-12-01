@@ -51,7 +51,14 @@
                     @endphp
                     @php
                     $displayStatus = str_replace('_', ' ', $deposit['status']);
+                    $displayStatus = strtolower($displayStatus);
+
+                    // Force "Over to finance" exactly
+                    if ($displayStatus === 'over to finance') {
+                    $displayStatus = 'Over to finance';
+                    } else {
                     $displayStatus = ucwords($displayStatus);
+                    }
                     @endphp
 
                     <button class="{{ $statusClass }}">{{ $displayStatus }}</button>
@@ -274,10 +281,17 @@
                     return;
                 }
 
-                // Update status badge text
-                let label = selectedStatus.replace('_', ' ');
-                let formatted = label.replace('_', ' ');
-                formatted = formatted.replace(/\b\w/g, c => c.toUpperCase());
+                // Replace all underscores with spaces, then capitalize properly
+                let formatted = selectedStatus.replace(/_/g, ' ').toLowerCase();
+
+                // Special case for "Over to finance"
+                if (formatted === 'over to finance') {
+                    formatted = 'Over to finance';
+                } else {
+                    // Capitalize first letter of each word
+                    formatted = formatted.replace(/\b\w/g, c => c.toUpperCase());
+                }
+
                 statusButton.textContent = formatted;
 
                 // Update badge color
