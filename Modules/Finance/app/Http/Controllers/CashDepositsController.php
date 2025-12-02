@@ -9,6 +9,8 @@ use App\Models\UserDetails;
 use App\Models\InvoicePayments;
 use App\Models\Invoices;
 use App\Models\Customers;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ArrayExport;
 
 class CashDepositsController extends Controller
 {
@@ -304,5 +306,83 @@ class CashDepositsController extends Controller
         $filters = $request->all();
 
         return view('finance::cash_deposits.cash_deposits', compact('cashDeposits', 'filters'));
+    }
+
+    public function export(Request $request)
+    {
+        // Build query similar to filter method
+        $query = Deposits::where('type', 'cash');
+
+        if ($request->filled('adm_names')) {
+            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
+                ->pluck('user_id')
+                ->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('adm_ids')) {
+            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
+                ->pluck('user_id')
+                ->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('customers')) {
+            $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = $deposit->reciepts ?? [];
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                    if ($customer && in_array($customer->name, $request->customers)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('date_time', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', ucfirst(strtolower($request->status)));
+        }
+
+        $data = $query->get()->map(function ($deposit) {
+            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') $status = 'deposited';
+
+            return [
+                'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'ADM Number' => $admDetails->adm_number ?? 'N/A',
+                'ADM Name' => $admDetails->name ?? 'N/A',
+                'Amount' => $deposit->amount ?? 0,
+                'Status' => ucfirst($status ?: 'Deposited')
+            ];
+        })->toArray();
+
+        $headers = ['Date', 'ADM Number', 'ADM Name', 'Amount', 'Status'];
+
+        return Excel::download(new ArrayExport($data, $headers), 'cash_deposits.xlsx');
     }
 }
