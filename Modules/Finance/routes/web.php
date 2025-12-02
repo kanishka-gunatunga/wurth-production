@@ -119,6 +119,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('fund_transfers.show');
     Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
         ->name('fund_transfers.update_status');
+    Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
+        ->name('fund_transfers.export');
 
     Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index');
     Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
