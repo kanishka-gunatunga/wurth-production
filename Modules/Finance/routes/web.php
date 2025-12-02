@@ -109,6 +109,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
     Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search');
     Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter');
+    Route::post('/finance-cheque/export', [FinanceChequeController::class, 'export'])->name('finance_cheque.export');
 
     Route::get('/fund-transfers', [\Modules\Finance\Http\Controllers\FundTransferController::class, 'index'])
         ->name('fund_transfers.index');
