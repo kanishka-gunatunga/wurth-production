@@ -13,6 +13,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\User;
 use App\Models\UserDetails;
@@ -730,6 +732,74 @@ class CollectionsController extends Controller
         });
 
         return response()->json($result);
+    }
+
+    public function export_collections(Request $request)
+    {
+        $query = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
+            ->orderBy('created_at', 'desc');
+
+        // SAME FILTERS
+        if ($request->filled('adm_names')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('name', $request->adm_names));
+        }
+
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('adm_number', $request->adm_ids));
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('payments.invoice.customer', fn($q) => $q->whereIn('name', $request->customers));
+        }
+
+        if ($request->filled('divisions')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('division', $request->divisions));
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range, 2));
+            } else {
+                $start = $end = $range;
+            }
+
+            $query->whereBetween('created_at', [
+                $start . " 00:00:00",
+                $end . " 23:59:59"
+            ]);
+        }
+
+        $data = $query->get()->map(function ($batch) {
+            return [
+                $batch->id,
+                $batch->created_at->format('Y-m-d'),
+                $batch->admDetails->adm_number ?? 'N/A',
+                $batch->admDetails->name ?? 'N/A',
+                $batch->division ?? 'N/A',
+                implode(', ', $batch->payments->pluck('invoice.customer.name')->unique()->toArray()),
+                $batch->payments->sum('final_payment')
+            ];
+        });
+
+        return Excel::download(
+            new ArrayExport(
+                $data->toArray(),
+                [
+                    'Collection ID',
+                    'Collected Date',
+                    'ADM Number',
+                    'ADM Name',
+                    'Division',
+                    'Customers',
+                    'Total Collected Amount'
+                ]
+            ),
+            'collections.xlsx'
+        );
     }
 
     /**

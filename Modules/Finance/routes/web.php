@@ -158,7 +158,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('collections.details');
     Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
         ->name('collections.search');
-    Route::post('/collections/filter', [CollectionsController::class, 'filter_collections'])->name('collections.filter');
+    Route::get('/collections/filter', [CollectionsController::class, 'filter_collections'])->name('collections.filter');
     Route::get('/collections/add', [CollectionsController::class, 'add_new_collection'])
         ->name('collections.add');
     Route::get('/collections/customers/all', [CollectionsController::class, 'getAllCustomers'])
@@ -168,6 +168,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/collections/invoices', function () {
         return view('finance::collections.invoices');
     })->name('collections.invoices');
+    Route::get('/collections/export', [CollectionsController::class, 'export_collections'])
+        ->name('collections.export');
 
     Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
     Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
