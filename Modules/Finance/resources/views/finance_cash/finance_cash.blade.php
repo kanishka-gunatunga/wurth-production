@@ -89,6 +89,31 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
+        @if(!empty($filters))
+        <form method="POST" action="{{ route('finance_cash.export') }}">
+            @csrf
+            <!-- Pass all filter inputs as hidden fields -->
+            @foreach($filters as $key => $value)
+            @if(is_array($value))
+            @foreach($value as $v)
+            <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
+            @endforeach
+            @else
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
+            @endforeach
+            <!-- <button type="submit" class="header-btn">
+                <i class="fa-solid fa-file-excel fa-xl"></i> Export
+            </button> -->
+
+            <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
+                <a>
+                    <button class="add-new-division-btn">Export</button>
+                </a>
+            </div>
+        </form>
+        @endif
+
         <div class="table-responsive">
             <table class="table custom-table-locked">
                 <thead>

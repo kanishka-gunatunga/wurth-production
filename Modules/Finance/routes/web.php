@@ -101,6 +101,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status');
     Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search');
     Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter');
+    Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export');
 
     Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index');
     Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download');
