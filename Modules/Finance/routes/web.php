@@ -126,6 +126,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
     Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
         ->name('card_payments.update_status');
+    Route::post('/card-payments/export', [CardPaymentController::class, 'export'])->name('card_payments.export');
 
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
