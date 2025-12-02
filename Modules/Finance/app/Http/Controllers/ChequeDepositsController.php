@@ -8,6 +8,8 @@ use App\Models\Deposits;
 use App\Models\UserDetails;
 use App\Models\InvoicePayments;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ChequeDepositsController extends Controller
 {
@@ -319,5 +321,60 @@ class ChequeDepositsController extends Controller
             'data' => $deposits,
             'filters' => $request->all()
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = Deposits::where('type', 'cheque');
+
+        // Apply filters same as in filter() method
+        if ($request->filled('adm_names')) {
+            $admUserIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id')->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('adm_ids')) {
+            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id')->toArray();
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', strtolower($request->status));
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } else {
+                $start = $end = $range;
+            }
+            $query->whereBetween('date_time', [
+                date('Y-m-d 00:00:00', strtotime($start)),
+                date('Y-m-d 23:59:59', strtotime($end)),
+            ]);
+        }
+
+        $deposits = $query->orderByDesc('created_at')->get();
+
+        $data = $deposits->map(function ($deposit) {
+            $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') $status = 'deposited';
+
+            return [
+                'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'ADM Number' => $userDetail?->adm_number ?? 'N/A',
+                'ADM Name' => $userDetail?->name ?? 'N/A',
+                'Bank Name' => $deposit->bank_name,
+                'Branch Name' => $deposit->branch_name,
+                'Amount' => $deposit->amount ?? 0,
+                'Status' => ucfirst($status ?: 'Deposited'),
+            ];
+        })->toArray();
+
+        $headers = ['Date', 'ADM Number', 'ADM Name', 'Bank Name', 'Branch Name', 'Amount', 'Status'];
+
+        return Excel::download(new ArrayExport($data, $headers), 'cheque_deposits.xlsx');
     }
 }
