@@ -18,6 +18,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\InquiriesController;
 use App\Http\Controllers\AdvancedPaymentsController;
+use App\Http\Controllers\FinanceCashController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -130,6 +131,14 @@ Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class,
 Route::post('/advanced-payments/search', [AdvancedPaymentsController::class, 'search'])
     ->middleware(AuthAdmin::class)
     ->name('advanced_payments.search');
+
+Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index')->middleware(AuthAdmin::class);
+Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show')->middleware(AuthAdmin::class);
+Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export')->middleware(AuthAdmin::class);
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
