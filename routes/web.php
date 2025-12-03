@@ -21,6 +21,7 @@ use App\Http\Controllers\AdvancedPaymentsController;
 use App\Http\Controllers\FinanceCashController;
 use App\Http\Controllers\FinanceChequeController;
 use App\Http\Controllers\CashDepositsController;
+use App\Http\Controllers\ChequeDepositsController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -159,6 +160,16 @@ Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class,
 Route::post('/cash-deposits/search', [CashDepositsController::class, 'search'])->name('cash_deposits.search');
 Route::post('/cash-deposits/filter', [CashDepositsController::class, 'filter'])->name('cash_deposits.filter');
 Route::post('/cash-deposits/export', [CashDepositsController::class, 'export'])->name('cash_deposits.export');
+
+Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
+Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
+Route::get('/cheque-deposits/{id}', [ChequeDepositsController::class, 'show'])
+    ->name('cheque_deposits.show');
+Route::post('/cheque-deposits/update-status/{id}', [ChequeDepositsController::class, 'updateStatus'])
+    ->name('cheque_deposits.update_status');
+Route::post('/cheque-deposits/search', [ChequeDepositsController::class, 'search'])->name('cheque_deposits.search');
+Route::post('/cheque-deposits/filter', [ChequeDepositsController::class, 'filter'])->name('cheque_deposits.filter');
+Route::post('/cheque-deposits/export', [ChequeDepositsController::class, 'export'])->name('cheque_deposits.export');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
