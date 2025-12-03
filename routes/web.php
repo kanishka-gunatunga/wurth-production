@@ -17,6 +17,7 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\InquiriesController;
+use App\Http\Controllers\AdvancedPaymentsController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -117,6 +118,15 @@ Route::get('/collections/invoices', function () {
 Route::post('/collections/export', [CollectionsController::class, 'export_collections'])
     ->middleware(AuthAdmin::class)
     ->name('collections.export');
+
+Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])->middleware(AuthAdmin::class)
+    ->name('advanced_payments.index');
+Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class, 'show'])
+    ->middleware(AuthAdmin::class)
+    ->name('advanced_payments.show');
+Route::post('/advanced-payments/search', [AdvancedPaymentsController::class, 'search'])
+    ->middleware(AuthAdmin::class)
+    ->name('advanced_payments.search');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
