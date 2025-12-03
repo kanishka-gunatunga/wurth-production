@@ -670,10 +670,33 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
+                        // Initialize each date picker with their unique IDs
                         flatpickr("#filter-date", {
                             mode: "range",
                             dateFormat: "Y-m-d",
-                            allowInput: true
+                            allowInput: true,
+                            clickOpens: true
+                        });
+
+                        flatpickr("#final-filter-date", {
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            allowInput: true,
+                            clickOpens: true
+                        });
+
+                        flatpickr("#temp-filter-date", {
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            allowInput: true,
+                            clickOpens: true
+                        });
+
+                        flatpickr("#advance-filter-date", {
+                            mode: "range",
+                            dateFormat: "Y-m-d",
+                            allowInput: true,
+                            clickOpens: true
                         });
                     });
                 </script>

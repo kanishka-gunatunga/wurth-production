@@ -86,7 +86,10 @@ Route::post('/return-cheques/import', [ReturnChequeController::class, 'importRet
 
 
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
+
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(AuthAdmin::class);
 
 Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
     ->middleware(AuthAdmin::class)
