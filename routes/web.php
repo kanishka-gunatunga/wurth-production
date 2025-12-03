@@ -23,6 +23,7 @@ use App\Http\Controllers\FinanceChequeController;
 use App\Http\Controllers\CashDepositsController;
 use App\Http\Controllers\ChequeDepositsController;
 use App\Http\Controllers\FundTransferController;
+use App\Http\Controllers\CardPaymentController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -180,6 +181,12 @@ Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class
     ->name('fund_transfers.update_status');
 Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
     ->name('fund_transfers.export');
+
+Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index');
+Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
+Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
+    ->name('card_payments.update_status');
+Route::post('/card-payments/export', [CardPaymentController::class, 'export'])->name('card_payments.export');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
