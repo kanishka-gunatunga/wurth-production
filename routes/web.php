@@ -22,6 +22,7 @@ use App\Http\Controllers\FinanceCashController;
 use App\Http\Controllers\FinanceChequeController;
 use App\Http\Controllers\CashDepositsController;
 use App\Http\Controllers\ChequeDepositsController;
+use App\Http\Controllers\FundTransferController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -170,6 +171,15 @@ Route::post('/cheque-deposits/update-status/{id}', [ChequeDepositsController::cl
 Route::post('/cheque-deposits/search', [ChequeDepositsController::class, 'search'])->name('cheque_deposits.search');
 Route::post('/cheque-deposits/filter', [ChequeDepositsController::class, 'filter'])->name('cheque_deposits.filter');
 Route::post('/cheque-deposits/export', [ChequeDepositsController::class, 'export'])->name('cheque_deposits.export');
+
+Route::get('/fund-transfers', [FundTransferController::class, 'index'])
+    ->name('fund_transfers.index');
+Route::get('/fund-transfers/{id}', [FundTransferController::class, 'show'])
+    ->name('fund_transfers.show');
+Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
+    ->name('fund_transfers.update_status');
+Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
+    ->name('fund_transfers.export');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');

@@ -161,24 +161,24 @@
 
 
 <div class="action-button-lg-row">
-<a href="{{ url('cheque-deposits') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+    <a href="{{ url('cheque-deposits') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 
-@php
-$currentStatus = strtolower($deposit['status']);
-@endphp
+    @php
+    $currentStatus = strtolower($deposit['status']);
+    @endphp
 
-@if ($currentStatus !== 'approved')
-<button class="red-action-btn-lg update-status-btn"
-    data-id="{{ $deposit['id'] }}"
-    data-status="rejected">
-    Reject
-</button>
-<button class="success-action-btn-lg update-status-btn"
-    data-id="{{ $deposit['id'] }}"
-    data-status="approved">
-    Approve
-</button>
-@endif
+    @if ($currentStatus !== 'approved')
+    <button class="red-action-btn-lg update-status-btn"
+        data-id="{{ $deposit['id'] }}"
+        data-status="rejected">
+        Reject
+    </button>
+    <button class="success-action-btn-lg update-status-btn"
+        data-id="{{ $deposit['id'] }}"
+        data-status="approved">
+        Approve
+    </button>
+    @endif
 </div>
 
 
