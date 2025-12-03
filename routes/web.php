@@ -24,6 +24,7 @@ use App\Http\Controllers\CashDepositsController;
 use App\Http\Controllers\ChequeDepositsController;
 use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\CardPaymentController;
+use App\Http\Controllers\WriteOffController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -188,6 +189,15 @@ Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name(
 Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
     ->name('card_payments.update_status');
 Route::post('/card-payments/export', [CardPaymentController::class, 'export'])->name('card_payments.export');
+
+Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
+Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
+Route::post('/write-off/credit-notes', [WriteOffController::class, 'getCreditNotes'])->name('write_off.credit_notes');
+Route::post('/write-off/extra-payments', [WriteOffController::class, 'getExtraPayments'])->name('write_off.extra_payments');
+Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])->name('write_off.submit');
+Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
+Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
+Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');

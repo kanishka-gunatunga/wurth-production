@@ -377,6 +377,37 @@
                             </a>
                         </li>
 
+                        <li class="nav-item ">
+                            <a class="nav-link" href="{{ url('/write-off-main') }}">
+                                <span class="me-4">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M14.1 8.5L12 6.4L9.9 8.5L8.5 7.1L10.6 5L8.5 2.9L9.9 1.5L12 3.6L14.1 1.5L15.5 2.9L13.4 5L15.5 7.1L14.1 8.5ZM7 18C8.1 18 9 18.9 9 20C9 21.1 8.1 22 7 22C5.9 22 5 21.1 5 20C5 18.9 5.9 18 7 18ZM17 18C18.1 18 19 18.9 19 20C19 21.1 18.1 22 17 22C15.9 22 15 21.1 15 20C15 18.9 15.9 18 17 18ZM7.2 14.8C7.2 14.9 7.3 15 7.4 15H19V17H7C5.9 17 5 16.1 5 15C5 14.6 5.1 14.3 5.2 14L6.5 11.6L3 4H1V2H4.3L8.6 11H15.6L19.5 4L21.2 5L17.3 12C17 12.6 16.3 13 15.6 13H8.1L7.2 14.6V14.8Z"
+                                            fill="black" />
+                                    </svg>
+
+                                </span>
+                                Write-Off & Write-Back
+                            </a>
+                        </li>
+
+
+                        <li class="nav-item ">
+                            <a class="nav-link" href="{{ url('/set-off-main') }}">
+                                <span class="me-4">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H14V5H5V19H19V10H21V19C21 19.55 20.8043 20.021 20.413 20.413C20.0217 20.805 19.5507 21.0007 19 21H5ZM8 17V15H16V17H8ZM8 14V12H16V14H8ZM8 11V9H16V11H8ZM17 9V7H15V5H17V3H19V5H21V7H19V9H17Z"
+                                            fill="black" />
+                                    </svg>
+
+                                </span>
+                                Set-Off
+                            </a>
+                        </li>
+
 
 
 
