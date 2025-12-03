@@ -19,6 +19,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\InquiriesController;
 use App\Http\Controllers\AdvancedPaymentsController;
 use App\Http\Controllers\FinanceCashController;
+use App\Http\Controllers\FinanceChequeController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -139,6 +140,14 @@ Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, '
 Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search')->middleware(AuthAdmin::class);
 Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter')->middleware(AuthAdmin::class);
 Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export')->middleware(AuthAdmin::class);
+
+Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index')->middleware(AuthAdmin::class);
+Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download')->middleware(AuthAdmin::class);
+Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/export', [FinanceChequeController::class, 'export'])->name('finance_cheque.export');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
