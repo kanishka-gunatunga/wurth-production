@@ -360,7 +360,7 @@
 
 
 
-                        <!-- <li class="nav-item ">
+                        <li class="nav-item ">
                             <a class="nav-link" href="{{url('return-cheques')}}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -375,7 +375,7 @@
                                 </span>
                                 Return Cheques
                             </a>
-                        </li> -->
+                        </li>
 
 
 

@@ -88,8 +88,9 @@ Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
 Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.show');
-Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
-
+Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])
+    ->middleware(AuthAdmin::class)
+    ->name('returncheques.import');
 
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Invoices; // ✅ NEW (we now store in invoices table)
 use App\Models\Customers; // ✅ For fetching customer IDs
@@ -67,7 +68,8 @@ class ReturnChequeController extends Controller
             'reason'            => $validated['reason'],
         ]);
 
-        return redirect()->route('returncheques.index')->with('success', 'Return cheque created successfully!');
+        return redirect('return-cheques')
+            ->with('success', 'Return cheque created successfully!');
     }
 
     /**

@@ -9,7 +9,7 @@
 
             <hr class="red-line">
 
-            <form action="{{ route('returncheques.store') }}" method="POST">
+            <form action="{{ url('create-return-cheque') }}" method="POST">
                 @csrf
 
                 <div class="row d-flex justify-content-between">
