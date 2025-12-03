@@ -111,7 +111,7 @@ Route::get('/collections/customer/details/{id}', [CollectionsController::class, 
 Route::get('/collections/customer/invoices/{id}', [CollectionsController::class, 'getCustomerInvoices'])
     ->middleware(AuthAdmin::class);
 Route::get('/collections/invoices', function () {
-    return view('finance::collections.invoices');
+    return view('collections.invoices');
 })
     ->middleware(AuthAdmin::class)
     ->name('collections.invoices');

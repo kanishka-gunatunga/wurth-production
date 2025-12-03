@@ -123,6 +123,7 @@ class CollectionsController extends Controller
             'advanced_payments' => $advanced_payments,
         ]);
     }
+
     public function resend_receipt()
     {
         $request->validate([
@@ -198,6 +199,7 @@ class CollectionsController extends Controller
 
         return back()->with('success', 'Receipt resent successfully to the customer.');
     }
+
     public function remove_advanced_payment($id)
     {
         AdvancedPayment::where('id', $id)->delete();
@@ -492,6 +494,54 @@ class CollectionsController extends Controller
             ),
             'collections.xlsx'
         );
+    }
+
+    public function add_new_collection()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return view('collections.add_new_collection', compact('customers'));
+    }
+
+    public function getAllCustomers()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return response()->json($customers);
+    }
+
+    public function getCustomerDetails($id)
+    {
+        $customer = Customers::select('id', 'name', 'mobile_number', 'email', 'address')
+            ->where('id', $id)
+            ->first();
+
+        return response()->json($customer);
+    }
+
+    public function getCustomerInvoices($customerId)
+    {
+        // Fetch invoices for this customer
+        $invoices = Invoices::where('customer_id', function ($query) use ($customerId) {
+            $query->select('customer_id')
+                ->from('customers')
+                ->where('id', $customerId)
+                ->limit(1);
+        })->get(['id', 'invoice_or_cheque_no', 'customer_id']);
+
+        // Get the customer name
+        $customer = Customers::find($customerId);
+
+        // Map invoices to include customer name
+        $result = $invoices->map(function ($invoice) use ($customer) {
+            return [
+                'id' => $invoice->id,
+                'invoice_or_cheque_no' => $invoice->invoice_or_cheque_no,
+                'customer_name' => $customer->name,
+            ];
+        });
+
+        return response()->json($result);
     }
 
     /**
