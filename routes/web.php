@@ -87,6 +87,37 @@ Route::post('/return-cheques/import', [ReturnChequeController::class, 'importRet
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
 
+Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.all');
+Route::get('/collection-details/{id}', [CollectionsController::class, 'collection_details'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.details');
+Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.search');
+Route::get('/collections/filter', [CollectionsController::class, 'filter_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.filter');
+Route::get('/collections/add', [CollectionsController::class, 'add_new_collection'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.add');
+Route::get('/collections/customers/all', [CollectionsController::class, 'getAllCustomers'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.customers.all');
+Route::get('/collections/customer/details/{id}', [CollectionsController::class, 'getCustomerDetails'])
+    ->middleware(AuthAdmin::class);
+Route::get('/collections/customer/invoices/{id}', [CollectionsController::class, 'getCustomerInvoices'])
+    ->middleware(AuthAdmin::class);
+Route::get('/collections/invoices', function () {
+    return view('finance::collections.invoices');
+})
+    ->middleware(AuthAdmin::class)
+    ->name('collections.invoices');
+Route::post('/collections/export', [CollectionsController::class, 'export_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.export');
+
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
 
