@@ -25,6 +25,7 @@ use App\Http\Controllers\ChequeDepositsController;
 use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\WriteOffController;
+use App\Http\Controllers\SetOffController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -198,6 +199,16 @@ Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])-
 Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
 Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
 Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
+
+Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
+Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
+Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+Route::post('/set-off/extra-payments', [SetOffController::class, 'getExtraPayments'])
+    ->name('set_off.extra_payments');
+Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
+Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
+Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
+Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
