@@ -263,29 +263,41 @@ use App\Models\UserDetails;
                     Reset Password
                 </label>
 
-                <form class="" action="" method="post">
+                <form action="{{ url('/settings') }}" method="post">
                     @csrf
+                    <input type="hidden" name="active_tab" value="temporary">
+
                     <div class="row d-flex justify-content-between mt-3">
                         <div class="mb-4 col-12 col-lg-6">
-                            <label for="division-input" class="form-label custom-input-label">Current Password</label>
-                            <input type="current_password" class="form-control custom-input" id="division-input" placeholder="Current Password" name="current_password">
-                            @if($errors->has("password")) <div class="alert alert-danger mt-2">{{ $errors->first('current_password') }}</div>@endif
+                            <label for="current_password" class="form-label custom-input-label">Current Password</label>
+                            <input type="password" class="form-control custom-input" id="current_password"
+                                placeholder="Current Password" name="current_password" required>
+                            @if($errors->has("current_password"))
+                            <div class="alert alert-danger mt-2">{{ $errors->first('current_password') }}</div>
+                            @endif
                         </div>
 
                         <div class="mb-4 col-12 col-lg-6">
+                            <!-- Empty column for layout -->
                         </div>
 
                         <div class="mb-4 col-12 col-lg-6">
-                            <label for="division-input" class="form-label custom-input-label">New Password</label>
-                            <input type="password" class="form-control custom-input" id="division-input" placeholder="New Password" name="password">
-                            @if($errors->has("password")) <div class="alert alert-danger mt-2">{{ $errors->first('password') }}</div>@endif
+                            <label for="password" class="form-label custom-input-label">New Password</label>
+                            <input type="password" class="form-control custom-input" id="password"
+                                placeholder="New Password" name="password" required>
+                            @if($errors->has("password"))
+                            <div class="alert alert-danger mt-2">{{ $errors->first('password') }}</div>
+                            @endif
                             <p class="outside-label">Password must be at least 8 characters long</p>
                         </div>
 
                         <div class="mb-4 col-12 col-lg-6">
-                            <label for="division-input" class="form-label custom-input-label">Confirm New Password</label>
-                            <input type="password" class="form-control custom-input" id="division-input" placeholder="Confirm New Password" name="password_confirmation">
-                            @if($errors->has("password_confirmation")) <div class="alert alert-danger mt-2">{{ $errors->first('password_confirmation') }}</div>@endif
+                            <label for="password_confirmation" class="form-label custom-input-label">Confirm New Password</label>
+                            <input type="password" class="form-control custom-input" id="password_confirmation"
+                                placeholder="Confirm New Password" name="password_confirmation" required>
+                            @if($errors->has("password_confirmation"))
+                            <div class="alert alert-danger mt-2">{{ $errors->first('password_confirmation') }}</div>
+                            @endif
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
@@ -321,9 +333,18 @@ use App\Models\UserDetails;
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Get active tab from URL
+        // Get active tab from URL or session
         const urlParams = new URLSearchParams(window.location.search);
-        const activeTab = urlParams.get('active_tab');
+        let activeTab = urlParams.get('active_tab');
+
+        // If no active tab in URL, check for session data (from server redirect)
+        if (!activeTab) {
+            // Check if there's a hidden input with active tab value
+            const activeTabInput = document.querySelector('input[name="active_tab"]');
+            if (activeTabInput && activeTabInput.value) {
+                activeTab = activeTabInput.value;
+            }
+        }
 
         if (activeTab) {
             // Activate that tab
@@ -342,6 +363,11 @@ use App\Models\UserDetails;
                 const url = new URL(window.location);
                 url.searchParams.set('active_tab', newTab);
                 history.replaceState(null, '', url);
+
+                // Update hidden input in forms
+                document.querySelectorAll('input[name="active_tab"]').forEach(input => {
+                    input.value = newTab;
+                });
             });
         });
     });

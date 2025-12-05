@@ -504,79 +504,104 @@ class UserController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            // Get current user ID
-            $id = Auth::user()->id;
+            // Check which form was submitted based on the active tab
+            $activeTab = $request->input('active_tab', 'customer-list');
 
-            $request->validate([
-                'name'   => 'required',
-                'phone_number'   => 'required',
-                'email'   => 'required | email',
-            ]);
-
-            // Check if password fields are filled
-            if (!empty($request->password) || !empty($request->password_confirmation) || !empty($request->current_password)) {
-                $request->validate([
-                    "password" => "required | confirmed | min:6",
-                    "current_password" => "required",
-                ]);
-
-                // Verify current password
-                if (!Hash::check($request->input('current_password'), Auth::user()->password)) {
-                    return back()->with('fail', 'Current password is incorrect.');
-                }
-
-                // Update user with new password
-                $user = User::find($id);
-                $user->email = $request->email;
-                $user->password = Hash::make($request->input('password'));
-                $user->update();
-            } else {
-                // Update user without changing password
-                $user = User::find($id);
-
-                // Check if email is already taken by another user
-                if ($user->email != $request->email && User::where("email", "=", $request->email)->exists()) {
-                    return back()->with('fail', 'This email is already in use');
-                }
-
-                $user->email = $request->email;
-                $user->update();
+            if ($activeTab === 'customer-list') {
+                // Handle User Profile update
+                return $this->updateProfile($request);
+            } elseif ($activeTab === 'temporary') {
+                // Handle Password Reset
+                return $this->updatePassword($request);
             }
 
-            // Update user details
-            $userDetails = UserDetails::where('user_id', '=', $id)->first();
-
-            if ($userDetails) {
-                $userDetails->name = $request->name;
-                $userDetails->phone_number = $request->phone_number;
-
-                // Update ADM number if provided and unique
-                if (!empty($request->adm_number)) {
-                    if (
-                        $userDetails->adm_number != $request->adm_number &&
-                        UserDetails::where("adm_number", "=", $request->adm_number)->exists()
-                    ) {
-                        return back()->with('fail', 'This ADM number is already in use');
-                    }
-                    $userDetails->adm_number = $request->adm_number;
-                }
-
-                // Update division if provided (users might not be allowed to change this)
-                if (!empty($request->division)) {
-                    $userDetails->division = $request->division;
-                }
-
-                // Update supervisor if provided (users might not be allowed to change this)
-                if (!empty($request->supervisor)) {
-                    $userDetails->supervisor = $request->supervisor;
-                }
-
-                $userDetails->update();
-            }
-
-            ActivitLogService::log('user settings', $request->name . ' - user settings updated');
-
-            return back()->with('success', 'Settings successfully updated');
+            return back()->with('fail', 'Invalid request.');
         }
+    }
+
+    private function updateProfile(Request $request)
+    {
+        // Get current user ID
+        $id = Auth::user()->id;
+
+        $request->validate([
+            'name'   => 'required',
+            'phone_number'   => 'required',
+            'email'   => 'required | email',
+        ]);
+
+        // Update user without changing password
+        $user = User::find($id);
+
+        // Check if email is already taken by another user
+        if ($user->email != $request->email && User::where("email", "=", $request->email)->exists()) {
+            return back()->with('fail', 'This email is already in use');
+        }
+
+        $user->email = $request->email;
+        $user->update();
+
+        // Update user details
+        $userDetails = UserDetails::where('user_id', '=', $id)->first();
+
+        if ($userDetails) {
+            $userDetails->name = $request->name;
+            $userDetails->phone_number = $request->phone_number;
+
+            // Update ADM number if provided and unique
+            if (!empty($request->adm_number)) {
+                if (
+                    $userDetails->adm_number != $request->adm_number &&
+                    UserDetails::where("adm_number", "=", $request->adm_number)->exists()
+                ) {
+                    return back()->with('fail', 'This ADM number is already in use');
+                }
+                $userDetails->adm_number = $request->adm_number;
+            }
+
+            // Update division if provided
+            if (!empty($request->division)) {
+                $userDetails->division = $request->division;
+            }
+
+            // Update supervisor if provided
+            if (!empty($request->supervisor)) {
+                $userDetails->supervisor = $request->supervisor;
+            }
+
+            $userDetails->update();
+        }
+
+        ActivitLogService::log('user settings', $request->name . ' - user profile updated');
+
+        return back()->with('success', 'Profile successfully updated')
+            ->with('active_tab', 'customer-list');
+    }
+
+    private function updatePassword(Request $request)
+    {
+        // Get current user ID
+        $id = Auth::user()->id;
+
+        $request->validate([
+            "current_password" => "required",
+            "password" => "required | confirmed | min:6",
+        ]);
+
+        // Verify current password
+        $user = Auth::user();
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return back()->with('fail', 'Current password is incorrect.')
+                ->with('active_tab', 'temporary');
+        }
+
+        // Update password
+        $user->password = Hash::make($request->input('password'));
+        $user->update();
+
+        ActivitLogService::log('user settings', 'Password changed for user ID: ' . $id);
+
+        return back()->with('success', 'Password successfully updated')
+            ->with('active_tab', 'temporary');
     }
 }
