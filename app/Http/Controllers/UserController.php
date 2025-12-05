@@ -494,77 +494,89 @@ class UserController extends Controller
     public function settings(Request $request)
     {
         if ($request->isMethod('get')) {
-            $user = User::where('id', Auth::user()->id)->with('userDetails')->first();
+            $user = User::where('id', Auth::user()->id)
+                ->with([
+                    'userDetails',
+                    'userDetails.division',
+                    'userDetails.supervisor.userDetails'
+                ])->first();
             return view('user.settings', ['user' => $user]);
         }
+
         if ($request->isMethod('post')) {
+            // Get current user ID
+            $id = Auth::user()->id;
+
             $request->validate([
                 'name'   => 'required',
-                'user_role'   => 'required',
                 'phone_number'   => 'required',
                 'email'   => 'required | email',
             ]);
 
-            if (!$request->password == null || !$request->password_confirmation == null || !$request->current_password == null) {
-
+            // Check if password fields are filled
+            if (!empty($request->password) || !empty($request->password_confirmation) || !empty($request->current_password)) {
                 $request->validate([
                     "password" => "required | confirmed | min:6",
                     "current_password" => "required",
                 ]);
-                if (Hash::check($request->input('current_password'), User::where('id', $id)->value('password'))) {
-                    if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
-                        $email = $request->email;
-                    } elseif (User::where("email", "=", $request->email)->exists()) {
-                        return back()->with('fail', 'This email is already in use');
-                    } else {
-                        $email = $request->email;
-                    }
 
-                    $userDetails =  UserDetails::where('user_id', '=', $id)->first();
-                    $userDetails->name = $request->name;
-                    $userDetails->phone_number = $request->phone_number;
-                    $userDetails->update();
-
-                    $user = User::find($id);
-                    $user->email = $email;
-                    $user->password = Hash::make($request->input('password'));
-                    $user->update();
-
-                    ActivitLogService::log('user management',  $request->name . ' - user details updated');
-
-                    return back()->with('success', 'User Details Successfully  Updated');
-                } else {
+                // Verify current password
+                if (!Hash::check($request->input('current_password'), Auth::user()->password)) {
                     return back()->with('fail', 'Current password is incorrect.');
                 }
+
+                // Update user with new password
+                $user = User::find($id);
+                $user->email = $request->email;
+                $user->password = Hash::make($request->input('password'));
+                $user->update();
             } else {
-                if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
-                    $email = $request->email;
-                } elseif (User::where("email", "=", $request->email)->exists()) {
+                // Update user without changing password
+                $user = User::find($id);
+
+                // Check if email is already taken by another user
+                if ($user->email != $request->email && User::where("email", "=", $request->email)->exists()) {
                     return back()->with('fail', 'This email is already in use');
-                } else {
-                    $email = $request->email;
                 }
 
-                if (UserDetails::where("user_id", "=", $id)->where("adm_number", "=", $request->adm_number)->exists()) {
-                    $adm_number = $request->adm_number;
-                } elseif (UserDetails::where("adm_number", "=", $request->adm_number)->exists()) {
-                    return back()->with('fail', 'This adm number is already in use');
-                } else {
-                    $adm_number = $adm_number;
-                }
+                $user->email = $request->email;
+                $user->update();
+            }
 
-                $userDetails =  UserDetails::where('user_id', '=', $id)->first();;
+            // Update user details
+            $userDetails = UserDetails::where('user_id', '=', $id)->first();
+
+            if ($userDetails) {
                 $userDetails->name = $request->name;
                 $userDetails->phone_number = $request->phone_number;
+
+                // Update ADM number if provided and unique
+                if (!empty($request->adm_number)) {
+                    if (
+                        $userDetails->adm_number != $request->adm_number &&
+                        UserDetails::where("adm_number", "=", $request->adm_number)->exists()
+                    ) {
+                        return back()->with('fail', 'This ADM number is already in use');
+                    }
+                    $userDetails->adm_number = $request->adm_number;
+                }
+
+                // Update division if provided (users might not be allowed to change this)
+                if (!empty($request->division)) {
+                    $userDetails->division = $request->division;
+                }
+
+                // Update supervisor if provided (users might not be allowed to change this)
+                if (!empty($request->supervisor)) {
+                    $userDetails->supervisor = $request->supervisor;
+                }
+
                 $userDetails->update();
-                $user = User::find($id);
-                $user->email = $email;
-                $user->update();
-
-                ActivitLogService::log('user management',  $request->name . ' - user details updated');
-
-                return back()->with('success', 'User Details Successfully  Updated');
             }
+
+            ActivitLogService::log('user settings', $request->name . ' - user settings updated');
+
+            return back()->with('success', 'Settings successfully updated');
         }
     }
 }

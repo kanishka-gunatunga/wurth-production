@@ -185,7 +185,9 @@ use App\Models\UserDetails;
                     </label>
                     <div class="profile-section">
                         <div class="profile-wrapper">
-                            <img src="{{ asset('new-assets/images/upload.jpg') }}"
+                            <img src="{{ $user->userDetails->profile_picture 
+                ? asset('db_files/user_profile_images/' . $user->userDetails->profile_picture) 
+                : asset('new-assets/images/upload.jpg') }}"
                                 alt="Profile Picture"
                                 class="profile-pic">
                             <div class="delete-icon">
@@ -205,7 +207,7 @@ use App\Models\UserDetails;
                 </div>
 
 
-                <form class="" action="" method="post">
+                <form action="{{ url('/settings') }}" method="post">
                     @csrf
                     <div class="row d-flex justify-content-between mt-4">
                         <div class="mb-4 col-12 col-lg-6">
@@ -229,19 +231,19 @@ use App\Models\UserDetails;
 
                         <div class="mb-4 col-12 col-lg-6">
                             <label for="division-input" class="form-label custom-input-label">Mobile Number</label>
-                            <input type="tel" class="form-control custom-input" id="division-input" placeholder="Phone Number" name="phone_number" value="{{$user->userDetails->phone_number}}">
+                            <input type="text" class="form-control custom-input" id="division-input" placeholder="Phone Number" name="phone_number" value="{{$user->userDetails->phone_number}}">
                             @if($errors->has("phone_number")) <div class="alert alert-danger mt-2">{{ $errors->first('phone_number') }}</div>@endif
                         </div>
 
                         <div class="mb-4 col-12 col-lg-6">
                             <label for="division-input" class="form-label custom-input-label">Division</label>
-                            <input type="tel" class="form-control custom-input" id="division-input" placeholder="Division" name="division" value="{{$user->userDetails->division}}">
+                            <input type="text" class="form-control custom-input" id="division-input" placeholder="Division" name="division" value="{{$user->userDetails->division}}">
                             @if($errors->has("division")) <div class="alert alert-danger mt-2">{{ $errors->first('division') }}</div>@endif
                         </div>
 
                         <div class="mb-4 col-12 col-lg-6">
                             <label for="division-input" class="form-label custom-input-label">Supervisor</label>
-                            <input type="tel" class="form-control custom-input" id="division-input" placeholder="Supervisor" name="supervisor" value="{{$user->userDetails->supervisor}}">
+                            <input type="text" class="form-control custom-input" id="division-input" placeholder="Supervisor" name="supervisor" value="{{$user->userDetails->supervisor}}">
                             @if($errors->has("supervisor")) <div class="alert alert-danger mt-2">{{ $errors->first('supervisor') }}</div>@endif
                         </div>
                     </div>
