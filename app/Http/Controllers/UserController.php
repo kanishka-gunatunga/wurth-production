@@ -85,6 +85,7 @@ class UserController extends Controller
             }
         }
     }
+
     public function dashboard()
     {
         // Get current month and year
@@ -125,11 +126,13 @@ class UserController extends Controller
             'logs'
         ));
     }
+
     function logout()
     {
         Auth::logout();
         return redirect('/');
     }
+
     public function forgot_password(Request $request)
     {
         if ($request->isMethod('get')) {
@@ -162,8 +165,10 @@ class UserController extends Controller
             return redirect('enter-otp');
         }
     }
+
     public function enter_otp(Request $request)
     {
+
         if ($request->isMethod('get')) {
             return view('user.enter_otp');
         }
@@ -178,6 +183,7 @@ class UserController extends Controller
             }
         }
     }
+
     public function reset_password(Request $request)
     {
         if ($request->isMethod('get')) {
@@ -198,6 +204,7 @@ class UserController extends Controller
             return redirect('/')->with('success', 'Password successfully updated');
         }
     }
+
     public function user_managment(Request $request)
     {
         // Get the roles input
@@ -266,28 +273,28 @@ class UserController extends Controller
                 "password" => "required | confirmed | min:6",
             ]);
 
-           if ($request->user_role == 2) { 
-            $existingHead = UserDetails::where('division', $request->division)
-                ->whereHas('user', function ($q) {
-                    $q->where('user_role', 2);
-                })
-                ->first();
+            if ($request->user_role == 2) {
+                $existingHead = UserDetails::where('division', $request->division)
+                    ->whereHas('user', function ($q) {
+                        $q->where('user_role', 2);
+                    })
+                    ->first();
 
-            if ($existingHead) {
-                return back()
-                    ->withErrors(['user_role' => 'This division already has a Head of Division.'])
-                    ->withInput();
+                if ($existingHead) {
+                    return back()
+                        ->withErrors(['user_role' => 'This division already has a Head of Division.'])
+                        ->withInput();
+                }
             }
-        }
 
-        
-           DB::beginTransaction();
-           $user = User::create([
-              "email" => $request->email,
-              "password" => Hash::make($request->password),
-              "user_role" => $request->user_role,
-              "status" => 'active'
-           ]);
+
+            DB::beginTransaction();
+            $user = User::create([
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "user_role" => $request->user_role,
+                "status" => 'active'
+            ]);
 
             $userDetails = new UserDetails();
             $userDetails->user_id = $user->id;
@@ -452,6 +459,7 @@ class UserController extends Controller
         }
         return response()->json($supervisors);
     }
+
     public function locked_users(Request $request)
     {
         $query = User::where('is_locked', 1)->with('userDetails');
@@ -471,6 +479,7 @@ class UserController extends Controller
 
         return view('user.locked_users', compact('locked_users'));
     }
+
     public function unlock_user($id)
     {
         $user = User::with('userDetails')->find($id);
@@ -481,6 +490,7 @@ class UserController extends Controller
 
         ActivitLogService::log('user management',  $user->userDetails->name . ' - user unblocked');
     }
+
     public function settings(Request $request)
     {
         if ($request->isMethod('get')) {
