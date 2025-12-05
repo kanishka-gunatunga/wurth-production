@@ -16,6 +16,15 @@ use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\InquiriesController;
+use App\Http\Controllers\AdvancedPaymentsController;
+use App\Http\Controllers\FinanceCashController;
+use App\Http\Controllers\FinanceChequeController;
+use App\Http\Controllers\CashDepositsController;
+use App\Http\Controllers\ChequeDepositsController;
+use App\Http\Controllers\FundTransferController;
+use App\Http\Controllers\CardPaymentController;
+use App\Http\Controllers\WriteOffController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -62,6 +71,16 @@ Route::get('/reminders', [ReminderController::class, 'index'])
 Route::get('/reminders/{id}', [ReminderController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('reminders.show');
+Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
+    ->middleware(AuthAdmin::class)
+    ->name('reminders.sent');
+
+Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
+Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
+Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
+Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
+Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
+Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
 
 Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(AuthAdmin::class);
 Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(AuthAdmin::class)->name('returncheques.store');
@@ -71,11 +90,115 @@ Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
 Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
     ->middleware(AuthAdmin::class)
     ->name('returncheques.show');
-Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
-
+Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])
+    ->middleware(AuthAdmin::class)
+    ->name('returncheques.import');
 
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
+
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(AuthAdmin::class);
+
+Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.all');
+Route::get('/collection-details/{id}', [CollectionsController::class, 'collection_details'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.details');
+Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.search');
+Route::get('/collections/filter', [CollectionsController::class, 'filter_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.filter');
+Route::get('/collections/add', [CollectionsController::class, 'add_new_collection'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.add');
+Route::get('/collections/customers/all', [CollectionsController::class, 'getAllCustomers'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.customers.all');
+Route::get('/collections/customer/details/{id}', [CollectionsController::class, 'getCustomerDetails'])
+    ->middleware(AuthAdmin::class);
+Route::get('/collections/customer/invoices/{id}', [CollectionsController::class, 'getCustomerInvoices'])
+    ->middleware(AuthAdmin::class);
+Route::get('/collections/invoices', function () {
+    return view('collections.invoices');
+})
+    ->middleware(AuthAdmin::class)
+    ->name('collections.invoices');
+Route::post('/collections/export', [CollectionsController::class, 'export_collections'])
+    ->middleware(AuthAdmin::class)
+    ->name('collections.export');
+
+Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])->middleware(AuthAdmin::class)
+    ->name('advanced_payments.index');
+Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class, 'show'])
+    ->middleware(AuthAdmin::class)
+    ->name('advanced_payments.show');
+Route::post('/advanced-payments/search', [AdvancedPaymentsController::class, 'search'])
+    ->middleware(AuthAdmin::class)
+    ->name('advanced_payments.search');
+
+Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index')->middleware(AuthAdmin::class);
+Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show')->middleware(AuthAdmin::class);
+Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter')->middleware(AuthAdmin::class);
+Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export')->middleware(AuthAdmin::class);
+
+Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index')->middleware(AuthAdmin::class);
+Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download')->middleware(AuthAdmin::class);
+Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter')->middleware(AuthAdmin::class);
+Route::post('/finance-cheque/export', [FinanceChequeController::class, 'export'])->name('finance_cheque.export');
+
+Route::get('/cash-deposits', [CashDepositsController::class, 'index'])->name('cash_deposits.index');
+Route::get('/cash-deposits/{id}', [CashDepositsController::class, 'show'])->name('cash_deposits.show');
+Route::get('/cash-deposits/download/{id}', [CashDepositsController::class, 'downloadAttachment'])
+    ->name('cash_deposits.download');
+Route::post('/cash-deposits/update-status/{id}', [CashDepositsController::class, 'updateStatus'])
+    ->name('cash_deposits.update_status');
+Route::post('/cash-deposits/search', [CashDepositsController::class, 'search'])->name('cash_deposits.search');
+Route::post('/cash-deposits/filter', [CashDepositsController::class, 'filter'])->name('cash_deposits.filter');
+Route::post('/cash-deposits/export', [CashDepositsController::class, 'export'])->name('cash_deposits.export');
+
+Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
+Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
+Route::get('/cheque-deposits/{id}', [ChequeDepositsController::class, 'show'])
+    ->name('cheque_deposits.show');
+Route::post('/cheque-deposits/update-status/{id}', [ChequeDepositsController::class, 'updateStatus'])
+    ->name('cheque_deposits.update_status');
+Route::post('/cheque-deposits/search', [ChequeDepositsController::class, 'search'])->name('cheque_deposits.search');
+Route::post('/cheque-deposits/filter', [ChequeDepositsController::class, 'filter'])->name('cheque_deposits.filter');
+Route::post('/cheque-deposits/export', [ChequeDepositsController::class, 'export'])->name('cheque_deposits.export');
+
+Route::get('/fund-transfers', [FundTransferController::class, 'index'])
+    ->name('fund_transfers.index');
+Route::get('/fund-transfers/{id}', [FundTransferController::class, 'show'])
+    ->name('fund_transfers.show');
+Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
+    ->name('fund_transfers.update_status');
+Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
+    ->name('fund_transfers.export');
+
+Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index');
+Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
+Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
+    ->name('card_payments.update_status');
+Route::post('/card-payments/export', [CardPaymentController::class, 'export'])->name('card_payments.export');
+
+Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
+Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
+Route::post('/write-off/credit-notes', [WriteOffController::class, 'getCreditNotes'])->name('write_off.credit_notes');
+Route::post('/write-off/extra-payments', [WriteOffController::class, 'getExtraPayments'])->name('write_off.extra_payments');
+Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])->name('write_off.submit');
+Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
+Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
+Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');

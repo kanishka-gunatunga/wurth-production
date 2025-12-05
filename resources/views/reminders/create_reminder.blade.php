@@ -9,7 +9,7 @@
             <hr class="red-line">
 
             <!-- ✅ Connected Form -->
-            <form action="{{ route('reminders.store') }}" method="POST">
+            <form action="{{ url('/create-reminder') }}" method="POST">
                 @csrf
 
                 <div class="row">
@@ -103,7 +103,7 @@
                 </div>
 
                 <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
-                    <a href="{{ url('notifications') }}" class="btn btn-dark cancel">Cancel</a>
+                    <a href="{{ url('reminders') }}" class="btn btn-dark cancel">Cancel</a>
                     <button type="submit" class="btn btn-danger submit">Submit</button>
                 </div>
             </form>
@@ -157,13 +157,7 @@
     });
 </script>
 
-<script>
-    // Cancel button redirect
-    document.querySelector('.cancel').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = 'notifications';
-    });
-</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

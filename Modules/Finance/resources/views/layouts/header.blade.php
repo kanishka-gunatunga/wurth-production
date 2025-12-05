@@ -153,7 +153,7 @@
 
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('customers') }}">
+                            <a class="nav-link" href="{{ url('finance/customers') }}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -208,7 +208,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('all-outstanding') }}">
+                                        <a class="nav-link" href="{{ url('finance/all-outstanding') }}">
                                             <span class="me-4">
                                                 <svg width="17" height="22" viewBox="0 0 17 22" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +266,7 @@
 
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('add-new-collection') }}">
+                                        <a class="nav-link" href="{{ url('finance/collections/add') }}">
                                             <span class="me-4">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -455,7 +455,7 @@
                         </li>
 
                         <li class="nav-item ">
-                            <a class="nav-link" href="{{ url('return-cheques') }}">
+                            <a class="nav-link" href="{{ url('finance/return-cheques') }}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -531,7 +531,7 @@
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/create-notification') }}">
+                                        <a class="nav-link" href="{{ url('finance/sent-reminders') }}">
                                             <span class="me-4">
                                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -546,7 +546,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/notifications') }}">
+                                        <a class="nav-link" href="{{ url('finance/reminders') }}">
                                             <span class="me-4">
                                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -569,7 +569,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/notifications') }}">
+                                        <a class="nav-link" href="{{ url('finance/reminders') }}">
                                             <span class="me-4">
                                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -599,7 +599,7 @@
 
 
                         <li class="nav-item ">
-                            <a class="nav-link" href="{{ url('/upload') }}">
+                            <a class="nav-link" href="{{ url('finance/file-upload') }}">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">

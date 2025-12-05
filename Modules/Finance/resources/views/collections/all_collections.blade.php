@@ -83,6 +83,18 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
+        @php
+        $filterParams = request()->only(['adm_names', 'adm_ids', 'customers', 'divisions', 'date_range']);
+        @endphp
+
+        @if(!empty(array_filter($filterParams)))
+        <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
+            <a href="{{ route('collections.export', $filterParams) }}">
+                <button class="add-new-division-btn">Export</button>
+            </a>
+        </div>
+        @endif
+
         <div class="table-responsive">
             <table class="table custom-table-locked" style="min-width: 1600px;">
                 <thead>
@@ -118,8 +130,7 @@
     </div>
 </div>
 
-<form id="filterForm" method="POST" action="{{ route('collections.filter') }}">
-    @csrf
+<form id="filterForm" method="GET" action="{{ route('collections.filter') }}">
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
         <div class="row d-flex justify-content-end">

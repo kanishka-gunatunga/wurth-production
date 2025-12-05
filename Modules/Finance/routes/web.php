@@ -16,6 +16,10 @@ use Modules\Finance\Http\Controllers\WriteOffController;
 use Modules\Finance\Http\Controllers\SetOffController;
 use Modules\Finance\Http\Controllers\FundTransferController;
 use Modules\Finance\Http\Controllers\CardPaymentController;
+use Modules\Finance\Http\Controllers\CustomerController;
+use Modules\Finance\Http\Controllers\ReturnChequeController;
+use Modules\Finance\Http\Controllers\ReminderController;
+use Modules\Finance\Http\Controllers\UploadController;
 use Illuminate\Http\Request;
 
 /*
@@ -32,16 +36,32 @@ use Illuminate\Http\Request;
 Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(function () {
     Route::match(['get', 'post'], '/', [UserController::class, 'dashboard']);
     Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
+    Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(FinanceAuthenticated::class);
 
-    Route::get('/settings', function () {
-        return view('finance::settings.settings');
-    })->name('finance.settings');
+    Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers']);
+    Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer']);
+    Route::match(['get', 'post'], '/activate-customer/{id}', [CustomerController::class, 'activate_customer']);
+    Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::class, 'deactivate_customer']);
+    Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class, 'edit_customer']);
+    Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers']);
+    Route::match(['get', 'post'], '/import', [CustomerController::class, 'import']);
+    Route::match(['get', 'post'], '/view-customer/{id}', [CustomerController::class, 'view_customer']);
 
     Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
     Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
     Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
     Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
     Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
+
+    Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(FinanceAuthenticated::class);
+    Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(FinanceAuthenticated::class)->name('returncheques.store');
+    Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('returncheques.index');
+    Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('returncheques.show');
+    Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])->name('returncheques.import');
 
     Route::get('/advanced-payments', [AdvancedPaymentsController::class, 'index'])
         ->name('advanced_payments.index');
@@ -53,6 +73,8 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/cash-deposits', [CashDepositsController::class, 'index'])->name('cash_deposits.index');
     Route::get('/cash-deposits/{id}', [CashDepositsController::class, 'show'])->name('cash_deposits.show');
 
+    Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(FinanceAuthenticated::class);
+
     Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(FinanceAuthenticated::class);
     Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt']);
     Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment']);
@@ -63,6 +85,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('cash_deposits.update_status');
     Route::post('/cash-deposits/search', [CashDepositsController::class, 'search'])->name('cash_deposits.search');
     Route::post('/cash-deposits/filter', [CashDepositsController::class, 'filter'])->name('cash_deposits.filter');
+    Route::post('/cash-deposits/export', [CashDepositsController::class, 'export'])->name('cash_deposits.export');
 
     Route::get('/cheque-deposits', [ChequeDepositsController::class, 'index'])->name('cheque_deposits.index');
     Route::get('/cheque-deposits/download/{id}', [ChequeDepositsController::class, 'downloadAttachment'])->name('cheque_deposits.download');
@@ -72,6 +95,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('cheque_deposits.update_status');
     Route::post('/cheque-deposits/search', [ChequeDepositsController::class, 'search'])->name('cheque_deposits.search');
     Route::post('/cheque-deposits/filter', [ChequeDepositsController::class, 'filter'])->name('cheque_deposits.filter');
+    Route::post('/cheque-deposits/export', [ChequeDepositsController::class, 'export'])->name('cheque_deposits.export');
 
     Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index');
     Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show');
@@ -79,6 +103,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status');
     Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search');
     Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter');
+    Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export');
 
     Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index');
     Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download');
@@ -86,6 +111,7 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status');
     Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search');
     Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter');
+    Route::post('/finance-cheque/export', [FinanceChequeController::class, 'export'])->name('finance_cheque.export');
 
     Route::get('/fund-transfers', [\Modules\Finance\Http\Controllers\FundTransferController::class, 'index'])
         ->name('fund_transfers.index');
@@ -93,11 +119,14 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('fund_transfers.show');
     Route::post('/fund-transfers/update-status/{id}', [FundTransferController::class, 'updateStatus'])
         ->name('fund_transfers.update_status');
+    Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
+        ->name('fund_transfers.export');
 
     Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index');
     Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show');
     Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
         ->name('card_payments.update_status');
+    Route::post('/card-payments/export', [CardPaymentController::class, 'export'])->name('card_payments.export');
 
     Route::get('/write-off', [WriteOffController::class, 'index'])->name('write_off.index');
     Route::post('/write-off/invoices', [WriteOffController::class, 'getInvoices'])->name('write_off.invoices');
@@ -111,10 +140,24 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
     Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
     Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
     Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+    Route::post('/set-off/extra-payments', [SetOffController::class, 'getExtraPayments'])
+        ->name('set_off.extra_payments');
     Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
     Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
     Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
     Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
+
+    Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(FinanceAuthenticated::class);
+    Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(FinanceAuthenticated::class)->name('reminders.store');
+    Route::get('/reminders', [ReminderController::class, 'index'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.index');
+    Route::get('/reminders/{id}', [ReminderController::class, 'show'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.show');
+    Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
+        ->middleware(FinanceAuthenticated::class)
+        ->name('reminders.sent');
 
     Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
         ->name('collections.all');
@@ -122,5 +165,19 @@ Route::prefix('finance')->middleware([FinanceAuthenticated::class])->group(funct
         ->name('collections.details');
     Route::post('/all-collections/search', [CollectionsController::class, 'search_collections'])
         ->name('collections.search');
-    Route::post('/collections/filter', [CollectionsController::class, 'filter_collections'])->name('collections.filter');
+    Route::get('/collections/filter', [CollectionsController::class, 'filter_collections'])->name('collections.filter');
+    Route::get('/collections/add', [CollectionsController::class, 'add_new_collection'])
+        ->name('collections.add');
+    Route::get('/collections/customers/all', [CollectionsController::class, 'getAllCustomers'])
+        ->name('collections.customers.all');
+    Route::get('/collections/customer/details/{id}', [CollectionsController::class, 'getCustomerDetails']);
+    Route::get('/collections/customer/invoices/{id}', [CollectionsController::class, 'getCustomerInvoices']);
+    Route::get('/collections/invoices', function () {
+        return view('finance::collections.invoices');
+    })->name('collections.invoices');
+    Route::get('/collections/export', [CollectionsController::class, 'export_collections'])
+        ->name('collections.export');
+
+    Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
+    Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
 });

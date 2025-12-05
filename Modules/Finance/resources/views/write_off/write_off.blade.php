@@ -506,13 +506,25 @@
            ---------------------------*/
         $('.red-edit-button-sm').on('click', function() {
             let selectedCustomers = [];
+            let selectedCustomerNames = []; // <-- new array for names
+
             $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
-                selectedCustomers.push($(this).val());
+                selectedCustomers.push($(this).val()); // IDs
+                // get name from the same row
+                const name = $(this).closest('td').text().trim(); // includes both checkbox and name
+                selectedCustomerNames.push(name.replace($(this).val(), '').trim()); // remove ID from text
             });
+
             if (selectedCustomers.length === 0) {
                 alert("Select at least one customer");
                 return;
             }
+
+            // Show selected customer names in the input
+            $('#invoiceDropdownSearch').val(selectedCustomerNames.join(', '));
+
+            // Close dropdown
+            $('.dropdown-menu').removeClass('show');
 
             // invoices
             $.ajax({
@@ -642,6 +654,19 @@
         });
 
 
-    }); // end ready
+    });
+
+    function filterTable(tableId, searchText) {
+        searchText = searchText.toLowerCase();
+
+        $(`#${tableId} tbody tr`).each(function() {
+            let rowText = $(this).text().toLowerCase();
+            if (rowText.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
 </script>
 @include('finance::layouts.footer2')

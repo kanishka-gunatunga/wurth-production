@@ -1,4 +1,7 @@
 @include('layouts.dashboard-header')
+@php
+$activeTab = request('active_tab', 'final');
+@endphp
 
 
 <style>
@@ -81,6 +84,10 @@
         font-size: 20px;
         font-weight: 400;
     }
+
+    .custom-dropdown-menu li {
+        list-style: none !important;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -96,7 +103,7 @@
     <div class="styled-tab-main">
         <ul class="nav nav-tabs">
             <li class="nav-item mb-3">
-                <a class="nav-link active" aria-current="page" href="#" id="final-reciepts-invoices"
+                <a class="nav-link {{ $activeTab == 'final' ? 'active' : '' }}" aria-current="page" href="#" id="final-reciepts-invoices"
                     data-bs-toggle="tab" data-bs-target="#final-reciepts-invoices-pane" type="button"
                     role="tab" aria-controls="final-reciepts-invoices-pane" aria-selected="true">
 
@@ -115,7 +122,7 @@
 
 
             <li class="nav-item mb-3">
-                <a class="nav-link" aria-current="page" href="#" id="temporary-receipts-invoices"
+                <a class="nav-link {{ $activeTab == 'temporary' ? 'active' : '' }}" aria-current="page" href="#" id="temporary-receipts-invoices"
                     data-bs-toggle="tab" data-bs-target="#temporary-receipts-invoices-pane" type="button"
                     role="tab" aria-controls="temporary-receipts-invoices-pane" aria-selected="false">
                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
@@ -132,7 +139,7 @@
 
 
             <li class="nav-item mb-3">
-                <a class="nav-link" aria-current="page" href="#" id="temporary-receipts-advance-payment"
+                <a class="nav-link {{ $activeTab == 'advance' ? 'active' : '' }}" aria-current="page" href="#" id="temporary-receipts-advance-payment"
                     data-bs-toggle="tab" data-bs-target="#temporary-receipts-advance-payment-pane"
                     type="button" role="tab" aria-controls="temporary-receipts-advance-payment-pane"
                     aria-selected="false">
@@ -151,14 +158,16 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="final-reciepts-invoices-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'final' ? 'show active' : '' }}" id="final-reciepts-invoices-pane" role="tabpanel"
                 aria-labelledby="final-reciepts-invoices" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('/all-receipts') }}">
+                            <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="final_search" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" value="{{ request('final_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="final-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -190,11 +199,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($regular_receipts as $payment)
+                            @forelse($regular_receipts as $payment)
                             <tr>
                                 <td>{{ $payment->invoice->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $payment->adm->userDetails->name ?? 'N/A' }}</td>
-                                <td>{{ $payment->adm->userDetails->adm_number ?? 'N/A' }}</td>
+                                <td>{{ $payment->invoice->customer->admDetails->name ?? 'N/A' }}</td>
+                                <td>{{ $payment->invoice->customer->adm ?? 'N/A' }}</td>
                                 <td>{{ $payment->id ?? 'N/A' }}</td>
                                 <td>{{ $payment->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($payment->amount, 2) ?? '0.00' }}</td>
@@ -218,41 +227,45 @@
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $payment->id }}"
                                             data-primary="{{ $payment->invoice->customer->mobile_number ?? '' }}"
-                                            data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}" >
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}">
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
-                                        <a href="{{ url('finace/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <a href="{{ url('/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
-                            </tbody>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
 
                     </table>
 
                 </div>
                 <nav class="d-flex justify-content-center mt-5">
-
-                    {{ $regular_receipts->appends(['active_tab' => 'final'])->links('pagination::bootstrap-5') }}
+                    {{ $regular_receipts->appends(['final_search' => request('final_search'), 'active_tab' => 'final'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
 
-            <div class="tab-pane fade" id="temporary-receipts-invoices-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'temporary' ? 'show active' : '' }}" id="temporary-receipts-invoices-pane" role="tabpanel"
                 aria-labelledby="temporary-receipts-invoices" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('/all-receipts') }}">
+                            <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="temp_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('temp_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="tr-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -274,55 +287,59 @@
                                 <th class="sticky-column">Actions</th>
                             </tr>
                         </thead>
-                        <tbody >
-                            @foreach($temp_receipts as $temp_receipt)
+                        <tbody>
+                            @forelse($temp_receipts as $temp_receipt)
                             <tr>
                                 <td>{{ $temp_receipt->invoice->customer->name ?? 'N/A' }}</td>
+                                <td>{{ $temp_receipt->invoice->customer->admDetails->name ?? 'N/A' }}</td>
+                                <td>{{ $temp_receipt->invoice->customer->adm ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->id ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($temp_receipt->amount, 2) ?? '0.00' }}</td>
-                                <td>{{ $temp_receipt->adm->userDetails->name ?? 'N/A' }}</td>
-                                <td>{{ $temp_receipt->adm->userDetails->adm_number ?? 'N/A' }}</td>
-                                
-                              
+
 
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $temp_receipt->id }}"
                                             data-primary="{{ $temp_receipt->invoice->customer->mobile_number ?? '' }}"
-                                            data-secondary="{{ $temp_receipt->invoice->customer->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $temp_receipt->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}" >
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}">
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
-                                        <a href="{{ url('finace/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <a href="{{ url('/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
                 </div>
-               <nav class="d-flex justify-content-center mt-5">
-                    {{ $temp_receipts->appends(['active_tab' => 'temporary'])->links('pagination::bootstrap-5') }}
+                <nav class="d-flex justify-content-center mt-5">
+                    {{ $temp_receipts->appends(['temp_search' => request('temp_search'), 'active_tab' => 'temporary'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
 
 
-            <div class="tab-pane fade" id="temporary-receipts-advance-payment-pane" role="tabpanel"
+            <div class="tab-pane fade {{ $activeTab == 'advance' ? 'show active' : '' }}" id="temporary-receipts-advance-payment-pane" role="tabpanel"
                 aria-labelledby="temporary-receipts-advance-payment" tabindex="0">
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
-                        <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
-                            <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <input type="text" class="search-input" placeholder="Search Receipt, ADM or Customer" />
-                        </div>
+                        <form method="GET" action="{{ url('/all-receipts') }}">
+                            <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
+                                <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
+                                <input type="text" name="advance_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('advance_search') }}" />
+                            </div>
+                        </form>
                         <button class="header-btn" id="receipts-search-toggle-button">
                             <i class="fa-solid fa-magnifying-glass fa-xl"></i>
                         </button>
@@ -356,8 +373,8 @@
                                 <th class="sticky-column">Actions</th>
                             </tr>
                         </thead>
-                        <tbody >
-                             @foreach($advanced_payments as $advanced_payment)
+                        <tbody>
+                            @forelse($advanced_payments as $advanced_payment)
                             <tr>
                                 <td>{{ $advanced_payment->customerData->name ?? 'N/A' }}</td>
                                 <td>{{ $advanced_payment->id ?? 'N/A' }}</td>
@@ -368,411 +385,309 @@
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
-                                         <button class="red-action-btn resend-sms-btn"
+                                        <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $advanced_payment->id }}"
                                             data-primary="{{ $advanced_payment->customerData->mobile_number ?? '' }}"
-                                            data-secondary="{{ $advanced_payment->customerData->secondary_mobile ?? '' }}"
-                                            >
+                                            data-secondary="{{ $advanced_payment->customerData->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                       <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
-                                                <button class="black-action-btn">Download</button>
-                                            </a>
+                                        <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
+                                            <button class="black-action-btn">Download</button>
+                                        </a>
 
-                                        <a href="{{ url('finace/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a>
-                                        <a href="{{ url('finace/remove-advanced-payment/'.$advanced_payment->id) }}"><button class="red-action-btn">Remove</button></a>
+                                        <a href="{{ url('/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <a href="{{ url('/remove-advanced-payment/'.$advanced_payment->id) }}"><button class="red-action-btn">Remove</button></a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No reciepts found.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
                 </div>
                 <nav class="d-flex justify-content-center mt-5">
-                     {{ $advanced_payments->appends(['active_tab' => 'advance'])->links('pagination::bootstrap-5') }}
+                    {{ $advanced_payments->appends(['advance_search' => request('advance_search'), 'active_tab' => 'advance'])->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
         </div>
-
     </div>
-
-
 </div>
-
 
 
 <!-- Final reciepts Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="finalFilter" aria-labelledby="finalFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="final">
+    <input type="hidden" name="final_status" id="final-status-value" value="{{ request('final_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="finalFilter" aria-labelledby="finalFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span>
+                <span class="title-rest"> &nbsp;by Filter</span>
+            </div>
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearFinalFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="final-filter-adm-name" name="final_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($finalAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('final_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="final-filter-adm-id" name="final_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($finalAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('final_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="final-filter-customer" name="final_customers[]" class="form-control select2" multiple>
+                    @foreach ($finalCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('final_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="final-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('final_status') ? ucfirst(request('final_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="final-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($regular_receipts->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="final-filter-date" name="final_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('final_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 <!-- temp reciepts - invoices Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="trFilter" aria-labelledby="trFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="temporary">
+    <input type="hidden" name="temp_status" id="temp-status-value" value="{{ request('temp_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="trFilter" aria-labelledby="trFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearTempFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="temp-filter-adm-name" name="temp_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($tempAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('temp_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="temp-filter-adm-id" name="temp_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($tempAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('temp_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="temp-filter-customer" name="temp_customers[]" class="form-control select2" multiple>
+                    @foreach ($tempCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('temp_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="temp-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('temp_status') ? ucfirst(request('temp_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="temp-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($temp_receipts->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="temp-filter-date" name="temp_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('temp_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 <!-- temp reciepts - advance payment Filter Offcanvas -->
-<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="receiptsFilter" aria-labelledby="receiptsFilterLabel">
-    <div class="row d-flex justify-content-end">
-        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
+<form method="GET" action="{{ url('/all-receipts') }}">
+    @csrf
+    <input type="hidden" name="active_tab" value="advance">
+    <input type="hidden" name="advance_status" id="advance-status-value" value="{{ request('advance_status') }}">
+
+    <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="receiptsFilter" aria-labelledby="receiptsFilterLabel">
+        <div class="row d-flex justify-content-end">
+            <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-header d-flex justify-content-between">
+            <div class="col-6">
+                <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
+                    Filter
+                </span>
+            </div class="col-6">
+
+            <div>
+                <button type="button" class="btn rounded-phill" onclick="clearAdvanceFiltersAndSubmit()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- ADM Name Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM Name</p>
+                <select id="advance-filter-adm-name" name="advance_adm_names[]" class="form-control select2" multiple>
+                    @foreach ($advanceAdmNames as $admName)
+                    <option value="{{ $admName }}" {{ in_array($admName, request('advance_adm_names', [])) ? 'selected' : '' }}>
+                        {{ $admName }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ADM ID Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">ADM ID</p>
+                <select id="advance-filter-adm-id" name="advance_adm_ids[]" class="form-control select2" multiple>
+                    @foreach ($advanceAdmIds as $admId)
+                    <option value="{{ $admId }}" {{ in_array($admId, request('advance_adm_ids', [])) ? 'selected' : '' }}>
+                        {{ $admId }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="advance-filter-customer" name="advance_customers[]" class="form-control select2" multiple>
+                    @foreach ($advanceCustomers as $customer)
+                    <option value="{{ $customer }}" {{ in_array($customer, request('advance_customers', [])) ? 'selected' : '' }}>
+                        {{ $customer }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Styled Status Dropdown -->
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
+                    <button type="button" id="advance-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                        {{ request('advance_status') ? ucfirst(request('advance_status')) : 'Choose Status' }}
+                    </button>
+                    <ul id="advance-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
+                        @foreach ($advanced_payments->pluck('status')->unique() as $status)
+                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Date</p>
+                <input type="text" id="advance-filter-date" name="advance_date_range" class="form-control"
+                    placeholder="Select date range" value="{{ request('advance_date_range') }}" />
+            </div>
+
+            <div class="mt-4 d-flex justify-content-start">
+                <button type="submit" class="red-action-btn-lg">Apply Filters</button>
+            </div>
+        </div>
     </div>
-
-    <div class="offcanvas-header d-flex justify-content-between">
-        <div class="col-6">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Search </span> <span class="title-rest"> &nbsp;by
-                Filter
-            </span>
-        </div class="col-6">
-
-        <div>
-            <button class="btn rounded-phill">Clear All</button>
-        </div>
-    </div>
-    <div class="offcanvas-body">
-        <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div>
-
-        <!-- ADM Name Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM Name</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>John Doe</option>
-                <option>Jane Smith</option>
-                <option>Robert Lee</option>
-                <option>Emily Johnson</option>
-                <option>Michael Brown</option>
-            </select>
-        </div>
-
-        <!-- ADM ID Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">ADM ID</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>ADM-1001</option>
-                <option>ADM-1002</option>
-                <option>ADM-1003</option>
-                <option>ADM-1004</option>
-                <option>ADM-1005</option>
-            </select>
-        </div>
-
-        <!-- Customers Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Customers</p>
-            <select class="form-control select2" multiple="multiple">
-                <option>H. K Perera</option>
-                <option>Pasan Randula</option>
-                <option>Jane Williams</option>
-                <option>Acme Corp</option>
-            </select>
-        </div>
-
-        <!-- Styled Status Dropdown -->
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Status</p>
-            <div class="dropdown">
-                <button class="btn custom-dropdown text-start" type="button" id="status-dropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 200px;">
-                    Choose Status
-                    <span class="custom-arrow"></span>
-                </button>
-                <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="status-dropdown">
-                    <li><a class="dropdown-item" href="#" data-value="Paid">Paid</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Deposited">Deposited</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Approved">Approved</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Rejected">Rejected</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="Exported">Exported</a></li>
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Date</p>
-            <input type="text" id="dateRange" class="form-control" placeholder="Select date range" />
-        </div>
-
-    </div>
-</div>
+</form>
 
 </div>
-
-
-<!-- Toast message -->
-<!-- <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
-    role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
-    <div class="d-flex align-items-center">
-        <span class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="12" fill="#fff" />
-                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </span>
-        <div class="toast-body flex-grow-1">
-            Downloaded successfully
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"
-            onclick="document.getElementById('user-toast').style.display='none';"></button>
-    </div>
-</div> -->
 
 <!-- Resend SMS Modal -->
 <div id="resend-sms-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
     <div style="background:#fff; border-radius:12px; max-width:400px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
-        <form id="resend-sms-form" method="POST" action="{{ url('finance/resend-receipt') }}">
+        <form id="resend-sms-form" method="POST" action="{{ url('/resend-receipt') }}">
             @csrf
             <input type="hidden" name="receipt_id" id="sms-receipt-id">
 
@@ -799,69 +714,200 @@
 </div>
 
 
-@include('finance::layouts.footer')
 
-<!-- dropdown selector -->
+
+<!-- for dropdown -->
 <script>
-    document.querySelectorAll('#status-dropdown + .dropdown-menu .dropdown-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            const button = document.getElementById('status-dropdown');
-            button.innerHTML = value + ' <span class="custom-arrow"></span>';
+    // Initialize Select2 and set initial values when offcanvas opens
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for all dropdowns
+        $('.select2').select2({
+            placeholder: "Select options",
+            allowClear: true
         });
-    });
-</script>
 
+        // Initialize status dropdowns with current values
+        initializeStatusDropdownWithCurrentValue('final-custom-status-btn', 'final-custom-status-menu', 'final-status-value', "{{ request('final_status') }}");
+        initializeStatusDropdownWithCurrentValue('temp-custom-status-btn', 'temp-custom-status-menu', 'temp-status-value', "{{ request('temp_status') }}");
+        initializeStatusDropdownWithCurrentValue('advance-custom-status-btn', 'advance-custom-status-menu', 'advance-status-value', "{{ request('advance_status') }}");
+    });
+
+    // Enhanced status dropdown initialization with current values
+    function initializeStatusDropdownWithCurrentValue(btnId, menuId, hiddenInputId, currentValue) {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+
+        if (!btn || !menu || !hiddenInput) {
+            console.log('Element not found:', btnId, menuId, hiddenInputId);
+            return;
+        }
+
+        // Set current value if exists
+        if (currentValue && currentValue !== '') {
+            const menuItem = menu.querySelector(`[data-value="${currentValue}"]`);
+            if (menuItem) {
+                btn.textContent = menuItem.textContent;
+                btn.setAttribute('data-value', currentValue);
+                hiddenInput.value = currentValue;
+            }
+        }
+
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        menu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.preventDefault();
+                const value = e.target.dataset.value;
+                const text = e.target.textContent;
+
+                btn.textContent = text;
+                btn.setAttribute("data-value", value);
+                hiddenInput.value = value;
+                menu.style.display = "none";
+            });
+        });
+
+        // Close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
+            }
+        });
+    }
+
+    // Clear Final Receipts Filters and Submit
+    function clearFinalFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#final-filter-adm-name').val(null).trigger('change');
+        $('#final-filter-adm-id').val(null).trigger('change');
+        $('#final-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const finalDateInput = document.getElementById('final-filter-date');
+        if (finalDateInput) {
+            finalDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const finalStatusBtn = document.getElementById('final-custom-status-btn');
+        const finalStatusInput = document.getElementById('final-status-value');
+        if (finalStatusBtn) {
+            finalStatusBtn.textContent = 'Choose Status';
+            finalStatusBtn.removeAttribute('data-value');
+        }
+        if (finalStatusInput) {
+            finalStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const finalStatusMenu = document.getElementById('final-custom-status-menu');
+        if (finalStatusMenu) {
+            finalStatusMenu.style.display = 'none';
+        }
+
+        console.log('Final filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#finalFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
+
+    // Clear Temporary Receipts Filters and Submit
+    function clearTempFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#temp-filter-adm-name').val(null).trigger('change');
+        $('#temp-filter-adm-id').val(null).trigger('change');
+        $('#temp-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const tempDateInput = document.getElementById('temp-filter-date');
+        if (tempDateInput) {
+            tempDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const tempStatusBtn = document.getElementById('temp-custom-status-btn');
+        const tempStatusInput = document.getElementById('temp-status-value');
+        if (tempStatusBtn) {
+            tempStatusBtn.textContent = 'Choose Status';
+            tempStatusBtn.removeAttribute('data-value');
+        }
+        if (tempStatusInput) {
+            tempStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const tempStatusMenu = document.getElementById('temp-custom-status-menu');
+        if (tempStatusMenu) {
+            tempStatusMenu.style.display = 'none';
+        }
+
+        console.log('Temp filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#trFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
+
+    // Clear Advance Payments Filters and Submit
+    function clearAdvanceFiltersAndSubmit() {
+        // Clear Select2 dropdowns
+        $('#advance-filter-adm-name').val(null).trigger('change');
+        $('#advance-filter-adm-id').val(null).trigger('change');
+        $('#advance-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const advanceDateInput = document.getElementById('advance-filter-date');
+        if (advanceDateInput) {
+            advanceDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const advanceStatusBtn = document.getElementById('advance-custom-status-btn');
+        const advanceStatusInput = document.getElementById('advance-status-value');
+        if (advanceStatusBtn) {
+            advanceStatusBtn.textContent = 'Choose Status';
+            advanceStatusBtn.removeAttribute('data-value');
+        }
+        if (advanceStatusInput) {
+            advanceStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const advanceStatusMenu = document.getElementById('advance-custom-status-menu');
+        if (advanceStatusMenu) {
+            advanceStatusMenu.style.display = 'none';
+        }
+
+        console.log('Advance filters cleared');
+
+        // Submit the form to apply cleared filters
+        setTimeout(() => {
+            const form = document.querySelector('#receiptsFilter form');
+            if (form) {
+                form.submit();
+            }
+        }, 300);
+    }
+</script>
 
 <script>
     // Enable/Disable Optional Input
     document.getElementById("optional-checkbox").addEventListener("change", function() {
         document.getElementById("optional-number").disabled = !this.checked;
-    });
-</script>
-
-
-
-
-
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
     });
 </script>
 
@@ -960,9 +1006,6 @@
     });
 </script>
 
-
-
-
 <script>
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
@@ -999,99 +1042,264 @@
 
 <!-- pop-up resend SMS modal -->
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('resend-sms-modal');
+        const closeBtn = document.getElementById('resend-sms-close');
+        const mobileSelect = document.getElementById('mobile-number');
+        const optionalCheckbox = document.getElementById('optional-checkbox');
+        const optionalNumber = document.getElementById('optional-number');
+        const receiptInput = document.getElementById('sms-receipt-id');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('resend-sms-modal');
-    const closeBtn = document.getElementById('resend-sms-close');
-    const mobileSelect = document.getElementById('mobile-number');
-    const optionalCheckbox = document.getElementById('optional-checkbox');
-    const optionalNumber = document.getElementById('optional-number');
-    const receiptInput = document.getElementById('sms-receipt-id');
+        // Open modal when "Resend SMS" is clicked
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('resend-sms-btn')) {
+                e.preventDefault();
 
-    // Open modal when "Resend SMS" is clicked
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('resend-sms-btn')) {
-            e.preventDefault();
+                const primary = e.target.getAttribute('data-primary');
+                const secondary = e.target.getAttribute('data-secondary');
+                const receiptId = e.target.getAttribute('data-receipt-id');
+                console.log(primary);
+                // Reset modal fields
+                mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
+                if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
+                if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
+                optionalNumber.value = '';
+                optionalCheckbox.checked = false;
+                optionalNumber.disabled = true;
+                receiptInput.value = receiptId;
 
-            const primary = e.target.getAttribute('data-primary');
-            const secondary = e.target.getAttribute('data-secondary');
-            const receiptId = e.target.getAttribute('data-receipt-id');
-            console.log(primary);
-            // Reset modal fields
-            mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
-            if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
-            if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
-            optionalNumber.value = '';
-            optionalCheckbox.checked = false;
-            optionalNumber.disabled = true;
-            receiptInput.value = receiptId;
+                modal.style.display = 'block';
+            }
+        });
 
-            modal.style.display = 'block';
-        }
+        // Close modal
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Enable/disable optional number input
+        optionalCheckbox.addEventListener('change', function() {
+            optionalNumber.disabled = !this.checked;
+            if (!this.checked) optionalNumber.value = '';
+        });
+
+        // Close modal if clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        });
     });
-
-    // Close modal
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    // Enable/disable optional number input
-    optionalCheckbox.addEventListener('change', function() {
-        optionalNumber.disabled = !this.checked;
-        if (!this.checked) optionalNumber.value = '';
-    });
-
-    // Close modal if clicking outside
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-});
 </script>
+
+<!-- active tab persistence script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the active_tab value from the query string
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('active_tab');
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('active_tab');
 
-    // If a tab was active before reload, open it again
-    if (activeTab) {
-        // Try matching either "-pane" or full ID
-        const tabTrigger = document.querySelector(`[data-bs-target="#${activeTab}-pane"]`) 
-                        || document.querySelector(`[data-bs-target="#${activeTab}"]`);
-        const tabPane = document.querySelector(`#${activeTab}-pane`) 
-                     || document.querySelector(`#${activeTab}`);
+        if (activeTab) {
+            const tabMap = {
+                final: 'final-reciepts-invoices-pane',
+                temporary: 'temporary-receipts-invoices-pane',
+                advance: 'temporary-receipts-advance-payment-pane'
+            };
 
-        if (tabTrigger && tabPane) {
-            const tab = new bootstrap.Tab(tabTrigger);
-            tab.show();
+            const tabId = tabMap[activeTab];
+            if (tabId) {
+                const tabTrigger = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                if (tabTrigger) {
+                    const tab = new bootstrap.Tab(tabTrigger);
+                    tab.show();
+                }
+            }
         }
-    }
 
-    // Update pagination links to keep the current tab active
-    const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
-    allTabs.forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(e) {
-            const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
-            const links = document.querySelectorAll('.pagination a');
-            links.forEach(link => {
-                const url = new URL(link.href);
-                url.searchParams.set('active_tab', targetId.replace('-pane', ''));
-                link.href = url.toString();
+        // Update pagination links to keep the current tab active
+        const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+        allTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+                const links = document.querySelectorAll('.pagination a');
+                links.forEach(link => {
+                    const url = new URL(link.href);
+                    // reverse map tab ID to active_tab value
+                    const activeValue = Object.keys(tabMap).find(key => tabMap[key] === targetId);
+                    if (activeValue) url.searchParams.set('active_tab', activeValue);
+                    link.href = url.toString();
+                });
             });
         });
     });
-
-    // Also ensure pagination links always include the active tab when first loaded
-    const links = document.querySelectorAll('.pagination a');
-    const currentTab = document.querySelector('.nav-link.active');
-    if (currentTab) {
-        const targetId = currentTab.getAttribute('data-bs-target').replace('#', '').replace('-pane', '');
-        links.forEach(link => {
-            const url = new URL(link.href);
-            url.searchParams.set('active_tab', targetId);
-            link.href = url.toString();
-        });
-    }
-});
 </script>
-@include('layouts.footer2')
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the active_tab value from the query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('active_tab');
+
+        // If a tab was active before reload, open it again
+        if (activeTab) {
+            // Try matching either "-pane" or full ID
+            const tabTrigger = document.querySelector(`[data-bs-target="#${activeTab}-pane"]`) ||
+                document.querySelector(`[data-bs-target="#${activeTab}"]`);
+            const tabPane = document.querySelector(`#${activeTab}-pane`) ||
+                document.querySelector(`#${activeTab}`);
+
+            if (tabTrigger && tabPane) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+
+        // Update pagination links to keep the current tab active
+        const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+        allTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+                const links = document.querySelectorAll('.pagination a');
+                links.forEach(link => {
+                    const url = new URL(link.href);
+                    url.searchParams.set('active_tab', targetId.replace('-pane', ''));
+                    link.href = url.toString();
+                });
+            });
+        });
+
+        // Also ensure pagination links always include the active tab when first loaded
+        const links = document.querySelectorAll('.pagination a');
+        const currentTab = document.querySelector('.nav-link.active');
+        if (currentTab) {
+            const targetId = currentTab.getAttribute('data-bs-target').replace('#', '').replace('-pane', '');
+            links.forEach(link => {
+                const url = new URL(link.href);
+                url.searchParams.set('active_tab', targetId);
+                link.href = url.toString();
+            });
+        }
+    });
+</script>
+
+<!-- clear all button functionality -->
+<script>
+    // Clear Final Receipts Filters
+    function clearFinalFilters() {
+        // Clear Select2 dropdowns
+        $('#final-filter-adm-name').val(null).trigger('change');
+        $('#final-filter-adm-id').val(null).trigger('change');
+        $('#final-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const finalDateInput = document.getElementById('final-filter-date');
+        if (finalDateInput) {
+            finalDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const finalStatusBtn = document.getElementById('final-custom-status-btn');
+        const finalStatusInput = document.getElementById('final-status-value');
+        if (finalStatusBtn) {
+            finalStatusBtn.textContent = 'Choose Status';
+            finalStatusBtn.removeAttribute('data-value');
+        }
+        if (finalStatusInput) {
+            finalStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const finalStatusMenu = document.getElementById('final-custom-status-menu');
+        if (finalStatusMenu) {
+            finalStatusMenu.style.display = 'none';
+        }
+
+        console.log('Final filters cleared');
+    }
+
+    // Clear Temporary Receipts Filters
+    function clearTempFilters() {
+        // Clear Select2 dropdowns
+        $('#temp-filter-adm-name').val(null).trigger('change');
+        $('#temp-filter-adm-id').val(null).trigger('change');
+        $('#temp-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const tempDateInput = document.getElementById('temp-filter-date');
+        if (tempDateInput) {
+            tempDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const tempStatusBtn = document.getElementById('temp-custom-status-btn');
+        const tempStatusInput = document.getElementById('temp-status-value');
+        if (tempStatusBtn) {
+            tempStatusBtn.textContent = 'Choose Status';
+            tempStatusBtn.removeAttribute('data-value');
+        }
+        if (tempStatusInput) {
+            tempStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const tempStatusMenu = document.getElementById('temp-custom-status-menu');
+        if (tempStatusMenu) {
+            tempStatusMenu.style.display = 'none';
+        }
+
+        console.log('Temp filters cleared');
+    }
+
+    // Clear Advance Payments Filters
+    function clearAdvanceFilters() {
+        // Clear Select2 dropdowns
+        $('#advance-filter-adm-name').val(null).trigger('change');
+        $('#advance-filter-adm-id').val(null).trigger('change');
+        $('#advance-filter-customer').val(null).trigger('change');
+
+        // Clear date field
+        const advanceDateInput = document.getElementById('advance-filter-date');
+        if (advanceDateInput) {
+            advanceDateInput.value = '';
+        }
+
+        // Clear status dropdown and hidden input
+        const advanceStatusBtn = document.getElementById('advance-custom-status-btn');
+        const advanceStatusInput = document.getElementById('advance-status-value');
+        if (advanceStatusBtn) {
+            advanceStatusBtn.textContent = 'Choose Status';
+            advanceStatusBtn.removeAttribute('data-value');
+        }
+        if (advanceStatusInput) {
+            advanceStatusInput.value = '';
+        }
+
+        // Hide status menu if open
+        const advanceStatusMenu = document.getElementById('advance-custom-status-menu');
+        if (advanceStatusMenu) {
+            advanceStatusMenu.style.display = 'none';
+        }
+
+        console.log('Advance filters cleared');
+    }
+
+    // Auto-submit version of clear filters
+    function clearFinalFiltersAndSubmit() {
+        clearFinalFilters();
+        // Submit the form after a short delay to ensure fields are cleared
+        setTimeout(() => {
+            document.querySelector('#finalFilter form').submit();
+        }, 100);
+    }
+
+    function clearTempFiltersAndSubmit() {
+        clearTempFilters();
+        setTimeout(() => {
+            document.querySelector('#trFilter form').submit();
+        }, 100);
+    }
+
+    function clearAdvanceFiltersAndSubmit() {
+        clearAdvanceFilters();
+        setTimeout(() => {
+            document.querySelector('#receiptsFilter form').submit();
+        }, 100);
+    }
+</script>

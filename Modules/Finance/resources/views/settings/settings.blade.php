@@ -1,179 +1,85 @@
 @include('finance::layouts.header')
-<div class="main-wrapper d-flex flex-column align-items-center py-5">
+<?php
 
-    <!-- Profile Avatar -->
-    <div class="text-center mb-4">
-        <img src="{{ asset('images/profile-icon.svg') }}"
-            alt="Profile Avatar"
-            class="rounded-circle"
-            style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #cc0000;">
-    </div>
-
-    <!-- Name & Designation -->
-    <div class="text-center mb-5">
-        <h2 style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 28px; font-weight: 600;">
-            Sofia Emilia
-        </h2>
-        <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 22px; font-weight: 500;">
-            Admin
-        </p>
-    </div>
-
-    <!-- Profile Information -->
-    <div class="w-75">
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    Name:
-                </p>
+use App\Models\Divisions;
+use App\Models\UserDetails;
+?>
+<div class="container-fluid">
+    <div class="main-wrapper">
+        <div class="p-4 pt-0">
+            <div class="col-lg-6 col-12">
+                <h1 class="header-title">Settings</h1>
             </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    Sofia Emilia
-                </p>
-            </div>
+            @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
+            @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
+
+            <form class="" action="" method="post">
+                @csrf
+
+                <div class="row d-flex justify-content-between">
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">
+                            Name</label><span class="outside-label"> (First Name & Second Name)</span>
+                        <input type="text" class="form-control custom-input" id="division-input" placeholder="Name" name="name" value="{{$user->userDetails->name}}">
+                        @if($errors->has("name")) <div class="alert alert-danger mt-2">{{ $errors->first('name') }}</div>@endif
+                    </div>
+
+
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">Phone Number</label>
+                        <input type="tel" class="form-control custom-input" id="division-input" placeholder="Phone Number" name="phone_number" value="{{$user->userDetails->phone_number}}">
+                        @if($errors->has("phone_number")) <div class="alert alert-danger mt-2">{{ $errors->first('phone_number') }}</div>@endif
+                    </div>
+
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">Email</label>
+                        <input type="email" class="form-control custom-input" id="division-input" placeholder="Email" name="email" value="{{$user->email}}">
+                        @if($errors->has("email")) <div class="alert alert-danger mt-2">{{ $errors->first('email') }}</div>@endif
+                    </div>
+
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">Current Password</label>
+                        <input type="current_password" class="form-control custom-input" id="division-input" placeholder="Current Password" name="current_password">
+                        @if($errors->has("password")) <div class="alert alert-danger mt-2">{{ $errors->first('current_password') }}</div>@endif
+                    </div>
+
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">Password</label>
+                        <input type="password" class="form-control custom-input" id="division-input" placeholder="Password" name="password">
+                        @if($errors->has("password")) <div class="alert alert-danger mt-2">{{ $errors->first('password') }}</div>@endif
+                    </div>
+
+                    <div class="mb-4 col-12 col-lg-6">
+                        <label for="division-input" class="form-label custom-input-label">Confirm Password</label>
+                        <input type="password" class="form-control custom-input" id="division-input" placeholder="Confirm Password" name="password_confirmation">
+                        @if($errors->has("password_confirmation")) <div class="alert alert-danger mt-2">{{ $errors->first('password_confirmation') }}</div>@endif
+                    </div>
+
+                </div>
+
+
+                <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
+                    <a href="{{url('finance')}}"><button type="button" class="btn btn-dark cancel">Cancel</button></a>
+                    <button type="submit" class="btn btn-danger submit">Submit</button>
+                </div>
+
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    User Role:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    Admin
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    Phone Number:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    +94 77 123 4567
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    Email:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    sofia.emilia@example.com
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    ADM Number:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    ADM1001
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    Supervisor:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    John Doe
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    2nd Level Supervisor:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    John Doe
-                </p>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <p style="font-family: 'Poppins', sans-serif; color: #cc0000; font-size: 25px; font-weight: 600;">
-                    Division:
-                </p>
-            </div>
-            <div class="col-md-8">
-                <p style="font-family: 'Poppins', sans-serif; color: #484848; font-size: 25px; font-weight: 600;">
-                    Division 1
-                </p>
-            </div>
-        </div>
+        </form>
     </div>
 
 </div>
-
-@section('footer-buttons')
-<a href="{{ url('finance') }}" class="black-action-btn-lg" style="text-decoration: none;">Back</a>
-<button class="red-action-btn-lg submit">
-    Submit
-</button>
-@endsection
-
-<!-- Toast message -->
-<div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
-    role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
-    <div class="d-flex align-items-center">
-        <span class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="12" fill="#fff" />
-                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </span>
-        <div class="toast-body flex-grow-1">
-            Profile updated successfully
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"
-            onclick="document.getElementById('user-toast').style.display='none';"></button>
-    </div>
 </div>
+</div>
+</body>
+
+</html>
 
 
 
-<script>
-    // Cancel button redirect
-    document.querySelector('.cancel').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = '/admin-dashboard';
-    });
-</script>
 
-<script>
-    // Show toast on submit
-    document.querySelector('.submit').addEventListener('click', function(e) {
-        e.preventDefault();
-        const toast = document.getElementById('user-toast');
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
-    });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
 
-@include('finance::layouts.footer2')
+@include('finance::layouts.footer')

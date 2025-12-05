@@ -10,6 +10,8 @@ use App\Models\Customers;
 use App\Models\UserDetails;
 use App\Models\Deposits;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ArrayExport;
 
 class CardPaymentController extends Controller
 {
@@ -149,5 +151,89 @@ class CardPaymentController extends Controller
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $query = InvoicePayments::with([
+            'invoice.customer.userDetail'
+        ])->where('type', 'card');
+
+        // --- SAME FILTERS AS INDEX() ---
+        if ($request->search) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('invoice.customer', function ($customer) use ($search) {
+                    $customer->where('customer_id', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%")
+                        ->orWhere('adm', 'like', "%$search%");
+                });
+
+                $q->orWhereHas('invoice.customer.userDetail', function ($adm) use ($search) {
+                    $adm->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('adm', $request->adm_ids);
+            });
+        }
+
+        if ($request->filled('adm_names')) {
+            $query->whereHas('invoice.customer.userDetail', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->customers);
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('card_transfer_date', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $status = strtolower($request->status);
+            $query->whereRaw('LOWER(status) = ?', [$status]);
+        }
+
+        // Get all filtered results
+        $payments = $query->get();
+
+        // Prepare Excel data
+        $data = $payments->map(function ($p) {
+            return [
+                'Date'      => $p->card_transfer_date ?? '-',
+                'ADM ID'    => $p->invoice->customer->adm ?? '-',
+                'ADM Name'  => $p->invoice->customer->userDetail->name ?? '-',
+                'Amount'    => $p->final_payment,
+                'Status'    => ucfirst($p->status),
+            ];
+        })->toArray();
+
+        $headers = ['Date', 'ADM ID', 'ADM Name', 'Amount', 'Status'];
+
+        return Excel::download(new ArrayExport($data, $headers), 'card_payments.xlsx');
     }
 }

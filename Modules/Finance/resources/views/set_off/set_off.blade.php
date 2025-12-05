@@ -506,13 +506,24 @@
            ---------------------------*/
         $('.red-edit-button-sm').on('click', function() {
             let selectedCustomers = [];
+            let selectedCustomerNames = [];
+
             $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
                 selectedCustomers.push($(this).val());
+                const name = $(this).closest('tr').find('td:first').text().trim();
+                selectedCustomerNames.push(name);
             });
+
             if (selectedCustomers.length === 0) {
                 alert("Select at least one customer");
                 return;
             }
+
+            // Close dropdown
+            $('.dropdown-menu').removeClass('show');
+
+            // --- NEW: Show selected customer(s) in the search field ---
+            $('#invoiceDropdownSearch').val(selectedCustomerNames.join(', '));
 
             // invoices
             $.ajax({
@@ -538,27 +549,43 @@
                 }
             });
 
-            // credit notes
-            $.ajax({
-                url: "{{ route('set_off.credit_notes') }}",
-                method: "POST",
-                data: {
-                    customer_ids: selectedCustomers,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(creditNotes) {
-                    const table2Data = (creditNotes || []).map(cn => ({
-                        fullName: cn.credit_note_id,
-                        amount: safeParseFloat(cn.amount), // ✅ Correct property
-                        balance: safeParseFloat(cn.amount) // ✅ Show same as amount initially
-                    }));
-                    renderTable('table2', table2Data, 'credit');
-                    updateFinalSetOff();
-                },
-                error: function(xhr) {
-                    console.error('Failed to fetch credit notes', xhr);
-                    alert('Failed to fetch credit notes');
-                }
+            // credit notes + extra payments (combined)
+            $.when(
+                $.ajax({
+                    url: "{{ route('set_off.credit_notes') }}",
+                    method: "POST",
+                    data: {
+                        customer_ids: selectedCustomers,
+                        _token: "{{ csrf_token() }}"
+                    }
+                }),
+                $.ajax({
+                    url: "{{ route('set_off.extra_payments') }}",
+                    method: "POST",
+                    data: {
+                        customer_ids: selectedCustomers,
+                        _token: "{{ csrf_token() }}"
+                    }
+                })
+            ).done(function(creditNotes, extraPayments) {
+                // creditNotes and extraPayments are arrays wrapped by jQuery -> [ data, statusText, jqXHR ]
+                const combined = [
+                    ...(creditNotes[0] || []).map(c => ({
+                        fullName: c.credit_note_id,
+                        amount: safeParseFloat(c.amount),
+                        balance: safeParseFloat(c.amount)
+                    })),
+                    ...(extraPayments[0] || []).map(e => ({
+                        fullName: e.extra_payment_id,
+                        amount: safeParseFloat(e.amount),
+                        balance: safeParseFloat(e.amount)
+                    }))
+                ];
+
+                renderTable('table2', combined, 'credit');
+                updateFinalSetOff();
+            }).fail(function() {
+                alert('Failed to fetch credit notes or extra payments');
             });
         });
 
@@ -630,6 +657,34 @@
         });
 
 
-    }); // end ready
+    });
 </script>
+
+<script>
+    // Generic table filter
+    function filterTable(tableId, searchValue) {
+        const filter = searchValue.toLowerCase();
+        const table = document.getElementById(tableId);
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) { // start at 1 to skip the header row
+            const tds = tr[i].getElementsByTagName("td");
+            let match = false;
+
+            for (let j = 0; j < tds.length; j++) {
+                const td = tds[j];
+                if (td) {
+                    const text = td.textContent || td.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = match ? "" : "none";
+        }
+    }
+</script>
+
 @include('finance::layouts.footer2')

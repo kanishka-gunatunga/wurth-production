@@ -10,6 +10,8 @@ use App\Models\InvoicePayments;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Invoices;
 use App\Models\Customers;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class FinanceChequeController extends Controller
 {
@@ -95,19 +97,22 @@ class FinanceChequeController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:approved,rejected',
+            'status' => 'required|in:approved,rejected,over_to_finance',
         ]);
 
         $deposit = Deposits::findOrFail($id);
         $deposit->status = strtolower($request->status);
         $deposit->save();
 
-        $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
-        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+        // update invoice payment only when approved or rejected
+        if (in_array($request->status, ['approved', 'rejected'])) {
+            $decodedReceipts = json_decode($deposit->reciepts, true) ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
 
-        if (!empty($receiptIds)) {
-            InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => strtolower($request->status)]);
+            if (!empty($receiptIds)) {
+                InvoicePayments::whereIn('id', $receiptIds)
+                    ->update(['status' => strtolower($request->status)]);
+            }
         }
 
         return response()->json(['success' => true]);
@@ -267,5 +272,85 @@ class FinanceChequeController extends Controller
             'data' => $deposits,
             'filters' => $filters,
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = Deposits::where('type', 'finance_cheque');
+
+        // Apply the same filters as in filter() method
+        if ($request->filled('adm_names')) {
+            $admIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id');
+            $query->whereIn('adm_id', $admIds);
+        }
+
+        if ($request->filled('adm_ids')) {
+            $admIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id');
+            $query->whereIn('adm_id', $admIds);
+        }
+
+        if ($request->filled('customers')) {
+            $query->get()->filter(function ($deposit) use ($request) {
+                $decoded = json_decode($deposit->reciepts, true) ?? [];
+                $receiptIds = collect($decoded)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+
+                    if ($customer && in_array($customer->name, $request->customers)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('date_time', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', ucfirst(strtolower($request->status)));
+        }
+
+        $deposits = $query->get();
+
+        // Transform data
+        $dataArray = $deposits->map(function ($deposit) {
+            $adm = UserDetails::where('user_id', $deposit->adm_id)->first();
+            $status = strtolower($deposit->status ?? '');
+            if ($status === 'pending') $status = 'deposited';
+
+            return [
+                'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'ADM Number' => $adm?->adm_number ?? 'N/A',
+                'ADM Name' => $adm?->name ?? 'N/A',
+                'Bank Name' => $deposit->bank_name,
+                'Branch Name' => $deposit->branch_name,
+                'Cheque No' => $deposit->id,
+                'Amount' => $deposit->amount ?? 0,
+                'Status' => ucfirst($status ?: 'Deposited'),
+            ];
+        })->toArray();
+
+        $headers = ['Date', 'ADM Number', 'ADM Name', 'Bank Name', 'Branch Name', 'Cheque No', 'Amount', 'Status'];
+
+        return Excel::download(new ArrayExport($dataArray, $headers), 'finance_cheque.xlsx');
     }
 }

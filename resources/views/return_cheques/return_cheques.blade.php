@@ -158,7 +158,7 @@
 
                             {{-- Actions --}}
                             <td class="sticky-column">
-                                <a href="{{ route('returncheques.show', $cheque->id) }}" style="text-decoration: none;">
+                                <a href="{{ url('return-cheques', $cheque->id) }}" style="text-decoration: none;">
                                     <button class="action-btn btn-sm btn-dark">View More</button>
                                 </a>
                             </td>
@@ -229,7 +229,7 @@
     </div>
 </div>
 
-<form id="filterForm" method="GET" action="{{ route('returncheques.index') }}">
+<form id="filterForm" method="GET" action="{{ url('return-cheques') }}">
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
         <div class="row d-flex justify-content-end">
@@ -446,7 +446,7 @@
             uploadBtn.disabled = true;
             uploadBtn.textContent = "Uploading...";
 
-            fetch("{{ route('returncheques.import') }}", {
+            fetch("{{ url('return-cheques/import') }}", {
                     method: "POST",
                     headers: {
                         "X-CSRF-TOKEN": "{{ csrf_token() }}",

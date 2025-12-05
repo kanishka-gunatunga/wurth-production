@@ -85,6 +85,25 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
+        @if(!empty($filters))
+        <form method="POST" action="{{ route('card_payments.export') }}">
+            @csrf
+
+            @foreach($filters as $key => $value)
+            @if(is_array($value))
+            @foreach($value as $v)
+            <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
+            @endforeach
+            @else
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
+            @endforeach
+
+            <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
+                <button type="submit" class="add-new-division-btn">Export</button>
+            </div>
+        </form>
+        @endif
         <div class="table-responsive">
             <table class="table custom-table-locked">
                 <thead>

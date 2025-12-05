@@ -13,6 +13,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\User;
 use App\Models\UserDetails;
@@ -33,6 +35,69 @@ class CollectionsController extends Controller
      * Display a listing of the resource.
      */
 
+    public function all_outstanding(Request $request)
+    {
+        $search = $request->input('search');
+        $outstandingRanges = $request->input('adoutstanding_dates', []); // Array of selected ranges
+
+        $invoices = Invoices::with(['customer.admDetails', 'customer.secondaryAdm'])
+            ->where('type', 'invoice')
+            ->whereColumn('amount', '>', 'paid_amount')
+            ->whereHas('customer', function ($query) {
+                $query->where('is_temp', 0);
+            });
+
+        // 🔍 Search Filter
+        if (!empty($search)) {
+            $invoices->where(function ($query) use ($search) {
+                $query->where('invoice_or_cheque_no', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($q) use ($search) {
+                        $q->where('customers.name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer.admDetails', function ($q) use ($search) {
+                        $q->where('user_details.adm_number', 'like', "%{$search}%")
+                            ->orWhere('user_details.name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer.secondaryAdm', function ($q) use ($search) {
+                        $q->where('user_details.adm_number', 'like', "%{$search}%")
+                            ->orWhere('user_details.name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // 📅 Outstanding Days Filter
+        if (!empty($outstandingRanges)) {
+            $invoices->where(function ($query) use ($outstandingRanges) {
+                foreach ($outstandingRanges as $range) {
+                    // Calculate based on current date and invoice_date
+                    switch ($range) {
+                        case '0-30':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 0 AND 30');
+                            break;
+                        case '31-60':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 31 AND 60');
+                            break;
+                        case '61-90':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 61 AND 90');
+                            break;
+                        case '91-120':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) BETWEEN 91 AND 120');
+                            break;
+                        case '120-plus':
+                            $query->orWhereRaw('DATEDIFF(NOW(), invoice_date) > 120');
+                            break;
+                    }
+                }
+            });
+        }
+
+        $invoices = $invoices->paginate(15)->appends([
+            'search' => $search,
+            'adoutstanding_dates' => $outstandingRanges,
+        ]);
+
+        return view('finance::collections.all_outstanding', compact('invoices', 'search', 'outstandingRanges'));
+    }
 
     public function all_receipts(Request $request)
     {
@@ -619,6 +684,122 @@ class CollectionsController extends Controller
         $filters = $request->only(['adm_names', 'adm_ids', 'customers', 'divisions', 'date_range']);
 
         return view('finance::collections.all_collections', compact('collections', 'filters'));
+    }
+
+    public function add_new_collection()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return view('finance::collections.add_new_collection', compact('customers'));
+    }
+
+    public function getAllCustomers()
+    {
+        $customers = Customers::select('id', 'name')->orderBy('name')->get();
+
+        return response()->json($customers);
+    }
+
+    public function getCustomerDetails($id)
+    {
+        $customer = Customers::select('id', 'name', 'mobile_number', 'email', 'address')
+            ->where('id', $id)
+            ->first();
+
+        return response()->json($customer);
+    }
+
+    public function getCustomerInvoices($customerId)
+    {
+        // Fetch invoices for this customer
+        $invoices = Invoices::where('customer_id', function ($query) use ($customerId) {
+            $query->select('customer_id')
+                ->from('customers')
+                ->where('id', $customerId)
+                ->limit(1);
+        })->get(['id', 'invoice_or_cheque_no', 'customer_id']);
+
+        // Get the customer name
+        $customer = Customers::find($customerId);
+
+        // Map invoices to include customer name
+        $result = $invoices->map(function ($invoice) use ($customer) {
+            return [
+                'id' => $invoice->id,
+                'invoice_or_cheque_no' => $invoice->invoice_or_cheque_no,
+                'customer_name' => $customer->name,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
+    public function export_collections(Request $request)
+    {
+        $query = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
+            ->orderBy('created_at', 'desc');
+
+        // SAME FILTERS
+        if ($request->filled('adm_names')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('name', $request->adm_names));
+        }
+
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('adm_number', $request->adm_ids));
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('payments.invoice.customer', fn($q) => $q->whereIn('name', $request->customers));
+        }
+
+        if ($request->filled('divisions')) {
+            $query->whereHas('admDetails', fn($q) => $q->whereIn('division', $request->divisions));
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range, 2));
+            } else {
+                $start = $end = $range;
+            }
+
+            $query->whereBetween('created_at', [
+                $start . " 00:00:00",
+                $end . " 23:59:59"
+            ]);
+        }
+
+        $data = $query->get()->map(function ($batch) {
+            return [
+                $batch->id,
+                $batch->created_at->format('Y-m-d'),
+                $batch->admDetails->adm_number ?? 'N/A',
+                $batch->admDetails->name ?? 'N/A',
+                $batch->division ?? 'N/A',
+                implode(', ', $batch->payments->pluck('invoice.customer.name')->unique()->toArray()),
+                $batch->payments->sum('final_payment')
+            ];
+        });
+
+        return Excel::download(
+            new ArrayExport(
+                $data->toArray(),
+                [
+                    'Collection ID',
+                    'Collected Date',
+                    'ADM Number',
+                    'ADM Name',
+                    'Division',
+                    'Customers',
+                    'Total Collected Amount'
+                ]
+            ),
+            'collections.xlsx'
+        );
     }
 
     /**

@@ -9,6 +9,8 @@ use App\Models\Deposits;
 use App\Models\UserDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ArrayExport;
 
 class FundTransferController extends Controller
 {
@@ -148,5 +150,95 @@ class FundTransferController extends Controller
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $query = InvoicePayments::with([
+            'invoice.customer.admDetails'
+        ])
+            ->where('type', 'fund-transfer');
+
+        // --- SAME FILTERS AS INDEX ---
+        if ($request->search) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('invoice.customer', function ($customer) use ($search) {
+                    $customer->where('customer_id', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%")
+                        ->orWhere('adm', 'like', "%$search%");
+                });
+
+                $q->orWhereHas('invoice.customer.admDetails', function ($adm) use ($search) {
+                    $adm->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        if ($request->filled('adm_ids')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('adm', $request->adm_ids);
+            });
+        }
+
+        if ($request->filled('adm_names')) {
+            $query->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->adm_names);
+            });
+        }
+
+        if ($request->filled('customers')) {
+            $query->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->customers);
+            });
+        }
+
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
+            }
+
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('transfer_date', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $status = strtolower($request->status);
+            $query->whereRaw('LOWER(status) = ?', [$status]);
+        }
+
+        $data = $query->get()->map(function ($deposit) {
+            return [
+                'Date' => $deposit->transfer_date,
+                'ADM Number' => $deposit->invoice->customer->adm ?? '-',
+                'ADM Name' => $deposit->invoice->customer->admDetails->name ?? '-',
+                'Transfer Ref. No.' => $deposit->transfer_reference_number,
+                'Amount' => number_format($deposit->final_payment, 2),
+                'Status' => ucfirst($deposit->status),
+            ];
+        })->toArray();
+
+        // Build Excel data
+        $headers = [
+            'Date',
+            'ADM Number',
+            'ADM Name',
+            'Transfer Ref. No.',
+            'Amount',
+            'Status'
+        ];
+
+        return Excel::download(new ArrayExport($data, $headers), 'fund_transfers.xlsx');
     }
 }
