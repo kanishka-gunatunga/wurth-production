@@ -135,6 +135,7 @@ use App\Models\UserDetails;
                                         <a href="{{url('edit-division/'.$division->id.'')}}"><button class="action-btn">View more</button></a>
                                         <a href="{{url('activate-division/'.$division->id.'')}}"><button class="action-btn">Activate</button></a>
                                         <a href="{{url('deactivate-division/'.$division->id.'')}}"><button class="action-btn">Deactivate</button></a>
+                                        <a href="{{url('delete-division/'.$division->id.'')}}"><button class="action-btn">Delete</button></a>
                                     </td>
                                 </tr>
                             <?php } ?>

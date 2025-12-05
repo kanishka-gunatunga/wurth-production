@@ -257,6 +257,21 @@ class UserController extends Controller
             "password" => "required | confirmed | min:6",
            ]);
 
+           if ($request->user_role == 2) { 
+            $existingHead = UserDetails::where('division', $request->division)
+                ->whereHas('user', function ($q) {
+                    $q->where('user_role', 2);
+                })
+                ->first();
+
+            if ($existingHead) {
+                return back()
+                    ->withErrors(['user_role' => 'This division already has a Head of Division.'])
+                    ->withInput();
+            }
+        }
+
+        
            DB::beginTransaction();
            $user = User::create([
               "email" => $request->email,

@@ -82,28 +82,115 @@ class DivisionController extends Controller
     }
 
     }
+public function deactivate_division($id)
+{
+    $division = Divisions::find($id);
 
-    public function deactivate_division($id){
-        $division = Divisions::find($id);
+    if (!$division) {
+        return back()->with('error', 'Division not found.');
+    }
+
+    DB::beginTransaction();
+    try {
+        // Step 1: Deactivate division
         $division->status = "inactive";
         $division->update();
 
-        ActivitLogService::log('division', $division->division_name . ' - division deactivated');
+        // Step 2: Get all users in this division
+        $userDetails = UserDetails::where('division', $division->id)->get();
 
-        return back()->with('success', 'Division Deactivated');
+        foreach ($userDetails as $detail) {
+            // Deactivate the user in users table
+            User::where('id', $detail->user_id)->update(['status' => 'inactive']);
+        }
 
+        // Log activity
+        ActivitLogService::log(
+            'division', 
+            $division->division_name . ' - division deactivated & users deactivated'
+        );
+
+        DB::commit();
+        return back()->with('success', 'Division and all users inside it have been deactivated.');
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('fail', 'Something went wrong: ' . $e->getMessage());
+    }
+}
+
+public function activate_division($id)
+{
+    $division = Divisions::find($id);
+
+    if (!$division) {
+        return back()->with('error', 'Division not found.');
     }
 
-    public function activate_division($id){
-        $division = Divisions::find($id);
+    DB::beginTransaction();
+    try {
+        // Step 1: Deactivate division
         $division->status = "active";
         $division->update();
 
-         ActivitLogService::log('division', $division->division_name . ' - division activated');
+        // Step 2: Get all users in this division
+        $userDetails = UserDetails::where('division', $division->id)->get();
 
-        return back()->with('success', 'Division Activated');
+        foreach ($userDetails as $detail) {
+            // Deactivate the user in users table
+            User::where('id', $detail->user_id)->update(['status' => 'active']);
+        }
 
+        // Log activity
+        ActivitLogService::log(
+            'division', 
+            $division->division_name . ' - division deactivated & users deactivated'
+        );
+
+        DB::commit();
+        return back()->with('success', 'Division and all users inside it have been deactivated.');
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('fail', 'Something went wrong: ' . $e->getMessage());
     }
+}
+public function delete_division($id)
+{
+    $division = Divisions::find($id);
+
+    if (!$division) {
+        return back()->with('error', 'Division not found.');
+    }
+
+    DB::beginTransaction();
+
+    try {
+
+        // Soft delete division
+        $division->delete();
+
+        // Deactivate users inside this division
+        foreach ($division->userDetails as $detail) {
+            User::where('id', $detail->user_id)
+                ->update(['status' => 'inactive']);
+        }
+
+        ActivitLogService::log(
+            'division',
+            $division->division_name . ' - division deleted & users deactivated'
+        );
+
+        DB::commit();
+
+        return back()->with('success', 'Division  deleted and users deactivated.');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+        return back()->with('error', 'Error: ' . $e->getMessage());
+    }
+}
 
     public function edit_division($id,Request $request)
     {
@@ -119,7 +206,7 @@ class DivisionController extends Controller
    
         $division =  Divisions::where('id', '=', $id)->first();;
         $division->division_name = $request->division_name;
-        $division->head_of_division = $request->head_of_division;
+        // $division->head_of_division = $request->head_of_division;
         $division->division_description = $request->division_description;
         $division->update();
 

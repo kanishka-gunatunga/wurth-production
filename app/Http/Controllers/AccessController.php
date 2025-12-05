@@ -63,7 +63,7 @@ class AccessController extends Controller
 
             if(RolePermissions::where("user_role", $request->user_role)->exists()){
                 $permission =  RolePermissions::where("user_role", $request->user_role)->first();
-                $permission->permissions = json_encode($request->permissions);
+                $permission->permissions = $request->permissions;
                 $permission->update();
 
                ActivitLogService::log('permission', $role . ' permissions updated');
@@ -71,7 +71,7 @@ class AccessController extends Controller
             else{
                 $permission = new RolePermissions();
                 $permission->user_role = $request->user_role;
-                $permission->permissions = json_encode($request->permissions);
+                $permission->permissions = $request->permissions;
                 $permission->save();
 
                 ActivitLogService::log('permission', $role . ' permissions added');
@@ -83,47 +83,19 @@ class AccessController extends Controller
         }
     }
 
-
 public function get_role_permissions(Request $request)
 {
+
+    $request->validate([
+        'user_role' => 'required|integer',
+    ]);
+
     $user_role = $request->input('user_role');
-    
+
     $rolePermissions = RolePermissions::where('user_role', $user_role)->first();
-    
+
     $permissions = $rolePermissions ? $rolePermissions->permissions : [];
-    
-    $availablePermissions = [
-        "View User List",
-        "Add User",
-        "Edit User",
-        "Deactivate User",
-        "View Invoice",
-        "Add Invoice",
-        "Edit Invoice",
-        "Generate Reports",
-        "Export Reports",
-        "Access Activity Logs"
-    ];
 
-    $permission_data = '<div class="col-12 mt-4 mb-3">
-                            <label for="head-of-division-select permission" class="form-label custom-input-label">Permissions</label>
-                        </div>';
-
-    foreach ($availablePermissions as $permission) {
-        $isChecked = in_array($permission, $permissions) ? 'checked' : '';
-        $permission_data .= '
-            <div class="col-md-3 ps-4">
-            <div class="row access-control-checks">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="permissions[]" id="permission_' . str_replace(' ', '_', $permission) . '" value="' . $permission . '" ' . $isChecked . '>
-                <label class="form-check-label" for="permission_' . str_replace(' ', '_', $permission) . '">' . $permission . '</label>
-            </div>
-             </div>
-            </div>
-        ';
-    }
-
-    return response($permission_data);
+    return response()->json($permissions);
 }
-
 }
