@@ -48,6 +48,7 @@ Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, '
 Route::match(['get', 'post'], '/activate-division/{id}', [DivisionController::class, 'activate_division'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/deactivate-division/{id}', [DivisionController::class, 'deactivate_division'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/edit-division/{id}', [DivisionController::class, 'edit_division'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/delete-division/{id}', [DivisionController::class, 'delete_division'])->middleware(AuthAdmin::class);
 
 Route::match(['get', 'post'], '/access-control', [AccessController::class, 'access_control'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/get-role-permissions', [AccessController::class, 'get_role_permissions'])->middleware(AuthAdmin::class);

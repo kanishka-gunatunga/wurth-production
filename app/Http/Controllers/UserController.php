@@ -266,13 +266,28 @@ class UserController extends Controller
                 "password" => "required | confirmed | min:6",
             ]);
 
-            DB::beginTransaction();
-            $user = User::create([
-                "email" => $request->email,
-                "password" => Hash::make($request->password),
-                "user_role" => $request->user_role,
-                "status" => 'active'
-            ]);
+           if ($request->user_role == 2) { 
+            $existingHead = UserDetails::where('division', $request->division)
+                ->whereHas('user', function ($q) {
+                    $q->where('user_role', 2);
+                })
+                ->first();
+
+            if ($existingHead) {
+                return back()
+                    ->withErrors(['user_role' => 'This division already has a Head of Division.'])
+                    ->withInput();
+            }
+        }
+
+        
+           DB::beginTransaction();
+           $user = User::create([
+              "email" => $request->email,
+              "password" => Hash::make($request->password),
+              "user_role" => $request->user_role,
+              "status" => 'active'
+           ]);
 
             $userDetails = new UserDetails();
             $userDetails->user_id = $user->id;
