@@ -187,12 +187,12 @@
         </div>
     </div>
 </div>
-
+@section('footer-buttons')
 <div class="d-flex justify-content-end mt-4 gap-3">
     <a href="{{ url('set-off-main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
     <button type="button" class="red-action-btn-lg submit-setoff-btn">Submit</button>
 </div>
-
+@endsection
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
     role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
@@ -684,3 +684,5 @@
         }
     }
 </script>
+
+@include('layouts.footer2')
