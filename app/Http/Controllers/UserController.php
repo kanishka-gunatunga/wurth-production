@@ -84,6 +84,7 @@ class UserController extends Controller
             }
         }
     }
+
     public function dashboard()
     {
         
@@ -125,11 +126,13 @@ class UserController extends Controller
             'logs'
         ));
     }
+
     function logout()
     {
         Auth::logout();
         return redirect('/');
     }
+
     public function forgot_password(Request $request)
     {
         if ($request->isMethod('get')) {
@@ -162,8 +165,10 @@ class UserController extends Controller
             return redirect('enter-otp');
         }
     }
+
     public function enter_otp(Request $request)
     {
+
         if ($request->isMethod('get')) {
             return view('user.enter_otp');
         }
@@ -178,6 +183,7 @@ class UserController extends Controller
             }
         }
     }
+
     public function reset_password(Request $request)
     {
         if ($request->isMethod('get')) {
@@ -198,6 +204,7 @@ class UserController extends Controller
             return redirect('/')->with('success', 'Password successfully updated');
         }
     }
+
     public function user_managment(Request $request)
     {
         // Get the roles input
@@ -266,28 +273,28 @@ class UserController extends Controller
                 "password" => "required | confirmed | min:6",
             ]);
 
-           if ($request->user_role == 2) { 
-            $existingHead = UserDetails::where('division', $request->division)
-                ->whereHas('user', function ($q) {
-                    $q->where('user_role', 2);
-                })
-                ->first();
+            if ($request->user_role == 2) {
+                $existingHead = UserDetails::where('division', $request->division)
+                    ->whereHas('user', function ($q) {
+                        $q->where('user_role', 2);
+                    })
+                    ->first();
 
-            if ($existingHead) {
-                return back()
-                    ->withErrors(['user_role' => 'This division already has a Head of Division.'])
-                    ->withInput();
+                if ($existingHead) {
+                    return back()
+                        ->withErrors(['user_role' => 'This division already has a Head of Division.'])
+                        ->withInput();
+                }
             }
-        }
 
-        
-           DB::beginTransaction();
-           $user = User::create([
-              "email" => $request->email,
-              "password" => Hash::make($request->password),
-              "user_role" => $request->user_role,
-              "status" => 'active'
-           ]);
+
+            DB::beginTransaction();
+            $user = User::create([
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "user_role" => $request->user_role,
+                "status" => 'active'
+            ]);
 
             $userDetails = new UserDetails();
             $userDetails->user_id = $user->id;
@@ -452,6 +459,7 @@ class UserController extends Controller
         }
         return response()->json($supervisors);
     }
+
     public function locked_users(Request $request)
     {
         $query = User::where('is_locked', 1)->with('userDetails');
@@ -471,6 +479,7 @@ class UserController extends Controller
 
         return view('user.locked_users', compact('locked_users'));
     }
+
     public function unlock_user($id)
     {
         $user = User::with('userDetails')->find($id);
@@ -481,80 +490,155 @@ class UserController extends Controller
 
         ActivitLogService::log('user management',  $user->userDetails->name . ' - user unblocked');
     }
+
     public function settings(Request $request)
     {
         if ($request->isMethod('get')) {
-            $user = User::where('id', Auth::user()->id)->with('userDetails')->first();
+            $user = User::where('id', Auth::user()->id)
+                ->with([
+                    'userDetails',
+                    'userDetails.division',
+                    'userDetails.supervisor.userDetails'
+                ])->first();
             return view('user.settings', ['user' => $user]);
         }
+
         if ($request->isMethod('post')) {
-            $request->validate([
-                'name'   => 'required',
-                'user_role'   => 'required',
-                'phone_number'   => 'required',
-                'email'   => 'required | email',
-            ]);
+            // Check which form was submitted based on the active tab
+            $activeTab = $request->input('active_tab', 'customer-list');
 
-            if (!$request->password == null || !$request->password_confirmation == null || !$request->current_password == null) {
-
-                $request->validate([
-                    "password" => "required | confirmed | min:6",
-                    "current_password" => "required",
-                ]);
-                if (Hash::check($request->input('current_password'), User::where('id', $id)->value('password'))) {
-                    if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
-                        $email = $request->email;
-                    } elseif (User::where("email", "=", $request->email)->exists()) {
-                        return back()->with('fail', 'This email is already in use');
-                    } else {
-                        $email = $request->email;
-                    }
-
-                    $userDetails =  UserDetails::where('user_id', '=', $id)->first();
-                    $userDetails->name = $request->name;
-                    $userDetails->phone_number = $request->phone_number;
-                    $userDetails->update();
-
-                    $user = User::find($id);
-                    $user->email = $email;
-                    $user->password = Hash::make($request->input('password'));
-                    $user->update();
-
-                    ActivitLogService::log('user management',  $request->name . ' - user details updated');
-
-                    return back()->with('success', 'User Details Successfully  Updated');
-                } else {
-                    return back()->with('fail', 'Current password is incorrect.');
-                }
-            } else {
-                if (User::where("id", "=", $id)->where("email", "=", $request->email)->exists()) {
-                    $email = $request->email;
-                } elseif (User::where("email", "=", $request->email)->exists()) {
-                    return back()->with('fail', 'This email is already in use');
-                } else {
-                    $email = $request->email;
-                }
-
-                if (UserDetails::where("user_id", "=", $id)->where("adm_number", "=", $request->adm_number)->exists()) {
-                    $adm_number = $request->adm_number;
-                } elseif (UserDetails::where("adm_number", "=", $request->adm_number)->exists()) {
-                    return back()->with('fail', 'This adm number is already in use');
-                } else {
-                    $adm_number = $adm_number;
-                }
-
-                $userDetails =  UserDetails::where('user_id', '=', $id)->first();;
-                $userDetails->name = $request->name;
-                $userDetails->phone_number = $request->phone_number;
-                $userDetails->update();
-                $user = User::find($id);
-                $user->email = $email;
-                $user->update();
-
-                ActivitLogService::log('user management',  $request->name . ' - user details updated');
-
-                return back()->with('success', 'User Details Successfully  Updated');
+            if ($activeTab === 'customer-list') {
+                // Handle User Profile update
+                return $this->updateProfile($request);
+            } elseif ($activeTab === 'temporary') {
+                // Handle Password Reset
+                return $this->updatePassword($request);
             }
+
+            return back()->with('fail', 'Invalid request.');
         }
+    }
+
+    private function updateProfile(Request $request)
+    {
+        // Get current user ID
+        $id = Auth::user()->id;
+
+        $request->validate([
+            'name'   => 'required',
+            'phone_number'   => 'required',
+            'email'   => 'required | email',
+        ]);
+
+        // Update user without changing password
+        $user = User::find($id);
+
+        // Check if email is already taken by another user
+        if ($user->email != $request->email && User::where("email", "=", $request->email)->exists()) {
+            return back()->with('fail', 'This email is already in use');
+        }
+
+        $user->email = $request->email;
+        $user->update();
+
+        // Update user details
+        $userDetails = UserDetails::where('user_id', '=', $id)->first();
+
+        if ($userDetails) {
+            $userDetails->name = $request->name;
+            $userDetails->phone_number = $request->phone_number;
+
+            // Update ADM number if provided and unique
+            if (!empty($request->adm_number)) {
+                if (
+                    $userDetails->adm_number != $request->adm_number &&
+                    UserDetails::where("adm_number", "=", $request->adm_number)->exists()
+                ) {
+                    return back()->with('fail', 'This ADM number is already in use');
+                }
+                $userDetails->adm_number = $request->adm_number;
+            }
+
+            // Update division if provided
+            if (!empty($request->division)) {
+                $userDetails->division = $request->division;
+            }
+
+            // Update supervisor if provided
+            if (!empty($request->supervisor)) {
+                $userDetails->supervisor = $request->supervisor;
+            }
+
+            $userDetails->update();
+        }
+
+        ActivitLogService::log('user settings', $request->name . ' - user profile updated');
+
+        return back()->with('success', 'Profile successfully updated')
+            ->with('active_tab', 'customer-list');
+    }
+
+    private function updatePassword(Request $request)
+    {
+        // Get current user ID
+        $id = Auth::user()->id;
+
+        $request->validate([
+            "current_password" => "required",
+            "password" => "required | confirmed | min:6",
+        ]);
+
+        // Verify current password
+        $user = Auth::user();
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return back()->with('fail', 'Current password is incorrect.')
+                ->with('active_tab', 'temporary');
+        }
+
+        // Update password
+        $user->password = Hash::make($request->input('password'));
+        $user->update();
+
+        ActivitLogService::log('user settings', 'Password changed for user ID: ' . $id);
+
+        return back()->with('success', 'Password successfully updated')
+            ->with('active_tab', 'temporary');
+    }
+
+    public function updateProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        $userDetails = UserDetails::where('user_id', Auth::id())->first();
+
+        // Delete old picture if exists
+        if ($userDetails->profile_picture && file_exists(public_path('db_files/user_profile_images/' . $userDetails->profile_picture))) {
+            unlink(public_path('db_files/user_profile_images/' . $userDetails->profile_picture));
+        }
+
+        $image = $request->file('profile_picture');
+        $filename = time() . '_' . Auth::id() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('db_files/user_profile_images'), $filename);
+
+        $userDetails->profile_picture = $filename;
+        $userDetails->save();
+
+        return back()->with('success', 'Profile picture updated');
+    }
+
+    public function deleteProfilePicture(Request $request)
+    {
+        $userDetails = UserDetails::where('user_id', Auth::id())->first();
+
+        if ($userDetails->profile_picture && file_exists(public_path('db_files/user_profile_images/' . $userDetails->profile_picture))) {
+            unlink(public_path('db_files/user_profile_images/' . $userDetails->profile_picture));
+        }
+
+        $userDetails->profile_picture = null;
+        $userDetails->save();
+
+        return response()->json(['success' => true]);
     }
 }

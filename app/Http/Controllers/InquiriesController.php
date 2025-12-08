@@ -74,6 +74,23 @@ class InquiriesController extends Controller
         return response()->json(['success' => true, 'status' => $inquiry->status]);
     }
 
+    public function downloadAttachment($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+
+        if (!$inquiry->attachement) {
+            return redirect()->back()->with('error', 'No attachment found.');
+        }
+
+        $filePath = public_path('uploads/adm/inquiry/attachments/' . $inquiry->attachement);
+
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $inquiry->attachement);
+    }
+
     public function search(Request $request)
     {
         $query = $request->input('query');

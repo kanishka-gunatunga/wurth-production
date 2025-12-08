@@ -24,6 +24,7 @@ use App\Http\Controllers\ChequeDepositsController;
 use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\WriteOffController;
+use App\Http\Controllers\SetOffController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -40,6 +41,8 @@ Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_u
 Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(['authAdmin', 'permission:security-locked']);
 Route::get('unlock-user/{id}', [UserController::class, 'unlock_user'])->middleware(['authAdmin', 'permission:security-locked-unlock']);
 Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(['authAdmin', 'permission:settings']);
+Route::post('/update-profile-picture', [UserController::class, 'updateProfilePicture'])->middleware(AuthAdmin::class);
+Route::post('/delete-profile-picture', [UserController::class, 'deleteProfilePicture'])->middleware(AuthAdmin::class);
 
 Route::match(['get', 'post'], '/division-managment', [DivisionController::class, 'division_managment'])->middleware(['authAdmin', 'permission:division-management']);
 Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, 'add_new_division'])->middleware(['authAdmin', 'permission:add-division']);
@@ -78,6 +81,8 @@ Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquir
 Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->middleware(['authAdmin'])->name('inquiry.details');
 Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->middleware(['authAdmin', 'permission:status-change-inquary'])->name('inquiries.approve');
 Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->middleware(['authAdmin', 'permission:status-change-inquary'])->name('inquiries.reject');
+Route::get('/inquiries/download/{id}', [InquiriesController::class, 'downloadAttachment'])
+    ->name('inquiries.download');
 Route::post('/inquiries/search', [InquiriesController::class, 'search'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries.search');
 Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries.filter');
 
@@ -198,6 +203,16 @@ Route::post('/write-off/submit', [WriteOffController::class, 'submitWriteOff'])-
 Route::get('/write-off-main', [WriteOffController::class, 'main'])->name('write_off.main');
 Route::get('/write-off-details/{id}', [WriteOffController::class, 'details'])->name('write_off.details');
 Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])->name('write_off.download');
+
+Route::get('/set-off', [SetOffController::class, 'index'])->name('set_off.index');
+Route::post('/set-off/invoices', [SetOffController::class, 'getInvoices'])->name('set_off.invoices');
+Route::post('/set-off/credit-notes', [SetOffController::class, 'getCreditNotes'])->name('set_off.credit_notes');
+Route::post('/set-off/extra-payments', [SetOffController::class, 'getExtraPayments'])
+    ->name('set_off.extra_payments');
+Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit');
+Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main');
+Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details');
+Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download');
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');

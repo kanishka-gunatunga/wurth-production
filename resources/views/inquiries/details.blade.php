@@ -82,11 +82,11 @@
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($inquiry->attachement)
-                <a href="{{ asset('storage/'.$inquiry->attachement) }}" download>
+                <a href="{{ route('inquiries.download', $inquiry->id) }}">
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else
-                <span class="slip-detail-text">No attachment</span>
+                <button class="black-action-btn" disabled>No File</button>
                 @endif
             </p>
 
@@ -103,13 +103,30 @@
             $status = strtolower(trim($inquiry->status ?? ''));
             @endphp
 
-            @if(in_array($status, ['pending', 'deposited']))
+            @if($status === 'pending')
             <button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
+            @elseif($status === 'sorted')
+            <button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
+            @elseif($status === 'rejected')
             <button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
             @endif
         </div>
 
 
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
+        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+        <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
+        <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
+            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
+        </div>
     </div>
 </div>
 
@@ -132,53 +149,6 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Mango', 'Orange', 'Pineapple', 'Strawberry'];
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        searchDropdown.innerHTML = '';
-
-        if (query) {
-            const filteredItems = items.filter(item => item.toLowerCase().includes(query));
-            if (filteredItems.length > 0) {
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.textContent = item;
-                    div.addEventListener('click', function() {
-                        searchInput.value = item;
-                        searchDropdown.classList.remove('show');
-                    });
-                    searchDropdown.appendChild(div);
-                });
-                searchDropdown.classList.add('show');
-            } else {
-                searchDropdown.classList.remove('show');
-            }
-        } else {
-            searchDropdown.classList.remove('show');
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
-            searchDropdown.classList.remove('show');
-        }
-    });
-</script>
 
 <!-- dropdown script -->
 <script>
@@ -214,37 +184,54 @@
 
 <!-- for change status -->
 <script>
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.update-status-btn');
-        if (!btn) return; // Ignore clicks outside buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('confirm-status-modal');
+        const confirmText = document.getElementById('confirm-status-text');
+        const closeBtn = document.getElementById('confirm-modal-close');
+        const noBtn = document.getElementById('confirm-no-btn');
+        const yesBtn = document.getElementById('confirm-yes-btn');
 
-        e.preventDefault();
+        let selectedBtn = null; // the clicked Approve/Reject button
+        let selectedStatus = ''; // 'sorted' or 'rejected'
+        let inquiryId = '';
 
-        const inquiryId = btn.dataset.id;
-        const status = btn.dataset.status;
+        // Open modal on action button click
+        document.querySelectorAll('.update-status-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectedBtn = this;
+                selectedStatus = btn.dataset.status;
+                inquiryId = btn.dataset.id;
+                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+                modal.style.display = 'block';
+            });
+        });
 
-        // Determine URL based on status
-        let url = '';
-        if (status === 'sorted') {
-            url = `/inquiries/approve/${inquiryId}`;
-        } else if (status === 'rejected') {
-            url = `/inquiries/reject/${inquiryId}`;
-        }
+        // Close modal
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
+        noBtn.addEventListener('click', () => modal.style.display = 'none');
 
-        fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the Status button immediately
-                    const slipDetails = document.querySelector('.slip-details');
-                    if (slipDetails) {
-                        const statusButton = slipDetails.querySelector('p span.slip-detail-text > button');
+        // Confirm yes
+        yesBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (!selectedBtn) return;
+
+            let url = selectedStatus === 'sorted' ?
+                `/inquiries/approve/${inquiryId}` :
+                `/inquiries/reject/${inquiryId}`;
+
+            fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update status button
+                        const statusButton = document.querySelector('.slip-details p span.slip-detail-text > button');
                         if (statusButton) {
                             statusButton.textContent = data.status;
                             statusButton.className =
@@ -252,13 +239,41 @@
                                 data.status.toLowerCase() === 'rejected' ? 'danger-status-btn' :
                                 'grey-status-btn';
                         }
+
+                        // Re-render action buttons based on new status
+                        const actionRow = document.querySelector('.action-button-lg-row');
+                        actionRow.querySelectorAll('.update-status-btn').forEach(b => b.remove()); // remove old buttons
+
+                        const newStatus = data.status.toLowerCase();
+                        if (newStatus === 'pending') {
+                            actionRow.insertAdjacentHTML('beforeend', `
+                    <button class="red-action-btn-lg update-status-btn" data-id="${inquiryId}" data-status="rejected">Reject</button>
+                    <button class="success-action-btn-lg update-status-btn" data-id="${inquiryId}" data-status="sorted">Approve</button>
+                `);
+                        } else if (newStatus === 'sorted') {
+                            actionRow.insertAdjacentHTML('beforeend', `
+                    <button class="red-action-btn-lg update-status-btn" data-id="${inquiryId}" data-status="rejected">Reject</button>
+                `);
+                        } else if (newStatus === 'rejected') {
+                            actionRow.insertAdjacentHTML('beforeend', `
+                    <button class="success-action-btn-lg update-status-btn" data-id="${inquiryId}" data-status="sorted">Approve</button>
+                `);
+                        }
+
+                        // Re-bind click events for new buttons
+                        document.querySelectorAll('.update-status-btn').forEach(btn => {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                selectedBtn = this;
+                                selectedStatus = btn.dataset.status;
+                                inquiryId = btn.dataset.id;
+                                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+                                modal.style.display = 'block';
+                            });
+                        });
                     }
-
-                    // Hide all approve/reject footer buttons immediately
-                    document.querySelectorAll('.update-status-btn').forEach(b => b.style.display = 'none');
-
-                }
-            })
-            .catch(err => console.error(err));
+                })
+                .catch(err => console.error(err));
+        });
     });
 </script>

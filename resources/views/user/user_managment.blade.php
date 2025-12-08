@@ -1,5 +1,6 @@
 @include('layouts.dashboard-header')
 <?php
+
 use App\Models\Divisions;
 ?>
 <style>
@@ -58,11 +59,10 @@ use App\Models\Divisions;
     .col-12.d-flex.justify-content-lg-end {
         align-items: center;
     }
-
 </style>
 
-<div class="container-fluid">
-            <div class="main-wrapper">
+
+<div class="main-wrapper">
 
                 
 
@@ -402,15 +402,14 @@ use App\Models\Divisions;
 
 
 
-                    </div>        
-             
-
-
-            </div>
-           
-        </div>
-
     </div>
+
+
+
+</div>
+
+
+</div>
 
 <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
     aria-labelledby="offcanvasRightLabel">
@@ -429,64 +428,64 @@ use App\Models\Divisions;
             <a href="{{url('user-managment')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
-   <form action="" method="GET" id="filterForm">
-    <div class="offcanvas-body">
-        <p class="filter-title">User Roles</p>
+    <form action="" method="GET" id="filterForm">
+        <div class="offcanvas-body">
+            <p class="filter-title">User Roles</p>
 
-        <div class="row" id="roleFilterContainer">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(1, $selectedRoles ?? []) ? 'active' : '' }}" data-role="1">
-                <span>System Administrator</span>
+            <div class="row" id="roleFilterContainer">
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(1, $selectedRoles ?? []) ? 'active' : '' }}" data-role="1">
+                    <span>System Administrator</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(2, $selectedRoles ?? []) ? 'active' : '' }}" data-role="2">
+                    <span>Head of Division</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(3, $selectedRoles ?? []) ? 'active' : '' }}" data-role="3">
+                    <span>Regional Sales Manager</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(4, $selectedRoles ?? []) ? 'active' : '' }}" data-role="4">
+                    <span>Area Sales Manager</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(5, $selectedRoles ?? []) ? 'active' : '' }}" data-role="5">
+                    <span>Team Leader</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(6, $selectedRoles ?? []) ? 'active' : '' }}" data-role="6">
+                    <span>ADM (Sales Rep)</span>
+                </div>
+
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(7, $selectedRoles ?? []) ? 'active' : '' }}" data-role="7">
+                    <span>Finance Manager</span>
+                </div>
             </div>
 
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(2, $selectedRoles ?? []) ? 'active' : '' }}" data-role="2">
-                <span>Head of Division</span>
-            </div>
+            <!-- Hidden input that stores selected role IDs -->
+            <input type="hidden" name="roles" id="selectedRolesInput" value="{{ implode(',', $selectedRoles ?? []) }}">
 
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(3, $selectedRoles ?? []) ? 'active' : '' }}" data-role="3">
-                <span>Regional Sales Manager</span>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(4, $selectedRoles ?? []) ? 'active' : '' }}" data-role="4">
-                <span>Area Sales Manager</span>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(5, $selectedRoles ?? []) ? 'active' : '' }}" data-role="5">
-                <span>Team Leader</span>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(6, $selectedRoles ?? []) ? 'active' : '' }}" data-role="6">
-                <span>ADM (Sales Rep)</span>
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(7, $selectedRoles ?? []) ? 'active' : '' }}" data-role="7">
-                <span>Finance Manager</span>
-            </div>
-        </div>
-
-        <!-- Hidden input that stores selected role IDs -->
-        <input type="hidden" name="roles" id="selectedRolesInput" value="{{ implode(',', $selectedRoles ?? []) }}">
-
-        <div class="mt-5 filter-categories">
-            <p class="filter-title">Divisions</p>
-            @foreach($divisions as $division)
+            <div class="mt-5 filter-categories">
+                <p class="filter-title">Divisions</p>
+                @foreach($divisions as $division)
                 <div class="form-check custom-circle-checkbox">
-                    <input 
-                        class="form-check-input" 
-                        type="checkbox" 
-                        id="division{{ $division->id }}" 
-                        name="division[]" 
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="division{{ $division->id }}"
+                        name="division[]"
                         value="{{ $division->id }}"
                         {{ in_array($division->id, $selectedDivisions ?? []) ? 'checked' : '' }}>
                     <label class="form-check-label" for="division{{ $division->id }}">
                         {{ $division->division_name }}
                     </label>
                 </div>
-            @endforeach
+                @endforeach
 
-            <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
-        </div>
-        </form>
-    </div>
+                <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
+            </div>
+    </form>
+</div>
 
 
 
@@ -503,78 +502,80 @@ use App\Models\Divisions;
 
 
 
-        <!-- expand search bar  -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const searchWrapper = document.getElementById("search-box-wrapper");
-                const searchToggleButton = document.getElementById("search-toggle-button");
-                const searchInput = searchWrapper.querySelector(".search-input");
+<!-- expand search bar  -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchWrapper = document.getElementById("search-box-wrapper");
+        const searchToggleButton = document.getElementById("search-toggle-button");
+        const searchInput = searchWrapper.querySelector(".search-input");
 
-                let idleTimeout;
-                const idleTime = 5000; // 5 seconds (5000 milliseconds)
+        let idleTimeout;
+        const idleTime = 5000; // 5 seconds (5000 milliseconds)
 
-                function collapseSearch() {
-                    searchWrapper.classList.remove("expanded");
-                    searchWrapper.classList.add("collapsed");
-                    searchToggleButton.classList.remove("d-none"); // Show the button
-                    clearTimeout(idleTimeout); // Clear any existing timer
+        function collapseSearch() {
+            searchWrapper.classList.remove("expanded");
+            searchWrapper.classList.add("collapsed");
+            searchToggleButton.classList.remove("d-none"); // Show the button
+            clearTimeout(idleTimeout); // Clear any existing timer
+        }
+
+        function startIdleTimer() {
+            clearTimeout(idleTimeout); // Clear previous timer
+            idleTimeout = setTimeout(() => {
+                if (!searchInput.value) { // Only collapse if input is empty
+                    collapseSearch();
                 }
+            }, idleTime);
+        }
 
-                function startIdleTimer() {
-                    clearTimeout(idleTimeout); // Clear previous timer
-                    idleTimeout = setTimeout(() => {
-                        if (!searchInput.value) { // Only collapse if input is empty
-                            collapseSearch();
-                        }
-                    }, idleTime);
-                }
-
-                searchToggleButton.addEventListener("click", function() {
-                    if (searchWrapper.classList.contains("collapsed")) {
-                        searchWrapper.classList.remove("collapsed");
-                        searchWrapper.classList.add("expanded");
-                        searchToggleButton.classList.add("d-none"); // Hide the button
-                        searchInput.focus();
-                        startIdleTimer();
-                    } else {
-                        collapseSearch();
-                    }
-                });
-
-                searchInput.addEventListener("keydown", function() {
-                    startIdleTimer(); // Reset the timer on any keypress
-                });
-            });
-        </script>
-        <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const roleTags = document.querySelectorAll(".selectable-filter");
-    const hiddenInput = document.getElementById("selectedRolesInput");
-
-    // Convert hidden input string back to array
-    let selectedRoles = hiddenInput.value ? hiddenInput.value.split(",").map(Number) : [];
-
-    // Click handler for role tags
-    roleTags.forEach(tag => {
-        tag.addEventListener("click", function() {
-            const roleId = parseInt(this.dataset.role);
-
-            if (selectedRoles.includes(roleId)) {
-                selectedRoles = selectedRoles.filter(id => id !== roleId);
-                this.classList.remove("active");
+        searchToggleButton.addEventListener("click", function() {
+            if (searchWrapper.classList.contains("collapsed")) {
+                searchWrapper.classList.remove("collapsed");
+                searchWrapper.classList.add("expanded");
+                searchToggleButton.classList.add("d-none"); // Hide the button
+                searchInput.focus();
+                startIdleTimer();
             } else {
-                selectedRoles.push(roleId);
-                this.classList.add("active");
+                collapseSearch();
             }
+        });
 
-            // Update hidden input value
-            hiddenInput.value = selectedRoles.join(",");
+        searchInput.addEventListener("keydown", function() {
+            startIdleTimer(); // Reset the timer on any keypress
         });
     });
-}); 
-function searchUsers(val) {
-    if (event.key === "Enter") {
-        document.getElementById("mainSearchForm").submit();
-    }
-}
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const roleTags = document.querySelectorAll(".selectable-filter");
+        const hiddenInput = document.getElementById("selectedRolesInput");
+
+        // Convert hidden input string back to array
+        let selectedRoles = hiddenInput.value ? hiddenInput.value.split(",").map(Number) : [];
+
+        // Click handler for role tags
+        roleTags.forEach(tag => {
+            tag.addEventListener("click", function() {
+                const roleId = parseInt(this.dataset.role);
+
+                if (selectedRoles.includes(roleId)) {
+                    selectedRoles = selectedRoles.filter(id => id !== roleId);
+                    this.classList.remove("active");
+                } else {
+                    selectedRoles.push(roleId);
+                    this.classList.add("active");
+                }
+
+                // Update hidden input value
+                hiddenInput.value = selectedRoles.join(",");
+            });
+        });
+    });
+
+    function searchUsers(val) {
+        if (event.key === "Enter") {
+            document.getElementById("mainSearchForm").submit();
+        }
+    }
+</script>
+@include('layouts.footer2')
