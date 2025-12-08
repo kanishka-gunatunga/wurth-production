@@ -62,7 +62,6 @@
 </style>
 
 <div class="main-wrapper">
-
     <div class="row d-flex justify-content-between">
         <div class="col-lg-6 col-12">
             <h1 class="header-title">Inquiries</h1>
@@ -85,7 +84,6 @@
         </div>
     </div>
 
-
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
         <div class="table-responsive">
@@ -100,7 +98,6 @@
                         <th>Customer Name</th>
                         <th>Status</th>
                         <th class="sticky-column">Actions</th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -135,9 +132,13 @@
                             $status = strtolower(trim($inquiry->status ?? ''));
                             @endphp
 
-                            @if(in_array($status, ['pending', 'deposited']))
+                            @if($status === 'pending')
                             <button class="success-action-btn">Approve</button>
                             <button class="red-action-btn">Reject</button>
+                            @elseif($status === 'sorted')
+                            <button class="red-action-btn">Reject</button>
+                            @elseif($status === 'rejected')
+                            <button class="success-action-btn">Approve</button>
                             @endif
 
                             @if($inquiry->attachement)
@@ -160,25 +161,14 @@
                     @endforelse
                 </tbody>
             </table>
-
         </div>
         <div class="col-12 d-flex justify-content-center laravel-pagination mt-4">
             {{ $inquiries->appends(['query' => request('query')])->links('pagination::bootstrap-5') }}
         </div>
-
     </div>
-
-
-
-
-
 </div>
-
-
 </div>
-
 </div>
-
 </div>
 
 <form action="{{ url('/inquiries/filter') }}" method="POST">
@@ -277,7 +267,6 @@
 </form>
 
 
-
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
     role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
@@ -297,8 +286,18 @@
     </div>
 </div>
 
-
-
+<!-- Confirmation Modal -->
+<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
+        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+        <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
+        <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
+            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
+        </div>
+    </div>
+</div>
 
 
 <!-- link entire row of table -->
@@ -359,8 +358,6 @@
     });
 </script>
 
-
-
 <script>
     document.querySelectorAll('.selectable-filter').forEach(function(tag) {
         tag.addEventListener('click', function() {
@@ -393,57 +390,125 @@
 
 <!-- for change status -->
 <script>
-    document.addEventListener('click', function(e) {
-        const row = e.target.closest('tr.clickable-row');
-        if (!row) return;
+    document.addEventListener('DOMContentLoaded', function() {
+        let selectedAction = null;
+        let selectedRow = null;
+        const modal = document.getElementById('confirm-status-modal');
+        const statusText = document.getElementById('confirm-status-text');
+        const yesBtn = document.getElementById('confirm-yes-btn');
+        const noBtn = document.getElementById('confirm-no-btn');
+        const closeBtn = document.getElementById('confirm-modal-close');
 
-        const inquiryId = row.dataset.href.split('/').pop(); // get id from URL
+        // Function to show modal
+        function showModal(action, row) {
+            selectedAction = action; // 'approve' or 'reject'
+            selectedRow = row;
+            statusText.textContent = action === 'approve' ? 'Sorted' : 'Rejected';
+            modal.style.display = 'block';
+        }
 
-        // Approve button click
-        if (e.target.classList.contains('success-action-btn')) {
-            e.preventDefault();
-            fetch(`/inquiries/approve/${inquiryId}`, {
+        // Function to hide modal
+        function hideModal() {
+            modal.style.display = 'none';
+            selectedAction = null;
+            selectedRow = null;
+        }
+
+        // Close modal buttons
+        noBtn.addEventListener('click', hideModal);
+        closeBtn.addEventListener('click', hideModal);
+
+        // Handle approve/reject button click
+        document.querySelectorAll('tr.clickable-row').forEach(row => {
+            const approveBtn = row.querySelector('.success-action-btn');
+            const rejectBtn = row.querySelector('.red-action-btn');
+
+            if (approveBtn) {
+                approveBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showModal('approve', row);
+                });
+            }
+
+            if (rejectBtn) {
+                rejectBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showModal('reject', row);
+                });
+            }
+        });
+
+        // Confirm action
+        yesBtn.addEventListener('click', function() {
+            if (!selectedAction || !selectedRow) return;
+
+            const inquiryId = selectedRow.dataset.href.split('/').pop();
+            const url = `/inquiries/${selectedAction}/${inquiryId}`;
+
+            fetch(url, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
-                    },
+                    }
                 })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        const btn = row.querySelector('td button');
-                        btn.textContent = data.status;
-                        btn.className = 'success-status-btn';
+                        // Update status button
+                        const statusBtn = selectedRow.querySelector('td button');
+                        statusBtn.textContent = data.status;
+                        statusBtn.className =
+                            data.status.toLowerCase() === 'sorted' ? 'success-status-btn' :
+                            data.status.toLowerCase() === 'rejected' ? 'danger-status-btn' :
+                            'grey-status-btn';
 
-                        // ✅ Hide Approve/Reject buttons
-                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.style.display = 'none');
+                        // Clear existing action buttons
+                        const actionsCell = selectedRow.querySelector('td.sticky-column');
+                        actionsCell.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.remove());
+
+                        // Render buttons according to new status
+                        const newStatus = data.status.toLowerCase();
+                        if (newStatus === 'pending') {
+                            actionsCell.insertAdjacentHTML('afterbegin', `
+                    <button class="success-action-btn">Approve</button>
+                    <button class="red-action-btn">Reject</button>
+                `);
+                        } else if (newStatus === 'sorted') {
+                            actionsCell.insertAdjacentHTML('afterbegin', `
+                    <button class="red-action-btn">Reject</button>
+                `);
+                        } else if (newStatus === 'rejected') {
+                            actionsCell.insertAdjacentHTML('afterbegin', `
+                    <button class="success-action-btn">Approve</button>
+                `);
+                        }
+
+                        // Rebind click events for the new buttons
+                        const approveBtn = actionsCell.querySelector('.success-action-btn');
+                        const rejectBtn = actionsCell.querySelector('.red-action-btn');
+
+                        if (approveBtn) {
+                            approveBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                showModal('approve', selectedRow);
+                            });
+                        }
+
+                        if (rejectBtn) {
+                            rejectBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                showModal('reject', selectedRow);
+                            });
+                        }
                     }
-                });
-        }
-
-        // Reject button click
-        if (e.target.classList.contains('red-action-btn')) {
-            e.preventDefault();
-            fetch(`/inquiries/reject/${inquiryId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
+                    hideModal();
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const btn = row.querySelector('td button');
-                        btn.textContent = data.status;
-                        btn.className = 'danger-status-btn';
-
-                        // ✅ Hide Approve/Reject buttons
-                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.style.display = 'none');
-                    }
+                .catch(err => {
+                    console.error(err);
+                    hideModal();
                 });
-        }
+        })
     });
 </script>
 
