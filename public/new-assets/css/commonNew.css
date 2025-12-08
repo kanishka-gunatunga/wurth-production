@@ -691,3 +691,10 @@
   font-family: Poppins;
   font-size: 18px;
 }
+.text-color-red{
+  color: #CC0000;
+}
+.red-card{
+  border:1px solid #FFB3B3 !important;
+  background-color:#FFE6E6 !important;
+}

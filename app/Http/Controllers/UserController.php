@@ -22,6 +22,7 @@ use App\Services\ActivitLogService;
 use App\Models\Deposits;
 use App\Models\InvoicePayments;
 use App\Models\ActivtiyLog;
+use App\Models\RolePermissions;
 use File;
 use Mail;
 use Image;
@@ -42,39 +43,37 @@ class UserController extends Controller
                 'password' => 'required',
             ]);
 
-            // Find user by email
             $user = User::where('email', $request->email)->first();
 
             if (!$user) {
                 return back()->with('fail', 'Invalid login details');
             }
 
-            // Check if account is locked
             if ($user->is_locked) {
                 return back()->with('fail', 'Your account is locked due to multiple failed login attempts. Please contact admin.');
             }
-
-            // Check password manually (to control attempt tracking)
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 'active'])) {
-
-                // Reset failed attempts on success
                 $user->failed_attempts = 0;
                 $user->save();
 
-                // Redirect based on role
+                $rawPermissions = RolePermissions::where('user_role', $user->user_role)->value('permissions');
+
+                $permissions = is_string($rawPermissions) ? json_decode($rawPermissions, true) : $rawPermissions;
+
+                session(['permissions' => $permissions]);
+
+
                 switch ($user->user_role) {
                     case 6:
                         return redirect('adm');
-                    case 7:
-                        return redirect('finance');
+                    case 8:
+                        return redirect('adm');
                     default:
                         return redirect('dashboard');
                 }
             } else {
-                // Increment failed attempts
                 $user->failed_attempts += 1;
 
-                // Lock account if 3 failed attempts reached
                 if ($user->failed_attempts >= 3) {
                     $user->is_locked = true;
                 }
@@ -87,6 +86,7 @@ class UserController extends Controller
     }
     public function dashboard()
     {
+        
         // Get current month and year
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;

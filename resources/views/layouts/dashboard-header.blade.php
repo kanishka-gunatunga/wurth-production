@@ -138,7 +138,7 @@
                     <ul class="sidebar-list">
 
 
-
+                        @if(in_array('dashboard', session('permissions')))
                         <li class="nav-item">
                             <a href="{{url('dashboard')}}" class="nav-link">
                                 <span class="me-4">
@@ -153,7 +153,8 @@
                                 Dashboard
                             </a>
                         </li>
-
+                        @endif
+                        @if(in_array('user-Management', session('permissions')))
                         <li class="nav-item">
                             <a class="nav-link" href="{{url('user-managment')}}">
                                 <span class="me-4">
@@ -173,8 +174,8 @@
                                 User Management
                             </a>
                         </li>
-
-
+                        @endif
+                        @if(in_array('access-control', session('permissions')))
                         <li class="nav-item">
                             <a class="nav-link" href="{{url('access-control')}}">
                                 <span class="me-4">
@@ -188,7 +189,8 @@
                                 Access Control
                             </a>
                         </li>
-
+                        @endif
+                        @if(in_array('customers', session('permissions')))
                         <li class="nav-item">
                             <a class="nav-link" href="{{url('customers')}}">
                                 <span class="me-4">
@@ -204,24 +206,10 @@
                                 Customers
                             </a>
                         </li>
+                        @endif
 
-
-                        <!-- <li class="nav-item">
-                <a class="nav-link" href="{{ url('admin-customers') }}">
-                    <span class="me-4">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M16.9699 14.44C18.3399 14.67 19.8499 14.43 20.9099 13.72C22.3199 12.78 22.3199 11.24 20.9099 10.3C19.8399 9.59001 18.3099 9.35 16.9399 9.59M6.99994 14.44C5.62994 14.67 4.11994 14.43 3.05994 13.72C1.64994 12.78 1.64994 11.24 3.05994 10.3C4.12994 9.59001 5.65994 9.35 7.02994 9.59M17.9999 7.16C17.9399 7.15 17.8699 7.15 17.8099 7.16C16.4299 7.11 15.3299 5.98 15.3299 4.58C15.3299 3.15 16.4799 2 17.9099 2C19.3399 2 20.4899 3.16 20.4899 4.58C20.4799 5.98 19.3799 7.11 17.9999 7.16ZM5.96994 7.16C6.02994 7.15 6.09994 7.15 6.15994 7.16C7.53994 7.11 8.63994 5.98 8.63994 4.58C8.63994 3.15 7.48994 2 6.05994 2C4.62994 2 3.47994 3.16 3.47994 4.58C3.48994 5.98 4.58994 7.11 5.96994 7.16ZM11.9999 14.63C11.9399 14.62 11.8699 14.62 11.8099 14.63C10.4299 14.58 9.32994 13.45 9.32994 12.05C9.32994 10.62 10.4799 9.47 11.9099 9.47C13.3399 9.47 14.4899 10.63 14.4899 12.05C14.4799 13.45 13.3799 14.59 11.9999 14.63ZM9.08994 17.78C7.67994 18.72 7.67994 20.26 9.08994 21.2C10.6899 22.27 13.3099 22.27 14.9099 21.2C16.3199 20.26 16.3199 18.72 14.9099 17.78C13.3199 16.72 10.6899 16.72 9.08994 17.78Z"
-                                stroke="#090909" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-
-
-                    </span>
-                    Customers(admin + finance)
-                </a>
-            </li> -->
-
+                      
+                        @if(in_array('division-management', session('permissions')))
                         <li class="nav-item">
                             <a class="nav-link" href="{{url('division-managment')}}">
                                 <span class="me-4">
@@ -242,7 +230,15 @@
                                 Division Management
                             </a>
                         </li>
-
+                        @endif
+                        @if(
+                        in_array('collections', session('permissions')) ||
+                        in_array('all-collections', session('permissions')) ||
+                        in_array('all-outstanding', session('permissions')) ||
+                        in_array('all-receipts', session('permissions')) ||
+                        in_array('all-collections-add', session('permissions'))||
+                        in_array('all-advanced-payments', session('permissions'))
+                        )
                         <li class="nav-item">
                             <a class="nav-link accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -267,7 +263,7 @@
                             <div id="flush-collapseOne" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
-
+                                    @if(in_array('all-collections', session('permissions')))
                                     <li class="nav-item">
                                         <a href="{{ url('/all-collections') }}" class="nav-link">
                                             <span class="me-4">
@@ -281,7 +277,8 @@
                                             All Collections
                                         </a>
                                     </li>
-
+                                     @endif
+                                     @if(in_array('all-outstanding', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/all-outstanding') }}">
                                             <span class="me-4">
@@ -301,8 +298,9 @@
                                             All Outstanding
                                         </a>
                                     </li>
+                                    @endif
 
-
+                                    @if(in_array('all-receipts', session('permissions')))
                                     <li class="nav-item">
                                         <a href="{{ url('/all-receipts') }}" class="nav-link">
                                             <span class="me-4">
@@ -316,8 +314,8 @@
                                             All Receipts
                                         </a>
                                     </li>
-
-
+                                    @endif
+                                    @if(in_array('all-advanced-payments', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/advanced-payments') }}">
                                             <span class="me-4">
@@ -338,8 +336,8 @@
                                             Advance Payments
                                         </a>
                                     </li>
-
-
+                                    @endif
+                                     @if(in_array('all-collections-add', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/collections/add') }}">
                                             <span class="me-4">
@@ -352,14 +350,15 @@
                                             Add New Collections
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </div>
 
                         </li>
+                       @endif         
 
 
-
-
+                         @if(in_array('return-cheques', session('permissions')))   
                         <li class="nav-item ">
                             <a class="nav-link" href="{{url('return-cheques')}}">
                                 <span class="me-4">
@@ -376,7 +375,8 @@
                                 Return Cheques
                             </a>
                         </li>
-
+                         @endif
+                        @if(in_array('writeoff-writeback', session('permissions')))       
                         <li class="nav-item ">
                             <a class="nav-link" href="{{ url('/write-off-main') }}">
                                 <span class="me-4">
@@ -391,8 +391,8 @@
                                 Write-Off & Write-Back
                             </a>
                         </li>
-
-
+                        @endif    
+                         @if(in_array('setoff', session('permissions')))   
                         <li class="nav-item ">
                             <a class="nav-link" href="{{ url('/set-off-main') }}">
                                 <span class="me-4">
@@ -407,10 +407,14 @@
                                 Set-Off
                             </a>
                         </li>
+                         @endif   
 
-
-
-
+                        @if(
+                            in_array('notifications', session('permissions')) ||
+                            in_array('notification-create', session('permissions')) ||
+                            in_array('notifications-payment', session('permissions')) ||
+                            in_array('notifications-system', session('permissions'))
+                        )    
                         <li class="nav-item">
                             <a class="nav-link accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
@@ -435,6 +439,7 @@
                             <div id="flush-collapseThree" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
+                                     @if(in_array('notification-create', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{url('sent-reminders')}}">
                                             <span class="me-4">
@@ -449,7 +454,8 @@
                                             Create Notifications
                                         </a>
                                     </li>
-
+                                    @endif
+                                     @if(in_array('notifications-payment', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{url('reminders')}}">
                                             <span class="me-4">
@@ -472,7 +478,8 @@
                                             Payment Notifications
                                         </a>
                                     </li>
-
+                                     @endif
+                                     @if(in_array('notifications-system', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{url('reminders')}}">
                                             <span class="me-4">
@@ -495,13 +502,22 @@
                                             System Notifications
                                         </a>
                                     </li>
-
+                                    @endif
 
                                 </ul>
                             </div>
 
                         </li>
-
+                       @endif    
+                       @if(
+                            in_array('deposits', session('permissions')) ||
+                            in_array('deposits-finance-cash', session('permissions')) ||
+                            in_array('deposits-finance-cheque', session('permissions')) ||
+                            in_array('deposits-cash', session('permissions')) ||
+                            in_array('deposits-cheque', session('permissions')) ||
+                            in_array('deposits-fund-transfer', session('permissions')) ||
+                            in_array('deposits-card-payment', session('permissions'))
+                        ) 
                         <li class="nav-item">
                             <a class="nav-link accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
@@ -529,6 +545,7 @@
                             <div id="flush-collapseTwo" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
+                                    @if(in_array('deposits-finance-cash', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/finance-cash') }}">
                                             <span class="me-4">
@@ -551,7 +568,8 @@
                                             Finance - Cash
                                         </a>
                                     </li>
-
+                                     @endif
+                                     @if(in_array('deposits-finance-cheque', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/finance-cheque') }}">
                                             <span class="me-4">
@@ -568,7 +586,8 @@
                                             Finance - Cheque
                                         </a>
                                     </li>
-
+                                    @endif
+                                    @if(in_array('deposits-cash', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/cash-deposits') }}">
                                             <span class="me-4">
@@ -591,8 +610,8 @@
                                             Cash Deposits
                                         </a>
                                     </li>
-
-
+                                    @endif
+                                    @if(in_array('deposits-cheque', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/cheque-deposits') }}">
                                             <span class="me-4">
@@ -609,8 +628,8 @@
                                             Cheque Deposits
                                         </a>
                                     </li>
-
-
+                                    @endif
+                                    @if(in_array('deposits-fund-transfer', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/fund-transfers') }}">
                                             <span class="me-4">
@@ -632,8 +651,8 @@
                                             Fund Transfers
                                         </a>
                                     </li>
-
-
+                                    @endif
+                                    @if(in_array('deposits-card-payment', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/card-payments') }}">
                                             <span class="me-4">
@@ -648,11 +667,13 @@
                                             Card Payments
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </div>
 
                         </li>
-
+                         @endif   
+                         @if(in_array('inquaries', session('permissions')))
                         <li class="nav-item ">
                             <a class="nav-link" href="{{ url('inquiries') }}">
                                 <span class="me-4">
@@ -667,8 +688,8 @@
                                 Inquiries
                             </a>
                         </li>
-
-
+                        @endif 
+                        @if(in_array('upload', session('permissions')))
                         <li class="nav-item ">
                             <a class="nav-link" href="{{ url('file-upload') }}">
                                 <span class="me-4">
@@ -683,7 +704,8 @@
                                 Upload
                             </a>
                         </li>
-
+                        @endif 
+                        @if(in_array('reports', session('permissions')))
                         <li class="nav-item ">
                             <a class="nav-link" href="admin-reports">
                                 <span class="me-4">
@@ -698,10 +720,14 @@
                                 Reports
                             </a>
                         </li>
+                        @endif 
 
-
-
-
+                        @if(
+                            in_array('security', session('permissions')) ||
+                            in_array('security-activity', session('permissions')) ||
+                            in_array('security-locked', session('permissions')) ||
+                            in_array('security-backup', session('permissions'))
+                        )
                         <li class="nav-item">
                             <a class="nav-link accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
@@ -725,6 +751,7 @@
                             <div id="flush-collapseFour" class="accordion-collapse collapse"
                                 data-bs-parent="#accordionFlushExample">
                                 <ul class="sidebar-list">
+                                    @if(in_array('security-backup', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/backup') }}">
                                             <span class="me-4">
@@ -738,7 +765,8 @@
                                             Backup
                                         </a>
                                     </li>
-
+                                    @endif 
+                                    @if(in_array('security-activity', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/activity-log') }}">
                                             <span class="me-4">
@@ -755,8 +783,8 @@
                                             Activity Log
                                         </a>
                                     </li>
-
-
+                                    @endif 
+                                    @if(in_array('security-locked', session('permissions')))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ url('/locked-users') }}">
                                             <span class="me-4">
@@ -771,18 +799,20 @@
                                             Locked Users
                                         </a>
                                     </li>
-
+                                    @endif 
 
                                 </ul>
                             </div>
 
                         </li>
+                         @endif 
                     </ul>
                 </div>
 
 
                 <div class="sidebar-footer">
                     <ul class="sidebar-list">
+                         @if(in_array('settings', session('permissions')))
                         <li class="nav-item">
                             <a href="../settings" class="nav-link">
                                 <span class="me-4">
@@ -797,7 +827,8 @@
                                 Settings
                             </a>
                         </li>
-
+                        @endif     
+                        
                         <li class="nav-item">
                             <a href="../logout" class="nav-link">
                                 <span class="me-4">

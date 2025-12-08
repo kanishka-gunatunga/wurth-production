@@ -9,7 +9,6 @@ use App\Http\Controllers\AccessController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CommonController;
 use Illuminate\Http\Request;
-use App\Http\Middleware\AuthAdmin;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReturnChequeController;
 use App\Http\Controllers\CollectionsController;
@@ -30,75 +29,75 @@ Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
 Route::match(['get', 'post'], 'enter-otp', [UserController::class, 'enter_otp']);
 Route::match(['get', 'post'], 'reset-password', [UserController::class, 'reset_password']);
-Route::match(['get', 'post'], 'logout', [UserController::class, 'logout'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/dashboard', [UserController::class, 'dashboard'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/user-managment', [UserController::class, 'user_managment'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/add-new-user', [UserController::class, 'add_new_user'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/activate-user/{id}', [UserController::class, 'activate_user'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/deactivate-user/{id}', [UserController::class, 'deactivate_user'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/get-supervisors/{role}', [UserController::class, 'get_supervisors'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_user'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(AuthAdmin::class);
-Route::get('unlock-user/{id}', [UserController::class, 'unlock_user']);
-Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], 'logout', [UserController::class, 'logout'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/dashboard', [UserController::class, 'dashboard'])->middleware(['authAdmin', 'permission:dashboard']);
+Route::match(['get', 'post'], '/user-managment', [UserController::class, 'user_managment'])->middleware(['authAdmin', 'permission:user-Management']);
+Route::match(['get', 'post'], '/add-new-user', [UserController::class, 'add_new_user'])->middleware(['authAdmin', 'permission:add-user']);
+Route::match(['get', 'post'], '/activate-user/{id}', [UserController::class, 'activate_user'])->middleware(['authAdmin', 'permission:status-change-user']);
+Route::match(['get', 'post'], '/deactivate-user/{id}', [UserController::class, 'deactivate_user'])->middleware(['authAdmin', 'permission:status-change-user']);
+Route::match(['get', 'post'], '/get-supervisors/{role}', [UserController::class, 'get_supervisors'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_user'])->middleware(['authAdmin', 'permission:edit-user']);
+Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(['authAdmin', 'permission:security-locked']);
+Route::get('unlock-user/{id}', [UserController::class, 'unlock_user'])->middleware(['authAdmin', 'permission:security-locked-unlock']);
+Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(['authAdmin', 'permission:settings']);
 
-Route::match(['get', 'post'], '/division-managment', [DivisionController::class, 'division_managment'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, 'add_new_division'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/activate-division/{id}', [DivisionController::class, 'activate_division'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/deactivate-division/{id}', [DivisionController::class, 'deactivate_division'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/edit-division/{id}', [DivisionController::class, 'edit_division'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/delete-division/{id}', [DivisionController::class, 'delete_division'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/division-managment', [DivisionController::class, 'division_managment'])->middleware(['authAdmin', 'permission:division-management']);
+Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, 'add_new_division'])->middleware(['authAdmin', 'permission:add-division']);
+Route::match(['get', 'post'], '/activate-division/{id}', [DivisionController::class, 'activate_division'])->middleware(['authAdmin', 'permission:status-change-division']);
+Route::match(['get', 'post'], '/deactivate-division/{id}', [DivisionController::class, 'deactivate_division'])->middleware(['authAdmin', 'permission:status-change-division']);
+Route::match(['get', 'post'], '/edit-division/{id}', [DivisionController::class, 'edit_division'])->middleware(['authAdmin', 'permission:edit-division']);
+Route::match(['get', 'post'], '/delete-division/{id}', [DivisionController::class, 'delete_division'])->middleware(['authAdmin', 'permission:delete-division']);
 
-Route::match(['get', 'post'], '/access-control', [AccessController::class, 'access_control'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/get-role-permissions', [AccessController::class, 'get_role_permissions'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/access-control', [AccessController::class, 'access_control'])->middleware(['authAdmin', 'permission:access-control']);
+Route::match(['get', 'post'], '/get-role-permissions', [AccessController::class, 'get_role_permissions'])->middleware(['authAdmin']);
 
-Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/activate-customer/{id}', [CustomerController::class, 'activate_customer'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::class, 'deactivate_customer'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class, 'edit_customer'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/import', [CustomerController::class, 'import'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/view-customer/{id}', [CustomerController::class, 'view_customer'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers'])->middleware(['authAdmin', 'permission:access-control']);
+Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer'])->middleware(['authAdmin', 'permission:add-customer']);
+Route::match(['get', 'post'], '/activate-customer/{id}', [CustomerController::class, 'activate_customer'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::class, 'deactivate_customer'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/edit-customer/{id}', [CustomerController::class, 'edit_customer'])->middleware(['authAdmin', 'permission:all-customers-edit']);
+Route::match(['get', 'post'], '/import-customers', [CustomerController::class, 'import_customers'])->middleware(['authAdmin', 'permission:add-customer']);
+Route::match(['get', 'post'], '/import', [CustomerController::class, 'import'])->middleware(['authAdmin', 'permission:add-customer']);
+Route::match(['get', 'post'], '/view-customer/{id}', [CustomerController::class, 'view_customer'])->middleware(['authAdmin', 'permission:all-customers-view']);
 
 Route::match(['get', 'post'], 'get-branches', [CommonController::class, 'get_branches']);
 
-Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(AuthAdmin::class);
-Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(AuthAdmin::class)->name('reminders.store');
+Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(['authAdmin', 'permission:notification-create']);
+Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(['authAdmin', 'permission:notification-create'])->name('reminders.store');
 Route::get('/reminders', [ReminderController::class, 'index'])
-    ->middleware(AuthAdmin::class)
+    ->middleware(['authAdmin', 'permission:notifications'])
     ->name('reminders.index');
 Route::get('/reminders/{id}', [ReminderController::class, 'show'])
-    ->middleware(AuthAdmin::class)
+     ->middleware(['authAdmin'])
     ->name('reminders.show');
 Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
     ->middleware(AuthAdmin::class)
     ->name('reminders.sent');
 
-Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->name('inquiries');
-Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
-Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
-Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
-Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
-Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
+Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries');
+Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->middleware(['authAdmin'])->name('inquiry.details');
+Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->middleware(['authAdmin', 'permission:status-change-inquary'])->name('inquiries.approve');
+Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->middleware(['authAdmin', 'permission:status-change-inquary'])->name('inquiries.reject');
+Route::post('/inquiries/search', [InquiriesController::class, 'search'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries.search');
+Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries.filter');
 
-Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(AuthAdmin::class);
-Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(AuthAdmin::class)->name('returncheques.store');
+Route::get('/create-return-cheque', [ReturnChequeController::class, 'create'])->middleware(['authAdmin', 'permission:return-cheques-add']);
+Route::post('/create-return-cheque', [ReturnChequeController::class, 'store'])->middleware(['authAdmin', 'permission:return-cheques-add'])->name('returncheques.store');
 Route::get('/return-cheques', [ReturnChequeController::class, 'index'])
-    ->middleware(AuthAdmin::class)
+    ->middleware(['authAdmin', 'permission:return-cheques'])
     ->name('returncheques.index');
 Route::get('/return-cheques/{id}', [ReturnChequeController::class, 'show'])
-    ->middleware(AuthAdmin::class)
+    ->middleware(['authAdmin', 'permission:return-cheques-view'])
     ->name('returncheques.show');
 Route::post('/return-cheques/import', [ReturnChequeController::class, 'importReturnCheques'])
-    ->middleware(AuthAdmin::class)
+    ->middleware(['authAdmin', 'permission:return-cheques-add'])
     ->name('returncheques.import');
 
-Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(['authAdmin', 'permission:all-outstanding']);
 
-Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(['authAdmin', 'permission:all-receipts']);
+Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(['authAdmin', 'permission:all-receipts-final-sms']);
+Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(['authAdmin']);
 
 Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
     ->middleware(AuthAdmin::class)
@@ -119,9 +118,9 @@ Route::get('/collections/customers/all', [CollectionsController::class, 'getAllC
     ->middleware(AuthAdmin::class)
     ->name('collections.customers.all');
 Route::get('/collections/customer/details/{id}', [CollectionsController::class, 'getCustomerDetails'])
-    ->middleware(AuthAdmin::class);
+    ->middleware(['authAdmin']);
 Route::get('/collections/customer/invoices/{id}', [CollectionsController::class, 'getCustomerInvoices'])
-    ->middleware(AuthAdmin::class);
+    ->middleware(['authAdmin']);
 Route::get('/collections/invoices', function () {
     return view('collections.invoices');
 })
@@ -140,20 +139,20 @@ Route::post('/advanced-payments/search', [AdvancedPaymentsController::class, 'se
     ->middleware(AuthAdmin::class)
     ->name('advanced_payments.search');
 
-Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index')->middleware(AuthAdmin::class);
-Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show')->middleware(AuthAdmin::class);
-Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download')->middleware(AuthAdmin::class);
-Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status')->middleware(AuthAdmin::class);
-Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search')->middleware(AuthAdmin::class);
-Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter')->middleware(AuthAdmin::class);
-Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export')->middleware(AuthAdmin::class);
+Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index')->middleware(['authAdmin']);
+Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show')->middleware(['authAdmin']);
+Route::get('/finance-cash/download/{id}', [FinanceCashController::class, 'downloadAttachment'])->name('finance_cash.download')->middleware(['authAdmin']);
+Route::post('/finance-cash/update-status/{id}', [FinanceCashController::class, 'updateStatus'])->name('finance_cash.update_status')->middleware(['authAdmin']);
+Route::post('/finance-cash/search', [FinanceCashController::class, 'search'])->name('finance_cash.search')->middleware(['authAdmin']);
+Route::post('/finance-cash/filter', [FinanceCashController::class, 'filter'])->name('finance_cash.filter')->middleware(['authAdmin']);
+Route::post('/finance-cash/export', [FinanceCashController::class, 'exportFiltered'])->name('finance_cash.export')->middleware(['authAdmin']);
 
-Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index')->middleware(AuthAdmin::class);
-Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download')->middleware(AuthAdmin::class);
-Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show')->middleware(AuthAdmin::class);
-Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status')->middleware(AuthAdmin::class);
-Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search')->middleware(AuthAdmin::class);
-Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter')->middleware(AuthAdmin::class);
+Route::get('/finance-cheque', [FinanceChequeController::class, 'index'])->name('finance_cheque.index')->middleware(['authAdmin']);
+Route::get('/finance-cheque/download/{id}', [FinanceChequeController::class, 'downloadAttachment'])->name('finance_cheque.download')->middleware(['authAdmin']);
+Route::get('/finance-cheque/{id}', [FinanceChequeController::class, 'show'])->name('finance_cheque.show')->middleware(['authAdmin']);
+Route::post('/finance-cheque/update-status/{id}', [FinanceChequeController::class, 'updateStatus'])->name('finance_cheque.update_status')->middleware(['authAdmin']);
+Route::post('/finance-cheque/search', [FinanceChequeController::class, 'search'])->name('finance_cheque.search')->middleware(['authAdmin']);
+Route::post('/finance-cheque/filter', [FinanceChequeController::class, 'filter'])->name('finance_cheque.filter')->middleware(['authAdmin']);
 Route::post('/finance-cheque/export', [FinanceChequeController::class, 'export'])->name('finance_cheque.export');
 
 Route::get('/cash-deposits', [CashDepositsController::class, 'index'])->name('cash_deposits.index');
@@ -203,5 +202,5 @@ Route::get('/write-off/download/{id}', [WriteOffController::class, 'download'])-
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index');
 Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store');
 
-Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(AuthAdmin::class);
-Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(AuthAdmin::class);
+Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(['authAdmin']);

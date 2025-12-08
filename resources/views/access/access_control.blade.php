@@ -105,6 +105,12 @@
                                         <label class="form-check-label" for="custempedit_permission">Edit Temp Customer</label>
                                     </div>
                                     </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="cusadd_permission" value="add-customer">
+                                    <label class="form-check-label" for="cusadd_permission">Add Customer</label>
+                                </div>
+                                </div>
                             <div class="row access-control-checks">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]" id="dm_permission" value="division-management">
@@ -249,7 +255,13 @@
                                             <label class="form-check-label" for="collectionreceiptsfinaladvanced_permission">Edit</label>
                                         </div>
                                         </div>
-                                    <div class="row access-control-checks mx-2">
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="collectionadvanced_permission" value="all-advanced-payments">
+                                    <label class="form-check-label" for="collectionadvanced_permission">All Advanced Payments</label>
+                                </div>
+                                </div>
+                                <div class="row access-control-checks mx-2">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="permissions[]" id="collectionaddnew_permission" value="all-collections-add">
                                         <label class="form-check-label" for="collectionaddnew_permission">Add New Collection</label>
@@ -355,10 +367,6 @@
                                     <label class="form-check-label" for="setoffdownload_permission">Download Set - Off</label>
                                 </div>
                                 </div> 
-                        </div>
-
-                         <div class="col-md-3 ps-4">
-                           
                             <div class="row access-control-checks">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]" id="notifications_permission" value="notifications">
@@ -395,8 +403,137 @@
                                         <label class="form-check-label" for="notificationssystemview_permission">View System Notification</label>
                                     </div>
                                     </div>
-                               
-                            
+                        </div>
+
+                         <div class="col-md-3 ps-4">
+                           
+                            <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="deposits_permission" value="deposits">
+                                <label class="form-check-label" for="deposits_permission">Deposits</label>
+                            </div>
+                            </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfinancecash_permission" value="deposits-finance-cash">
+                                    <label class="form-check-label" for="depositsfinancecash_permission">View All Finance Cash</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfinancecashstatus_permission" value="deposits-finance-cash-status">
+                                        <label class="form-check-label" for="depositsfinancecashstatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfinancecheque_permission" value="deposits-finance-cheque">
+                                    <label class="form-check-label" for="depositsfinancecheque_permission">View All Finance Cheque</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfinancechequestatus_permission" value="deposits-finance-cheque-status">
+                                        <label class="form-check-label" for="depositsfinancechequestatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>
+
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscash_permission" value="deposits-cash">
+                                    <label class="form-check-label" for="depositscash_permission">View All Cash Deposits</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscashstatus_permission" value="deposits-cash-status">
+                                        <label class="form-check-label" for="depositscashstatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>  
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscashdownload_permission" value="deposits-cash-download">
+                                        <label class="form-check-label" for="depositscashdownload_permission">Download</label>
+                                    </div>
+                                    </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscashview_permission" value="deposits-cash-view">
+                                        <label class="form-check-label" for="depositscashview_permission">View</label>
+                                    </div>
+                                    </div> 
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscheque_permission" value="deposits-cheque">
+                                    <label class="form-check-label" for="depositscheque_permission">View All Cheque Deposits</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositschequestatus_permission" value="deposits-cheque-status">
+                                        <label class="form-check-label" for="depositschequestatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>  
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositschequedownload_permission" value="deposits-cheque-download">
+                                        <label class="form-check-label" for="depositschequedownload_permission">Download</label>
+                                    </div>
+                                    </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositschequeview_permission" value="deposits-cheque-view">
+                                        <label class="form-check-label" for="depositschequeview_permission">View</label>
+                                    </div>
+                                    </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfundtransfer_permission" value="deposits-fund-transfer">
+                                    <label class="form-check-label" for="depositsfundtransfer_permission">View All Fund Transfer</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfundtransferstatus_permission" value="deposits-fund-transfer-status">
+                                        <label class="form-check-label" for="depositsfundtransferstatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>  
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfundtransferdownload_permission" value="deposits-fund-transfer-download">
+                                        <label class="form-check-label" for="depositsfundtransferdownload_permission">Download</label>
+                                    </div>
+                                    </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositsfundtransferview_permission" value="deposits-fund-transfer-view">
+                                        <label class="form-check-label" for="depositsfundtransferview_permission">View</label>
+                                    </div>
+                                    </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscardpayment_permission" value="deposits-card-payment">
+                                    <label class="form-check-label" for="depositscardpayment_permission">View All Card Payment</label>
+                                </div>
+                                </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscardpaymentstatus_permission" value="deposits-card-payment-status">
+                                        <label class="form-check-label" for="depositscardpaymentstatus_permission">Approve/Reject</label>
+                                    </div>
+                                    </div>  
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscardpaymentdownload_permission" value="deposits-card-payment-download">
+                                        <label class="form-check-label" for="depositscardpaymentdownload_permission">Download</label>
+                                    </div>
+                                    </div>
+                                    <div class="row access-control-checks mx-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="permissions[]" id="depositscardpaymentview_permission" value="deposits-card-payment-view">
+                                        <label class="form-check-label" for="depositscardpaymentview_permission">View</label>
+                                    </div>
+                                    </div>
                             <div class="row access-control-checks">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]" id="upload_permission" value="upload">
