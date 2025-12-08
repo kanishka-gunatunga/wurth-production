@@ -42,6 +42,8 @@ Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_u
 Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(AuthAdmin::class);
 Route::get('unlock-user/{id}', [UserController::class, 'unlock_user']);
 Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(AuthAdmin::class);
+Route::post('/update-profile-picture', [UserController::class, 'updateProfilePicture'])->middleware(AuthAdmin::class);
+Route::post('/delete-profile-picture', [UserController::class, 'deleteProfilePicture'])->middleware(AuthAdmin::class);
 
 Route::match(['get', 'post'], '/division-managment', [DivisionController::class, 'division_managment'])->middleware(AuthAdmin::class);
 Route::match(['get', 'post'], '/add-new-division', [DivisionController::class, 'add_new_division'])->middleware(AuthAdmin::class);

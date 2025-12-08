@@ -604,4 +604,41 @@ class UserController extends Controller
         return back()->with('success', 'Password successfully updated')
             ->with('active_tab', 'temporary');
     }
+
+    public function updateProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        $userDetails = UserDetails::where('user_id', Auth::id())->first();
+
+        // Delete old picture if exists
+        if ($userDetails->profile_picture && file_exists(public_path('db_files/user_profile_images/' . $userDetails->profile_picture))) {
+            unlink(public_path('db_files/user_profile_images/' . $userDetails->profile_picture));
+        }
+
+        $image = $request->file('profile_picture');
+        $filename = time() . '_' . Auth::id() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('db_files/user_profile_images'), $filename);
+
+        $userDetails->profile_picture = $filename;
+        $userDetails->save();
+
+        return back()->with('success', 'Profile picture updated');
+    }
+
+    public function deleteProfilePicture(Request $request)
+    {
+        $userDetails = UserDetails::where('user_id', Auth::id())->first();
+
+        if ($userDetails->profile_picture && file_exists(public_path('db_files/user_profile_images/' . $userDetails->profile_picture))) {
+            unlink(public_path('db_files/user_profile_images/' . $userDetails->profile_picture));
+        }
+
+        $userDetails->profile_picture = null;
+        $userDetails->save();
+
+        return response()->json(['success' => true]);
+    }
 }

@@ -185,12 +185,12 @@ use App\Models\UserDetails;
                     </label>
                     <div class="profile-section">
                         <div class="profile-wrapper">
-                            <img src="{{ $user->userDetails->profile_picture 
-                ? asset('db_files/user_profile_images/' . $user->userDetails->profile_picture) 
-                : asset('new-assets/images/upload.jpg') }}"
+                            <img id="profile-pic-preview" src="{{ $user->userDetails->profile_picture 
+            ? asset('db_files/user_profile_images/' . $user->userDetails->profile_picture) 
+            : asset('new-assets/images/upload2.jpg') }}"
                                 alt="Profile Picture"
                                 class="profile-pic">
-                            <div class="delete-icon">
+                            <div class="delete-icon" id="delete-profile-pic">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21" fill="none">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                         d="M16.1105 5.6875L15.4096 17.6024C15.3835 18.0481 15.188 18.467 14.8632 18.7732C14.5383 19.0795 14.1087 19.2501 13.6623 19.25H7.33775C6.89128 19.2501 6.46166 19.0795 6.13682 18.7732C5.81198 18.467 5.61649 18.0481 5.59037 17.6024L4.89125 5.6875H3.0625V4.8125C3.0625 4.69647 3.10859 4.58519 3.19064 4.50314C3.27269 4.42109 3.38397 4.375 3.5 4.375H17.5C17.616 4.375 17.7273 4.42109 17.8094 4.50314C17.8914 4.58519 17.9375 4.69647 17.9375 4.8125V5.6875H16.1105ZM8.75 2.1875H12.25C12.366 2.1875 12.4773 2.23359 12.5594 2.31564C12.6414 2.39769 12.6875 2.50897 12.6875 2.625V3.5H8.3125V2.625C8.3125 2.50897 8.35859 2.39769 8.44064 2.31564C8.52269 2.23359 8.63397 2.1875 8.75 2.1875ZM7.875 7.875L8.3125 15.75H9.625L9.275 7.875H7.875ZM11.8125 7.875L11.375 15.75H12.6875L13.125 7.875H11.8125Z"
@@ -200,7 +200,11 @@ use App\Models\UserDetails;
                         </div>
 
                         <div class="upload-container">
-                            <button type="submit" class="btn btn-danger submit">Upload Photo</button>
+                            <form id="profile-pic-form" action="{{ url('/update-profile-picture') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input type="file" name="profile_picture" id="profile-picture-input" style="display:none" accept="image/*">
+                                <button type="button" class="btn btn-danger upload-btn" id="upload-btn">Upload Photo</button>
+                            </form>
                             <p class="outside-label">JPG, PNG or GIF (Max 5MB)</p>
                         </div>
                     </div>
@@ -431,4 +435,43 @@ use App\Models\UserDetails;
             document.getElementById("mainSearchForm2").submit();
         }
     }
+</script>
+
+<script>
+    document.getElementById('upload-btn').addEventListener('click', function() {
+        document.getElementById('profile-picture-input').click();
+    });
+
+    document.getElementById('profile-picture-input').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-pic-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+
+            // Submit form automatically
+            document.getElementById('profile-pic-form').submit();
+        }
+    });
+
+    document.getElementById('delete-profile-pic').addEventListener('click', function() {
+        if (confirm('Are you sure you want to delete your profile picture?')) {
+            fetch('{{ url("/delete-profile-picture") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('profile-pic-preview').src = '{{ asset("new-assets/images/upload2.jpg") }}';
+                    }
+                });
+        }
+    });
 </script>
