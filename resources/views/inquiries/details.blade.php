@@ -82,11 +82,11 @@
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($inquiry->attachement)
-                <a href="{{ asset('storage/'.$inquiry->attachement) }}" download>
+                <a href="{{ route('inquiries.download', $inquiry->id) }}">
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else
-                <span class="slip-detail-text">No attachment</span>
+                <button class="black-action-btn" disabled>No File</button>
                 @endif
             </p>
 

@@ -82,6 +82,8 @@ Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquir
 Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->name('inquiry.details');
 Route::post('/inquiries/approve/{id}', [InquiriesController::class, 'approve'])->name('inquiries.approve');
 Route::post('/inquiries/reject/{id}', [InquiriesController::class, 'reject'])->name('inquiries.reject');
+Route::get('/inquiries/download/{id}', [InquiriesController::class, 'downloadAttachment'])
+    ->name('inquiries.download');
 Route::post('/inquiries/search', [InquiriesController::class, 'search'])->name('inquiries.search');
 Route::post('/inquiries/filter', [InquiriesController::class, 'filter'])->name('inquiries.filter');
 

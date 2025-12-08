@@ -142,10 +142,9 @@
                             @endif
 
                             @if($inquiry->attachement)
-                            <a href="{{ asset('storage/'.$inquiry->attachement) }}"
+                            <a href="{{ route('inquiries.download', $inquiry->id) }}"
                                 class="black-action-btn submit"
                                 style="text-decoration: none;"
-                                download
                                 onclick="showDownloadToast(event)">
                                 Download
                             </a>
