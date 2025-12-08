@@ -36,7 +36,7 @@ class InquiryController extends Controller
     //    $inquiries = Inquiries::with(['invoice', 'customer', 'admin'])
     //     ->where('adm_id', Auth::id())
     //     ->paginate(15);
-        $inquiries = Inquiries::with(['customerData', 'invoiceData'])->paginate(15);
+        $inquiries = Inquiries::with(['customer', 'invoice'])->paginate(15);
         return view('adm::inquiries.index',['inquiries' => $inquiries]);
     }
 
@@ -93,10 +93,10 @@ class InquiryController extends Controller
          $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
          $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
      
-         $inquiries = Inquiries::with(['customerData', 'invoiceData'])->whereIn('customer', $customers)
+         $inquiries = Inquiries::with(['customer', 'invoice'])->whereIn('customer', $customers)
              ->where(function ($q) use ($query) {
                  $q->where('invoice_number', 'LIKE', "%{$query}%")
-                   ->orWhereHas('customerData', function ($q) use ($query) {
+                   ->orWhereHas('customer', function ($q) use ($query) {
                        $q->where('name', 'LIKE', "%{$query}%");
                    });
              })
@@ -107,8 +107,8 @@ class InquiryController extends Controller
                 // ... same row building as Option A ...
                 $html .= '<tr>';
                 $html .= '<td>' . e($inquiry->type ?? 'N/A') . '</td>';
-                $html .= '<td>' . e($inquiry->customerData->name ?? 'N/A') . '</td>';
-                $html .= '<td>' . e($inquiry->invoiceData->invoice_or_cheque_no ?? 'N/A') . '</td>';
+                $html .= '<td>' . e($inquiry->customer->name ?? 'N/A') . '</td>';
+                $html .= '<td>' . e($inquiry->invoice->invoice_or_cheque_no ?? 'N/A') . '</td>';
                 $html .= '<td>';
                 if ($inquiry->status === 'pending') {
                     $html .= '<span class="badge bg-warning">Pending</span>';

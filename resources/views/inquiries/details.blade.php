@@ -33,7 +33,7 @@
 
             <p>
                 <span class="bold-text">ADM No. :</span>
-                <span class="slip-detail-text">&nbsp;{{ $inquiry->adm_id ?? 'N/A' }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
             </p>
 
             <p>

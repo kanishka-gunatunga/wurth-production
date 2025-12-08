@@ -1145,3 +1145,18 @@ button:focus:not(:focus-visible) {
 .side-panel-collapse .collapsed span, .side-panel-collapse .collapsed i{
     color: var(--color-dark-gray-text) !important;
 } */
+
+.black-action-btn {
+    font-family: Poppins;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 3px 12px;
+    color: #FFFFFF;
+    border: none;
+}
+
+.black-action-btn {
+    background-color: #000000;
+}

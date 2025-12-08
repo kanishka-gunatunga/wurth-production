@@ -113,8 +113,8 @@
                         <td>{{ $inquiry->id }}</td>
                         <td>{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</td>
                         <td>{{ $inquiry->type }}</td>
-                        <td>{{ $inquiry->adm_id }}</td>
-                        <td>{{ $inquiry->user?->userDetails?->name ?? 'N/A' }}</td>
+                        <td> {{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }} </td>
+                        <td>{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}</td>
                         <td>{{ $inquiry->customer }}</td>
                         <td>
                             @php
