@@ -1,94 +1,284 @@
 @include('layouts.dashboard-header')
+<style>
+    .container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #F9FAFB;
+        border-bottom: none !important;
+    }
+
+    .card-header svg {
+        width: 20px;
+        height: 20px;
+        color: #666;
+    }
+
+    /* Force 2-column layout everywhere */
+    .grid-two-col {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    /* Stack only inside the left/right groups in Inquiry Info */
+    .stack-left,
+    .stack-right {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .field-label {
+        font-family: Poppins;
+        font-weight: 400;
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .field-value {
+        font-size: 15px;
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+
+    .reason-text {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .attachment-box {
+        background: #F9FAFB;
+        border-radius: 8px;
+        border: 1px solid #E5E7EB;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .attachment-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .attachment-icon {
+        width: 40px;
+        height: 40px;
+        background: #dbeafe;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .attachment-icon svg {
+        width: 20px;
+        height: 20px;
+        color: #2563eb;
+    }
+
+    .attachment-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 2px;
+    }
+
+    .attachment-subtitle {
+        font-family: Poppins;
+        font-size: 12px;
+        color: #6A7282;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+    }
+</style>
 <div class="main-wrapper">
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
         <h1 class="header-title">
             Inquiry Ref No. - {{ $inquiry->id ?? 'N/A' }}
         </h1>
-        <!-- <button class="black-action-btn-lg submit">
-            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
-                    fill="white" />
-            </svg>
-            Download
-        </button> -->
+        <span class="slip-detail-text">
+            &nbsp;@php
+            $statusClass = match($inquiry->status) {
+            'Sorted' => 'success-status-btn',
+            'Deposited' => 'blue-status-btn',
+            'Rejected' => 'danger-status-btn',
+            default => 'grey-status-btn',
+            };
+            @endphp
+            <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
+        </span>
     </div>
-
-
-
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-md"></div>
         <div class="slip-details">
-            <p>
-                <span class="bold-text">Inquiry Type :</span>
-                <span class="slip-detail-text">&nbsp;{{ $inquiry->type ?? 'N/A' }}</span>
-            </p>
+            <div class="container">
+                <!-- Inquiry Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M8.33268 7.5H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M13.3327 10.833H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M13.3327 14.167H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="bold-text">Inquiry Information</span>
+                    </div>
 
-            <p>
-                <span class="bold-text">Date :</span>
-                <span class="slip-detail-text">&nbsp;{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</span>
-            </p>
+                    <div class="grid-two-col mt-4">
 
-            <p>
-                <span class="bold-text">ADM No. :</span>
-                <span class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
-            </p>
+                        <!-- LEFT STACK -->
+                        <div class="stack-left">
+                            <div>
+                                <div class="field-label">Inquiry Type</div>
+                                <span class="slip-detail-text">&nbsp;{{ $inquiry->type ?? 'N/A' }}</span>
+                            </div>
+                            <div>
+                                <div class="field-label">Invoice Number</div>
+                                <span class="slip-detail-text">&nbsp;{{ $inquiry->invoice_number ?? 'N/A' }}</span>
+                            </div>
+                        </div>
 
-            <p>
-                <span class="bold-text">ADM Name :</span>
-                <span class="slip-detail-text">
-                    &nbsp;{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}
-                </span>
-            </p>
+                        <!-- RIGHT STACK -->
+                        <div class="stack-right">
+                            <div>
+                                <div class="field-label">Date</div>
+                                <span class="slip-detail-text">&nbsp;{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</span>
+                            </div>
+                            <div>
+                                <div class="field-label">ADM Number</div>
+                                <span class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
+                            </div>
+                        </div>
+                    </div>
 
-            <p>
-                <span class="bold-text">Customer Name :</span>
-                <span class="slip-detail-text">
-                    &nbsp;{{ $inquiry->customer ?? 'N/A' }}
-                </span>
-            </p>
+                </div>
 
-            <p>
-                <span class="bold-text">Invoice Number :</span>
-                <span class="slip-detail-text">
-                    &nbsp;{{ $inquiry->invoice_number ?? 'N/A' }}
-                </span>
-            </p>
+                <!-- Customer & ADM Details -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15.8327 17.5V15.8333C15.8327 14.9493 15.4815 14.1014 14.8564 13.4763C14.2313 12.8512 13.3834 12.5 12.4993 12.5H7.49935C6.61529 12.5 5.76745 12.8512 5.14233 13.4763C4.5172 14.1014 4.16602 14.9493 4.16602 15.8333V17.5" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9.99935 9.16667C11.8403 9.16667 13.3327 7.67428 13.3327 5.83333C13.3327 3.99238 11.8403 2.5 9.99935 2.5C8.1584 2.5 6.66602 3.99238 6.66602 5.83333C6.66602 7.67428 8.1584 9.16667 9.99935 9.16667Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="bold-text">Customer & ADM Details</span>
+                    </div>
 
-            <p>
-                <span class="bold-text">Reason :</span>
-                <span class="slip-detail-text">
-                    &nbsp;{{ $inquiry->reason ?? 'N/A' }}
-                </span>
-            </p>
+                    <div class="grid-two-col mt-4">
+                        <div>
+                            <div class="field-label">Customer Name</div>
+                            <span class="slip-detail-text">
+                                &nbsp;{{ $inquiry->customer ?? 'N/A' }}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="field-label">ADM Name</div>
+                            <span class="slip-detail-text">
+                                &nbsp;{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}
+                            </span>
+                        </div>
+                    </div>
 
-            <p>
-                <span class="bold-text">Status :</span>
-                <span class="slip-detail-text">
-                    &nbsp;@php
-                    $statusClass = match($inquiry->status) {
-                    'Sorted' => 'success-status-btn',
-                    'Deposited' => 'blue-status-btn',
-                    'Rejected' => 'danger-status-btn',
-                    default => 'grey-status-btn',
-                    };
-                    @endphp
-                    <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
-                </span>
-            </p>
+                </div>
 
-            <p>
-                <span class="bold-text">Attachment Download :</span>
-                @if($inquiry->attachement)
-                <a href="{{ route('inquiries.download', $inquiry->id) }}">
-                    <button class="black-action-btn">Download</button>
-                </a>
-                @else
-                <button class="black-action-btn" disabled>No File</button>
-                @endif
-            </p>
+                <!-- Reason & Description -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <g clip-path="url(#clip0_4858_14212)">
+                                <path d="M9.99935 18.3337C14.6017 18.3337 18.3327 14.6027 18.3327 10.0003C18.3327 5.39795 14.6017 1.66699 9.99935 1.66699C5.39698 1.66699 1.66602 5.39795 1.66602 10.0003C1.66602 14.6027 5.39698 18.3337 9.99935 18.3337Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M10 6.66699V10.0003" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M10 13.333H10.0083" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_4858_14212">
+                                    <rect width="20" height="20" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        <span class="bold-text">Reason & Description</span>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="field-label">Reason</div>
+                        <span class="slip-detail-text">
+                            &nbsp;{{ $inquiry->reason ?? 'N/A' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Attachments -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M10 15V10" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M7.5 12.5L10 15L12.5 12.5" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="bold-text">Attachments</span>
+                    </div>
+
+                    <div class="attachment-box mt-4">
+                        <div class="attachment-info">
+                            <div class="attachment-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M8.33268 7.5H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M13.3327 10.833H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M13.3327 14.167H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="slip-detail-text">
+                                    Inquiry Document
+                                </span>
+                                <div class="attachment-subtitle">Click to download attachment</div>
+                            </div>
+                        </div>
+                        @if($inquiry->attachement)
+                        <a href="{{ route('inquiries.download', $inquiry->id) }}">
+                            <button class="black-action-btn">
+                                <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
+                                        fill="white" />
+                                </svg>
+                                Download</button>
+                        </a>
+                        @else
+                        <button class="black-action-btn" disabled>No File</button>
+                        @endif
+                    </div>
+                </div>
+            </div>
 
         </div>
 
