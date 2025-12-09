@@ -25,47 +25,47 @@ use File;
 use Mail;
 use Image;
 use PDF;
+
 class NotificationsRemindersController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
+
     public function notifications_and_reminders()
     {
         $reminders = Reminders::get();
-        return view('adm::notifications_and_reminders.notifications_and_reminders',['reminders' => $reminders]);
+        return view('adm::notifications_and_reminders.notifications_and_reminders', ['reminders' => $reminders]);
     }
 
     public function create_reminder(Request $request)
-    { if($request->isMethod('get')){
-        $users = User::with('userDetails')->get();
-        return view('adm::notifications_and_reminders.create_reminder',['users' => $users]);
-    }
-    if($request->isMethod('post')){
+    {
+        if ($request->isMethod('get')) {
+            $users = User::with('userDetails')->get();
+            return view('adm::notifications_and_reminders.create_reminder', ['users' => $users]);
+        }
+        if ($request->isMethod('post')) {
 
-        $request->validate([
-            'send_from'   => 'required',
-            'reminder_title'   => 'required',
-            'reminder_type'   => 'required',
-            'reminder_date'   => 'required',
-            'reason'   => 'required',
-           ]);
+            $request->validate([
+                'send_from'   => 'required',
+                'reminder_title'   => 'required',
+                'reminder_type'   => 'required',
+                'reminder_date'   => 'required',
+                'reason'   => 'required',
+            ]);
 
-           $reminder = new Reminders();
-           $reminder->sent_user_id =Auth::user()->id;
-           $reminder->send_from = $request->send_from;
-           $reminder->reminder_title = $request->reminder_title;
-           $reminder->reminder_type = $request->reminder_type;
-           $reminder->send_to = $request->send_to;
-           $reminder->reminder_date = $request->reminder_date;
-           $reminder->reason = $request->reason;
-           $reminder->save();
+            $reminder = new Reminders();
+            $reminder->sent_user_id = Auth::user()->id;
+            $reminder->send_from = $request->send_from;
+            $reminder->reminder_title = $request->reminder_title;
+            $reminder->reminder_type = $request->reminder_type;
+            $reminder->send_to = $request->send_to;
+            $reminder->reminder_date = $request->reminder_date;
+            $reminder->reason = $request->reason;
+            $reminder->save();
 
-        return back()->with('success', 'Reminder Successfully Added');
-
-    }
-
+            return back()->with('success', 'Reminder Successfully Added');
+        }
     }
     /**
      * Show the form for creating a new resource.
