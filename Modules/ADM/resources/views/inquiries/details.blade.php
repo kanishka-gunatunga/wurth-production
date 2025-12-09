@@ -123,7 +123,7 @@
                     Inquiry Details
                 </h1>
                 <h1 class="header-sub-title">
-                    Inquiry Ref No. - {{ $inquiry->id ?? 'N/A' }}
+                     Reference No. - {{ $inquiry->id ?? 'N/A' }}
                 </h1>
             </div>
 

@@ -683,13 +683,13 @@
 
 .detail-label {
   font-family: Poppins;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500; /* Make font bold */
 }
 
 .detail-value {
   font-family: Poppins;
-  font-size: 18px;
+  font-size: 16px;
 }
 .text-color-red{
   color: #CC0000;
