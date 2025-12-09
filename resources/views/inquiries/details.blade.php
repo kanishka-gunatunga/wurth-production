@@ -96,24 +96,6 @@
         <nav class="d-flex justify-content-center mt-5">
             <ul id="paymentSlipsPagination" class="pagination"></ul>
         </nav>
-        <div class="action-button-lg-row">
-            <a href="{{ url('inquiries') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-
-            @php
-            $status = strtolower(trim($inquiry->status ?? ''));
-            @endphp
-
-            @if($status === 'pending')
-            <button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
-            <button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
-            @elseif($status === 'sorted')
-            <button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
-            @elseif($status === 'rejected')
-            <button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
-            @endif
-        </div>
-
-
     </div>
 </div>
 
@@ -148,6 +130,23 @@
             onclick="document.getElementById('user-toast').style.display='none';"></button>
     </div>
 </div>
+
+@section('footer-buttons')
+<a href="{{ url('inquiries') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+
+@php
+$status = strtolower(trim($inquiry->status ?? ''));
+@endphp
+
+@if($status === 'pending')
+<button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
+<button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
+@elseif($status === 'sorted')
+<button class="red-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="rejected">Reject</button>
+@elseif($status === 'rejected')
+<button class="success-action-btn-lg update-status-btn" data-id="{{ $inquiry->id }}" data-status="sorted">Approve</button>
+@endif
+@endsection
 
 
 <!-- dropdown script -->
@@ -277,3 +276,5 @@
         });
     });
 </script>
+
+@include('layouts.footer2')

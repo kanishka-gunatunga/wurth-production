@@ -30,7 +30,7 @@ use App\Models\Customers;
                                     <i class="bi bi-search"></i>
                                 </span>
                                 <input type="text" class="form-control border-start-0" id="searchInput"
-                                    placeholder="Search here...">
+                                    placeholder="Search">
                             </div>
                             <div class="search-dropdown" id="searchDropdown">
                             </div>
@@ -55,7 +55,7 @@ use App\Models\Customers;
                             <tr>
 
                                 <td>{{ $inquiry->type ?? 'N/A' }}</td>
-                                <td>{{ $inquiry->customer?->name ?? 'N/A' }}</td>
+                                <td>{{ $inquiry->customer ?? 'N/A' }}</td>
                                 <td>{{ $inquiry->invoice?->invoice_or_cheque_no ?? 'N/A' }}</td>
                                 <td>{{ $inquiry->attachement ?? 'N/A' }}</td>
                                 <td>
