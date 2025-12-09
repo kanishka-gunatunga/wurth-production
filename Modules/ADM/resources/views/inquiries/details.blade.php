@@ -45,7 +45,7 @@
     .field-label {
         font-family: Poppins;
         font-weight: 400;
-        font-size: 16px;
+        font-size: 14px;
         color: #666;
         margin-bottom: 4px;
     }

@@ -1158,3 +1158,10 @@ button:focus:not(:focus-visible) {
     margin: 24px auto 0 auto; /* center it */
     text-align: center;
 }
+
+.slip-detail-text {
+    font-family: Poppins;
+    font-size: 13px;
+    color: #000000;
+    font-weight: 400;
+}
