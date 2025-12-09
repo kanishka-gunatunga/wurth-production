@@ -75,9 +75,7 @@ use App\Models\Customers;
                                     <span class="badge bg-secondary">Unknown</span>
                                     @endif
                                 </td>
-                                <td><button class="black-action-btn" data-href="">
-                                        View
-                                    </button></td>
+                                <td><a href="{{ route('adm.inquiry.details', $inquiry->id) }}" class="black-action-btn" style="text-decoration: none;">View</a></td>
                             </tr>
                             @endforeach
                         </tbody>

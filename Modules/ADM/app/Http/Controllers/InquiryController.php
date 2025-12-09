@@ -79,6 +79,15 @@ class InquiryController extends Controller
             return back()->with('success', 'Inquiry Successfully Added');
         }
     }
+
+    public function inquiry_details($id)
+    {
+        $inquiry = Inquiries::with(['customer', 'invoice', 'admin.userDetails'])
+            ->findOrFail($id);
+
+        return view('adm::inquiries.details', compact('inquiry'));
+    }
+
     public function get_customer_invoices($customer_id)
     {
         $invoices = Invoices::where('customer_id', $customer_id)->get();
@@ -86,6 +95,7 @@ class InquiryController extends Controller
         // Return as JSON
         return response()->json($invoices);
     }
+
     public function search_inquiries(Request $request)
     {
         $query = $request->input('query');
@@ -126,7 +136,7 @@ class InquiryController extends Controller
             }
 
             $html .= '</td>';
-            $html .= '<td><button class="black-action-btn" data-href="">View</button></td>';
+            $html .= '<td><a href="'.route('adm.inquiry.details', $inquiry->id).'" class="black-action-btn" style="text-decoration: none;">View</a></td>';
             $html .= '</tr>';
         }
 
