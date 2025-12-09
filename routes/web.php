@@ -67,14 +67,17 @@ Route::match(['get', 'post'], 'get-branches', [CommonController::class, 'get_bra
 
 Route::get('/create-reminder', [ReminderController::class, 'create'])->middleware(['authAdmin', 'permission:notification-create']);
 Route::post('/create-reminder', [ReminderController::class, 'store'])->middleware(['authAdmin', 'permission:notification-create'])->name('reminders.store');
+Route::get('/get-users-by-level/{level}', [ReminderController::class, 'getUsersByLevel'])
+    ->middleware(['authAdmin'])
+    ->name('users.byLevel');
 Route::get('/reminders', [ReminderController::class, 'index'])
     ->middleware(['authAdmin', 'permission:notifications'])
     ->name('reminders.index');
 Route::get('/reminders/{id}', [ReminderController::class, 'show'])
-     ->middleware(['authAdmin'])
+    ->middleware(['authAdmin'])
     ->name('reminders.show');
 Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
-    ->middleware(AuthAdmin::class)
+    ->middleware(['authAdmin'])
     ->name('reminders.sent');
 
 Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries');

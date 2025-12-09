@@ -13,21 +13,37 @@ class ReminderController extends Controller
     // Show the create form
     public function create()
     {
-        // Get all users so admin can pick who to send to
         $currentUserId = Auth::id();
         $currentUserRole = User::where('id', $currentUserId)->value('user_role');
 
+        // 🎯 Get all users except same-level users
         $users = User::with('userDetails')
-            ->where(function ($query) use ($currentUserId, $currentUserRole) {
-                $query->where('id', $currentUserId) // include yourself
-                    ->orWhere('user_role', '!=', $currentUserRole); // exclude same level users
-            })
+            ->where('user_role', '!=', $currentUserRole)
+            ->orWhere('id', $currentUserId) // allow the current admin for name display
             ->get();
 
-        // Get current admin name (if you store name in user_details)
+        // Only roles EXCEPT current user's level
+        $roles = $users->pluck('user_role')
+            ->unique()
+            ->filter(fn($role) => $role != $currentUserRole)  // 🚫 remove same role
+            ->sort()
+            ->values();
+
         $name = UserDetails::where('user_id', Auth::id())->value('name');
 
-        return view('reminders.create_reminder', compact('users', 'name'));
+        return view('reminders.create_reminder', compact('users', 'name', 'roles'));
+    }
+
+    public function getUsersByLevel($level)
+    {
+        $currentUserRole = Auth::user()->user_role;
+
+        $users = User::with('userDetails')
+            ->where('user_role', $level)
+            ->where('user_role', '!=', $currentUserRole) // 🚫 block same level
+            ->get();
+
+        return response()->json($users);
     }
 
     // Store reminder
