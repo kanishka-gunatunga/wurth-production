@@ -55,27 +55,22 @@ class ReminderController extends Controller
             'user_level'     => 'required|integer',
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
-            'send_to'        => 'required|integer', // validate the user
+            'send_to'        => 'required|array',
+            'send_to.*'      => 'integer',
         ]);
 
         $selectedLevel = (int)$request->input('user_level');
-        $selectedUserId = (int)$request->input('send_to');
+        $selectedUserIds = array_map('intval', $request->input('send_to'));
 
-        // Get all users within the selected level range
         $currentUserId = Auth::id();
         $currentUserRole = User::where('id', $currentUserId)->value('user_role');
 
-        // Get users to send reminder
         $users = User::where('user_role', '<=', $selectedLevel)
-            ->where(function ($query) use ($currentUserId, $selectedUserId, $currentUserRole, $selectedLevel) {
+            ->where(function ($query) use ($currentUserId, $currentUserRole, $selectedLevel) {
                 if ($selectedLevel == $currentUserRole) {
-                    // If selected level is same as current user level, only include:
-                    // 1) the currently logged-in user
-                    // 2) users of other levels
                     $query->where('id', $currentUserId)
                         ->orWhere('user_role', '!=', $currentUserRole);
                 } else {
-                    // Otherwise, include all users up to the selected level
                     $query->where('user_role', '<=', $selectedLevel);
                 }
             })
@@ -91,16 +86,14 @@ class ReminderController extends Controller
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
 
-            // ✅ Mark the one that matches the selected user as direct
-            $reminder->is_direct = ($user->id === $selectedUserId) ? 1 : 0;
+            // ➜ Multiple selected users marked as direct
+            $reminder->is_direct = in_array($user->id, $selectedUserIds) ? 1 : 0;
 
             $reminder->save();
         }
 
-        return redirect()->back()->with('toast', 'Reminder sent to all users up to level ' . $selectedLevel . '!');
+        return redirect()->back()->with('toast', 'Reminder sent successfully!');
     }
-
-
 
     public function index(Request $request)
     {

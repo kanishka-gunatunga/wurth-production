@@ -44,7 +44,7 @@
                     <!-- Send To (User) -->
                     <div class="mb-4">
                         <label for="send_to" class="form-label custom-input-label">Send to (User)</label>
-                        <select name="send_to" id="send_to" class="form-control custom-input" disabled>
+                        <select name="send_to[]" id="send_to" class="form-control custom-input select2" multiple disabled>
                             <option value="">Select User</option>
                         </select>
 
