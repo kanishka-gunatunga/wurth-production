@@ -40,19 +40,25 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
                     @if($errors->has("reminder_type")) <div class="alert alert-danger mt-2">{{ $errors->first('reminder_type') }}</div>@endif
                 </div>
 
+                <!-- Send To (User Level) -->
                 <div class="input-group-profile d-flex flex-column mb-3">
-                    <label for="reminder_date">Send To</label>
-                    <select class="select2-with-search" name="send_to">
-                        <option></option>
-                        <?php foreach ($users as $user) {
-                            if ($user->id != Auth::user()->id) {
-                        ?>
-                                <option value="{{$user->userDetails->user_id}}">{{$user->userDetails->name}}</option>
-                        <?php  }
-                        } ?>
+                    <label for="user_level">Send To (User Level)</label>
+                    <select class="form-control" id="user_level" name="user_level">
+                        <option value="">Select User Level</option>
+                        @foreach($roles as $role)
+                        <option value="{{ $role }}">{{ $role }}</option>
+                        @endforeach
                     </select>
-                    @if($errors->has("send_to")) <div class="alert alert-danger mt-2">{{ $errors->first('send_to') }}</div>@endif
                 </div>
+
+                <!-- Send To (User) -->
+                <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="send_to">Send To (User)</label>
+                    <select class="form-control select2" id="send_to" name="send_to[]" multiple disabled>
+                        <option value="">Select User</option>
+                    </select>
+                </div>
+
 
                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="reminder_date">Reminder Date</label>
@@ -92,5 +98,85 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
         @if(Session::has('fail'))
         toastr.error("{{ Session::get('fail') }}");
         @endif
+    });
+</script>
+
+<script>
+    document.getElementById('user_level').addEventListener('change', function() {
+        let selectedLevel = this.value;
+        let userDropdown = $('#send_to'); // Use jQuery for Select2
+
+        userDropdown.prop('disabled', true); // Disable before fetching
+        userDropdown.empty().append('<option value="">Select User</option>'); // Clear old options
+
+        if (!selectedLevel) {
+            return;
+        }
+
+        fetch(`/adm/get-users-by-level/${selectedLevel}`)
+            .then(response => response.json())
+            .then(data => {
+                let userDropdown = $('#send_to');
+                userDropdown.empty().append('<option value="">Select User</option>');
+                data.forEach(user => {
+                    let username = user.user_details?.name ?? user.email;
+                    userDropdown.append(new Option(username, user.id));
+                });
+                userDropdown.prop('disabled', false);
+                userDropdown.trigger('change'); // refresh Select2
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        const reminderTypeSelect = $('select[name="reminder_type"]');
+        const userLevelDiv = $('#user_level').closest('.input-group-profile');
+        const sendToDiv = $('#send_to').closest('.input-group-profile');
+
+        function toggleUserFields() {
+            if (reminderTypeSelect.val() === 'Self') {
+                userLevelDiv.hide();
+                sendToDiv.hide();
+                $('#user_level').prop('disabled', true);
+                $('#send_to').prop('disabled', true);
+            } else {
+                userLevelDiv.show();
+                sendToDiv.show();
+                $('#user_level').prop('disabled', false);
+                $('#send_to').prop('disabled', false);
+            }
+        }
+
+        // Run on page load
+        toggleUserFields();
+
+        // Run on change
+        reminderTypeSelect.on('change', toggleUserFields);
+
+        // Existing user_level -> send_to fetch
+        $('#user_level').on('change', function() {
+            let selectedLevel = this.value;
+            let userDropdown = $('#send_to');
+
+            userDropdown.prop('disabled', true);
+            userDropdown.empty().append('<option value="">Select User</option>');
+
+            if (!selectedLevel) return;
+
+            fetch(`/adm/get-users-by-level/${selectedLevel}`)
+                .then(response => response.json())
+                .then(data => {
+                    userDropdown.empty().append('<option value="">Select User</option>');
+                    data.forEach(user => {
+                        let username = user.user_details?.name ?? user.email;
+                        userDropdown.append(new Option(username, user.id));
+                    });
+                    userDropdown.prop('disabled', false);
+                    userDropdown.trigger('change'); // refresh Select2
+                })
+                .catch(error => console.error('Error:', error));
+        });
     });
 </script>
