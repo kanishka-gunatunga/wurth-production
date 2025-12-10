@@ -65,20 +65,45 @@ class ReminderController extends Controller
         $currentUserId = Auth::id();
         $currentUserRole = User::where('id', $currentUserId)->value('user_role');
 
-        $users = User::where('user_role', '<=', $selectedLevel)
-            ->where(function ($query) use ($currentUserId, $currentUserRole, $selectedLevel) {
-                if ($selectedLevel == $currentUserRole) {
-                    $query->where('id', $currentUserId)
-                        ->orWhere('user_role', '!=', $currentUserRole);
-                } else {
-                    $query->where('user_role', '<=', $selectedLevel);
-                }
-            })
-            ->get();
+        $usersQuery = User::query();
+
+        /**
+         * SPECIAL RULE 1:
+         * Level 1 <-> Level 7 → only the target level users
+         */
+        if (
+            ($currentUserRole == 1 && $selectedLevel == 7) ||
+            ($currentUserRole == 7 && $selectedLevel == 1)
+        ) {
+            $usersQuery->where('user_role', $selectedLevel);
+        }
+        /**
+         * SPECIAL RULE 2:
+         * Level 1 or 7 → Level 8 → only Level 2 and Level 8 users
+         */
+        elseif (
+            ($currentUserRole == 1 || $currentUserRole == 7) &&
+            $selectedLevel == 8
+        ) {
+            $usersQuery->whereIn('user_role', [2, 8]);
+        }
+        /**
+         * DEFAULT RULE:
+         * Levels between current user and selected level
+         */
+        else {
+            $minLevel = min($currentUserRole, $selectedLevel);
+            $maxLevel = max($currentUserRole, $selectedLevel);
+
+            $usersQuery->whereBetween('user_role', [$minLevel, $maxLevel])
+                ->where('user_role', '!=', $currentUserRole);
+        }
+
+        $users = $usersQuery->get();
 
         foreach ($users as $user) {
             $reminder = new Reminders();
-            $reminder->sent_user_id   = Auth::id();
+            $reminder->sent_user_id   = $currentUserId;
             $reminder->send_from      = $request->input('send_from');
             $reminder->reminder_title = $request->input('reminder_title');
             $reminder->user_level     = $selectedLevel;
@@ -86,7 +111,7 @@ class ReminderController extends Controller
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
 
-            // ➜ Multiple selected users marked as direct
+            // Mark selected dropdown users as direct
             $reminder->is_direct = in_array($user->id, $selectedUserIds) ? 1 : 0;
 
             $reminder->save();
