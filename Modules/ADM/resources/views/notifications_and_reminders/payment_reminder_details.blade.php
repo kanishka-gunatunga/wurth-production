@@ -27,6 +27,21 @@
         color: #666;
     }
 
+    /* Force 2-column layout everywhere */
+    .grid-two-col {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    /* Stack only inside the left/right groups in Inquiry Info */
+    .stack-left,
+    .stack-right {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
     .field-label {
         font-family: Poppins;
         font-weight: 400;
@@ -41,10 +56,64 @@
         font-weight: 500;
     }
 
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 16px;
+        /* vertical gap between each set */
+    }
+
     .reason-text {
         font-size: 14px;
         color: #333;
         line-height: 1.6;
+    }
+
+    .attachment-box {
+        background: #F9FAFB;
+        border-radius: 8px;
+        border: 1px solid #E5E7EB;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .attachment-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .attachment-icon {
+        width: 40px;
+        height: 40px;
+        background: #dbeafe;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .attachment-icon svg {
+        width: 20px;
+        height: 20px;
+        color: #2563eb;
+    }
+
+    .attachment-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 2px;
+    }
+
+    .attachment-subtitle {
+        font-family: Poppins;
+        font-size: 12px;
+        color: #6A7282;
     }
 
     .btn-container {
@@ -71,45 +140,42 @@
                 <div class="container">
                     <!-- Reason & Description -->
                     <div class="card">
-                        <div class="card-header">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <g clip-path="url(#clip0_4858_14212)">
-                                    <path d="M9.99935 18.3337C14.6017 18.3337 18.3327 14.6027 18.3327 10.0003C18.3327 5.39795 14.6017 1.66699 9.99935 1.66699C5.39698 1.66699 1.66602 5.39795 1.66602 10.0003C1.66602 14.6027 5.39698 18.3337 9.99935 18.3337Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M10 6.66699V10.0003" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M10 13.333H10.0083" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_4858_14212">
-                                        <rect width="20" height="20" fill="white" />
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                            <span class="bold-text">Reason & Description</span>
-                        </div>
-
                         <div class="mt-2">
-                            <div class="field-label">From</div>
-                            <span class="slip-detail-text">
-                                &nbsp;ADM
-                            </span>
 
-                            <div class="field-label">To</div>
-                            <span class="slip-detail-text">
-                                &nbsp;Admin account
-                            </span>
+                            <div class="field-group">
+                                <div class="field-label">From</div>
+                                <span class="slip-detail-text">{{ $senderName }}</span>
+                            </div>
 
-                            <div class="field-label">Message</div>
-                            <span class="slip-detail-text">
-                                &nbsp;message .......
-                            </span>
+                            <div class="field-group">
+                                <div class="field-label">To</div>
+                                <span class="slip-detail-text">{{ $receiverName }}</span>
+                            </div>
 
-                            <div class="field-label">Trigger Date</div>
-                            <span class="slip-detail-text">
-                                &nbsp;2025-11-17
-                            </span>
+                            <div class="field-group">
+                                <div class="field-label">Title</div>
+                                <span class="slip-detail-text">{{ $reminder->reminder_title }}</span>
+                            </div>
+
+                            <div class="field-group">
+                                <div class="field-label">Message</div>
+                                <span class="slip-detail-text">{{ $reminder->reason }}</span>
+                            </div>
+
+                            <div class="field-group">
+                                <div class="field-label">Trigger Date</div>
+                                <span class="slip-detail-text">
+                                    {{ \Carbon\Carbon::parse($reminder->reminder_date)->format('Y-m-d') }}
+                                </span>
+                            </div>
+
+                            <!-- <div class="field-group">
+                                <div class="field-label">Reminder Type</div>
+                                <span class="slip-detail-text">{{ $reminder->reminder_type }}</span>
+                            </div> -->
                         </div>
                     </div>
-                    <a href="{{ url('adm/inquiries') }}" class="black-action-btn-lg" style="text-decoration: none;">Close</a>
+                    <a href="{{ url('adm/notifications-and-reminders') }}" class="black-action-btn-lg" style="text-decoration: none;">Close</a>
                 </div>
             </div>
         </div>

@@ -135,6 +135,28 @@ class NotificationsRemindersController extends Controller
         return response()->json($users);
     }
 
+    public function reminder_details($id)
+    {
+        $currentUserId = Auth::id();
+
+        // Fetch the reminder only if it belongs to the logged user
+        $reminder = Reminders::where('id', $id)
+            ->where('send_to', $currentUserId)
+            ->firstOrFail();
+
+        // Mark as read if not already
+        if (!$reminder->is_read) {
+            $reminder->is_read = 1;
+            $reminder->save();
+        }
+
+        // Get sender and receiver names
+        $senderName = UserDetails::where('user_id', $reminder->sent_user_id)->value('name') ?? 'Unknown';
+        $receiverName = UserDetails::where('user_id', $reminder->send_to)->value('name') ?? 'Unknown';
+
+        return view('adm::notifications_and_reminders.payment_reminder_details', compact('reminder', 'senderName', 'receiverName'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */

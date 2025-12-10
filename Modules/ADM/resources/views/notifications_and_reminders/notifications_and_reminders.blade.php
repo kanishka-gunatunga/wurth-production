@@ -20,7 +20,9 @@ use App\Models\Customers;
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-payment" role="tabpanel" aria-labelledby="pills-payment-tab">
                 @forelse($reminders as $reminder)
-                <div class="d-flex flex-row px-2 mb-3">
+                <div class="d-flex flex-row px-2 mb-3"
+                    style="cursor: pointer;"
+                    onclick="window.location='{{ url('adm/reminder-details/'.$reminder->id) }}'">
                     <div class="col-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 31 31" fill="none">
                             <circle cx="15.5" cy="15.5" r="15.5" fill="#EFEFEF" />

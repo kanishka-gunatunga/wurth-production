@@ -60,6 +60,8 @@ Route::prefix('adm')->group(function () {
     Route::match(['get', 'post'], 'create-reminder', [NotificationsRemindersController::class, 'create_reminder'])->middleware(ADMAuthenticated::class);
     Route::get('/get-users-by-level/{level}', [NotificationsRemindersController::class, 'getUsersByLevel'])
         ->middleware(ADMAuthenticated::class);
+    Route::get('reminder-details/{id}', [NotificationsRemindersController::class, 'reminder_details'])
+        ->middleware(ADMAuthenticated::class);
 
 
     Route::match(['get', 'post'], 'inquiries', [InquiryController::class, 'inquiries'])->middleware(ADMAuthenticated::class);
