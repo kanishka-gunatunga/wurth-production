@@ -34,8 +34,16 @@ class NotificationsRemindersController extends Controller
 
     public function notifications_and_reminders()
     {
-        $reminders = Reminders::get();
-        return view('adm::notifications_and_reminders.notifications_and_reminders', ['reminders' => $reminders]);
+        $currentUserId = Auth::id();
+
+        // Get all reminders sent to the logged-in user
+        $reminders = Reminders::where('send_to', $currentUserId)
+            ->orderBy('reminder_date', 'desc')
+            ->get();
+
+        return view('adm::notifications_and_reminders.notifications_and_reminders', [
+            'reminders' => $reminders
+        ]);
     }
 
     public function create_reminder(Request $request)
