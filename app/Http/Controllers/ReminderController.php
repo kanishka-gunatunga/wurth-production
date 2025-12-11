@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Reminders;
 use App\Models\User;
 use App\Models\UserDetails;
+use App\Models\RolePermissions;
 use Illuminate\Support\Facades\Auth;
 
 class ReminderController extends Controller
@@ -14,22 +15,31 @@ class ReminderController extends Controller
     public function create()
     {
         $currentUserId = Auth::id();
-        $currentUserRole = User::where('id', $currentUserId)->value('user_role');
+        $currentUserRole = Auth::user()->user_role;
 
-        // 🎯 Get all users except same-level users
+        // ----------------------------------------
+        // 🔥 Step 1: Get roles that have "notifications" permission
+        // ----------------------------------------
+        $allowedRoles = RolePermissions::whereJsonContains('permissions', 'notifications')
+            ->pluck('user_role')
+            ->toArray();
+
+        // ----------------------------------------
+        // 🔥 Step 2: Remove current user's role
+        // ----------------------------------------
+        $roles = array_values(array_filter($allowedRoles, function ($role) use ($currentUserRole) {
+            return $role != $currentUserRole;
+        }));
+
+        // ----------------------------------------
+        // Existing Code to load users (still needed)
+        // ----------------------------------------
         $users = User::with('userDetails')
             ->where('user_role', '!=', $currentUserRole)
-            ->orWhere('id', $currentUserId) // allow the current admin for name display
+            ->orWhere('id', $currentUserId)
             ->get();
 
-        // Only roles EXCEPT current user's level
-        $roles = $users->pluck('user_role')
-            ->unique()
-            ->filter(fn($role) => $role != $currentUserRole)  // 🚫 remove same role
-            ->sort()
-            ->values();
-
-        $name = UserDetails::where('user_id', Auth::id())->value('name');
+        $name = UserDetails::where('user_id', $currentUserId)->value('name');
 
         return view('reminders.create_reminder', compact('users', 'name', 'roles'));
     }
@@ -38,12 +48,19 @@ class ReminderController extends Controller
     {
         $currentUserRole = Auth::user()->user_role;
 
-        $users = User::with('userDetails')
-            ->where('user_role', $level)
-            ->where('user_role', '!=', $currentUserRole) // 🚫 block same level
-            ->get();
+        // Check if selected level has permission
+        $hasPermission = RolePermissions::where('user_role', $level)
+            ->whereJsonContains('permissions', 'notifications')
+            ->exists();
 
-        return response()->json($users);
+        if (! $hasPermission) {
+            return response()->json([]); // return empty list
+        }
+
+        return User::with('userDetails')
+            ->where('user_role', $level)
+            ->where('user_role', '!=', $currentUserRole)
+            ->get();
     }
 
     // Store reminder
