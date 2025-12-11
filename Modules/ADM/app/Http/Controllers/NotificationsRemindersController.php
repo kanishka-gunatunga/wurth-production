@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
 use App\Models\UserDetails;
+use App\Models\RolePermissions;
 use App\Models\Invoices;
 use App\Models\Customers;
 use App\Models\Reminders;
@@ -54,7 +55,14 @@ class NotificationsRemindersController extends Controller
 
         if ($request->isMethod('get')) {
             // Only roles except current user's level
-            $roles = User::pluck('user_role')->unique()->filter(fn($role) => $role != $currentUserRole)->sort()->values();
+            $allowedRoles = RolePermissions::whereJsonContains('permissions', 'notifications')
+                ->pluck('user_role')
+                ->toArray();
+
+            $roles = collect($allowedRoles)
+                ->filter(fn($role) => $role != $currentUserRole)
+                ->sort()
+                ->values();
             return view('adm::notifications_and_reminders.create_reminder', compact('roles', 'name'));
         }
 
@@ -127,6 +135,16 @@ class NotificationsRemindersController extends Controller
     public function getUsersByLevel($level)
     {
         $currentUserRole = Auth::user()->user_role;
+
+        // Check if selected role has notifications permission
+        $hasPermission = RolePermissions::where('user_role', $level)
+            ->whereJsonContains('permissions', 'notifications')
+            ->exists();
+
+        if (! $hasPermission) {
+            return response()->json([]); // no permission → return empty
+        }
+
         $users = User::with('userDetails')
             ->where('user_role', $level)
             ->where('user_role', '!=', $currentUserRole)
