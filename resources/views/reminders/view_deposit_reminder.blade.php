@@ -4,7 +4,7 @@
     <div class="main-wrapper">
         <div class="p-4 pt-0">
             <div class="d-flex justify-content-between align-items-center header-with-button">
-                <h1 class="header-title">Deposite Reminder (Cheque - {{ $cheque->cheque_number }} )</h1>
+                <h1 class="header-title">Deposit Reminder (Cheque - {{ $cheque->cheque_number }} )</h1>
                 <!-- <button class="black-action-btn-lg submit">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path

@@ -11,6 +11,8 @@ use App\Models\Invoices;
 use App\Models\Customers;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArrayExport;
+use App\Services\ActivitLogService;
+use App\Services\SystemNotificationService;
 
 class FinanceCashController extends Controller
 {
@@ -121,6 +123,9 @@ class FinanceCashController extends Controller
             InvoicePayments::whereIn('id', $receiptIds)
                 ->update(['status' => $request->status]);
         }
+
+        ActivitLogService::log('deposit', 'deposit ('.$id.') status has been changed to '.$request->status);
+        SystemNotificationService::log('deposit',$id , 'Your deposit('.$id.') status has been changed to '.$request->status, $deposit->adm_id);
 
         return response()->json([
             'success' => true,
