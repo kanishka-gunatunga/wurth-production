@@ -140,8 +140,8 @@
                         <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
                             @if(strtolower($deposit['status']) === 'deposited')
-                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="Approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="Rejected">Reject</button>
+                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
                             @endif
                             @if($deposit['attachment_path'])
                             <a href="{{ route('cash_deposits.download', $deposit['id']) }}"
@@ -453,7 +453,7 @@
             e.stopPropagation();
 
             currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'approved' : 'rejected');
 
             // Show modal
             document.getElementById('confirm-status-text').innerText = newStatus;

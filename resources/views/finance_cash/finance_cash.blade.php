@@ -457,7 +457,7 @@
             e.stopPropagation();
 
             currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'approved' : 'rejected');
 
             // Show modal
             document.getElementById('confirm-status-text').innerText = newStatus;

@@ -81,6 +81,7 @@ Route::get('/reminders/{id}', [ReminderController::class, 'show'])
 Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
     ->middleware(['authAdmin'])
     ->name('reminders.sent');
+Route::match(['get', 'post'], '/view-deposit-reminder/{id}', [ReminderController::class, 'view_deposit_reminder'])->middleware(['authAdmin']);    
 
 Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries');
 Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->middleware(['authAdmin'])->name('inquiry.details');

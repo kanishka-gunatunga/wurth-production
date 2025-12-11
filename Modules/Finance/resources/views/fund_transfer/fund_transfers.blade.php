@@ -143,8 +143,8 @@
 
                         <td class="sticky-column">
                             @if(strtolower($payment['status']) === 'pending')
-                            <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="Approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="Rejected">Reject</button>
+                            <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="approved">Approve</button>
+                            <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="rejected">Reject</button>
                             @endif
                             <a href="{{ route('fund_transfers.show', $payment->id) }}"
                                 class="black-action-btn"
@@ -408,7 +408,7 @@
             e.stopPropagation();
 
             currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'Approved' : 'Rejected');
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'aproved' : 'rejected');
 
             // Show modal
             document.getElementById('confirm-status-text').innerText = newStatus;

@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Reminders;
 use App\Models\User;
 use App\Models\UserDetails;
+use App\Models\InvoicePayments;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ReminderController extends Controller
 {
@@ -74,7 +76,7 @@ class ReminderController extends Controller
             $reminder->send_to        = $user->id;
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
-
+ 
             // ✅ Mark the one that matches the selected user as direct
             $reminder->is_direct = ($user->id === $selectedUserId) ? 1 : 0;
 
@@ -89,6 +91,13 @@ class ReminderController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
+        $today = Carbon::today()->format('Y-m-d');
+        $today_cheques = InvoicePayments::whereIn('type', ['finance-cheque', 'cheque'])
+        ->where('status', 'deposited')
+        ->whereDate('cheque_date', $today)
+        ->orderBy('cheque_date', 'desc')
+        ->paginate(15, ['*'], 'cheque_page')
+        ->withQueryString();
 
         $query = Reminders::query()
             ->where('send_to', $userId);
@@ -158,10 +167,16 @@ class ReminderController extends Controller
             'reminders' => $reminders,
             'filters'   => $request->all(),
             'fromUsers' => $fromUsers,
-            'toUsers'   => $toUsers
+            'toUsers'   => $toUsers,
+            'today_cheques'   => $today_cheques
         ]);
     }
+    public function view_deposit_reminder($id)
+    {
+        $cheque = InvoicePayments::with(['invoice.customer', 'adm'])->find($id);
 
+        return view('reminders.view_deposit_reminder', compact('cheque'));
+    }
     public function show($id)
     {
         $reminder = Reminders::findOrFail($id);

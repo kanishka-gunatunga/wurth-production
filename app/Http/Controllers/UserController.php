@@ -95,17 +95,17 @@ class UserController extends Controller
         // Sum deposits for the current month with status 'accepted'
         $currentMonthDeposits = Deposits::whereYear('date_time', $currentYear)
             ->whereMonth('date_time', $currentMonth)
-            ->where('status', 'accepted')
+            ->where('status', 'approved')
             ->sum('amount');
 
         $onHandCollections = InvoicePayments::where('status', 'pending')
             ->whereIn('type', ['cash', 'cheque'])
             ->sum('final_payment');
 
-        $monthCollections = InvoicePayments::where('status', 'accepted')
+        $monthCollections = InvoicePayments::where('status', 'approved')
             ->sum('final_payment');
 
-        $monthChequeCollections = InvoicePayments::where('status', 'accepted')
+        $monthChequeCollections = InvoicePayments::where('status', 'approved')
             ->where('type', 'cheque')
             ->sum('final_payment');
 

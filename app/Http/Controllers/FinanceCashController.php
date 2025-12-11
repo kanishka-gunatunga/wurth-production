@@ -105,7 +105,7 @@ class FinanceCashController extends Controller
         $request->merge(['status' => ucfirst(strtolower($request->status))]);
 
         $request->validate([
-            'status' => 'required|in:Approved,Rejected',
+            'status' => 'required|in:approved,rejected',
         ]);
 
         $deposit = Deposits::findOrFail($id);
