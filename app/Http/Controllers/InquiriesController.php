@@ -36,7 +36,7 @@ class InquiriesController extends Controller
         $inquiries = Inquiries::with([
             'invoice',
             'customer',
-            'user.userDetails'
+            'admin.userDetails'
         ])
             ->orderBy('created_at', 'desc') // newest first
             ->paginate(10); // show 10 per page
@@ -50,7 +50,7 @@ class InquiriesController extends Controller
         $inquiry = Inquiries::with([
             'invoice',
             'customer',
-            'user.userDetails'
+            'admin.userDetails'
         ])->findOrFail($id);
 
         return view('inquiries.details', compact('inquiry'));
@@ -95,7 +95,7 @@ class InquiriesController extends Controller
     {
         $query = $request->input('query');
 
-        $inquiries = Inquiries::with(['invoice', 'customer', 'user.userDetails'])
+        $inquiries = Inquiries::with(['invoice', 'customer', 'admin.userDetails'])
             ->when($query, function ($q) use ($query) {
                 $q->where('id', 'LIKE', "%{$query}%");
             })
@@ -114,7 +114,7 @@ class InquiriesController extends Controller
         $status = $request->input('status');
         $dateRange = $request->input('date_range'); // e.g. "2025-01-01 to 2025-01-31"
 
-        $inquiries = Inquiries::with(['invoice', 'customer', 'user.userDetails'])
+        $inquiries = Inquiries::with(['invoice', 'customer', 'admin.userDetails'])
             ->when(!empty($admIds), function ($q) use ($admIds) {
                 $q->whereIn('adm_id', $admIds);
             })

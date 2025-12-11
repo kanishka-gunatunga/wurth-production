@@ -7,6 +7,7 @@ use App\Models\Reminders;
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\InvoicePayments;
+use App\Models\RolePermissions;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -15,21 +16,53 @@ class ReminderController extends Controller
     // Show the create form
     public function create()
     {
-        // Get all users so admin can pick who to send to
         $currentUserId = Auth::id();
-        $currentUserRole = User::where('id', $currentUserId)->value('user_role');
+        $currentUserRole = Auth::user()->user_role;
 
+        // ----------------------------------------
+        // 🔥 Step 1: Get roles that have "notifications" permission
+        // ----------------------------------------
+        $allowedRoles = RolePermissions::whereJsonContains('permissions', 'notifications')
+            ->pluck('user_role')
+            ->toArray();
+
+        // ----------------------------------------
+        // 🔥 Step 2: Remove current user's role
+        // ----------------------------------------
+        $roles = array_values(array_filter($allowedRoles, function ($role) use ($currentUserRole) {
+            return $role != $currentUserRole;
+        }));
+
+        // ----------------------------------------
+        // Existing Code to load users (still needed)
+        // ----------------------------------------
         $users = User::with('userDetails')
-            ->where(function ($query) use ($currentUserId, $currentUserRole) {
-                $query->where('id', $currentUserId) // include yourself
-                    ->orWhere('user_role', '!=', $currentUserRole); // exclude same level users
-            })
+            ->where('user_role', '!=', $currentUserRole)
+            ->orWhere('id', $currentUserId)
             ->get();
 
-        // Get current admin name (if you store name in user_details)
-        $name = UserDetails::where('user_id', Auth::id())->value('name');
+        $name = UserDetails::where('user_id', $currentUserId)->value('name');
 
-        return view('reminders.create_reminder', compact('users', 'name'));
+        return view('reminders.create_reminder', compact('users', 'name', 'roles'));
+    }
+
+    public function getUsersByLevel($level)
+    {
+        $currentUserRole = Auth::user()->user_role;
+
+        // Check if selected level has permission
+        $hasPermission = RolePermissions::where('user_role', $level)
+            ->whereJsonContains('permissions', 'notifications')
+            ->exists();
+
+        if (! $hasPermission) {
+            return response()->json([]); // return empty list
+        }
+
+        return User::with('userDetails')
+            ->where('user_role', $level)
+            ->where('user_role', '!=', $currentUserRole)
+            ->get();
     }
 
     // Store reminder
@@ -41,52 +74,70 @@ class ReminderController extends Controller
             'user_level'     => 'required|integer',
             'reminder_date'  => 'required|date',
             'reason'         => 'required|string',
-            'send_to'        => 'required|integer', // validate the user
+            'send_to'        => 'required|array',
+            'send_to.*'      => 'integer',
         ]);
 
         $selectedLevel = (int)$request->input('user_level');
-        $selectedUserId = (int)$request->input('send_to');
+        $selectedUserIds = array_map('intval', $request->input('send_to'));
 
-        // Get all users within the selected level range
         $currentUserId = Auth::id();
         $currentUserRole = User::where('id', $currentUserId)->value('user_role');
 
-        // Get users to send reminder
-        $users = User::where('user_role', '<=', $selectedLevel)
-            ->where(function ($query) use ($currentUserId, $selectedUserId, $currentUserRole, $selectedLevel) {
-                if ($selectedLevel == $currentUserRole) {
-                    // If selected level is same as current user level, only include:
-                    // 1) the currently logged-in user
-                    // 2) users of other levels
-                    $query->where('id', $currentUserId)
-                        ->orWhere('user_role', '!=', $currentUserRole);
-                } else {
-                    // Otherwise, include all users up to the selected level
-                    $query->where('user_role', '<=', $selectedLevel);
-                }
-            })
-            ->get();
+        $usersQuery = User::query();
+
+        /**
+         * SPECIAL RULE 1:
+         * Level 1 <-> Level 7 → only the target level users
+         */
+        if (
+            ($currentUserRole == 1 && $selectedLevel == 7) ||
+            ($currentUserRole == 7 && $selectedLevel == 1)
+        ) {
+            $usersQuery->where('user_role', $selectedLevel);
+        }
+        /**
+         * SPECIAL RULE 2:
+         * Level 1 or 7 → Level 8 → only Level 2 and Level 8 users
+         */
+        elseif (
+            ($currentUserRole == 1 || $currentUserRole == 7) &&
+            $selectedLevel == 8
+        ) {
+            $usersQuery->whereIn('user_role', [2, 8]);
+        }
+        /**
+         * DEFAULT RULE:
+         * Levels between current user and selected level
+         */
+        else {
+            $minLevel = min($currentUserRole, $selectedLevel);
+            $maxLevel = max($currentUserRole, $selectedLevel);
+
+            $usersQuery->whereBetween('user_role', [$minLevel, $maxLevel])
+                ->where('user_role', '!=', $currentUserRole);
+        }
+
+        $users = $usersQuery->get();
 
         foreach ($users as $user) {
             $reminder = new Reminders();
-            $reminder->sent_user_id   = Auth::id();
+            $reminder->sent_user_id   = $currentUserId;
             $reminder->send_from      = $request->input('send_from');
             $reminder->reminder_title = $request->input('reminder_title');
             $reminder->user_level     = $selectedLevel;
             $reminder->send_to        = $user->id;
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
- 
-            // ✅ Mark the one that matches the selected user as direct
-            $reminder->is_direct = ($user->id === $selectedUserId) ? 1 : 0;
+
+            // Mark selected dropdown users as direct
+            $reminder->is_direct = in_array($user->id, $selectedUserIds) ? 1 : 0;
 
             $reminder->save();
         }
 
-        return redirect()->back()->with('toast', 'Reminder sent to all users up to level ' . $selectedLevel . '!');
+        return redirect()->back()->with('toast', 'Reminder sent successfully!');
     }
-
-
 
     public function index(Request $request)
     {

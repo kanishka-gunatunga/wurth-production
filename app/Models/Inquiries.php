@@ -23,9 +23,8 @@ class Inquiries extends Model
         return $this->belongsTo(Invoices::class, 'invoice_number', 'invoice_or_cheque_no');
     }
 
-    public function user()
+    public function admin()
     {
-        // adm_id in inquiries → id in users
         return $this->belongsTo(User::class, 'adm_id', 'id');
     }
 }

@@ -20,7 +20,7 @@ td {
     border: 0;
     font-family: Poppins;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 12px;
 
     padding: 5px 15px;
 
@@ -153,7 +153,7 @@ td {
 .unlock-column-table th,
 .custom-table-locked th {
     font-family: Poppins;
-    font-weight: 500;
+    font-weight: 600;
     font-style: Medium;
     font-size: 18px;
     color: #000000;
@@ -256,7 +256,7 @@ td {
 .bold-text,
 .slip-detail-text {
     font-family: Poppins;
-    font-size: 20px;
+    font-size: 16px;
     color: #000000;
 }
 

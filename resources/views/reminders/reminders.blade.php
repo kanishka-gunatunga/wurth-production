@@ -1,4 +1,4 @@
-@include('finance::layouts.header')
+@include('layouts.dashboard-header')
 <style>
     /* Search box styles */
     #search-box-wrapper {
