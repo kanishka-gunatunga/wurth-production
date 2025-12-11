@@ -164,9 +164,21 @@
 
                             </div>
                         </div>
-                        <ul class="list-group" id="temporaryNotifications"></ul>
+                        <ul class="list-group" id="temporaryNotifications">
+                            <?php foreach($today_cheques as $today_cheque) { ?> 
+                            <li class="list-group-item d-flex justify-content-between align-items-start notification-row" style="cursor:pointer;" onclick="window.location.href='{{ url('view-deposit-reminder') }}/<?= $today_cheque->id ?>'">
+                                <div>
+                                    <div class="fw-bold">Cheque Deposit Reminder</div>
+                                    <small class="text-muted"> Cheque No: <?= $today_cheque->cheque_number ?>  
+                — Amount: LKR <?= number_format($today_cheque->amount, 2) ?><br>  The cheque should be deposited today.</small>
+                                </div>
+                                <small class="text-muted"><?= date('d/m/Y', strtotime($today_cheque->cheque_date)) ?></small>
+                                
+                            </li>
+                            <?php } ?>
+                        </ul>
                         <nav class="d-flex justify-content-center mt-3">
-                            <ul id="temporaryNotificationsPagination" class="pagination"></ul>
+                             {{ $today_cheques->links() }}
                         </nav>
                     </div>
 

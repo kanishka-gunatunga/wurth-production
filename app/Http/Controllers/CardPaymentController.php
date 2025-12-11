@@ -12,6 +12,8 @@ use App\Models\Deposits;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArrayExport;
+use App\Services\ActivitLogService;
+use App\Services\SystemNotificationService;
 
 class CardPaymentController extends Controller
 {
@@ -145,7 +147,9 @@ class CardPaymentController extends Controller
             $deposit->save();
 
             DB::commit();
-
+            ActivitLogService::log('deposit', 'deposit ('.$deposit->id.') status has been changed to '.$newStatus);
+            SystemNotificationService::log('deposit',$deposit->id , 'Your deposit('.$deposit->id.') status has been changed to '.$newStatus, $deposit->adm_id);
+            
             return response()->json(['success' => true, 'status' => ucfirst($payment->status)]);
         } catch (\Exception $e) {
             DB::rollBack();

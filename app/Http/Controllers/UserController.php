@@ -95,17 +95,17 @@ class UserController extends Controller
         // Sum deposits for the current month with status 'accepted'
         $currentMonthDeposits = Deposits::whereYear('date_time', $currentYear)
             ->whereMonth('date_time', $currentMonth)
-            ->where('status', 'accepted')
+            ->where('status', 'approved')
             ->sum('amount');
 
         $onHandCollections = InvoicePayments::where('status', 'pending')
             ->whereIn('type', ['cash', 'cheque'])
             ->sum('final_payment');
 
-        $monthCollections = InvoicePayments::where('status', 'accepted')
+        $monthCollections = InvoicePayments::where('status', 'approved')
             ->sum('final_payment');
 
-        $monthChequeCollections = InvoicePayments::where('status', 'accepted')
+        $monthChequeCollections = InvoicePayments::where('status', 'approved')
             ->where('type', 'cheque')
             ->sum('final_payment');
 
@@ -243,17 +243,58 @@ class UserController extends Controller
         $users = $query->paginate(15)->appends($request->query());
 
         $divisions = Divisions::get();
-
+        $switch_users = User::with('userDetails')->get();
         return view('user.user_managment', compact(
             'users',
             'divisions',
             'selectedRoles',
             'selectedDivisions',
-            'search'
+            'search',
+            'switch_users'
         ));
     }
 
 
+public function getUserDetailsDivisonRole(Request $request)
+{
+    $user = User::with('userDetails.divisionData')->find($request->user_id);
+
+    if (!$user) {
+        return response()->json(['status' => false]);
+    }
+
+    // Role Names
+    $roleNames = [
+        1 => 'System Administrator',
+        2 => 'Head of Division',
+        3 => 'Regional Sales Manager',
+        4 => 'Area Sales Manager',
+        5 => 'Team Leader',
+        6 => 'ADM (Sales Rep)',
+        7 => 'Finance Manager',
+        8 => 'Recovery Manager',
+    ];
+
+    $divisionId = $user->userDetails->division;
+    $role = $user->user_role;
+
+
+    $filteredUsers = User::with('userDetails.divisionData')
+        ->where('id', '!=', $user->id)
+        ->where('user_role', $role)
+        ->whereHas('userDetails', function ($q) use ($divisionId) {
+            $q->where('division', $divisionId);
+        })
+        ->get();
+
+    return response()->json([
+        'status' => true,
+        'user' => $user,
+        'filtered_users' => $filteredUsers,
+        'role_name' => $roleNames[$role] ?? 'Unknown Role',
+        'division_name' => $user->userDetails->divisionData->division_name ?? 'Unknown Division'
+    ]);
+}
 
 
 
@@ -497,7 +538,7 @@ class UserController extends Controller
             $user = User::where('id', Auth::user()->id)
                 ->with([
                     'userDetails',
-                    'userDetails.division',
+                    'userDetails.divisionData',
                     'userDetails.supervisor.userDetails'
                 ])->first();
             return view('user.settings', ['user' => $user]);
@@ -641,4 +682,210 @@ class UserController extends Controller
 
         return response()->json(['success' => true]);
     }
+public function switch_user(Request $request)
+{
+    $userId = $request->user_id;
+    $switchUserId = $request->switch_user_id;
+
+    $userA = User::with('userDetails')->find($userId);
+    $userB = User::with('userDetails')->find($switchUserId);
+
+    if (!$userA || !$userB) {
+        return back()->with('fail', 'Users not found');
+    }
+
+    $aDetails = $userA->userDetails;
+    $bDetails = $userB->userDetails;
+
+    DB::beginTransaction();
+
+    try {
+
+        // ========================================
+        // 1️⃣ SWITCH CUSTOMERS (ONLY IF BOTH ROLE 6)
+        // ========================================
+        if ($userA->user_role == 6 && $userB->user_role == 6) {
+
+            $admA = $aDetails->adm_number;
+            $admB = $bDetails->adm_number;
+
+            if ($admA && $admB) {
+
+                // Swap primary ADM
+                Customers::where('adm', $admA)->update(['adm' => $admB]);
+                Customers::where('adm', $admB)->update(['adm' => $admA]);
+
+                // Swap secondary ADM
+                Customers::where('secondary_adm', $admA)->update(['secondary_adm' => $admB]);
+                Customers::where('secondary_adm', $admB)->update(['secondary_adm' => $admA]);
+            }
+        }
+
+        // ========================================
+        // 2️⃣ SWAP SUPERVISORS BETWEEN USERS
+        // ========================================
+
+        $tempSupervisor = $aDetails->supervisor;
+        $tempSecondary = $aDetails->second_supervisor;
+
+        $aDetails->supervisor = $bDetails->supervisor;
+        $aDetails->second_supervisor = $bDetails->second_supervisor;
+
+        $bDetails->supervisor = $tempSupervisor;
+        $bDetails->second_supervisor = $tempSecondary;
+
+        $aDetails->save();
+        $bDetails->save();
+
+        // ========================================
+        // 3️⃣ UPDATE SUBORDINATES OF BOTH USERS
+        // ========================================
+
+        // Supervisor swap
+        UserDetails::where('supervisor', $userA->id)->update(['supervisor' => $userB->id]);
+        UserDetails::where('supervisor', $userB->id)->update(['supervisor' => $userA->id]);
+
+        // Secondary supervisor swap
+        UserDetails::where('second_supervisor', $userA->id)->update(['second_supervisor' => $userB->id]);
+        UserDetails::where('second_supervisor', $userB->id)->update(['second_supervisor' => $userA->id]);
+
+        DB::commit();
+
+       ActivitLogService::log('user management',$userA->userDetails->name . ' and ' . $userB->userDetails->name . ' were switched');
+
+
+        return back()->with('success', 'Users switched successfully');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+        return back()->with('fail', $e->getMessage());
+    }
+}
+public function replace_user(Request $request)
+{
+    $userId = $request->user_id;           // User A (the one being replaced)
+    $replaceUserId = $request->replace_user_id; // User B (the one taking responsibilities)
+
+    $userA = User::with('userDetails')->find($userId);
+    $userB = User::with('userDetails')->find($replaceUserId);
+
+    if (!$userA || !$userB) {
+        return back()->with('fail', 'Users not found');
+    }
+
+    $aDetails = $userA->userDetails;
+    $bDetails = $userB->userDetails;
+
+    DB::beginTransaction();
+
+    try {
+
+        /* ======================================================
+         * 1️⃣ MOVE CUSTOMERS (Only if User A is ADM role 6)
+         * ====================================================== */
+        if ($userA->user_role == 6 && $aDetails->adm_number && $bDetails->adm_number) {
+
+            $admA = $aDetails->adm_number;
+            $admB = $bDetails->adm_number;
+
+            // Move all A → B
+            Customers::where('adm', $admA)->update(['adm' => $admB]);
+            Customers::where('secondary_adm', $admA)->update(['secondary_adm' => $admB]);
+        }
+
+
+        /* ======================================================
+         * 2️⃣ MOVE SUBORDINATES → User B
+         * ====================================================== */
+
+        // Supervisor mapping
+        UserDetails::where('supervisor', $userA->id)
+            ->update(['supervisor' => $userB->id]);
+
+        // Secondary supervisor mapping
+        UserDetails::where('second_supervisor', $userA->id)
+            ->update(['second_supervisor' => $userB->id]);
+
+
+        /* ======================================================
+         * 3️⃣ UPDATE User A’s own supervisor info
+         *     A should now report to whoever B reports to
+         * ====================================================== */
+
+        $aDetails->supervisor = $bDetails->supervisor;
+        $aDetails->second_supervisor = $bDetails->second_supervisor;
+        $aDetails->save();
+
+
+        DB::commit();
+
+        // Activity Log
+        ActivitLogService::log(
+            'user management',
+            $aDetails->name . ' was replaced by ' . $bDetails->name
+        );
+
+        return back()->with('success', 'User replaced successfully');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+        return back()->with('fail', $e->getMessage());
+    }
+}
+public function getUserDetailsDivisonRoleWithRoles(Request $request)
+{
+    $user = User::with('userDetails.divisionData')->find($request->user_id);
+
+    if (!$user) {
+        return response()->json(['status' => false]);
+    }
+
+    // All role names
+    $roleNames = [
+        1 => 'System Administrator',
+        2 => 'Head of Division',
+        3 => 'Regional Sales Manager',
+        4 => 'Area Sales Manager',
+        5 => 'Team Leader',
+        6 => 'ADM (Sales Rep)',
+        7 => 'Finance Manager',
+        8 => 'Recovery Manager',
+    ];
+
+    $divisionId = $user->userDetails->division;
+    $currentUserRole = $user->user_role;
+
+
+    $filteredUsers = User::with('userDetails.divisionData')
+        ->where('id', '!=', $user->id)
+        ->where('user_role', $currentUserRole)
+        ->whereHas('userDetails', function ($q) use ($divisionId) {
+            $q->where('division', $divisionId);
+        })
+        ->get(); 
+           
+    // Prepare "higher roles only"
+    // Example: If user role = 4, send only roles 1,2,3 (higher)
+    $higherRoles = [];
+    foreach ($roleNames as $id => $name) {
+        if ($id < $currentUserRole) {
+            $higherRoles[] = [
+                'value' => $id,
+                'label' => $name
+            ];
+        }
+    }
+
+    return response()->json([
+        'status' => true,
+        'user' => $user,
+        'filtered_users' => $filteredUsers,
+        'role_name' => $roleNames[$currentUserRole] ?? 'Unknown Role',
+        'division_name' => $user->userDetails->divisionData->division_name ?? 'Unknown Division',
+        'roles' => $higherRoles // Ready for <option>
+    ]);
+}
+
 }

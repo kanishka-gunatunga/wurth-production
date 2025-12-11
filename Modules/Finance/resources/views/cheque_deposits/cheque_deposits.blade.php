@@ -147,8 +147,8 @@
                         </td>
                         <td class="sticky-column">
                             @if (strtolower($item['status']) === 'deposited')
-                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="Approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="Rejected">Reject</button>
+                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
                             @endif
 
                             @if ($item['attachment_path'])

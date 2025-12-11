@@ -31,7 +31,7 @@ class UserDetails extends Model
     /**
      * The division this user belongs to.
      */
-    public function division()
+    public function divisionData()
     {
         return $this->belongsTo(Divisions::class, 'division', 'id');
     }

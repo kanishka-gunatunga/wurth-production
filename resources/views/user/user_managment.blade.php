@@ -65,7 +65,8 @@ use App\Models\Divisions;
 <div class="main-wrapper">
 
                 
-
+ @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
+                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
                  <div class="styled-tab-main">
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item mb-3">
@@ -97,7 +98,21 @@ use App\Models\Divisions;
                                    Replace Users
                                 </a>
                             </li>
-
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" data-bs-toggle="tab" href="#promote-user" role="tab" aria-controls="promote-user" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <g clip-path="url(#clip0_4885_9726)">
+                                    <path d="M18.954 7.5H14.817C14.7095 7.50052 14.6045 7.53277 14.5153 7.59271C14.426 7.65264 14.3564 7.7376 14.3153 7.83692C14.2741 7.93624 14.2632 8.0455 14.2838 8.15101C14.3045 8.25652 14.3559 8.35357 14.4315 8.43L15.969 9.969L12.75 13.1895L10.281 10.719C10.2113 10.6492 10.1286 10.5937 10.0375 10.5559C9.94633 10.5181 9.84865 10.4987 9.75 10.4987C9.65135 10.4987 9.55367 10.5181 9.46255 10.5559C9.37143 10.5937 9.28867 10.6492 9.219 10.719L4.719 15.219C4.64927 15.2887 4.59395 15.3715 4.55622 15.4626C4.51848 15.5537 4.49905 15.6514 4.49905 15.75C4.49905 15.8486 4.51848 15.9463 4.55622 16.0374C4.59395 16.1285 4.64927 16.2113 4.719 16.281C4.78873 16.3507 4.87152 16.406 4.96263 16.4438C5.05373 16.4815 5.15138 16.5009 5.25 16.5009C5.34862 16.5009 5.44627 16.4815 5.53737 16.4438C5.62848 16.406 5.71127 16.3507 5.781 16.281L9.75 12.3105L12.219 14.781C12.2887 14.8508 12.3714 14.9063 12.4626 14.9441C12.5537 14.9819 12.6513 15.0013 12.75 15.0013C12.8487 15.0013 12.9463 14.9819 13.0374 14.9441C13.1286 14.9063 13.2113 14.8508 13.281 14.781L17.031 11.031L18.5685 12.5685C18.9135 12.9135 19.5 12.669 19.5 12.183V8.046C19.5 7.9743 19.4859 7.9033 19.4584 7.83706C19.431 7.77081 19.3908 7.71062 19.3401 7.65992C19.2894 7.60922 19.2292 7.569 19.1629 7.54156C19.0967 7.51412 19.0257 7.5 18.954 7.5ZM0 1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0L22.5 0C22.8978 0 23.2794 0.158035 23.5607 0.43934C23.842 0.720644 24 1.10218 24 1.5V22.5C24 22.8978 23.842 23.2794 23.5607 23.5607C23.2794 23.842 22.8978 24 22.5 24H1.5C1.10218 24 0.720644 23.842 0.43934 23.5607C0.158035 23.2794 0 22.8978 0 22.5V1.5ZM1.5 1.5V22.5H22.5V1.5H1.5Z" fill="#CC0000"/>
+                                    </g>
+                                    <defs>
+                                    <clipPath id="clip0_4885_9726">
+                                    <rect width="24" height="24" fill="white"/>
+                                    </clipPath>
+                                    </defs>
+                                    </svg>
+                                   Promote Users
+                                </a>
+                            </li>
                         </ul>
 
                         <div class="tab-content">
@@ -202,6 +217,8 @@ use App\Models\Divisions;
                         </div>
 
                         <div id="switch-user" class="tab-pane fade" role="tabpanel" aria-labelledby="switch-user">
+                            <form class="" action="{{url('switch-user')}}" method="post">
+                            @csrf
                             <div class="col-lg-6 col-12">
                                 <h1 class="header-title">Switch User</h1>
                             </div>
@@ -223,8 +240,13 @@ use App\Models\Divisions;
                             <div class="row align-items-center mt-4">
                                 <div class="col-md-5">
                                     <label for="division-input" class="form-label custom-input-label">User ID</label>
-                                    <input type="text" class="form-control custom-input" id="user_id" placeholder="User ID" name="user_id" >
-
+                 
+                                    <select class="form-select custom-input" aria-label="Default select example" id="user_id" name="user_id" required>
+                                        <option selected hidden disabled>Select User</option>
+                                        <?php foreach($switch_users as $switch_user){ ?>
+                                        <option value="{{$switch_user->id}}">{{$switch_user->id}} ({{$switch_user->userDetails->name}})</option>
+                                         <?php } ?>
+                                    </select>
                                 </div>
                                 <div class="col-md-2 text-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
@@ -233,13 +255,16 @@ use App\Models\Divisions;
                                 </div>
                                 <div class="col-md-5">
                                     <label for="division-input" class="form-label custom-input-label">Switch User ID</label>
-                                    <input type="text" class="form-control custom-input" id="switch_user_id" placeholder="Switch User ID" name="switch_user_id" >
+                        
+                                    <select class="form-select custom-input" aria-label="Default select example" id="switch_user_id" name="switch_user_id" required>
+                                       
+                                    </select>
                                 </div>
                             </div>
 
                             <div class="row align-items-center mt-4">
                                 <div class="col-md-5">
-                                    <div class="card main-card">
+                                    <div class="card main-card left-card">
                                     <div class="card-body ps-4">
                                         <div class="detail-row">
                                             <span class="detail-label">Name :</span>
@@ -270,7 +295,7 @@ use App\Models\Divisions;
                                 </div>
                                 
                                 <div class="col-md-5">
-                                    <div class="card main-card">
+                                    <div class="card main-card right-card">
                                     <div class="card-body ps-4">
                                         <div class="detail-row">
                                             <span class="detail-label">Name :</span>
@@ -296,8 +321,14 @@ use App\Models\Divisions;
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
+                            <button type="submit" class="btn btn-danger submit">Save</button>
+                        </div>
+                        </form>
                         </div> 
                         <div id="replace-user" class="tab-pane fade" role="tabpanel" aria-labelledby="replace-user">
+                            <form class="" action="{{url('replace-user')}}" method="post">
+                            @csrf
                             <div class="col-lg-6 col-12">
                                 <h1 class="header-title">Replace User</h1>
                             </div>
@@ -317,10 +348,15 @@ use App\Models\Divisions;
                                 </div>
                              </div>
                             <div class="row align-items-center mt-4">
-                                <div class="col-md-5">
+                               <div class="col-md-5">
                                     <label for="division-input" class="form-label custom-input-label">User ID</label>
-                                    <input type="text" class="form-control custom-input" id="user_id" placeholder="User ID" name="user_id" >
-
+                 
+                                    <select class="form-select custom-input" aria-label="Default select example" id="repalce_user_id" name="repalce_user_id" required>
+                                        <option selected hidden disabled>Select User</option>
+                                        <?php foreach($switch_users as $switch_user){ ?>
+                                        <option value="{{$switch_user->id}}">{{$switch_user->id}} ({{$switch_user->userDetails->name}})</option>
+                                         <?php } ?>
+                                    </select>
                                 </div>
                                 <div class="col-md-2 text-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
@@ -328,14 +364,17 @@ use App\Models\Divisions;
                                     </svg>
                                 </div>
                                 <div class="col-md-5">
-                                    <label for="division-input" class="form-label custom-input-label">Switch User ID</label>
-                                    <input type="text" class="form-control custom-input" id="switch_user_id" placeholder="Switch User ID" name="switch_user_id" >
+                                    <label for="division-input" class="form-label custom-input-label">Replace User ID</label>
+                        
+                                    <select class="form-select custom-input" aria-label="Default select example" id="replace_switch_user_id" name="replace_switch_user_id" required>
+                                       
+                                    </select>
                                 </div>
                             </div>
 
                             <div class="row align-items-center mt-4">
                                 <div class="col-md-5">
-                                    <div class="card main-card">
+                                    <div class="card main-card left-card-replace">
                                     <div class="card-body ps-4">
                                         <div class="detail-row">
                                             <span class="detail-label">Name :</span>
@@ -366,7 +405,7 @@ use App\Models\Divisions;
                                 </div>
                                 
                                 <div class="col-md-5">
-                                    <div class="card main-card">
+                                    <div class="card main-card right-card-replace">
                                     <div class="card-body ps-4">
                                         <div class="detail-row">
                                             <span class="detail-label">Name :</span>
@@ -392,6 +431,114 @@ use App\Models\Divisions;
                                     </div>
                                 </div>
                             </div>
+                            </form>
+                        </div> 
+
+
+                        <div id="promote-user" class="tab-pane fade" role="tabpanel" aria-labelledby="promote-user">
+                            <form class="" action="{{url('promote-user')}}" method="post">
+                            @csrf
+                            <div class="col-lg-6 col-12">
+                                <h1 class="header-title">Promote User</h1>
+                            </div>
+                            <div class="card main-card red-card">
+                                <div class="card-body ps-4 d-flex">   
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#CC0000" stroke-width="2"/>
+                                        <path d="M12 16V12M12 8H12.01" stroke="#CC0000" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="px-2">
+                                        <h2 class="section-title mb-1 text-color-red">About Promote Users Function</h2>
+                                        <p>The Promote Users function allows you to elevate a user's role and responsibilities within the organization. Enter the User ID to promote and specify their new supervisor. Review the user details and confirm to update their position, reporting structure, and access permissions accordingly.</p>
+                                    </div>
+                                    
+                                </div>
+                             </div>
+                            <div class="row  mt-4">
+                               <div class="col-md-6">
+                                    <label for="division-input" class="form-label custom-input-label">User ID</label>
+                 
+                                    <select class="form-select custom-input" aria-label="Default select example" id="promote_user_id" name="promote_user_id" required>
+                                        <option selected hidden disabled>Select User</option>
+                                        <?php foreach($switch_users as $switch_user){ ?>
+                                        <option value="{{$switch_user->id}}">{{$switch_user->id}} ({{$switch_user->userDetails->name}})</option>
+                                         <?php } ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="division-input" class="form-label custom-input-label">Prmote Role</label>
+                                    <select class="form-select custom-input" aria-label="Default select example" id="promote_role" name="promote_role" required>
+                                       
+                                    </select>
+
+                                    <label for="division-input" class="form-label custom-input-label mt-4">Assign current user fucntions to</label>
+                        
+                                    <select class="form-select custom-input" aria-label="Default select example" id="promote_switch_user_id" name="promote_switch_user_id" required>
+                                       
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center mt-4">
+                                <div class="col-md-6">
+                                    <div class="card main-card left-card-promote">
+                                    <div class="card-body ps-4">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Name :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Email :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Mobile Number :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Division :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">User Role :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                               
+                                <!-- <div class="col-md-6">
+                                    <div class="card main-card right-card-replace">
+                                    <div class="card-body ps-4">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Name :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Email :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Mobile Number :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Division :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">User Role :</span>
+                                            <span class="detail-value"></span>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div> -->
+                            </div>
+                            </form>
                         </div> 
                         </div>      
                         
@@ -579,3 +726,150 @@ use App\Models\Divisions;
     }
 </script>
 @include('layouts.footer2')
+
+<script>
+    $(document).ready(function () {
+
+
+    $('#user_id').on('change', function () {
+        let userId = $(this).val();
+ 
+        $.ajax({
+            url: "{{ url('get-user-details-divison-role') }}",
+            type: "POST",
+            data: {
+                user_id: userId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (res) {
+                if (res.status) {
+
+                
+                    fillCard('.left-card', res);
+
+            
+                    $('#switch_user_id').empty().append('<option disabled selected>Select User</option>');
+                    $.each(res.filtered_users, function (index, user) {
+                        $('#switch_user_id').append(
+                            `<option value="${user.id}">${user.id} (${user.user_details.name})</option>`
+                        );
+                    });
+                }
+            }
+        });
+    });
+
+    $('#switch_user_id').on('change', function () {
+        let userId = $(this).val();
+
+        $.ajax({
+            url: "{{ url('get-user-details-divison-role') }}",
+            type: "POST",
+            data: {
+                user_id: userId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (res) {
+                if (res.status) {
+                    fillCard('.right-card', res);
+                }
+            }
+        });
+    });
+
+
+    $('#repalce_user_id').on('change', function () {
+        let userId = $(this).val();
+ 
+        $.ajax({
+            url: "{{ url('get-user-details-divison-role') }}",
+            type: "POST",
+            data: {
+                user_id: userId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (res) {
+                if (res.status) {
+
+                
+                    fillCard('.left-card-replace', res);
+
+            
+                    $('#replace_switch_user_id').empty().append('<option disabled selected>Select User</option>');
+                    $.each(res.filtered_users, function (index, user) {
+                        $('#replace_switch_user_id').append(
+                            `<option value="${user.id}">${user.id} (${user.user_details.name})</option>`
+                        );
+                    });
+                }
+            }
+        });
+    });
+
+    $('#replace_switch_user_id').on('change', function () {
+        let userId = $(this).val();
+
+        $.ajax({
+            url: "{{ url('get-user-details-divison-role') }}",
+            type: "POST",
+            data: {
+                user_id: userId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (res) {
+                if (res.status) {
+                    fillCard('.right-card-replace', res);
+                }
+            }
+        });
+    });
+
+
+    $('#promote_user_id').on('change', function () {
+    let userId = $(this).val();
+
+    $.ajax({
+        url: "{{ url('get-user-details-divison-role-with-roles') }}",
+        type: "POST",
+        data: {
+            user_id: userId,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function (res) {
+            if (res.status) {
+
+                // Fill card (if you have this function)
+                fillCard('.left-card-promote', res);
+
+                // Populate switch user dropdown (users from same division)
+                $('#promote_switch_user_id').empty().append('<option disabled selected>Select User</option>');
+                $.each(res.filtered_users, function (index, user) {
+                    let userName = user.user_details?.name || 'Unknown';
+                    $('#promote_switch_user_id').append(
+                        `<option value="${user.id}">${user.id} (${userName})</option>`
+                    );
+                });
+
+                // Populate promote role dropdown (higher roles)
+                $('#promote_role').empty().append('<option disabled selected>Select Role</option>');
+                $.each(res.roles, function (index, role) {
+                    $('#promote_role').append(
+                        `<option value="${role.value}">${role.label}</option>`
+                    );
+                });
+            }
+        }
+    });
+});
+
+
+    function fillCard(card, res) {
+        $(`${card} .detail-row:eq(0) .detail-value`).text(res.user.user_details.name);
+        $(`${card} .detail-row:eq(1) .detail-value`).text(res.user.email);
+        $(`${card} .detail-row:eq(2) .detail-value`).text(res.user.user_details.mobile_number);
+        $(`${card} .detail-row:eq(3) .detail-value`).text(res.division_name);
+        $(`${card} .detail-row:eq(4) .detail-value`).text(res.role_name);
+    }
+});
+
+</script>

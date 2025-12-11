@@ -10,6 +10,9 @@ use App\Models\InvoicePayments;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\ArrayExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\ActivitLogService;
+use App\Services\SystemNotificationService;
+
 
 class ChequeDepositsController extends Controller
 {
@@ -146,6 +149,9 @@ class ChequeDepositsController extends Controller
             \App\Models\InvoicePayments::whereIn('id', $receiptIds)
                 ->update(['status' => strtolower($request->status)]);
         }
+
+        ActivitLogService::log('deposit', 'depsoite ('.$id.') status has been changed to '.$request->status);
+        SystemNotificationService::log('deposit',$id , 'Your deposit('.$id.') status has been changed to '.$request->status, $deposit->adm_id);
 
         return response()->json(['success' => true]);
     }
