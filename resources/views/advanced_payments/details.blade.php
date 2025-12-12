@@ -60,14 +60,35 @@
                 <span class="slip-detail-text">&nbsp;{{ $payment->reason ?? 'N/A' }}</span>
             </p>
 
-            @if($payment->attachment)
             <p>
-                <span class="bold-text">Attachment Download :</span>
-                <a href="{{ asset('storage/attachments/' . $payment->attachment) }}" download>
+                <span class="bold-text">Status :</span>
+                @php
+                $statusClass = match(strtolower($payment->status)) {
+                'approved' => 'success-status-btn',
+                'rejected' => 'danger-status-btn',
+                default => 'grey-status-btn'
+                };
+                @endphp
+
+                <span class="slip-detail-text">
+                    <button id="status-display-btn" class="{{ $statusClass }}" style="cursor: default;">
+                        {{ ucfirst($payment->status) }}
+                    </button>
+                </span>
+            </p>
+
+            <p>
+                <span class="bold-text">Attachment Download:</span>
+
+                @if ($payment->attachment)
+                <a href="{{ route('advanced_payments.download', $payment->id) }}" download>
                     <button class="black-action-btn">Download</button>
                 </a>
+                @else
+                <button class="black-action-btn" disabled>No File</button>
+                @endif
             </p>
-            @endif
+
         </div>
 
         <div class="header-and-content-gap-lg"></div>
@@ -97,11 +118,36 @@
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
+
+        <!-- Close button -->
+        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+
+        <!-- Title -->
+        <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
+
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
+
+        <!-- Action buttons -->
+        <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
+            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
+        </div>
+    </div>
+</div>
+
 
 <div class="action-button-lg-row">
     <a href="{{ url('advanced-payments') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-</div>
 
+    @if(strtolower($payment->status) !== 'approved')
+    <!-- Show buttons only if status is NOT Approved -->
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="approved">Approve</button>
+    @endif
+</div>
 
 
 <!-- toast message -->
@@ -121,44 +167,61 @@
     });
 </script>
 
-
-<!-- for reject modal pop-up -->
+<!-- for approve/reject buttons -->
 <script>
-    document.addEventListener('click', function(e) {
-        // Approve button click
-        if (e.target.classList.contains('success-action-btn-lg')) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('approve-modal').style.display = 'block';
-            document.getElementById('approve-modal-input').value = '';
-        }
-        // Approve modal tick
-        if (e.target.id === 'approve-modal-tick' || e.target.closest('#approve-modal-tick')) {
-            document.getElementById('approve-modal').style.display = 'none';
-        }
-        // Approve modal close
-        if (e.target.id === 'approve-modal-close') {
-            document.getElementById('approve-modal').style.display = 'none';
-        }
+    let selectedId = null;
+    let selectedStatus = null;
 
-        // Reject button click
-        if (e.target.classList.contains('red-action-btn-lg')) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('reject-modal').style.display = 'block';
-            // Optionally clear input fields here if needed
-            var inputs = document.querySelectorAll('#reject-modal input');
-            inputs.forEach(function(input) {
-                input.value = '';
-            });
-        }
-        // Reject modal tick
-        if (e.target.id === 'reject-modal-tick' || e.target.closest('#reject-modal-tick')) {
-            document.getElementById('reject-modal').style.display = 'none';
-        }
-        // Reject modal close
-        if (e.target.id === 'reject-modal-close') {
-            document.getElementById('reject-modal').style.display = 'none';
-        }
+    document.querySelectorAll('.update-status-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedId = this.getAttribute('data-id');
+            selectedStatus = this.getAttribute('data-status');
+
+            document.getElementById('confirm-status-text').innerText = selectedStatus;
+            document.getElementById('confirm-status-modal').style.display = 'block';
+        });
     });
+
+    document.getElementById('confirm-modal-close').onclick = () => {
+        document.getElementById('confirm-status-modal').style.display = 'none';
+    };
+
+    document.getElementById('confirm-no-btn').onclick = () => {
+        document.getElementById('confirm-status-modal').style.display = 'none';
+    };
+
+    document.getElementById('confirm-yes-btn').onclick = function() {
+
+        fetch("{{ route('advanced_payments.update_status') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    id: selectedId,
+                    status: selectedStatus
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+
+                    // Update status button
+                    const statusBtn = document.getElementById('status-display-btn');
+                    statusBtn.innerText = data.new_status;
+                    statusBtn.className = data.css_class;
+
+                    // Hide ONLY if approved
+                    if (selectedStatus === "approved") {
+                        document.querySelectorAll('.update-status-btn').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    }
+
+                    // Close modal
+                    document.getElementById('confirm-status-modal').style.display = 'none';
+                }
+            });
+    };
 </script>
