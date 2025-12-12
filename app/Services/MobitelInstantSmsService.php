@@ -4,6 +4,7 @@ namespace App\Services;
 
 use SoapClient;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class MobitelInstantSmsService
 {
@@ -31,6 +32,8 @@ class MobitelInstantSmsService
     public function sendInstantSms(array $numbers, string $message, string $campaignName = "TestCampaign")
     {
         try {
+            Log::info("Sending SMS via Mobitel to: " . implode(',', $numbers));
+
             $startDate = date("Y-m-d H:i:s");
             $endDate   = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
@@ -54,8 +57,10 @@ class MobitelInstantSmsService
 
             $response = $this->client->__soapCall("SendInstantSMS", [$params]);
 
-            return $response;
+            Log::info("SOAP Request: " . $this->client->__getLastRequest());
+            Log::info("SOAP Response: " . $this->client->__getLastResponse());
 
+            return $response;
         } catch (Exception $e) {
             return ["error" => $e->getMessage()];
         }

@@ -10,6 +10,8 @@ use App\Models\InvoicePayments;
 use App\Models\RolePermissions;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Services\MobitelInstantSmsService;
+use Illuminate\Support\Facades\Log;
 
 class ReminderController extends Controller
 {
@@ -66,8 +68,10 @@ class ReminderController extends Controller
     }
 
     // Store reminder
-    public function store(Request $request)
+    public function store(Request $request, MobitelInstantSmsService $smsService)
     {
+        Log::info('Form send_to values:', $request->input('send_to'));
+
         $request->validate([
             'send_from'      => 'required|string|max:255',
             'reminder_title' => 'required|string|max:255',
@@ -121,6 +125,7 @@ class ReminderController extends Controller
         $users = $usersQuery->get();
 
         foreach ($users as $user) {
+
             $reminder = new Reminders();
             $reminder->sent_user_id   = $currentUserId;
             $reminder->send_from      = $request->input('send_from');
@@ -130,10 +135,30 @@ class ReminderController extends Controller
             $reminder->reminder_date  = $request->input('reminder_date');
             $reminder->reason         = $request->input('reason');
 
-            // Mark selected dropdown users as direct
+            // Mark dropdown users as direct
             $reminder->is_direct = in_array($user->id, $selectedUserIds) ? 1 : 0;
 
             $reminder->save();
+
+            // Only send SMS for **direct users**
+            if (in_array($user->id, $selectedUserIds)) {
+                $phone = $user->userDetails->phone_number ?? null;
+                if ($phone) {
+                    $to = preg_replace('/^0/', '94', $phone);
+                    $senderName = UserDetails::where('user_id', $currentUserId)->value('name');
+
+                    $smsMessage  = "From: $senderName\n";
+                    $smsMessage .= "Reminder: " . $reminder->reminder_title . "\n";
+                    $smsMessage .= $reminder->reason . "\n";
+
+                    try {
+                        $smsResponse = $smsService->sendInstantSms([$to], $smsMessage, "ReminderSystem");
+                        Log::info("SMS sent to {$to}", (array)$smsResponse);
+                    } catch (\Exception $e) {
+                        Log::error("SMS sending failed to {$to}: " . $e->getMessage());
+                    }
+                }
+            }
         }
 
         return redirect()->back()->with('toast', 'Reminder sent successfully!');
@@ -144,11 +169,11 @@ class ReminderController extends Controller
         $userId = Auth::id();
         $today = Carbon::today()->format('Y-m-d');
         $today_cheques = InvoicePayments::whereIn('type', ['finance-cheque', 'cheque'])
-        ->where('status', 'deposited')
-        ->whereDate('cheque_date', $today)
-        ->orderBy('cheque_date', 'desc')
-        ->paginate(15, ['*'], 'cheque_page')
-        ->withQueryString();
+            ->where('status', 'deposited')
+            ->whereDate('cheque_date', $today)
+            ->orderBy('cheque_date', 'desc')
+            ->paginate(15, ['*'], 'cheque_page')
+            ->withQueryString();
 
         $query = Reminders::query()
             ->where('send_to', $userId);

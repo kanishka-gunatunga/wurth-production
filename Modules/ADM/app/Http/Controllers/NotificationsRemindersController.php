@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+use App\Services\MobitelInstantSmsService;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\RolePermissions;
@@ -29,6 +31,13 @@ use PDF;
 
 class NotificationsRemindersController extends Controller
 {
+    protected $smsService;
+
+    public function __construct(MobitelInstantSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -113,6 +122,9 @@ class NotificationsRemindersController extends Controller
 
             $users = $usersQuery->get();
 
+            // Collect direct users phone numbers for SMS
+            $directUserNumbers = [];
+
             foreach ($users as $user) {
                 $reminder = new Reminders();
                 $reminder->sent_user_id   = $currentUserId;
@@ -125,7 +137,29 @@ class NotificationsRemindersController extends Controller
                 $reminder->reason         = $request->reason;
                 $reminder->is_direct      = in_array($user->id, $selectedUserIds) ? 1 : 0;
                 $reminder->save();
+
+                // Collect phone numbers of direct users
+                if ($reminder->is_direct) {
+                    $phone = $user->userDetails?->phone_number ?? null; // Ensure phone exists
+                    if ($phone) {
+                        $directUserNumbers[] = preg_replace('/^0/', '94', $phone);
+                    }
+                }
             }
+
+            // Send SMS to direct users
+            if (!empty($directUserNumbers)) {
+                $senderName = $name ?? 'System';
+                $message = "From: $senderName\nReminder: {$request->reminder_title}\n{$request->reason}";
+
+                try {
+                    $this->smsService->sendInstantSms($directUserNumbers, $message, "ReminderCampaign");
+                    Log::info("SMS sent to direct users: " . implode(',', $directUserNumbers));
+                } catch (\Exception $e) {
+                    Log::error("SMS sending failed: " . $e->getMessage());
+                }
+            }
+
 
             return back()->with('success', 'Reminder Successfully Added');
         }

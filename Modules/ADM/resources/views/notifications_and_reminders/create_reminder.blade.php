@@ -9,7 +9,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
     <h3 class="page-title">Create Reminder</h3>
 </div>
 <!-- body content -->
-<form id="profileForm" class="content  needs-validation p-2" novalidate action="" method="post" enctype="multipart/form-data">
+<form id="profileForm" class="content  needs-validation p-2" novalidate action="{{ url('adm/create-reminder') }}" method="post" enctype="multipart/form-data">
     @csrf
     <!-- row 2 -->
     <div class=" scrollable-section">
