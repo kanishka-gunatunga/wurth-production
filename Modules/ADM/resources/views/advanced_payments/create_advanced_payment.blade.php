@@ -1,7 +1,7 @@
 @include('adm::layouts.header')
 <link rel="stylesheet" href="{{ asset('adm_assets/css/signature_pad.css') }}">
  <div class="d-flex flex-row px-3 mt-4 justify-content-between align-items-center w-100 text-start pt-2 mb-0">
-            <h3 class="page-title">Create Advanced Payment</h3>
+            <h3 class="page-title">Advanced Payment</h3>
         </div>
         <!-- body content -->
         <form id="profileForm" class="content  needs-validation p-2" novalidate action="" method="post"  enctype="multipart/form-data">
