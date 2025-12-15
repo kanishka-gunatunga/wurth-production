@@ -141,7 +141,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center">No advance payments found.</td>
+                        <td colspan="7" class="text-center">No advance payments found.</td>
                     </tr>
                     @endforelse
                 </tbody>

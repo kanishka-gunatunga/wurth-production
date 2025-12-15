@@ -35,6 +35,7 @@ class AdvancedPaymentController extends Controller
     public function create_advanced_payment(Request $request)
     {
         if ($request->isMethod('get')) {
+
             $user = User::where('id', Auth::user()->id)->with('userDetails')->first();
             $customers = Customers::all();
 
@@ -45,53 +46,106 @@ class AdvancedPaymentController extends Controller
         }
 
         if ($request->isMethod('post')) {
+
             $request->validate([
                 'date'            => 'required|date',
-                'customer'        => 'required',
+                'customer'        => 'required|string',
                 'mobile_no'       => 'required',
                 'payment_amount'  => 'required|numeric|min:1',
                 'reason'          => 'required',
             ]);
 
-            // Save attachment if exists
-            $attachment_name = null;
-            if ($request->hasFile('attachment')) {
-                $attachment_name = time() . '-' . Str::uuid()->toString() . '.' . $request->attachment->extension();
-                $request->attachment->move(public_path('uploads/adm/advanced_payments/attachments/'), $attachment_name);
-            }
+            DB::beginTransaction();
 
-            $signature_name = null;
-            if ($request->filled('customer_signature')) {
-                $signatureData = $request->customer_signature;
+            try {
 
+                /* ----------------------------------------
+             | 1. FIND OR CREATE TEMP CUSTOMER
+             ---------------------------------------- */
+                $customerInput = trim($request->customer);
 
-                $signatureData = str_replace('data:image/png;base64,', '', $signatureData);
-                $signatureData = str_replace(' ', '+', $signatureData);
+                // Try to find existing customer
+                $customer = Customers::where('customer_id', $customerInput)->first();
 
-                $signature_name = time() . '-' . Str::uuid()->toString() . '.png';
-                $filePath = public_path('uploads/adm/advanced_payments/signatures/' . $signature_name);
+                if (!$customer) {
 
-                // make directory if not exists
-                if (!File::isDirectory(dirname($filePath))) {
-                    File::makeDirectory(dirname($filePath), 0775, true, true);
+                    // Must be in: CUSTOMER_ID | CUSTOMER_NAME format
+                    if (!str_contains($customerInput, '|')) {
+                        return back()->withErrors([
+                            'customer' => 'New customer format should be: CUSTOMER_ID | CUSTOMER_NAME'
+                        ]);
+                    }
+
+                    [$customerId, $customerName] = array_map(
+                        'trim',
+                        explode('|', $customerInput, 2)
+                    );
+
+                    $customer = Customers::create([
+                        'is_temp'     => 1,
+                        'customer_id' => $customerId,
+                        'name'        => $customerName,
+                        'adm'         => Auth::user()->userDetails->adm_number,
+                        'status'      => 'active',
+                    ]);
                 }
 
-                File::put($filePath, base64_decode($signatureData));
+                /* ----------------------------------------
+             | 2. SAVE ATTACHMENT
+             ---------------------------------------- */
+                $attachment_name = null;
+                if ($request->hasFile('attachment')) {
+                    $attachment_name = time() . '-' . Str::uuid() . '.' . $request->attachment->extension();
+                    $request->attachment->move(
+                        public_path('uploads/adm/advanced_payments/attachments/'),
+                        $attachment_name
+                    );
+                }
+
+                /* ----------------------------------------
+             | 3. SAVE CUSTOMER SIGNATURE
+             ---------------------------------------- */
+                $signature_name = null;
+                if ($request->filled('customer_signature')) {
+
+                    $signatureData = str_replace(
+                        ['data:image/png;base64,', ' '],
+                        ['', '+'],
+                        $request->customer_signature
+                    );
+
+                    $signature_name = time() . '-' . Str::uuid() . '.png';
+                    $filePath = public_path('uploads/adm/advanced_payments/signatures/' . $signature_name);
+
+                    if (!File::isDirectory(dirname($filePath))) {
+                        File::makeDirectory(dirname($filePath), 0775, true);
+                    }
+
+                    File::put($filePath, base64_decode($signatureData));
+                }
+
+                /* ----------------------------------------
+             | 4. SAVE ADVANCED PAYMENT
+             ---------------------------------------- */
+                $advancedPayment = new AdvancedPayment();
+                $advancedPayment->adm_id          = Auth::user()->id;
+                $advancedPayment->date            = $request->date;
+                $advancedPayment->customer        = $customer->customer_id;
+                $advancedPayment->mobile_no       = $request->mobile_no;
+                $advancedPayment->payment_amount  = $request->payment_amount;
+                $advancedPayment->reason          = $request->reason;
+                $advancedPayment->attachment      = $attachment_name;
+                $advancedPayment->customer_signature = $signature_name;
+                $advancedPayment->status = 'pending';
+                $advancedPayment->save();
+
+                DB::commit();
+
+                return back()->with('success', 'Advanced Payment Successfully Added');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->with('fail', 'Something went wrong while saving data.');
             }
-
-            $advancedPayment = new AdvancedPayment();
-            $advancedPayment->adm_id          = Auth::user()->id;
-            $advancedPayment->date            = $request->date;
-            $advancedPayment->customer     = $request->customer;
-            $advancedPayment->mobile_no       = $request->mobile_no;
-            $advancedPayment->payment_amount  = $request->payment_amount;
-            $advancedPayment->reason          = $request->reason;
-            $advancedPayment->attachment      = $attachment_name;
-            $advancedPayment->customer_signature = $signature_name;
-            $advancedPayment->save();
-
-
-            return back()->with('success', 'Advanced Payment Successfully Added');
         }
     }
 
