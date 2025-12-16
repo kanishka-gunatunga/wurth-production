@@ -25,6 +25,7 @@ use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\WriteOffController;
 use App\Http\Controllers\SetOffController;
+use App\Http\Controllers\ReportsController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -234,3 +235,7 @@ Route::post('/file-upload', [UploadController::class, 'store'])->name('fileuploa
 
 Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-activity']);
 Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-backup']);
+
+Route::get('/reports', [ReportsController::class, 'index'])
+    ->middleware(['authAdmin', 'permission:reports'])
+    ->name('reports.index');

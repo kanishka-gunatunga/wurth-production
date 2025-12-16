@@ -707,7 +707,7 @@
                         @endif 
                         @if(in_array('reports', session('permissions')))
                         <li class="nav-item ">
-                            <a class="nav-link" href="admin-reports">
+                            <a class="nav-link" href="/reports">
                                 <span class="me-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -857,6 +857,8 @@
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
                     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
                 </script>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
                 <!-- jQuery (required for Select2) -->
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
