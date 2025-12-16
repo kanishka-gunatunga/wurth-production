@@ -101,6 +101,126 @@
         width: 28px;
         height: 28px;
     }
+
+    /* new styles */
+    .filter-section {
+        background: white;
+        border: 2px solid #E1E1E1;
+        border-radius: 8px;
+        padding: 32px;
+        margin-bottom: 20px;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .section-number {
+        width: 32px;
+        height: 32px;
+        background: #CC0000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+        margin: 0;
+    }
+
+    .required-asterisk {
+        color: #CC0000;
+        margin-left: 4px;
+    }
+
+    .disabled-badge {
+        color: #CC0000;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .section-subtitle {
+        font-family: "Poppins", sans-serif;
+        color: #AAB6C1;
+        font-size: 12px;
+        margin-bottom: 24px;
+        margin-top: 8px;
+        font-weight: 400;
+    }
+
+    .custom-input-label {
+        font-size: 14px;
+        font-weight: 400;
+        color: #AAB6C1;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    /* Date inputs */
+    .date-input-wrapper {
+        position: relative;
+    }
+
+    .date-input {
+        width: 100%;
+        padding: 14px 16px;
+        padding-right: 45px;
+        border: 1px solid #d0d0d0;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .date-input:focus {
+        border-color: #CC0000;
+    }
+
+    .date-input::placeholder {
+        color: #c0c0c0;
+    }
+
+    .calendar-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #999;
+    }
+
+    .btn-reset {
+        padding: 14px 32px;
+        background: white;
+        border: 1px solid #d0d0d0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
 </style>
 
 <div class="main-wrapper">
@@ -128,9 +248,7 @@
                             <path d="M16 17H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <label for="head-of-division-select" class="form-label custom-input-label">
-                        Select Report Type
-                    </label>
+                    <h2 class="section-title">Select Report Type</h2>
                 </div>
 
                 <div class="dropdown w-100">
@@ -170,247 +288,95 @@
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="ARA" style="border-radius: 8px;">
-            <div class="row d-flex justify-content-between">
-                <div class="mb-4 col-12 col-lg-6">
-                    <p class="filter-title">Date Range</p>
-                    <input type="text" id="filter-date" name="date_range" class="form-control"
-                        placeholder="DD/MM/YYYY"
-                        value="{{ $filters['date_range'] ?? '' }}" />
-                </div>
-
-                <div class="col-12 col-lg-6 mb-4">
-                    <label class="form-label custom-input-label">Division</label>
-                    <div class="multiselect-wrapper" data-name="division">
-                        <div class="multiselect-trigger">
-                            <div class="multiselect-content">
-                                <span class="multiselect-placeholder">Select Division</span>
-                            </div>
-                            <span class="multiselect-arrow"></span>
-                        </div>
-                        <div class="multiselect-dropdown">
-                            <div class="multiselect-search">
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button class="select-all">Select All</button>
-                                <button class="clear-all">Clear All</button>
-                            </div>
-                            <div class="multiselect-options">
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div1" value="Automotive Division">
-                                    <label for="div1">Automotive Division</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div2" value="Construction Division">
-                                    <label for="div2">Construction Division</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div3" value="Division 1">
-                                    <label for="div3">Division 1</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div4" value="Division 2">
-                                    <label for="div4">Division 2</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div5" value="Division 3">
-                                    <label for="div5">Division 3</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div6" value="Division 4">
-                                    <label for="div6">Division 4</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="div7" value="Division 5">
-                                    <label for="div7">Division 5</label>
-                                </div>
-                            </div>
-                            <div class="multiselect-footer">
-                                <span class="count-text">0 of 7 selected</span>
-                            </div>
-                        </div>
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-6 mb-4">
-                    <label class="form-label custom-input-label">ADM</label>
-                    <div class="multiselect-wrapper" data-name="adm">
-                        <div class="multiselect-trigger">
-                            <div class="multiselect-content">
-                                <span class="multiselect-placeholder">Select ADM</span>
-                            </div>
-                            <span class="multiselect-arrow"></span>
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
                         </div>
-                        <div class="multiselect-dropdown">
-                            <div class="multiselect-search">
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button class="select-all">Select All</button>
-                                <button class="clear-all">Clear All</button>
-                            </div>
-                            <div class="multiselect-options">
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="adm1" value="ADM 1">
-                                    <label for="adm1">ADM 1</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="adm2" value="ADM 2">
-                                    <label for="adm2">ADM 2</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="adm3" value="ADM 3">
-                                    <label for="adm3">ADM 3</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="adm4" value="ADM 4">
-                                    <label for="adm4">ADM 4</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="adm5" value="ADM 5">
-                                    <label for="adm5">ADM 5</label>
-                                </div>
-                            </div>
-                            <div class="multiselect-footer">
-                                <span class="count-text">0 of 5 selected</span>
-                            </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-12 col-lg-6 mb-4">
-                    <label class="form-label custom-input-label">Customer</label>
-                    <div class="multiselect-wrapper" data-name="customer">
-                        <div class="multiselect-trigger">
-                            <div class="multiselect-content">
-                                <span class="multiselect-placeholder">Select Customer</span>
-                            </div>
-                            <span class="multiselect-arrow"></span>
-                        </div>
-                        <div class="multiselect-dropdown">
-                            <div class="multiselect-search">
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button class="select-all">Select All</button>
-                                <button class="clear-all">Clear All</button>
-                            </div>
-                            <div class="multiselect-options">
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="cust1" value="Customer 1">
-                                    <label for="cust1">Customer 1</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="cust2" value="Customer 2">
-                                    <label for="cust2">Customer 2</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="cust3" value="Customer 3">
-                                    <label for="cust3">Customer 3</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="cust4" value="Customer 4">
-                                    <label for="cust4">Customer 4</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="cust5" value="Customer 5">
-                                    <label for="cust5">Customer 5</label>
-                                </div>
-                            </div>
-                            <div class="multiselect-footer">
-                                <span class="count-text">0 of 5 selected</span>
-                            </div>
-                        </div>
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-6 mb-4">
-                    <label class="form-label custom-input-label">Team Leader</label>
-                    <div class="multiselect-wrapper" data-name="teamleader">
-                        <div class="multiselect-trigger">
-                            <div class="multiselect-content">
-                                <span class="multiselect-placeholder">Select Team Leader</span>
-                            </div>
-                            <span class="multiselect-arrow"></span>
-                        </div>
-                        <div class="multiselect-dropdown">
-                            <div class="multiselect-search">
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button class="select-all">Select All</button>
-                                <button class="clear-all">Clear All</button>
-                            </div>
-                            <div class="multiselect-options">
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="tl1" value="Team Leader 1">
-                                    <label for="tl1">Team Leader 1</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="tl2" value="Team Leader 2">
-                                    <label for="tl2">Team Leader 2</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="tl3" value="Team Leader 3">
-                                    <label for="tl3">Team Leader 3</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="tl4" value="Team Leader 4">
-                                    <label for="tl4">Team Leader 4</label>
-                                </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="tl5" value="Team Leader 5">
-                                    <label for="tl5">Team Leader 5</label>
-                                </div>
-                            </div>
-                            <div class="multiselect-footer">
-                                <span class="count-text">0 of 5 selected</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <p class="section-subtitle">Select one or more customers directly</p>
 
-                <div class="col-12 col-lg-6 mb-4">
-                    <label class="form-label custom-input-label">Supervisor</label>
-                    <div class="multiselect-wrapper" data-name="supervisor">
-                        <div class="multiselect-trigger">
-                            <div class="multiselect-content">
-                                <span class="multiselect-placeholder">Select Supervisor</span>
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
                             </div>
-                            <span class="multiselect-arrow"></span>
-                        </div>
-                        <div class="multiselect-dropdown">
-                            <div class="multiselect-search">
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button class="select-all">Select All</button>
-                                <button class="clear-all">Clear All</button>
-                            </div>
-                            <div class="multiselect-options">
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="sup1" value="Supervisor 1">
-                                    <label for="sup1">Supervisor 1</label>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
                                 </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="sup2" value="Supervisor 2">
-                                    <label for="sup2">Supervisor 2</label>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
                                 </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="sup3" value="Supervisor 3">
-                                    <label for="sup3">Supervisor 3</label>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust1" value="ABC Corporation">
+                                        <label for="cust1">ABC Corporation</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust2" value="XYZ Industries">
+                                        <label for="cust2">XYZ Industries</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust3" value="Global Trading Co">
+                                        <label for="cust3">Global Trading Co</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust4" value="Tech Solutions Ltd">
+                                        <label for="cust4">Tech Solutions Ltd</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust5" value="Prime Enterprises">
+                                        <label for="cust5">Prime Enterprises</label>
+                                    </div>
                                 </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="sup4" value="Supervisor 4">
-                                    <label for="sup4">Supervisor 4</label>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
                                 </div>
-                                <div class="multiselect-option">
-                                    <input type="checkbox" id="sup5" value="Supervisor 5">
-                                    <label for="sup5">Supervisor 5</label>
-                                </div>
-                            </div>
-                            <div class="multiselect-footer">
-                                <span class="count-text">0 of 5 selected</span>
                             </div>
                         </div>
                     </div>
@@ -418,18 +384,2932 @@
             </div>
 
             <div class="action-button-lg-row">
-                <button class="red-action-btn-lg mb-3 submit">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
         </div>
 
-        <div class="styled-tab-sub p-4 report-filters d-none" data-report="DSO">
-            <!-- DSO-specific filters -->
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="YOO" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Year<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Select Year</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select years...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="2000">
+                                        <label for="div1">2000</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="2001">
+                                        <label for="div2">2001</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="2002">
+                                        <label for="div3">2002</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="2003">
+                                        <label for="div4">2003</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
         </div>
 
-        <div class="styled-tab-sub p-4 report-filters d-none" data-report="MOM">
-            <!-- MOM-specific filters -->
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="MOM" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Year<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Select Year</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select years...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="2000">
+                                        <label for="div1">2000</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="2001">
+                                        <label for="div2">2001</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="2002">
+                                        <label for="div3">2002</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="2003">
+                                        <label for="div4">2003</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="ODB" style="border-radius: 8px;">
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust1" value="ABC Corporation">
+                                        <label for="cust1">ABC Corporation</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust2" value="XYZ Industries">
+                                        <label for="cust2">XYZ Industries</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust3" value="Global Trading Co">
+                                        <label for="cust3">Global Trading Co</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust4" value="Tech Solutions Ltd">
+                                        <label for="cust4">Tech Solutions Ltd</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust5" value="Prime Enterprises">
+                                        <label for="cust5">Prime Enterprises</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="DSO" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one customer directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="dropdown w-100">
+                            <button class="btn custom-dropdown w-100 text-start" type="button"
+                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select Customer
+                                <span class="custom-arrow"></span>
+                            </button>
+                            <ul class="dropdown-menu custom-dropdown-menu w-100"
+                                aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 1</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 2</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 3</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 4</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="CCD" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <div class="row">
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="dropdown w-100">
+                            <button class="btn custom-dropdown w-100 text-start" type="button"
+                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select ADM
+                                <span class="custom-arrow"></span>
+                            </button>
+                            <ul class="dropdown-menu custom-dropdown-menu w-100"
+                                aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 1</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 2</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 3</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 4</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="TVC" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust1" value="ABC Corporation">
+                                        <label for="cust1">ABC Corporation</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust2" value="XYZ Industries">
+                                        <label for="cust2">XYZ Industries</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust3" value="Global Trading Co">
+                                        <label for="cust3">Global Trading Co</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust4" value="Tech Solutions Ltd">
+                                        <label for="cust4">Tech Solutions Ltd</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="cust5" value="Prime Enterprises">
+                                        <label for="cust5">Prime Enterprises</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="DCT" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="PBD" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="DMDR" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="PDCT" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="styled-tab-sub p-4 report-filters d-none" data-report="RCS" style="border-radius: 8px;">
+            <!-- Section 1: Date Range -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28">
+                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
+                            </svg> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10">
+                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div1" value="Automotive Division">
+                                        <label for="div1">Automotive Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div2" value="Construction Division">
+                                        <label for="div2">Construction Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div3" value="Industrial Division">
+                                        <label for="div3">Industrial Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div4" value="Marine Division">
+                                        <label for="div4">Marine Division</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="div5" value="Power Division">
+                                        <label for="div5">Power Division</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm1" value="John Anderson">
+                                        <label for="rsm1">John Anderson</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
+                                        <label for="rsm2">Sarah Mitchell</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm3" value="Michael Chen">
+                                        <label for="rsm3">Michael Chen</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm4" value="Emily Davis">
+                                        <label for="rsm4">Emily Davis</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
+                                        <label for="rsm5">Robert Wilson</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm1" value="David Brown">
+                                        <label for="asm1">David Brown</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
+                                        <label for="asm2">Lisa Garcia</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm3" value="James Taylor">
+                                        <label for="asm3">James Taylor</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
+                                        <label for="asm4">Jennifer Lee</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="asm5" value="William Martinez">
+                                        <label for="asm5">William Martinez</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
+                                        <label for="tl1">Daniel Rodriguez</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl2" value="Patricia White">
+                                        <label for="tl2">Patricia White</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl3" value="Christopher Hall">
+                                        <label for="tl3">Christopher Hall</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl4" value="Amanda Clark">
+                                        <label for="tl4">Amanda Clark</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
+                                        <label for="tl5">Matthew Lewis</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all">Select All</button>
+                                    <button class="clear-all">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm1" value="Kevin Walker">
+                                        <label for="adm1">Kevin Walker</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm2" value="Sandra Young">
+                                        <label for="adm2">Sandra Young</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm3" value="Brian King">
+                                        <label for="adm3">Brian King</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm4" value="Michelle Wright">
+                                        <label for="adm4">Michelle Wright</label>
+                                    </div>
+                                    <div class="multiselect-option">
+                                        <input type="checkbox" id="adm5" value="Steven Green">
+                                        <label for="adm5">Steven Green</label>
+                                    </div>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of 5 selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
         </div>
 
     </div>
@@ -638,6 +3518,61 @@
             });
         });
     });
-</script>
 
+    // Reset all filters function
+    function resetAllFilters() {
+        // Reset all checkboxes
+        document.querySelectorAll('.multiselect-wrapper input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+
+        // Reset date inputs
+        document.querySelectorAll('.date-input').forEach(input => {
+            input.value = '';
+        });
+
+        // Reinitialize all displays
+        document.querySelectorAll('.multiselect-wrapper').forEach(wrapper => {
+            const content = wrapper.querySelector('.multiselect-content');
+            const trigger = wrapper.querySelector('.multiselect-trigger');
+            const placeholder = trigger.getAttribute('data-placeholder');
+            content.innerHTML = `<span class="multiselect-placeholder">${placeholder}</span>`;
+
+            const countText = wrapper.querySelector('.count-text');
+            const total = wrapper.querySelectorAll('input[type="checkbox"]').length;
+            countText.textContent = `0 of ${total} selected`;
+        });
+
+        console.log('All filters reset');
+    }
+
+    // Generate report function
+    function generateReport() {
+        // Collect all filter values
+        const filters = {
+            dateRange: {
+                from: document.querySelectorAll('.date-input')[0].value,
+                to: document.querySelectorAll('.date-input')[1].value
+            },
+            hierarchy: {},
+            customers: []
+        };
+
+        // Collect hierarchy filters
+        document.querySelectorAll('.multiselect-wrapper').forEach(wrapper => {
+            const name = wrapper.getAttribute('data-name');
+            const selected = Array.from(wrapper.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+
+            if (name === 'customer') {
+                filters.customers = selected;
+            } else {
+                filters.hierarchy[name] = selected;
+            }
+        });
+
+        console.log('Generating report with filters:', filters);
+        alert('Report generation started! Check console for filter details.');
+    }
+</script>
 @include('layouts.footer2')
