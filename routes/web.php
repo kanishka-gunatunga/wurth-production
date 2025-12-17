@@ -239,3 +239,9 @@ Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->m
 Route::get('/reports', [ReportsController::class, 'index'])
     ->middleware(['authAdmin', 'permission:reports'])
     ->name('reports.index');
+
+
+// extra dashboard routes
+Route::get('/team-leader-dashboard', function () {
+    return view('dashboard.team_leader_dashboard');
+})->middleware(['authAdmin']);
