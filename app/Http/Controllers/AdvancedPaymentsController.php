@@ -28,6 +28,44 @@ class AdvancedPaymentsController extends Controller
         return view('advanced_payments.details', compact('payment'));
     }
 
+    public function updateStatus(Request $request)
+    {
+        $payment = AdvancedPayment::findOrFail($request->id);
+
+        $payment->status = $request->status;
+        $payment->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'new_status' => ucfirst($request->status),
+            'css_class' => match ($request->status) {
+                'approved' => 'success-status-btn',
+                'rejected' => 'danger-status-btn',
+                default => 'grey-status-btn'
+            }
+        ]);
+    }
+
+    public function downloadAttachment($id)
+    {
+        $payment = AdvancedPayment::findOrFail($id);
+
+        if (!$payment->attachment) {
+            abort(404, "No attachment found.");
+        }
+
+        $filePath = public_path('uploads/adm/advanced_payments/attachments/' . $payment->attachment);
+
+        if (!file_exists($filePath)) {
+            abort(404, "File not found.");
+        }
+
+        return response()->download($filePath, $payment->attachment, [
+            'Content-Type' => mime_content_type($filePath)
+        ]);
+    }
+
     public function search(Request $request)
     {
         $query = AdvancedPayment::with(['admDetails', 'customerData']);

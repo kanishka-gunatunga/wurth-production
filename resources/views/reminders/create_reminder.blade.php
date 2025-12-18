@@ -31,7 +31,17 @@
 
                             @foreach ($roles as $role)
                             <option value="{{ $role }}" {{ old('user_level') == $role ? 'selected' : '' }}>
-                                {{ $role }}
+                                @switch($role)
+                                @case(1) System Administrator @break
+                                @case(2) Head of Division @break
+                                @case(3) Regional Sales Manager @break
+                                @case(4) Area Sales Manager @break
+                                @case(5) Team Leader @break
+                                @case(6) ADM (Sales Rep) @break
+                                @case(7) Finance Manager @break
+                                @case(8) Recovery Manager @break
+                                @default Unknown
+                                @endswitch
                             </option>
                             @endforeach
                         </select>
@@ -44,7 +54,7 @@
                     <!-- Send To (User) -->
                     <div class="mb-4">
                         <label for="send_to" class="form-label custom-input-label">Send to (User)</label>
-                        <select name="send_to[]" id="send_to" class="form-control custom-input select2" multiple disabled>
+                        <select name="send_to[]" id="send_to" class="form-control custom-input select2" multiple>
                             <option value="">Select User</option>
                         </select>
 

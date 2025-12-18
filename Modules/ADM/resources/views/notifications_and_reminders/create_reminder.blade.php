@@ -9,7 +9,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
     <h3 class="page-title">Create Reminder</h3>
 </div>
 <!-- body content -->
-<form id="profileForm" class="content  needs-validation p-2" novalidate action="" method="post" enctype="multipart/form-data">
+<form id="profileForm" class="content  needs-validation p-2" novalidate action="{{ url('adm/create-reminder') }}" method="post" enctype="multipart/form-data">
     @csrf
     <!-- row 2 -->
     <div class=" scrollable-section">
@@ -43,10 +43,24 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
                 <!-- Send To (User Level) -->
                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="user_level">Send To (User Level)</label>
+
+                    @php
+                    $roleNames = [
+                    1 => 'System Administrator',
+                    2 => 'Head of Division',
+                    3 => 'Regional Sales Manager',
+                    4 => 'Area Sales Manager',
+                    5 => 'Team Leader',
+                    6 => 'ADM (Sales Rep)',
+                    7 => 'Finance Manager',
+                    8 => 'Recovery Manager',
+                    ];
+                    @endphp
+
                     <select class="form-control" id="user_level" name="user_level">
                         <option value="">Select User Level</option>
                         @foreach($roles as $role)
-                        <option value="{{ $role }}">{{ $role }}</option>
+                        <option value="{{ $role }}">{{ $roleNames[$role] ?? $role }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -25,6 +25,7 @@ use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\WriteOffController;
 use App\Http\Controllers\SetOffController;
+use App\Http\Controllers\ReportsController;
 
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
@@ -84,7 +85,7 @@ Route::get('/reminders/{id}', [ReminderController::class, 'show'])
 Route::get('/sent-reminders', [ReminderController::class, 'sentReminders'])
     ->middleware(['authAdmin'])
     ->name('reminders.sent');
-Route::match(['get', 'post'], '/view-deposit-reminder/{id}', [ReminderController::class, 'view_deposit_reminder'])->middleware(['authAdmin']);    
+Route::match(['get', 'post'], '/view-deposit-reminder/{id}', [ReminderController::class, 'view_deposit_reminder'])->middleware(['authAdmin']);
 
 Route::match(['get', 'post'], '/inquiries', [InquiriesController::class, 'inquiries'])->middleware(['authAdmin', 'permission:inquaries'])->name('inquiries');
 Route::get('/inquiry-details/{id}', [InquiriesController::class, 'details'])->middleware(['authAdmin'])->name('inquiry.details');
@@ -152,6 +153,12 @@ Route::get('/advance-payments-details/{id}', [AdvancedPaymentsController::class,
 Route::post('/advanced-payments/search', [AdvancedPaymentsController::class, 'search'])
     ->middleware(['authAdmin'])
     ->name('advanced_payments.search');
+Route::post('/advanced-payments/update-status', [AdvancedPaymentsController::class, 'updateStatus'])
+    ->middleware(['authAdmin'])
+    ->name('advanced_payments.update_status');
+Route::get('/advanced-payments/download/{id}', [AdvancedPaymentsController::class, 'downloadAttachment'])
+    ->middleware(['authAdmin'])
+    ->name('advanced_payments.download');
 
 Route::get('/finance-cash', [FinanceCashController::class, 'index'])->name('finance_cash.index')->middleware(['authAdmin', 'permission:deposits-finance-cash']);
 Route::get('/finance-cash/{id}', [FinanceCashController::class, 'show'])->name('finance_cash.show')->middleware(['authAdmin']);
@@ -228,3 +235,13 @@ Route::post('/file-upload', [UploadController::class, 'store'])->middleware(['au
 
 Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-activity']);
 Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-backup']);
+
+Route::get('/reports', [ReportsController::class, 'index'])
+    ->middleware(['authAdmin', 'permission:reports'])
+    ->name('reports.index');
+
+
+// extra dashboard routes
+Route::get('/team-leader-dashboard', function () {
+    return view('dashboard.team_leader_dashboard');
+})->middleware(['authAdmin']);

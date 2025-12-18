@@ -75,4 +75,17 @@ Route::prefix('adm')->group(function () {
 
     Route::match(['get', 'post'], 'create-advanced-payment', [AdvancedPaymentController::class, 'create_advanced_payment'])->middleware(ADMAuthenticated::class);
     Route::get('/get-customer-details/{customerId}', [AdvancedPaymentController::class, 'get_customer_details'])->middleware(ADMAuthenticated::class);
+    Route::get('advance-payments', [AdvancedPaymentController::class, 'advance_payments_list'])
+        ->middleware(ADMAuthenticated::class);
+
+    Route::get(
+        'advance-payment/download/{id}',
+        [AdvancedPaymentController::class, 'download_attachment']
+    )
+        ->name('advance_payment.download')
+        ->middleware(ADMAuthenticated::class);
+    Route::get(
+        'advance-payment/details/{id}',
+        [AdvancedPaymentController::class, 'advanced_payment_details']
+    )->middleware(ADMAuthenticated::class)->name('advance_payment.details');
 });

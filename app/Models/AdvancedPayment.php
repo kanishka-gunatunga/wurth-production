@@ -11,6 +11,9 @@ class AdvancedPayment extends Model
 
     protected $table = 'advanced_payments';
     protected $primaryKey = 'id';
+    protected $attributes = [
+        'status' => 'pending',
+    ];
 
     public function customerData()
     {
