@@ -67,7 +67,7 @@
                     <button class="{{ $statusClass }}">{{ $label }}</button>
                 </span>
             </p>
-
+            @if(in_array('deposits-fund-transfer-download', session('permissions', [])))        
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($deposit->screenshot)
@@ -78,7 +78,7 @@
                 <button class="black-action-btn" disabled>No File</button>
                 @endif
             </p>
-
+             @endif       
         </div>
     </div>
 </div>
@@ -126,9 +126,11 @@
 <div class="action-button-lg-row">
     <a href="{{ url('fund-transfers') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
     @if(strtolower($status) !== 'approved')
+     @if(in_array('deposits-fund-transfer-status', session('permissions', [])))  
     <!-- Show buttons only if status is NOT Approved -->
     <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
     <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+    @endif
     @endif
 </div>
 

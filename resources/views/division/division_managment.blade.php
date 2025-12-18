@@ -103,11 +103,13 @@ use App\Models\UserDetails;
                 </a>
             </li>
         </ul>
+         @if(in_array('add-division', session('permissions', [])))
         <div class="col-12 d-flex justify-content-end pe-5 mb-3">
             <a href="{{url('add-new-division')}}">
                 <button class="add-new-division-btn">+ Add New Division</button>
             </a>
         </div>
+         @endif
         @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
         @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
         <div class="table-responsive division-table">
@@ -131,10 +133,18 @@ use App\Models\UserDetails;
                             <td>{{$division->registered_date}}</td>
                             <td>{{ $division->userDetails->count() }}</td>
                             <td>
+                                @if(in_array('edit-division', session('permissions', [])))
                                 <a href="{{url('edit-division/'.$division->id.'')}}"><button class="action-btn">View more</button></a>
+                                @endif
+                                @if(in_array('status-change-division', session('permissions', [])))
                                 <a href="{{url('activate-division/'.$division->id.'')}}"><button class="action-btn">Activate</button></a>
+                                @endif
+                                @if(in_array('status-change-division', session('permissions', [])))
                                 <a href="{{url('deactivate-division/'.$division->id.'')}}"><button class="action-btn">Deactivate</button></a>
+                                @endif
+                                @if(in_array('delete-division', session('permissions', [])))
                                 <a href="{{url('delete-division/'.$division->id.'')}}"><button class="action-btn">Delete</button></a>
+                                @endif
                             </td>
                         </tr>
                     <?php } ?>

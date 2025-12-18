@@ -21,7 +21,7 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
 use App\Models\Customers;
-use App\Models\ImportedReports;
+use App\Models\Upload;
 use App\Models\Invoices;
 use App\Services\ActivitLogService;
 
@@ -217,7 +217,7 @@ class CustomerController extends Controller
 
     public function import_customers(Request $request)
     { if($request->isMethod('get')){
-        $reports = ImportedReports::take(8)->get();
+        $reports = Upload::take(8)->get();
         return view('finance::customer.import_customers', ['reports' => $reports]);
     }
     if($request->isMethod('post')){
@@ -229,9 +229,9 @@ class CustomerController extends Controller
         $fileName =  $request->customers->getClientOriginalName();
         $request->customers->move(public_path('imports'), $fileName);
 
-        $sales_file = new ImportedReports();
-        $sales_file->name = $fileName;
-        $sales_file->date = date("Y-m-d");
+        $sales_file = new Upload();
+        $sales_file->file_name = $fileName;
+        $sales_file->file_type = 'customer';
         $sales_file->save();
 
         ActivitLogService::log('import',  'data imported from file - '. $fileName);
@@ -264,7 +264,7 @@ class CustomerController extends Controller
 
     public function import(Request $request)
     { if($request->isMethod('get')){
-        $reports = ImportedReports::take(8)->get();
+        $reports = Upload::take(8)->get();
         return view('finance::customer.import', ['reports' => $reports]);
     }
     if($request->isMethod('post')){
@@ -276,10 +276,9 @@ class CustomerController extends Controller
         $fileName =  $request->report->getClientOriginalName();
         $request->report->move(public_path('imports'), $fileName);
 
-        $sales_file = new ImportedReports();
+        $sales_file = new Upload();
         $sales_file->type = $request->report_type;
-        $sales_file->name = $fileName;
-        $sales_file->date = date("Y-m-d");
+        $sales_file->file_name = $fileName;
         $sales_file->save();
         
         ActivitLogService::log('import',  'data imported from file - '. $fileName);

@@ -137,27 +137,59 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr class="clickable-row" data-href="{{ url('/finance-cash/' . $deposit['id']) }}" style="cursor:pointer;">
+                    @php
+                        $canView = in_array('deposits-finance-cash-view', session('permissions', []));
+                    @endphp
+
+                    <tr
+                        @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('/finance-cash/' . $deposit['id']) }}"
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ $deposit['date'] }}</td>
                         <td>{{ $deposit['adm_number'] }}</td>
                         <td>{{ $deposit['adm_name'] }}</td>
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
-                        <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
-                        <td class="sticky-column">
-                            @if(strtolower($deposit['status']) === 'deposited')
-                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="Approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="Rejected">Reject</button>
-                            @endif
-                            @if($deposit['attachment_path'])
-                            <a href="{{ url('/finance-cash/download', $deposit['id']) }}"
-                                class="black-action-btn submit"
-                                style="text-decoration: none;"
-                                onclick="event.stopPropagation()">Download</a>
-                            @else
-                            <button class="black-action-btn" disabled>No File</button>
-                            @endif
+                        <td>
+                            <button class="{{ $statusClass }}">
+                                {{ ucfirst($deposit['status']) }}
+                            </button>
                         </td>
 
+                        <td class="sticky-column">
+                            @if(strtolower($deposit['status']) === 'deposited')
+                                @if(in_array('deposits-finance-cash-status', session('permissions', [])))
+                                    <button class="success-action-btn"
+                                            data-id="{{ $deposit['id'] }}"
+                                            data-status="Approved"
+                                            onclick="event.stopPropagation()">
+                                        Approve
+                                    </button>
+
+                                    <button class="red-action-btn"
+                                            data-id="{{ $deposit['id'] }}"
+                                            data-status="Rejected"
+                                            onclick="event.stopPropagation()">
+                                        Reject
+                                    </button>
+                                @endif
+                            @endif
+
+                            @if(in_array('deposits-finance-cash-download', session('permissions', [])))
+                                @if($deposit['attachment_path'])
+                                    <a href="{{ url('/finance-cash/download', $deposit['id']) }}"
+                                    class="black-action-btn submit"
+                                    style="text-decoration: none;"
+                                    onclick="event.stopPropagation()">
+                                        Download
+                                    </a>
+                                @else
+                                    <button class="black-action-btn" disabled>No File</button>
+                                @endif
+                            @endif
+                        </td>
                     </tr>
                     @empty
                     <tr>

@@ -131,7 +131,7 @@
                             @php
                             $status = strtolower(trim($inquiry->status ?? ''));
                             @endphp
-
+                            @if(in_array('status-change-inquary', session('permissions', [])))
                             @if($status === 'pending')
                             <button class="success-action-btn">Approve</button>
                             <button class="red-action-btn">Reject</button>
@@ -140,7 +140,8 @@
                             @elseif($status === 'rejected')
                             <button class="success-action-btn">Approve</button>
                             @endif
-
+                            @endif
+                             @if(in_array('inquary-download', session('permissions', [])))
                             @if($inquiry->attachement)
                             <a href="{{ route('inquiries.download', $inquiry->id) }}"
                                 class="black-action-btn submit"
@@ -150,6 +151,7 @@
                             </a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
+                            @endif
                             @endif
                         </td>
                     </tr>

@@ -129,7 +129,16 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr class="clickable-row" data-href="{{ url('card-payments', $payment['id']) }}" style="cursor:pointer;">
+                    @php
+                        $canView = in_array('deposits-card-payment-view', session('permissions', []));
+                    @endphp
+                    <tr 
+                    @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('card-payments', $payment['id']) }}"
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ $payment->card_transfer_date ?? '-' }}</td>
                         <td>{{ $customer->adm ?? '-' }}</td>
                         <td>{{ $userDetail->name ?? '-' }}</td>
@@ -137,14 +146,18 @@
                         <td><button class="{{ $statusClass }}">{{ ucfirst($payment['status']) }}</button></td>
                         <td class="sticky-column">
                             @if(strtolower($payment['status']) === 'pending')
+                             @if(in_array('deposits-card-payment-status', session('permissions', [])))
                             <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="approved">Approve</button>
                             <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="rejected">Reject</button>
+                             @endif
                             @endif
+                              @if(in_array('deposits-card-payment-view', session('permissions', [])))
                             <a href="{{ url('card-payments', $payment->id) }}"
                                 class="black-action-btn"
                                 onclick="event.stopPropagation()" style="text-decoration: none;">
                                 View More
                             </a>
+                            @endif
                         </td>
                     </tr>
                     @empty

@@ -108,8 +108,9 @@ use App\Models\Divisions;
                         <td>{{ $user->userDetails->name }}</td>
                         <td>{{ $user->id }}</td>
                         <td>
+                             @if(in_array('security-locked-unlock', session('permissions', [])))
                                 <a href="{{ url('unlock-user/'.$user->id) }}"><button class="btn unlock-btn">Unlock</button></a>
-
+                            @endif
                         </td>
                     </tr>
                 @empty

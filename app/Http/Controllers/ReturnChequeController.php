@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Invoices; // ✅ NEW (we now store in invoices table)
 use App\Models\Customers; // ✅ For fetching customer IDs
 use Carbon\Carbon;
+use App\Services\ActivitLogService;
 
 class ReturnChequeController extends Controller
 {
@@ -161,97 +162,106 @@ class ReturnChequeController extends Controller
         return view('return_cheques.return_cheque_details', compact('returnCheque'));
     }
 
-    public function importReturnCheques(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
-        ]);
+   public function importReturnCheques(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+    ]);
 
-        try {
-            $file = $request->file('file');
-            $spreadsheet = IOFactory::load($file->getPathname());
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray();
+    try {
+        $file = $request->file('file');
+        $spreadsheet = IOFactory::load($file->getPathname());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
 
-            if (count($rows) <= 1) {
-                return response()->json(['message' => 'Excel file is empty!'], 422);
-            }
-
-            // Header row mapping
-            $header = array_map('strtolower', $rows[0]);
-            $requiredColumns = [
-                'customer_id',
-                'customer_name',
-                'adm_id',
-                'cheque_number',
-                'cheque_amount',
-                'returned_date',
-                'bank',
-                'branch',
-                'return_type',
-                'reason'
-            ];
-
-            if (count(array_diff($requiredColumns, $header)) > 0) {
-                return response()->json(['message' => 'Invalid Excel format. Missing required columns.'], 422);
-            }
-
-            $successCount = 0;
-            $duplicateCheques = [];
-
-            for ($i = 1; $i < count($rows); $i++) {
-                $row = array_combine($header, $rows[$i]);
-
-                if (empty($row['cheque_number']) || empty($row['customer_id'])) continue;
-
-                // ✅ Skip duplicate cheque numbers
-                if (Invoices::where('invoice_or_cheque_no', $row['cheque_number'])->exists()) {
-                    $duplicateCheques[] = $row['cheque_number'];
-                    continue;
-                }
-
-                // ✅ Find or create customer
-                $customer = Customers::where('customer_id', $row['customer_id'])->first();
-
-                if (!$customer) {
-                    $customer = new Customers();
-                    $customer->customer_id = $row['customer_id'];
-                    $customer->name = $row['customer_name'] ?? 'Unknown';
-                    $customer->adm = $row['adm_id'] ?? null;
-                    $customer->is_temp = 1; // mark as temporary
-                    $customer->status = 'active';
-                    $customer->save();
-                }
-
-                // ✅ Insert return cheque into invoices
-                Invoices::create([
-                    'type' => 'return_cheque',
-                    'invoice_or_cheque_no' => $row['cheque_number'],
-                    'customer_id' => $customer->customer_id,
-                    'amount' => $row['cheque_amount'] ?? 0,
-                    'returned_date' => !empty($row['returned_date'])
-                        ? Carbon::parse($row['returned_date'])->format('Y-m-d')
-                        : null,
-                    'bank' => $row['bank'] ?? null,
-                    'branch' => $row['branch'] ?? null,
-                    'return_type' => $row['return_type'] ?? null,
-                    'reason' => $row['reason'] ?? null,
-                ]);
-
-                $successCount++;
-            }
-
-            $msg = "{$successCount} records successfully inserted.";
-            if (!empty($duplicateCheques)) {
-                $msg .= " Skipped duplicates: " . implode(', ', $duplicateCheques);
-            }
-
-            return response()->json(['message' => $msg]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error during upload. Please try again!',
-                'error' => $e->getMessage(),
-            ], 500);
+        if (count($rows) <= 1) {
+            return back()->with('fail', 'Excel file is empty!');
         }
+
+        // Header row mapping
+        $header = array_map('strtolower', $rows[0]);
+        $requiredColumns = [
+            'date',
+            'amount',
+            'document number',
+            'reference',
+            'cx number',
+            'cx name',
+            'adm code',
+            'remark',
+        ];
+
+        if (count(array_diff($requiredColumns, $header)) > 0) {
+            return back()->with('fail', 'Invalid Excel format. Missing required columns.');
+        }
+
+        $successCount = 0;
+        $duplicateCheques = [];
+
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = array_combine($header, $rows[$i]);
+
+            if (empty($row['document number']) || empty($row['cx number'])) continue;
+
+            // Skip duplicate cheque numbers
+            if (Invoices::where('invoice_or_cheque_no', $row['document number'])->exists()) {
+                $duplicateCheques[] = $row['document number'];
+                continue;
+            }
+
+            // Find or create customer
+            $customer = Customers::where('customer_id', $row['cx number'])->first();
+
+            if (!$customer) {
+                $customer = new Customers();
+                $customer->customer_id = $row['cx number'];
+                $customer->name = $row['cx name'] ?? null;
+                $customer->adm = $row['adm code'] ?? null;
+                $customer->is_temp = 1; 
+                $customer->status = 'active';
+                $customer->save();
+            }
+
+            $amount = $row['amount'] ?? 0;
+            $amount = str_replace(',', '', $amount);
+            $amount = str_replace(['(', ')'], '', $amount);
+            $amount = floatval($amount);
+            $returnedDate = null;
+            if (!empty($row['date'])) {
+                try {
+                    $returnedDate = Carbon::createFromFormat('d/m/y', $row['date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $returnedDate = null;
+                }
+            }
+            Invoices::create([
+                'type' => 'return_cheque',
+                'invoice_or_cheque_no' => $row['document number'],
+                'customer_id' => $customer->customer_id,
+                'amount' =>$amount,
+                'returned_date' => $returnedDate,
+                'bank' => $row['bank'] ?? null,
+                'branch' => $row['branch'] ?? null,
+                'return_type' => $row['return_type'] ?? null,
+                'reason' => $row['remark'] ?? null,
+                'reference' => $row['reference'] ?? null,
+            ]);
+
+            $successCount++;
+        }
+
+        $msg = "{$successCount} records successfully inserted.";
+        if (!empty($duplicateCheques)) {
+            $msg .= " Skipped duplicates: " . implode(', ', $duplicateCheques);
+        }
+
+        ActivitLogService::log('import', 'return cheques imported from file - ' . $fileName);
+
+        return back()->with('success', $msg);
+
+    } catch (\Exception $e) {
+        return back()->with('fail', 'Error during upload. Please try again! ' . $e->getMessage());
     }
+}
+
 }

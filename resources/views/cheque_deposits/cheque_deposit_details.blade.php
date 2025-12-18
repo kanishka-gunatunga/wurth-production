@@ -54,7 +54,7 @@
                     <button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button>
                 </span>
             </p>
-
+  @if(in_array('deposits-cheque-download', session('permissions', [])))  
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($deposit['attachment_path'])
@@ -65,9 +65,8 @@
                 <button class="black-action-btn" disabled>No File</button>
                 @endif
 
-
             </p>
-
+@endif
         </div>
 
 
@@ -166,7 +165,7 @@
     @php
     $currentStatus = strtolower($deposit['status']);
     @endphp
-
+     @if(in_array('deposits-cheque-status', session('permissions', [])))                            
     @if ($currentStatus !== 'approved')
     <button class="red-action-btn-lg update-status-btn"
         data-id="{{ $deposit['id'] }}"
@@ -179,6 +178,7 @@
         Approve
     </button>
     @endif
+     @endif
 </div>
 
 

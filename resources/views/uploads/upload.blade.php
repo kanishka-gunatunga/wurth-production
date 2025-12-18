@@ -114,8 +114,10 @@
                 <div class="card-body ps-4">
                     <h5 class="card-title">Upload Report</h5>
                     <p>Import data from the database</p>
+                        @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
+                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
-                    <form id="uploadForm" method="POST" action="{{ route('fileupload.store') }}" enctype="multipart/form-data">
+                    <form id="uploadForm" method="POST" action="{{ route('admin.fileupload.store') }}" enctype="multipart/form-data">
                         @csrf
 
 
@@ -131,9 +133,13 @@
                                 <ul class="dropdown-menu custom-dropdown-menu w-100"
                                     aria-labelledby="dropdownMenuButton">
                                     <li><a class="dropdown-item" href="#" data-value="return_cheque">Return Cheque Report</a></li>
+                                    <li><a class="dropdown-item" href="#" data-value="customer">Customer Report</a></li>
+                                    <li><a class="dropdown-item" href="#" data-value="invoice">Invoices</a></li>
+                                     <li><a class="dropdown-item" href="#" data-value="credit-note">Credit Notes</a></li>
                                 </ul>
+                                
                             </div>
-
+                             @if($errors->has("file_type")) <div class="alert alert-danger mt-2">{{ $errors->first('file_type') }}</div>@endif
                             <input type="hidden" name="file_type" id="file_type" required>
                             <small id="fileTypeError" class="text-danger" style="display: none;">Please select a report type before uploading.</small>
                         </div>
@@ -160,7 +166,12 @@
                         </div>
 
                         <div class="file-name mt-2" id="fileName"></div>
-
+                             @if($errors->has("file")) <div class="alert alert-danger mt-2">{{ $errors->first('file') }}</div>@endif
+<div class="action-button-lg-row mt-4">
+    <button id="submitBtn" type="submit" class="red-action-btn-lg mb-3 submit">
+        Submit
+    </button>
+</div>
                     </form>
                 </div>
             </div>
@@ -168,11 +179,6 @@
     </div>
 </div>
 
-<div class="action-button-lg-row mt-4">
-    <button id="submitBtn" type="button" class="red-action-btn-lg mb-3 submit">
-        Submit
-    </button>
-</div>
 
 
 
@@ -240,48 +246,15 @@
         }
     }
 
-    // ✅ Fixed upload logic
-    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+document.getElementById('uploadForm').addEventListener('submit', function (e) {
+    const fileType = document.getElementById('file_type').value.trim();
+    const errorMsg = document.getElementById('fileTypeError');
 
-        const fileType = document.getElementById('file_type').value.trim();
-        const errorMsg = document.getElementById('fileTypeError');
-        errorMsg.style.display = 'none'; // hide previous error
+    errorMsg.style.display = 'none';
+    if (!fileType) {
+        e.preventDefault(); // block submit
+        errorMsg.style.display = 'block';
+    }
+});
 
-        // ✅ If no report type is selected
-        if (!fileType) {
-            errorMsg.style.display = 'block';
-            return; // stop form submission
-        }
-
-        const formData = new FormData(this);
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Uploading...';
-
-        try {
-            const res = await fetch(this.action, {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                const toast = document.getElementById('user-toast');
-                toast.querySelector('.toast-body').textContent = data.message || 'File uploaded successfully';
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3500);
-                setTimeout(() => location.reload(), 3800);
-            } else {
-                let message = data.message || 'Something went wrong during upload.';
-                alert(message);
-            }
-        } catch (error) {
-            alert('Error: Unable to connect to the server.');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit';
-        }
-    });
 </script>

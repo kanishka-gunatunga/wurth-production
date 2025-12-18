@@ -224,7 +224,7 @@ Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name(
 Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download')->middleware(['authAdmin', 'permission:setoff-download']);
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index')->middleware(['authAdmin', 'permission:upload']);
-Route::post('/file-upload', [UploadController::class, 'store'])->name('fileupload.store')->middleware(['authAdmin']);
+Route::post('/file-upload', [UploadController::class, 'store'])->middleware(['authAdmin'])->name('admin.fileupload.store');
 
 Route::match(['get', 'post'], '/activity-log', [ActivityController::class, 'activity_log'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-activity']);
 Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->middleware(['authAdmin'])->middleware(['authAdmin', 'permission:security-backup']);

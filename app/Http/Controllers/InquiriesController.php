@@ -19,6 +19,8 @@ use App\Models\UserDetails;
 use App\Models\Customers;
 use App\Models\Invoices;
 use App\Models\Inquiries;
+use App\Services\ActivitLogService;
+use App\Services\SystemNotificationService;
 
 use File;
 use Mail;
@@ -62,6 +64,9 @@ class InquiriesController extends Controller
         $inquiry->status = 'Sorted';
         $inquiry->save();
 
+        ActivitLogService::log('inquiry', 'inquiry ('.$inquiry->id.') status has been changed to Sorted');
+        SystemNotificationService::log('inquiry',$inquiry->id , 'Your inquiry('.$inquiry->id.') status has been changed to Sorted', $inquiry->adm_id);
+
         return response()->json(['success' => true, 'status' => $inquiry->status]);
     }
 
@@ -70,6 +75,9 @@ class InquiriesController extends Controller
         $inquiry = Inquiries::findOrFail($id);
         $inquiry->status = 'Rejected';
         $inquiry->save();
+
+        ActivitLogService::log('inquiry', 'inquiry ('.$inquiry->id.') status has been changed to Rejected');
+        SystemNotificationService::log('inquiry',$inquiry->id , 'Your inquiry('.$inquiry->id.') status has been changed to Rejected', $inquiry->adm_id);
 
         return response()->json(['success' => true, 'status' => $inquiry->status]);
     }

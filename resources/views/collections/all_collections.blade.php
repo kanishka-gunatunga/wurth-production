@@ -117,20 +117,30 @@
                     </tr>
                 </thead>
                 <tbody id="outstandingTableBody">
-                    @forelse($collections as $collection)
-                    <tr onclick="window.location='{{ url('collection-details', $collection['collection_id']) }}'" style="cursor:pointer;">
+                @forelse($collections as $collection)
+                    @php
+                        $canView = in_array('all-collections-view', session('permissions', []));
+                    @endphp
+
+                    <tr
+                        @if($canView)
+                            onclick="window.location='{{ url('collection-details', $collection['collection_id']) }}'"
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ $collection['collection_id'] }}</td>
                         <td>{{ $collection['collection_date'] }}</td>
                         <td>{{ $collection['adm_number'] }}</td>
                         <td>{{ $collection['adm_name'] }}</td>
                         <td class="sticky-column">{{ number_format($collection['total_collected_amount'], 2) }}</td>
                     </tr>
-                    @empty
+                @empty
                     <tr>
                         <td colspan="6" class="text-center text-muted">No collections found.</td>
                     </tr>
-                    @endforelse
+                @endforelse
                 </tbody>
+
 
             </table>
         </div>

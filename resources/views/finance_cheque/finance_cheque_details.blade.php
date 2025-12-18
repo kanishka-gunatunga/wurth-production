@@ -64,7 +64,7 @@
                     <button class="{{ $statusClass }}">{{ $displayStatus }}</button>
                 </span>
             </p>
-
+             @if(in_array('deposits-finance-cheque-download', session('permissions', [])))         
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($deposit['attachment_path'])
@@ -77,7 +77,7 @@
 
 
             </p>
-
+                    @endif
         </div>
 
 
@@ -172,7 +172,7 @@
 
 <div id="footer-buttons-container" class="action-button-lg-row" style="display:flex; gap:1.2rem;">
     <a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-
+     @if(in_array('deposits-finance-cheque-status', session('permissions', [])))                
     @php
     $currentStatus = strtolower($deposit['status']);
     if ($currentStatus === 'pending') $currentStatus = 'deposited';
@@ -184,6 +184,7 @@
     @elseif ($currentStatus === 'over_to_finance')
     <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
     <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve 2</button>
+    @endif
     @endif
 </div>
 

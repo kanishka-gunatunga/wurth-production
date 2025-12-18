@@ -140,18 +140,21 @@ use App\Models\Divisions;
                                         aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
                                 </div>
                             </div>
+                            @if(in_array('add-user', session('permissions', [])))
                             <div class="col-12 d-flex justify-content-end mb-3">
-                            <a href="{{url('/add-new-user')}}">
-                                
-                                <button class="red-action-btn-lg add-new-payment-btn">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.50726 10.5634H4.85938V9.0141H9.50726V4.36621H11.0566V9.0141H15.7044V10.5634H11.0566V15.2113H9.50726V10.5634Z" fill="white"></path>
-                                    </svg>
-
-                                    Add New User
-                                </button>
-                            </a>
+                                <a href="{{ url('/add-new-user') }}">
+                                    <button class="red-action-btn-lg add-new-payment-btn">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9.50726 10.5634H4.85938V9.0141H9.50726V4.36621H11.0566V9.0141H15.7044V10.5634H11.0566V15.2113H9.50726V10.5634Z"
+                                                fill="white"></path>
+                                        </svg>
+                                        Add New User
+                                    </button>
+                                </a>
                             </div>
+                            @endif
+
                             <div class="table-responsive">
                             <table class="table custom-table-locked">
                                 <thead>
@@ -201,9 +204,15 @@ use App\Models\Divisions;
                                     <td>{{ $user->userDetails->phone_number ?? '-' }}</td>
                                      <td>{{ $user->email ?? '-' }}</td>
                                     <td class="sticky-column">
+                                        @if(in_array('edit-user', session('permissions', [])))
                                         <a href="{{url('edit-user/'.$user->id.'')}}"><button class="action-btn">View more</button></a>
+                                        @endif
+                                        @if(in_array('status-change-user', session('permissions', [])))
                                         <a href="{{url('activate-user/'.$user->id.'')}}"><button class="action-btn">Activate</button></a>
+                                        @endif
+                                        @if(in_array('status-change-user', session('permissions', [])))
                                         <a href="{{url('deactivate-user/'.$user->id.'')}}"><button class="action-btn">Deactivate</button></a>
+                                        @endif
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -432,6 +441,9 @@ use App\Models\Divisions;
                                 </div>
                             </div>
                             </form>
+                              <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
+                            <button type="submit" class="btn btn-danger submit">Save</button>
+                        </div>
                         </div> 
 
 
@@ -539,6 +551,9 @@ use App\Models\Divisions;
                                 </div> -->
                             </div>
                             </form>
+                             <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
+                            <button type="submit" class="btn btn-danger submit">Save</button>
+                        </div>
                         </div> 
                         </div>      
                         

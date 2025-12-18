@@ -126,7 +126,16 @@
                 </thead>
                 <tbody>
                     @forelse($data as $item)
-                    <tr class="clickable-row" data-href="{{ url('cheque-deposits', $item['id']) }}" style="cursor:pointer;">
+                     @php
+                        $canView = in_array('deposits-cheque-view', session('permissions', []));
+                    @endphp
+                    <tr 
+                      @if($canView)
+                            class="clickable-row"
+                             data-href="{{ url('cheque-deposits', $item['id']) }}" 
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ \Carbon\Carbon::parse($item['date'])->format('Y-m-d') }}</td>
                         <td>{{ $item['adm_number'] }}</td>
                         <td>{{ $item['adm_name'] }}</td>
@@ -147,15 +156,19 @@
                         </td>
                         <td class="sticky-column">
                             @if (strtolower($item['status']) === 'deposited')
+                             @if(in_array('deposits-cheque-status', session('permissions', [])))
                             <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
                             <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                             @endif
                             @endif
 
+                             @if(in_array('deposits-cheque-download', session('permissions', [])))
                             @if ($item['attachment_path'])
                             <a href="{{ url('cheque-deposits/download', $item['id']) }}" class="black-action-btn submit" style="text-decoration: none;">Download</a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
                             @endif
+                             @endif
                         </td>
                     </tr>
                     @empty
