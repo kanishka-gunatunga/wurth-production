@@ -12,7 +12,7 @@ class Inquiries extends Model
     protected $table = 'inquiries';
     protected $primaryKey = 'id';
 
-    public function customer()
+    public function customerDetails()
     {
         return $this->belongsTo(Customers::class, 'customer', 'customer_id');
     }

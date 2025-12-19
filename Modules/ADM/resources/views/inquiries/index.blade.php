@@ -55,7 +55,7 @@ use App\Models\Customers;
                             <tr>
 
                                 <td>{{ $inquiry->type ?? 'N/A' }}</td>
-                                <td>{{ $inquiry->customer ?? 'N/A' }}</td>
+                                <td>{{ $inquiry->customerDetails?->name ?? 'N/A' }}</td>
                                 <td>{{ $inquiry->invoice?->invoice_or_cheque_no ?? 'N/A' }}</td>
                                 <td>{{ $inquiry->attachement ?? 'N/A' }}</td>
                                 <td>
