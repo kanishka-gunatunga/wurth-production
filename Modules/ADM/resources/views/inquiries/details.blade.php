@@ -123,25 +123,25 @@
                     Inquiry Details
                 </h1>
                 <h1 class="header-sub-title">
-                     Reference No. - {{ $inquiry->id ?? 'N/A' }}
+                    Reference No. - {{ $inquiry->id ?? 'N/A' }}
                 </h1>
             </div>
 
             <span class="slip-detail-text">
                 @php
-                $status = strtolower(trim($inquiry->status));
+                    $status = strtolower(trim($inquiry->status));
                 @endphp
 
-                @if($status === 'pending')
-                <span class="badge bg-warning">Pending</span>
+                @if ($status === 'pending')
+                    <span class="badge bg-warning">Pending</span>
                 @elseif($status === 'approved')
-                <span class="badge bg-success">Approved</span>
+                    <span class="badge bg-success">Approved</span>
                 @elseif($status === 'sorted')
-                <span class="badge bg-info">Sorted</span>
+                    <span class="badge bg-info">Sorted</span>
                 @elseif($status === 'rejected')
-                <span class="badge bg-danger">Rejected</span>
+                    <span class="badge bg-danger">Rejected</span>
                 @else
-                <span class="badge bg-secondary">Unknown</span>
+                    <span class="badge bg-secondary">Unknown</span>
                 @endif
             </span>
         </div>
@@ -155,12 +155,22 @@
                     <!-- Inquiry Information -->
                     <div class="card">
                         <div class="card-header">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M8.33268 7.5H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M13.3327 10.833H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M13.3327 14.167H6.66602" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
+                                fill="none">
+                                <path
+                                    d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M8.33268 7.5H6.66602" stroke="#4A5565" stroke-width="1.66667"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M13.3327 10.833H6.66602" stroke="#4A5565" stroke-width="1.66667"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M13.3327 14.167H6.66602" stroke="#4A5565" stroke-width="1.66667"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="bold-text">Inquiry Information</span>
                         </div>
@@ -183,11 +193,13 @@
                             <div class="stack-right">
                                 <div>
                                     <div class="field-label">Date</div>
-                                    <span class="slip-detail-text">&nbsp;{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</span>
+                                    <span
+                                        class="slip-detail-text">&nbsp;{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</span>
                                 </div>
                                 <div>
                                     <div class="field-label">ADM Number</div>
-                                    <span class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
+                                    <span
+                                        class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -197,9 +209,16 @@
                     <!-- Customer & ADM Details -->
                     <div class="card">
                         <div class="card-header">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M15.8327 17.5V15.8333C15.8327 14.9493 15.4815 14.1014 14.8564 13.4763C14.2313 12.8512 13.3834 12.5 12.4993 12.5H7.49935C6.61529 12.5 5.76745 12.8512 5.14233 13.4763C4.5172 14.1014 4.16602 14.9493 4.16602 15.8333V17.5" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9.99935 9.16667C11.8403 9.16667 13.3327 7.67428 13.3327 5.83333C13.3327 3.99238 11.8403 2.5 9.99935 2.5C8.1584 2.5 6.66602 3.99238 6.66602 5.83333C6.66602 7.67428 8.1584 9.16667 9.99935 9.16667Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
+                                fill="none">
+                                <path
+                                    d="M15.8327 17.5V15.8333C15.8327 14.9493 15.4815 14.1014 14.8564 13.4763C14.2313 12.8512 13.3834 12.5 12.4993 12.5H7.49935C6.61529 12.5 5.76745 12.8512 5.14233 13.4763C4.5172 14.1014 4.16602 14.9493 4.16602 15.8333V17.5"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M9.99935 9.16667C11.8403 9.16667 13.3327 7.67428 13.3327 5.83333C13.3327 3.99238 11.8403 2.5 9.99935 2.5C8.1584 2.5 6.66602 3.99238 6.66602 5.83333C6.66602 7.67428 8.1584 9.16667 9.99935 9.16667Z"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                             <span class="bold-text">Customer & ADM Details</span>
                         </div>
@@ -208,7 +227,7 @@
                             <div>
                                 <div class="field-label">Customer Name</div>
                                 <span class="slip-detail-text">
-                                    &nbsp;{{ $inquiry->customer ?? 'N/A' }}
+                                    &nbsp;{{ $inquiry->customerDetails?->name ?? 'N/A' }}
                                 </span>
                             </div>
                             <div>
@@ -224,11 +243,17 @@
                     <!-- Reason & Description -->
                     <div class="card">
                         <div class="card-header">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
+                                fill="none">
                                 <g clip-path="url(#clip0_4858_14212)">
-                                    <path d="M9.99935 18.3337C14.6017 18.3337 18.3327 14.6027 18.3327 10.0003C18.3327 5.39795 14.6017 1.66699 9.99935 1.66699C5.39698 1.66699 1.66602 5.39795 1.66602 10.0003C1.66602 14.6027 5.39698 18.3337 9.99935 18.3337Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M10 6.66699V10.0003" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M10 13.333H10.0083" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M9.99935 18.3337C14.6017 18.3337 18.3327 14.6027 18.3327 10.0003C18.3327 5.39795 14.6017 1.66699 9.99935 1.66699C5.39698 1.66699 1.66602 5.39795 1.66602 10.0003C1.66602 14.6027 5.39698 18.3337 9.99935 18.3337Z"
+                                        stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path d="M10 6.66699V10.0003" stroke="#4A5565" stroke-width="1.66667"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M10 13.333H10.0083" stroke="#4A5565" stroke-width="1.66667"
+                                        stroke-linecap="round" stroke-linejoin="round" />
                                 </g>
                                 <defs>
                                     <clipPath id="clip0_4858_14212">
@@ -250,11 +275,20 @@
                     <!-- Attachments -->
                     <div class="card">
                         <div class="card-header">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M10 15V10" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M7.5 12.5L10 15L12.5 12.5" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 20 20" fill="none">
+                                <path
+                                    d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666"
+                                    stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M10 15V10" stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M7.5 12.5L10 15L12.5 12.5" stroke="#4A5565" stroke-width="1.66667"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="bold-text">Attachments</span>
                         </div>
@@ -262,12 +296,22 @@
                         <div class="attachment-box mt-2">
                             <div class="attachment-info">
                                 <div class="attachment-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                        <path d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M8.33268 7.5H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M13.3327 10.833H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M13.3327 14.167H6.66602" stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 20 20" fill="none">
+                                        <path
+                                            d="M12.5007 1.66699H5.00065C4.55862 1.66699 4.1347 1.84259 3.82214 2.15515C3.50958 2.46771 3.33398 2.89163 3.33398 3.33366V16.667C3.33398 17.109 3.50958 17.5329 3.82214 17.8455C4.1347 18.1581 4.55862 18.3337 5.00065 18.3337H15.0007C15.4427 18.3337 15.8666 18.1581 16.1792 17.8455C16.4917 17.5329 16.6673 17.109 16.6673 16.667V5.83366L12.5007 1.66699Z"
+                                            stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path
+                                            d="M11.666 1.66699V5.00033C11.666 5.44235 11.8416 5.86628 12.1542 6.17884C12.4667 6.4914 12.8907 6.66699 13.3327 6.66699H16.666"
+                                            stroke="#155DFC" stroke-width="1.66667" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path d="M8.33268 7.5H6.66602" stroke="#155DFC" stroke-width="1.66667"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M13.3327 10.833H6.66602" stroke="#155DFC" stroke-width="1.66667"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M13.3327 14.167H6.66602" stroke="#155DFC" stroke-width="1.66667"
+                                            stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </div>
                                 <div>
@@ -277,23 +321,25 @@
                                     <div class="attachment-subtitle">Click to download attachment</div>
                                 </div>
                             </div>
-                            @if($inquiry->attachement)
-                            <a href="{{ route('inquiries.download', $inquiry->id) }}">
-                                <button class="black-action-btn">
-                                    <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
-                                            fill="white" />
-                                    </svg>
-                                    Download</button>
-                            </a>
+                            @if ($inquiry->attachement)
+                                <a href="{{ route('inquiries.download', $inquiry->id) }}">
+                                    <button class="black-action-btn">
+                                        <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
+                                                fill="white" />
+                                        </svg>
+                                        Download</button>
+                                </a>
                             @else
-                            <button class="black-action-btn" disabled>No File</button>
+                                <button class="black-action-btn" disabled>No File</button>
                             @endif
                         </div>
                     </div>
 
-                    <a href="{{ url('adm/inquiries') }}" class="black-action-btn-lg" style="text-decoration: none;">Close</a>
+                    <a href="{{ url('adm/inquiries') }}" class="black-action-btn-lg"
+                        style="text-decoration: none;">Close</a>
                 </div>
             </div>
 
@@ -306,14 +352,20 @@
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
-    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
-        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+<div id="confirm-status-modal" class="modal" tabindex="-1"
+    style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div
+        style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
+        <button id="confirm-modal-close"
+            style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
-        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text"
+                style="font-weight:600;"></span>?</p>
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
-            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
-            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
+            <button id="confirm-no-btn"
+                style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn"
+                style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
         </div>
     </div>
 </div>
@@ -352,8 +404,10 @@
             items.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault(); // stop page jump
-                    const selectedText = this.getAttribute("data-value") || this.textContent.trim();
-                    button.innerHTML = selectedText + '<span class="custom-arrow"></span>';
+                    const selectedText = this.getAttribute("data-value") || this
+                        .textContent.trim();
+                    button.innerHTML = selectedText +
+                        '<span class="custom-arrow"></span>';
                 });
             });
         });
@@ -394,7 +448,8 @@
                 selectedBtn = this;
                 selectedStatus = btn.dataset.status;
                 inquiryId = btn.dataset.id;
-                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() +
+                    selectedStatus.slice(1);
                 modal.style.display = 'block';
             });
         });
@@ -423,7 +478,8 @@
                 .then(data => {
                     if (data.success) {
                         // Update status button
-                        const statusButton = document.querySelector('.slip-details p span.slip-detail-text > button');
+                        const statusButton = document.querySelector(
+                            '.slip-details p span.slip-detail-text > button');
                         if (statusButton) {
                             statusButton.textContent = data.status;
                             statusButton.className =
@@ -434,7 +490,8 @@
 
                         // Re-render action buttons based on new status
                         const actionRow = document.querySelector('.action-button-lg-row');
-                        actionRow.querySelectorAll('.update-status-btn').forEach(b => b.remove()); // remove old buttons
+                        actionRow.querySelectorAll('.update-status-btn').forEach(b => b
+                    .remove()); // remove old buttons
 
                         const newStatus = data.status.toLowerCase();
                         if (newStatus === 'pending') {
@@ -459,7 +516,8 @@
                                 selectedBtn = this;
                                 selectedStatus = btn.dataset.status;
                                 inquiryId = btn.dataset.id;
-                                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+                                confirmText.textContent = selectedStatus.charAt(0)
+                                    .toUpperCase() + selectedStatus.slice(1);
                                 modal.style.display = 'block';
                             });
                         });

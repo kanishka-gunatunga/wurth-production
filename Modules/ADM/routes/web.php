@@ -71,6 +71,12 @@ Route::prefix('adm')->group(function () {
         ->name('adm.inquiry.details');
     Route::get('/get-customer-invoices/{customerId}', [InquiryController::class, 'get_customer_invoices'])->middleware(ADMAuthenticated::class);
     Route::match(['get', 'post'], 'search-inquiries', [InquiryController::class, 'search_inquiries'])->middleware(ADMAuthenticated::class);
+    Route::get(
+        'inquiries/download/{id}',
+        [InquiryController::class, 'downloadAttachment']
+    )
+        ->middleware(ADMAuthenticated::class)
+        ->name('inquiries.download');
 
 
     Route::match(['get', 'post'], 'create-advanced-payment', [AdvancedPaymentController::class, 'create_advanced_payment'])->middleware(ADMAuthenticated::class);

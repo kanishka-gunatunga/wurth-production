@@ -245,3 +245,7 @@ Route::get('/reports', [ReportsController::class, 'index'])
 Route::get('/team-leader-dashboard', function () {
     return view('dashboard.team_leader_dashboard');
 })->middleware(['authAdmin']);
+
+Route::get('/area-sales-dashboard', function () {
+    return view('dashboard.area_sales_dashboard');
+})->middleware(['authAdmin']);

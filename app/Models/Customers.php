@@ -36,7 +36,7 @@ class Customers extends Model
      */
     public function inquiries()
     {
-        return $this->hasMany(Inquiries::class, 'customer', 'id');
+        return $this->hasMany(Inquiries::class, 'customer', 'customer_id');
     }
 
     /**

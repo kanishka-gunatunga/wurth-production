@@ -37,7 +37,7 @@ class InquiryController extends Controller
         //    $inquiries = Inquiries::with(['invoice', 'customer', 'admin'])
         //     ->where('adm_id', Auth::id())
         //     ->paginate(15);
-        $inquiries = Inquiries::with(['customer', 'invoice'])->paginate(15);
+        $inquiries = Inquiries::with(['customerDetails', 'invoice'])->paginate(15);
         return view('adm::inquiries.index', ['inquiries' => $inquiries]);
     }
 
@@ -50,21 +50,29 @@ class InquiryController extends Controller
         }
         if ($request->isMethod('post')) {
 
-            $request->validate([
-                'inquiry_type'   => 'required',
-                'adm_number'   => 'required',
-                'name'   => 'required',
-                'customer'   => 'required',
-                'invoice'   => 'required',
-                'reason'   => 'required',
-            ]);
+            $request->validate(
+                [
+                    'inquiry_type' => 'required',
+                    'adm_number'   => 'required',
+                    'name'         => 'required',
+                    'customer'     => 'required',
+                    'invoice'      => 'required',
+                    'reason'       => 'required',
+                    'attachment'   => 'nullable|file|mimes:pdf,png,jpg,jpeg,webp|max:5120',
+                ],
+                [
+                    'attachment.max' => 'The attachment must not be greater than 5MB.',
+                    'attachment.mimes' => 'Only PDF or image files are allowed.',
+                ]
+            );
 
             $attachment_name = null;
-            if (!$request->attachment == null) {
-                $attachment_name = time() . '-' . Str::uuid()->toString() . '.' . $request->attachment->extension();
-                $request->attachment->move(public_path('uploads/adm/inquiry/attachments/'), $attachment_name);
-            }
 
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $attachment_name = time() . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/adm/inquiry/attachments'), $attachment_name);
+            }
 
             $inquiry = new Inquiries();
             $inquiry->adm_id = Auth::user()->id;
@@ -82,7 +90,7 @@ class InquiryController extends Controller
 
     public function inquiry_details($id)
     {
-        $inquiry = Inquiries::with(['customer', 'invoice', 'admin.userDetails'])
+        $inquiry = Inquiries::with(['customerDetails', 'invoice', 'admin.userDetails'])
             ->findOrFail($id);
 
         return view('adm::inquiries.details', compact('inquiry'));
@@ -100,25 +108,30 @@ class InquiryController extends Controller
     {
         $query = $request->input('query');
 
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
-        $customers = Customers::where('adm', $adm_no)->pluck('customer_id');
+        $adm_no = UserDetails::where('user_id', Auth::user()->id)
+            ->value('adm_number');
 
-        $inquiries = Inquiries::with(['customer', 'invoice'])->whereIn('customer', $customers)
+        $customers = Customers::where('adm', $adm_no)
+            ->pluck('customer_id');
+
+        $inquiries = Inquiries::with(['customerDetails', 'invoice'])
+            ->whereIn('customer', $customers)
             ->where(function ($q) use ($query) {
                 $q->where('invoice_number', 'LIKE', "%{$query}%")
-                    ->orWhereHas('customer', function ($q) use ($query) {
+                    ->orWhereHas('customerDetails', function ($q) use ($query) {
                         $q->where('name', 'LIKE', "%{$query}%");
                     });
             })
             ->get();
 
         $html = '';
+
         foreach ($inquiries as $inquiry) {
             $status = strtolower(trim($inquiry->status));
 
             $html .= '<tr>';
             $html .= '<td>' . e($inquiry->type ?? 'N/A') . '</td>';
-            $html .= '<td>' . e($inquiry->customer ?? 'N/A') . '</td>';
+            $html .= '<td>' . e($inquiry->customerDetails?->name ?? 'N/A') . '</td>';
             $html .= '<td>' . e($inquiry->invoice?->invoice_or_cheque_no ?? 'N/A') . '</td>';
             $html .= '<td>' . e($inquiry->attachement ?? 'N/A') . '</td>';
             $html .= '<td>';
@@ -136,11 +149,28 @@ class InquiryController extends Controller
             }
 
             $html .= '</td>';
-            $html .= '<td><a href="'.route('adm.inquiry.details', $inquiry->id).'" class="black-action-btn" style="text-decoration: none;">View</a></td>';
+            $html .= '<td><a href="' . route('adm.inquiry.details', $inquiry->id) . '" class="black-action-btn" style="text-decoration: none;">View</a></td>';
             $html .= '</tr>';
         }
 
         return response()->json($html);
+    }
+
+    public function downloadAttachment($id)
+    {
+        $inquiry = Inquiries::findOrFail($id);
+
+        if (!$inquiry->attachement) {
+            abort(404, 'Attachment not found');
+        }
+
+        $filePath = public_path('uploads/adm/inquiry/attachments/' . $inquiry->attachement);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File does not exist on server');
+        }
+
+        return response()->download($filePath, $inquiry->attachement);
     }
 
 
@@ -150,14 +180,6 @@ class InquiryController extends Controller
     public function create()
     {
         return view('admin::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        //
     }
 
     /**
@@ -174,14 +196,6 @@ class InquiryController extends Controller
     public function edit($id)
     {
         return view('admin::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        //
     }
 
     /**
