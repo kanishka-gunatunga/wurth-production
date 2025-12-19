@@ -62,66 +62,31 @@ use App\Models\Customers;
 
 
             <div class="tab-pane fade" id="pills-system" role="tabpanel" aria-labelledby="pills-system-tab">
-                <!-- 1 -->
+                @forelse($notifications as $notification)
                 <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
+                    <!-- <div class="col-1">
                         <span>
                             <img src="assests/history-icon.svg" alt="Logo" class="img-fluid history-icon">
                         </span>
-                    </div>
+                    </div> -->
                     <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
+                    <?php if($notification->notification_type == "inquiry"){ 
+                        $title ="Inquiry Notification";
+                    } 
+                    else{
+                        $title ="Deposit Notification";
+                    }
+                    ?>
+                        <p class="reminder-title mb-1">{{$title}}</p>
+                        <p class="reminder-desc mb-0">{{$notification->notification}}</p>
                     </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                    <div class="col-3">
+                        <span class="reminder-time">{{$notification->created_at}}</span>
                     </div>
                 </div>
-                <!-- 2 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="assests/history-icon.svg" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 3 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="assests/history-icon.svg" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="assests/history-icon.svg" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
+                @empty
+                <p>No notifications found.</p>
+                @endforelse
             </div>
         </div>
     </div>

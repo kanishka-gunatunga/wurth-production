@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Divisions;
 use App\Models\Customers;
-use App\Models\ImportedReports;
+use App\Models\Upload;
 use App\Models\Invoices;
 use App\Services\ActivitLogService;
 
@@ -217,7 +217,7 @@ class CustomerController extends Controller
 
     public function import_customers(Request $request)
     { if($request->isMethod('get')){
-        $reports = ImportedReports::take(8)->get();
+        $reports = Upload::take(8)->get();
         return view('customer.import_customers', ['reports' => $reports]);
     }
     if($request->isMethod('post')){
@@ -229,9 +229,9 @@ class CustomerController extends Controller
         $fileName =  $request->customers->getClientOriginalName();
         $request->customers->move(public_path('imports'), $fileName);
 
-        $sales_file = new ImportedReports();
-        $sales_file->name = $fileName;
-        $sales_file->date = date("Y-m-d");
+        $sales_file = new Upload();
+        $sales_file->file_name = $fileName;
+        $sales_file->file_type = 'customer';
         $sales_file->save();
 
         ActivitLogService::log('import',  'data imported from file - '. $fileName);
@@ -261,10 +261,81 @@ class CustomerController extends Controller
     }
 
     }
+public function importCustomers(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+    ]);
+ try {
+    $file = $request->file('file');
+    $fileName = $file->getClientOriginalName();
+
+  
+        $spreadsheet = IOFactory::load($file->getPathname());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        if (count($rows) <= 1) {
+            return back()->with('fail', 'Excel file is empty!');
+        }
+
+        $header = array_map('strtolower', $rows[0]);
+        $requiredColumns = ['customer','sales rep. no.','name 1','street','city','postal code','telephone 1'];
+
+        if (count(array_diff($requiredColumns, $header)) > 0) {
+            return back()->with('fail', 'Invalid Excel format. Missing required columns.');
+        }
+
+        $successCount = 0;
+        $duplicateCustomers = [];
+
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = array_combine($header, $rows[$i]);
+
+            if (empty($row['customer']) || empty($row['sales rep. no.'])) continue;
+
+            if (Customers::where('customer_id', $row['customer'])->exists()) {
+                $duplicateCustomers[] = $row['customer'];
+                continue;
+            }
+
+            $customer = new Customers();
+            $customer->is_temp = 1;
+            $customer->customer_id = $row['customer'];
+            $customer->name = $row['name 1'];
+            $customer->adm = $row['sales rep. no.'];
+            $customer->address = trim(($row['street'] ?? ''));
+            $customer->city = trim(($row['city'] ?? ''));
+            $customer->postal_code = trim(($row['postal code'] ?? ''));
+            $customer->status = 'active';
+            $tel = $row['telephone 1'] ?? null;
+            if ($tel && strlen($tel) === 9) {
+                $tel = '0' . $tel;
+            }
+            $customer->mobile_number = $tel;
+            $customer->save();
+
+            $successCount++;
+        }
+
+        $msg = "{$successCount} records successfully inserted.";
+        if (!empty($duplicateCustomers)) {
+            $msg .= " Skipped duplicates: " . implode(', ', $duplicateCustomers);
+        }
+
+        ActivitLogService::log('import', 'customers imported from file - ' . $fileName);
+
+        return back()->with('success', $msg);
+
+        
+    } catch (\Exception $e) {
+        return back()->with('fail', 'Error during upload. Please try again! ' . $e->getMessage());
+    }
+}
 
     public function import(Request $request)
     { if($request->isMethod('get')){
-        $reports = ImportedReports::take(8)->get();
+        $reports = Upload::take(8)->get();
         return view('customer.import', ['reports' => $reports]);
     }
     if($request->isMethod('post')){
@@ -276,10 +347,9 @@ class CustomerController extends Controller
         $fileName =  $request->report->getClientOriginalName();
         $request->report->move(public_path('imports'), $fileName);
 
-        $sales_file = new ImportedReports();
-        $sales_file->type = $request->report_type;
-        $sales_file->name = $fileName;
-        $sales_file->date = date("Y-m-d");
+        $sales_file = new Upload();
+        $sales_file->file_type = $request->report_type;
+        $sales_file->file_name = $fileName;
         $sales_file->save();
         
         ActivitLogService::log('import',  'data imported from file - '. $fileName);

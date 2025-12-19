@@ -22,7 +22,7 @@ use App\Models\RolePermissions;
 use App\Models\Invoices;
 use App\Models\Customers;
 use App\Models\Reminders;
-
+use App\Models\Notifications;
 
 use File;
 use Mail;
@@ -50,9 +50,13 @@ class NotificationsRemindersController extends Controller
         $reminders = Reminders::where('send_to', $currentUserId)
             ->orderBy('reminder_date', 'desc')
             ->get();
-
+        
+        $notifications = Notifications::where('to_user', $currentUserId)
+            ->orderBy('id', 'desc')
+            ->get();   
         return view('adm::notifications_and_reminders.notifications_and_reminders', [
-            'reminders' => $reminders
+            'reminders' => $reminders,
+            'notifications' => $notifications
         ]);
     }
 

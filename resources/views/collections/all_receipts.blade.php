@@ -176,13 +176,13 @@ $activeTab = request('active_tab', 'final');
                         </button>
                     </div>
                 </div>
-
+                 @if(in_array('all-receipts-final-export', session('permissions', [])))   
                 <div class="col-12 d-flex justify-content-end pe-0 mb-3 gap-3">
                     <button class="add-new-division-btn mb-3 submit">
                         Export
                     </button>
                 </div>
-
+                @endif
                 <div class="table-responsive">
                     <table class="table custom-table-locked" style="min-width: 1300px;">
                         <thead>
@@ -227,17 +227,22 @@ $activeTab = request('active_tab', 'final');
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
+                                        @if(in_array('all-receipts-final-sms', session('permissions', [])))
                                         <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $payment->id }}"
                                             data-primary="{{ $payment->invoice->customer->mobile_number ?? '' }}"
                                             data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
+                                        @endif
+                                        @if(in_array('all-receipts-final-download', session('permissions', [])))
                                         <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}">
                                             <button class="black-action-btn">Download</button>
                                         </a>
-
+                                        @endif
+                                        @if(in_array('all-receipts-final-edit', session('permissions', [])))
                                         <a href="{{ url('/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -301,17 +306,22 @@ $activeTab = request('active_tab', 'final');
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
+                                         @if(in_array('all-receipts-temporary-sms', session('permissions', [])))
                                         <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $temp_receipt->id }}"
                                             data-primary="{{ $temp_receipt->invoice->customer->mobile_number ?? '' }}"
                                             data-secondary="{{ $temp_receipt->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
+                                        @endif
+                                         @if(in_array('all-receipts-temporary-download', session('permissions', [])))
                                         <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}">
                                             <button class="black-action-btn">Download</button>
                                         </a>
-
+                                        @endif
+                                         @if(in_array('all-receipts-temporary-edit', session('permissions', [])))
                                         <a href="{{ url('/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -385,18 +395,25 @@ $activeTab = request('active_tab', 'final');
                                 <!-- Actions -->
                                 <td class="sticky-column">
                                     <div class="sticky-actions">
+                                         @if(in_array('all-receipts-advanced-sms', session('permissions', [])))
                                         <button class="red-action-btn resend-sms-btn"
                                             data-receipt-id="{{ $advanced_payment->id }}"
                                             data-primary="{{ $advanced_payment->customerData->mobile_number ?? '' }}"
                                             data-secondary="{{ $advanced_payment->customerData->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
+                                        @endif
+                                         @if(in_array('all-receipts-advanced-download', session('permissions', [])))
                                         <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
                                             <button class="black-action-btn">Download</button>
                                         </a>
-
+                                        @endif
+                                         @if(in_array('all-receipts-advanced-edit', session('permissions', [])))
                                         <a href="{{ url('/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        @endif
+                                         @if(in_array('all-receipts-advanced-remove', session('permissions', [])))
                                         <a href="{{ url('/remove-advanced-payment/'.$advanced_payment->id) }}"><button class="red-action-btn">Remove</button></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

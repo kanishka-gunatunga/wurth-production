@@ -26,6 +26,7 @@ class Invoices extends Model
         'branch',
         'return_type',
         'reason',
+        'reference',
     ];
 
 

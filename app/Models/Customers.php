@@ -16,7 +16,17 @@ class Customers extends Model
         'is_temp',
         'customer_id',
         'name',
+        'address',
+        'city',
+        'postal_code',
+        'mobile_number',
+        'email',
+        'whatsapp_number',
         'adm',
+        'secondary_adm',
+        'avilable_time',
+        'secondary_mobile_number',
+        'contact_person',
         'status',
     ];
 

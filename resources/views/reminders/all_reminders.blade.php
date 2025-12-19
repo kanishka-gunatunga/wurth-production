@@ -106,12 +106,18 @@
                             </div>
                         </div>
 
-                        <ul class="list-group mt-3" id="paymentNotifications">
-                            @forelse($reminders as $reminder)
-                            <li class="list-group-item d-flex justify-content-between align-items-start notification-row"
-                                style="cursor:pointer;"
-                                onclick="window.location.href='{{ url('reminders/'.$reminder->id) }}'">
+                       <ul class="list-group mt-3" id="paymentNotifications">
+                        @forelse($reminders as $reminder)
+                            @php
+                                $canView = in_array('notifications-payment-view', session('permissions', []));
+                            @endphp
 
+                            <li class="list-group-item d-flex justify-content-between align-items-start notification-row"
+                                @if($canView)
+                                    style="cursor:pointer;"
+                                    onclick="window.location.href='{{ url('reminders/'.$reminder->id) }}'"
+                                @endif
+                            >
                                 <div>
                                     <div class="fw-bold">
                                         {{ Str::limit($reminder->reason, 120) }}
@@ -125,20 +131,19 @@
                                     </small>
 
                                     @if($reminder->is_direct)
-                                    <span class="badge mt-1" style="background-color:#007bff;">Direct</span>
+                                        <span class="badge mt-1" style="background-color:#007bff;">Direct</span>
                                     @endif
 
                                     @if(!$reminder->is_read)
-                                    <span class="badge mt-1" style="background-color:#CC0000;">New</span>
+                                        <span class="badge mt-1" style="background-color:#CC0000;">New</span>
                                     @endif
                                 </div>
                             </li>
-
-
-                            @empty
+                        @empty
                             <li class="list-group-item text-center">No payment reminders found.</li>
-                            @endforelse
+                        @endforelse
                         </ul>
+
 
                         <nav class="d-flex justify-content-center mt-3">
                             {{ $reminders->links('pagination::bootstrap-5') }}
@@ -165,18 +170,33 @@
                             </div>
                         </div>
                         <ul class="list-group" id="temporaryNotifications">
-                            <?php foreach($today_cheques as $today_cheque) { ?> 
-                            <li class="list-group-item d-flex justify-content-between align-items-start notification-row" style="cursor:pointer;" onclick="window.location.href='{{ url('view-deposit-reminder') }}/<?= $today_cheque->id ?>'">
+                        <?php foreach($today_cheques as $today_cheque) { ?>
+
+                            <?php $canView = in_array('notifications-system-view', session('permissions', [])); ?>
+
+                            <li class="list-group-item d-flex justify-content-between align-items-start notification-row"
+                                <?php if($canView) { ?>
+                                    style="cursor:pointer;"
+                                    onclick="window.location.href='{{ url('view-deposit-reminder') }}/<?= $today_cheque->id ?>'"
+                                <?php } ?>
+                            >
                                 <div>
                                     <div class="fw-bold">Cheque Deposit Reminder</div>
-                                    <small class="text-muted"> Cheque No: <?= $today_cheque->cheque_number ?>  
-                — Amount: LKR <?= number_format($today_cheque->amount, 2) ?><br>  The cheque should be deposited today.</small>
+                                    <small class="text-muted">
+                                        Cheque No: <?= $today_cheque->cheque_number ?>
+                                        — Amount: LKR <?= number_format($today_cheque->amount, 2) ?><br>
+                                        The cheque should be deposited today.
+                                    </small>
                                 </div>
-                                <small class="text-muted"><?= date('d/m/Y', strtotime($today_cheque->cheque_date)) ?></small>
-                                
+
+                                <small class="text-muted">
+                                    <?= date('d/m/Y', strtotime($today_cheque->cheque_date)) ?>
+                                </small>
                             </li>
-                            <?php } ?>
+
+                        <?php } ?>
                         </ul>
+
                         <nav class="d-flex justify-content-center mt-3">
                              {{ $today_cheques->links() }}
                         </nav>

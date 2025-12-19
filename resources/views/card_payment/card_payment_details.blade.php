@@ -50,7 +50,7 @@
                     <button class="{{ $statusClass }}">{{ $label }}</button>
                 </span>
             </p>
-
+@if(in_array('deposits-card-payment-download', session('permissions', [])))
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($cardPayment->card_image)
@@ -61,7 +61,7 @@
                 <button class="black-action-btn" disabled>No File</button>
                 @endif
             </p>
-
+@endif
         </div>
     </div>
 </div>
@@ -110,8 +110,10 @@
     <a href="{{ url('card-payments') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
     @if(strtolower($status) !== 'approved')
     <!-- Show buttons only if status is NOT Approved -->
+      @if(in_array('deposits-card-payment-status', session('permissions', [])))
     <button class="red-action-btn-lg update-status-btn" data-id="{{ $cardPayment->id }}" data-status="rejected">Reject</button>
     <button class="success-action-btn-lg update-status-btn" data-id="{{ $cardPayment->id }}" data-status="approved">Approve</button>
+    @endif
     @endif
 </div>
 

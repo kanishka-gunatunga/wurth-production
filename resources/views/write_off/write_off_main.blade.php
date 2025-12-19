@@ -77,7 +77,7 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-
+         @if(in_array('writeoff-writeback-add', session('permissions', [])))
         <div class="col-12 d-flex justify-content-end mb-3">
             <a href="{{ url('/write-off') }}">
                 <button class="red-action-btn-lg add-new-payment-btn">
@@ -91,6 +91,7 @@
                 </button>
             </a>
         </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table custom-table-locked" style="min-width: 900px;">
@@ -103,27 +104,39 @@
                     </tr>
                 </thead>
                 <tbody id="cashDepositeTableBody">
-                    @forelse ($writeOffs as $writeOff)
-                    <tr class="clickable-row" data-href="{{ url('write-off-details', $writeOff->id) }}">
+                @forelse ($writeOffs as $writeOff)
+                    @php
+                        $canView = in_array('writeoff-writeback-view', session('permissions', []));
+                    @endphp
+
+                    <tr
+                        @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('write-off-details', $writeOff->id) }}"
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ $writeOff->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($writeOff->created_at)->format('Y-m-d') }}</td>
                         <td>{{ number_format($writeOff->final_amount, 2) }}</td>
                         <td class="sticky-column">
-                            <a href="{{ url('write-off/download', $writeOff->id) }}"
+                            @if(in_array('writeoff-writeback-download', session('permissions', [])))
+                                <a href="{{ url('write-off/download', $writeOff->id) }}"
                                 class="black-action-btn submit"
                                 style="text-decoration: none;"
                                 onclick="event.stopPropagation()">
-                                Download
-                            </a>
+                                    Download
+                                </a>
+                            @endif
                         </td>
                     </tr>
-
-                    @empty
+                @empty
                     <tr>
-                        <td colspan="3" class="text-center">No write-off records found.</td>
+                        <td colspan="4" class="text-center">No write-off records found.</td>
                     </tr>
-                    @endforelse
+                @endforelse
                 </tbody>
+
             </table>
 
         </div>

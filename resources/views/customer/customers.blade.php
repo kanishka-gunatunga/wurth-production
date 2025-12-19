@@ -156,11 +156,13 @@ use App\Models\UserDetails;
                         </button>
                     </div>
                 </div>
+                @if(in_array('add-customer', session('permissions', [])))
                 <div class="col-12 d-flex justify-content-end pe-5 mb-5">
                     <a href="{{url('add-new-customer')}}">
                         <button class="add-new-division-btn">+ Add New Customer</button>
                     </a>
                 </div>
+                @endif
                 @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
                 @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
                 <div class="table-responsive">
@@ -207,8 +209,12 @@ use App\Models\UserDetails;
                                         @endphp
                                         Rs. {{ number_format($outstanding ?? 0, 2) }}</td>
                                     <td class="sticky-column">
+                                        @if(in_array('all-customers-view',session('permissions', [])))
                                         <a href="{{url('view-customer/'.$customer->id.'')}}"><button class="action-btn">View More</button></a>
+                                        @endif
+                                        @if(in_array('all-customers-edit', session('permissions', [])))
                                         <a href="{{url('edit-customer/'.$customer->id.'')}}"><button class="action-btn">Edit</button></a>
+                                        @endif
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -267,7 +273,9 @@ use App\Models\UserDetails;
                                             <td>{{$temp_customer->adm}}</th>
                                             <td>{{$temp_customer->customer_id}}</th>
                                             <td class="sticky-column">
+                                                @if(in_array('temp-customers-edit', session('permissions', [])))
                                                 <a href="{{url('edit-customer/'.$temp_customer->id.'')}}"><button class="action-btn">Edit</button></a>
+                                                 @endif
                                             </td>
                                         </tr>
                                     <?php } ?>

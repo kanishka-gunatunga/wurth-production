@@ -82,6 +82,7 @@
 
 
             <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
+                @if(in_array('return-cheques-import', session('permissions', [])))
                 <button class="add-new-division-btn"
                     style="background-color: black; color: white; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;"
                     data-bs-toggle="modal" data-bs-target="#importChequeModal">
@@ -103,11 +104,12 @@
 
                     <span>Import Return Cheques</span>
                 </button>
-                </a>
-
+                @endif
+                @if(in_array('return-cheques-import', session('permissions', [])))
                 <a href="{{ url('create-return-cheque') }}">
                     <button class="add-new-division-btn">+ Add New Return Cheque</button>
                 </a>
+                @endif
             </div>
 
             <div class="table-responsive division-table">
@@ -158,9 +160,11 @@
 
                             {{-- Actions --}}
                             <td class="sticky-column">
+                                @if(in_array('return-cheques-view', session('permissions', [])))
                                 <a href="{{ url('return-cheques', $cheque->id) }}" style="text-decoration: none;">
                                     <button class="action-btn btn-sm btn-dark">View More</button>
                                 </a>
+                                @endif
                             </td>
                         </tr>
                         @empty
@@ -436,7 +440,7 @@
 
         uploadBtn.addEventListener("click", () => {
             if (!fileInput.files.length) {
-                alert("Please select a file first!");
+                alert("Please select a file first!"); 
                 return;
             }
 

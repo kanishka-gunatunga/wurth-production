@@ -128,7 +128,17 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr class="clickable-row" data-href="{{ url('fund-transfers/' . $payment['id']) }}" style="cursor:pointer;">
+                    @php
+                        $canView = in_array('deposits-fund-transfer-view', session('permissions', []));
+                    @endphp
+                    <tr 
+                    @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('fund-transfers/' . $payment['id']) }}"
+                            style="cursor:pointer;"
+                        @endif
+
+                    >
                         <td>{{ $payment->transfer_date }}</td>
 
                         <td>{{ $payment->invoice->customer->adm ?? '-' }}</td>
@@ -143,14 +153,18 @@
 
                         <td class="sticky-column">
                             @if(strtolower($payment['status']) === 'pending')
+                             @if(in_array('deposits-fund-transfer-status', session('permissions', [])))
                             <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="approved">Approve</button>
                             <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="rejected">Reject</button>
                             @endif
+                            @endif
+                             @if(in_array('deposits-fund-transfer-view', session('permissions', [])))
                             <a href="{{ url('fund-transfers/' . $payment->id) }}"
                                 class="black-action-btn"
                                 onclick="event.stopPropagation()" style="text-decoration: none;">
                                 View More
                             </a>
+                             @endif
                         </td>
                     </tr>
                     @empty

@@ -132,7 +132,16 @@
                     default => 'grey-status-btn'
                     };
                     @endphp
-                    <tr class="clickable-row" data-href="{{ url('cash-deposits', $deposit['id']) }}" style="cursor:pointer;">
+                     @php
+                        $canView = in_array('deposits-cash-view', session('permissions', []));
+                    @endphp
+                    <tr 
+                     @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('cash-deposits', $deposit['id']) }}"
+                            style="cursor:pointer;"
+                        @endif
+                    >
                         <td>{{ $deposit['date'] }}</td>
                         <td>{{ $deposit['adm_number'] }}</td>
                         <td>{{ $deposit['adm_name'] }}</td>
@@ -140,9 +149,12 @@
                         <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
                             @if(strtolower($deposit['status']) === 'deposited')
+                             @if(in_array('deposits-cash-status', session('permissions', [])))
                             <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
                             <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
                             @endif
+                            @endif
+                             @if(in_array('deposits-cash-download', session('permissions', [])))
                             @if($deposit['attachment_path'])
                             <a href="{{ url('cash-deposits/download', $deposit['id']) }}"
                                 class="black-action-btn submit"
@@ -150,6 +162,7 @@
                                 onclick="event.stopPropagation()">Download</a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
+                            @endif
                             @endif
                         </td>
 

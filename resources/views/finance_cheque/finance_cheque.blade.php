@@ -126,7 +126,17 @@
                 </thead>
                 <tbody>
                     @forelse($data as $item)
-                    <tr class="clickable-row" data-href="{{ url('finance-cheque/' . $item['id']) }}" style="cursor:pointer;">
+                    @php
+                        $canView = in_array('deposits-finance-cheque-view', session('permissions', []));
+                    @endphp
+                    <tr 
+                    @if($canView)
+                            class="clickable-row"
+                            data-href="{{ url('finance-cheque/' . $item['id']) }}"
+                            style="cursor:pointer;"
+                        @endif
+
+                    >
                         <td>{{ \Carbon\Carbon::parse($item['date'])->format('Y-m-d') }}</td>
                         <td>{{ $item['adm_number'] }}</td>
                         <td>{{ $item['adm_name'] }}</td>
@@ -152,7 +162,7 @@
                         </td>
                         <td class="sticky-column">
                             @php $status = strtolower($item['status']); @endphp
-
+                            @if(in_array('deposits-finance-cheque-status', session('permissions', [])))
                             {{-- Deposited → Show Approve 1 + Reject --}}
                             @if ($status === 'deposited')
                             <button class="success-action-btn update-status"
@@ -174,7 +184,9 @@
                                 data-id="{{ $item['id'] }}"
                                 data-status="rejected">Reject</button>
                             @endif
+                            @endif
 
+                             @if(in_array('deposits-finance-cheque-download', session('permissions', [])))
                             {{-- Always show Download --}}
                             @if ($item['attachment_path'])
                             <a href="{{ url('finance-cheque/download/' . $item['id']) }}"
@@ -182,6 +194,7 @@
                                 style="text-decoration: none;">Download</a>
                             @else
                             <button class="black-action-btn" disabled>No File</button>
+                            @endif
                             @endif
                         </td>
                     </tr>

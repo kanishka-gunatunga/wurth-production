@@ -65,7 +65,7 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-
+        @if(in_array('setoff-add', session('permissions', [])))
         <div class="col-12 d-flex justify-content-end mb-3">
             <a href="{{ url('/set-off') }}">
                 <button class="red-action-btn-lg add-new-payment-btn">
@@ -79,7 +79,7 @@
                 </button>
             </a>
         </div>
-
+        @endif
         <div class="table-responsive">
             <table class="table custom-table-locked" style="min-width: 900px;">
                 <thead>
@@ -90,28 +90,40 @@
                         <th class="sticky-column">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="cashDepositeTableBody">
+               <tbody id="cashDepositeTableBody">
                     @forelse ($setOffs as $setOff)
-                    <tr class="clickable-row" data-href="{{ url('set-off-details', $setOff->id) }}">
-                        <td>{{ $setOff->id }}</td>
-                        <td>{{ \Carbon\Carbon::parse($setOff->created_at)->format('Y-m-d') }}</td>
-                        <td>{{ number_format($setOff->final_amount, 2) }}</td>
-                        <td class="sticky-column">
-                            <a href="{{ url('set-off/download', $setOff->id) }}"
-                                class="black-action-btn submit"
-                                style="text-decoration: none;"
-                                onclick="event.stopPropagation()">
-                                Download
-                            </a>
-                        </td>
-                    </tr>
+                        @php
+                            $canView = in_array('setoff-view', session('permissions', []));
+                        @endphp
 
+                        <tr
+                            @if($canView)
+                                class="clickable-row"
+                                data-href="{{ url('set-off-details', $setOff->id) }}"
+                                style="cursor:pointer;"
+                            @endif
+                        >
+                            <td>{{ $setOff->id }}</td>
+                            <td>{{ \Carbon\Carbon::parse($setOff->created_at)->format('Y-m-d') }}</td>
+                            <td>{{ number_format($setOff->final_amount, 2) }}</td>
+                            <td class="sticky-column">
+                                @if(in_array('setoff-download', session('permissions', [])))
+                                    <a href="{{ url('set-off/download', $setOff->id) }}"
+                                    class="black-action-btn submit"
+                                    style="text-decoration: none;"
+                                    onclick="event.stopPropagation()">
+                                        Download
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="4" class="text-center">No set-off records found.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="4" class="text-center">No set-off records found.</td>
+                        </tr>
                     @endforelse
-                </tbody>
+                    </tbody>
+
             </table>
 
         </div>
