@@ -200,16 +200,6 @@
         customerSignaturePad.clear();
         document.getElementById('customer_signature_input').value = '';
     });
-
-
-    document.getElementById("save-customer").addEventListener('click', function() {
-        if (customerSignaturePad.isEmpty()) {
-            alert("Customer signature is empty.");
-        } else {
-            var dataURL = customerSignaturePad.toDataURL();
-            console.log("Customer signature saved:", dataURL);
-        }
-    });
 </script>
 
 <script>
