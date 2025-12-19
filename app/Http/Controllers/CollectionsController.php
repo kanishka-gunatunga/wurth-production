@@ -511,7 +511,7 @@ class CollectionsController extends Controller
         $payments = $batch->payments->map(function ($payment) {
             return [
                 'receipt_no' => $payment->id, // Receipt number = id from invoice_payments
-                'customer_name' => optional($payment->invoice->customer)->name ?? 'N/A',
+                 'customer_name'   => $payment->invoice?->customer?->name ?? 'N/A',
                 'invoice_no' => $payment->invoice_id,
                 'status' => $payment->status ?? 'N/A',
                 'payment_method' => $payment->type ?? 'N/A',

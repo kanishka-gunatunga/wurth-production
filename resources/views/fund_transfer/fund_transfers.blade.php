@@ -244,7 +244,13 @@
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Name</p>
                 <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                    @foreach ($fundTransfers->map(fn($p) => $p->invoice->customer->admDetails->name)->unique() as $admName)
+                   @foreach (
+                    $fundTransfers
+                        ->map(fn ($p) => $p->invoice?->customer?->admDetails?->name)
+                        ->filter()
+                        ->unique()
+                    as $admName
+                )
                     @if($admName)
                     <option value="{{ $admName }}"
                         {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
@@ -259,7 +265,15 @@
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM ID</p>
                 <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                    @foreach ($fundTransfers->map(fn($p) => $p->invoice->customer->adm)->unique() as $admId)
+                    @foreach (
+                        $fundTransfers
+                            ->map(fn ($p) => $p->invoice?->customer?->adm)
+                            ->filter()
+                            ->unique()
+                        as $admId
+                    )
+
+                    
                     <option value="{{ $admId }}"
                         {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
                         {{ $admId }}
@@ -272,7 +286,14 @@
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Customers</p>
                 <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                    @foreach ($fundTransfers->map(fn($p) => $p->invoice->customer->name)->unique() as $customer)
+                   @foreach (
+                        $fundTransfers
+                            ->map(fn ($p) => $p->invoice?->customer?->name)
+                            ->filter()
+                            ->unique()
+                        as $customer
+                    )
+
                     @if($customer)
                     <option value="{{ $customer }}"
                         {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
