@@ -35,7 +35,7 @@ class InquiriesController extends Controller
     {
         $inquiries = Inquiries::with([
             'invoice',
-            'customer',
+            'customerDetails',
             'admin.userDetails'
         ])
             ->orderBy('created_at', 'desc') // newest first
@@ -49,7 +49,7 @@ class InquiriesController extends Controller
     {
         $inquiry = Inquiries::with([
             'invoice',
-            'customer',
+            'customerDetails',
             'admin.userDetails'
         ])->findOrFail($id);
 
@@ -95,7 +95,7 @@ class InquiriesController extends Controller
     {
         $query = $request->input('query');
 
-        $inquiries = Inquiries::with(['invoice', 'customer', 'admin.userDetails'])
+        $inquiries = Inquiries::with(['invoice', 'customerDetails', 'admin.userDetails'])
             ->when($query, function ($q) use ($query) {
                 $q->where('id', 'LIKE', "%{$query}%");
             })
@@ -114,7 +114,7 @@ class InquiriesController extends Controller
         $status = $request->input('status');
         $dateRange = $request->input('date_range'); // e.g. "2025-01-01 to 2025-01-31"
 
-        $inquiries = Inquiries::with(['invoice', 'customer', 'admin.userDetails'])
+        $inquiries = Inquiries::with(['invoice', 'customerDetails', 'admin.userDetails'])
             ->when(!empty($admIds), function ($q) use ($admIds) {
                 $q->whereIn('adm_id', $admIds);
             })
@@ -162,14 +162,6 @@ class InquiriesController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        //
-    }
-
-    /**
      * Show the specified resource.
      */
     public function show($id)
@@ -183,14 +175,6 @@ class InquiriesController extends Controller
     public function edit($id)
     {
         return view('admin::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        //
     }
 
     /**

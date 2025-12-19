@@ -71,16 +71,14 @@
                 @csrf
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                    <input
-                        type="text"
-                        name="query"
-                        class="search-input"
-                        placeholder="Search Inquiry no."
+                    <input type="text" name="query" class="search-input" placeholder="Search Inquiry no."
                         value="{{ $searchQuery ?? '' }}" />
                 </div>
             </form>
-            <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
-            <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
+            <button class="header-btn" id="search-toggle-button"><i
+                    class="fa-solid fa-magnifying-glass fa-xl"></i></button>
+            <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter"
+                aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
     </div>
 
@@ -102,61 +100,57 @@
                 </thead>
                 <tbody>
                     @forelse ($inquiries as $inquiry)
-                    <tr class="clickable-row"
-                        data-href="{{ url('/inquiry-details', $inquiry->id) }}"
-                        data-adm="{{ $inquiry->adm_id }}"
-                        data-customer="{{ $inquiry->customer }}"
-                        data-type="{{ $inquiry->type }}"
-                        data-status="{{ $inquiry->status }}"
-                        data-date="{{ $inquiry->created_at }}">
+                        <tr class="clickable-row" data-href="{{ url('/inquiry-details', $inquiry->id) }}"
+                            data-adm="{{ $inquiry->adm_id }}" data-customer="{{ $inquiry->customer }}"
+                            data-type="{{ $inquiry->type }}" data-status="{{ $inquiry->status }}"
+                            data-date="{{ $inquiry->created_at }}">
 
-                        <td>{{ $inquiry->id }}</td>
-                        <td>{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</td>
-                        <td>{{ $inquiry->type }}</td>
-                        <td> {{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }} </td>
-                        <td>{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}</td>
-                        <td>{{ $inquiry->customer }}</td>
-                        <td>
-                            @php
-                            $statusClass = match($inquiry->status) {
-                            'Sorted' => 'success-status-btn',
-                            'Deposited' => 'blue-status-btn',
-                            'Rejected' => 'danger-status-btn',
-                            default => 'grey-status-btn',
-                            };
-                            @endphp
-                            <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
-                        </td>
-                        <td class="sticky-column">
-                            @php
-                            $status = strtolower(trim($inquiry->status ?? ''));
-                            @endphp
+                            <td>{{ $inquiry->id }}</td>
+                            <td>{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</td>
+                            <td>{{ $inquiry->type }}</td>
+                            <td> {{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }} </td>
+                            <td>{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}</td>
+                            <td>{{ $inquiry->customerDetails?->name ?? 'N/A' }}</td>
+                            <td>
+                                @php
+                                    $statusClass = match ($inquiry->status) {
+                                        'Sorted' => 'success-status-btn',
+                                        'Deposited' => 'blue-status-btn',
+                                        'Rejected' => 'danger-status-btn',
+                                        default => 'grey-status-btn',
+                                    };
+                                @endphp
+                                <button class="{{ $statusClass }}">{{ $inquiry->status }}</button>
+                            </td>
+                            <td class="sticky-column">
+                                @php
+                                    $status = strtolower(trim($inquiry->status ?? ''));
+                                @endphp
 
-                            @if($status === 'pending')
-                            <button class="success-action-btn">Approve</button>
-                            <button class="red-action-btn">Reject</button>
-                            @elseif($status === 'sorted')
-                            <button class="red-action-btn">Reject</button>
-                            @elseif($status === 'rejected')
-                            <button class="success-action-btn">Approve</button>
-                            @endif
+                                @if ($status === 'pending')
+                                    <button class="success-action-btn">Approve</button>
+                                    <button class="red-action-btn">Reject</button>
+                                @elseif($status === 'sorted')
+                                    <button class="red-action-btn">Reject</button>
+                                @elseif($status === 'rejected')
+                                    <button class="success-action-btn">Approve</button>
+                                @endif
 
-                            @if($inquiry->attachement)
-                            <a href="{{ route('inquiries.download', $inquiry->id) }}"
-                                class="black-action-btn submit"
-                                style="text-decoration: none;"
-                                onclick="showDownloadToast(event)">
-                                Download
-                            </a>
-                            @else
-                            <button class="black-action-btn" disabled>No File</button>
-                            @endif
-                        </td>
-                    </tr>
+                                @if ($inquiry->attachement)
+                                    <a href="{{ route('inquiries.download', $inquiry->id) }}"
+                                        class="black-action-btn submit" style="text-decoration: none;"
+                                        onclick="showDownloadToast(event)">
+                                        Download
+                                    </a>
+                                @else
+                                    <button class="black-action-btn" disabled>No File</button>
+                                @endif
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">No inquiries found.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No inquiries found.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -194,29 +188,29 @@
             <!-- ADM ID -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM ID</p>
-                <select name="adm_ids[]" id="filter-adm" class="form-control select2" multiple="multiple">
-                    @foreach ($inquiries->pluck('adm_id')->unique() as $admId)
-                    <option value="{{ $admId }}"
-                        {{ isset($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                        {{ $admId }}
-                    </option>
+                <select name="adm_ids[]" id="filter-adm" class="form-control select2" multiple>
+                    @foreach ($inquiries->pluck('admin.userDetails')->filter()->unique('id') as $details)
+                        <option value="{{ $details->user_id }}"
+                            {{ !empty($filters['adm_ids']) && in_array($details->user_id, $filters['adm_ids']) ? 'selected' : '' }}>
+                            {{ $details->adm_number }}
+                        </option>
                     @endforeach
                 </select>
-
             </div>
 
             <!-- Customers -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Customers</p>
                 <select name="customers[]" id="filter-customer" class="form-control select2" multiple="multiple">
-                    @foreach ($inquiries->pluck('customer')->unique() as $customer)
-                    <option value="{{ $customer }}"
-                        {{ isset($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                        {{ $customer }}
-                    </option>
+                    @foreach ($inquiries->pluck('customerDetails')->unique() as $customerDetail)
+                        @if ($customerDetail)
+                            <option value="{{ $customerDetail->customer_id }}"
+                                {{ isset($filters['customers']) && in_array($customerDetail->customer_id, $filters['customers']) ? 'selected' : '' }}>
+                                {{ $customerDetail->name }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
-
             </div>
 
             <!-- Inquiry Type -->
@@ -224,10 +218,10 @@
                 <p class="filter-title">Inquiry type</p>
                 <select name="types[]" id="filter-type" class="form-control select2" multiple="multiple">
                     @foreach ($inquiries->pluck('type')->unique() as $type)
-                    <option value="{{ $type }}"
-                        {{ isset($filters['types']) && in_array($type, $filters['types']) ? 'selected' : '' }}>
-                        {{ $type }}
-                    </option>
+                        <option value="{{ $type }}"
+                            {{ isset($filters['types']) && in_array($type, $filters['types']) ? 'selected' : '' }}>
+                            {{ $type }}
+                        </option>
                     @endforeach
                 </select>
 
@@ -238,13 +232,15 @@
                 <p class="filter-title">Status</p>
                 <input type="hidden" name="status" id="status-input" value="{{ $filters['status'] ?? '' }}">
                 <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
+                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start"
+                        style="width:100%;">
                         {{ $filters['status'] ?? 'Choose Status' }}
                     </button>
                     <ul id="custom-status-menu" class="custom-dropdown-menu"
                         style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
                         @foreach ($inquiries->pluck('status')->unique() as $status)
-                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
+                            <li><a href="#" class="dropdown-item"
+                                    data-value="{{ $status }}">{{ $status }}</a></li>
                         @endforeach
                     </ul>
                 </div>
@@ -254,8 +250,7 @@
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Date</p>
                 <input type="text" name="date_range" id="filter-date" class="form-control"
-                    placeholder="Select date range"
-                    value="{{ $filters['date_range'] ?? '' }}" />
+                    placeholder="Select date range" value="{{ $filters['date_range'] ?? '' }}" />
             </div>
 
             <div class="mt-4 d-flex justify-content-start">
@@ -286,14 +281,20 @@
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirm-status-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
-    <div style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
-        <button id="confirm-modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
+<div id="confirm-status-modal" class="modal" tabindex="-1"
+    style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+    <div
+        style="background:#fff; border-radius:12px; max-width:460px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2); text-align:center;">
+        <button id="confirm-modal-close"
+            style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.5rem; color:#555; cursor:pointer;">&times;</button>
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
-        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
+        <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text"
+                style="font-weight:600;"></span>?</p>
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
-            <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
-            <button id="confirm-yes-btn" style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
+            <button id="confirm-no-btn"
+                style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
+            <button id="confirm-yes-btn"
+                style="padding:0.5rem 1rem; border-radius:12px; border:none; background:#2E7D32; color:#fff; cursor:pointer;">Yes</button>
         </div>
     </div>
 </div>
@@ -442,12 +443,14 @@
             if (!selectedAction || !selectedRow) return;
 
             const inquiryId = selectedRow.dataset.href.split('/').pop();
-            const url = `/inquiries/${selectedAction}/${inquiryId}`;
+            const url = "{{ url('/inquiries') }}/" + selectedAction + "/" + inquiryId;
+
+            const token = document.querySelector('meta[name="csrf-token"]').content;
 
             fetch(url, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': token,
                         'Accept': 'application/json'
                     }
                 })
@@ -464,7 +467,8 @@
 
                         // Clear existing action buttons
                         const actionsCell = selectedRow.querySelector('td.sticky-column');
-                        actionsCell.querySelectorAll('.success-action-btn, .red-action-btn').forEach(b => b.remove());
+                        actionsCell.querySelectorAll('.success-action-btn, .red-action-btn')
+                            .forEach(b => b.remove());
 
                         // Render buttons according to new status
                         const newStatus = data.status.toLowerCase();
