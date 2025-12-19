@@ -466,15 +466,17 @@
             if (!selectedBtn) return;
 
             let url = selectedStatus === 'sorted' ?
-                `/inquiries/approve/${inquiryId}` :
-                `/inquiries/reject/${inquiryId}`;
+                "{{ url('inquiries/approve') }}/" + inquiryId :
+                "{{ url('inquiries/reject') }}/" + inquiryId;
 
             fetch(url, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
                         'Accept': 'application/json'
-                    },
+                    }
                 })
                 .then(res => res.json())
                 .then(data => {
