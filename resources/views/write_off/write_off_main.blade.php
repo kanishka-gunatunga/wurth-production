@@ -77,64 +77,60 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-         @if(in_array('writeoff-writeback-add', session('permissions', [])))
-        <div class="col-12 d-flex justify-content-end mb-3">
-            <a href="{{ url('/write-off') }}">
-                <button class="red-action-btn-lg add-new-payment-btn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M9.50726 10.5634H4.85938V9.0141H9.50726V4.36621H11.0566V9.0141H15.7044V10.5634H11.0566V15.2113H9.50726V10.5634Z"
-                            fill="white" />
-                    </svg>
-                    Add
-                </button>
-            </a>
-        </div>
+        @if (in_array('writeoff-writeback-add', session('permissions', [])))
+            <div class="col-12 d-flex justify-content-end mb-3">
+                <a href="{{ url('/write-off') }}">
+                    <button class="red-action-btn-lg add-new-payment-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.50726 10.5634H4.85938V9.0141H9.50726V4.36621H11.0566V9.0141H15.7044V10.5634H11.0566V15.2113H9.50726V10.5634Z"
+                                fill="white" />
+                        </svg>
+                        Add
+                    </button>
+                </a>
+            </div>
         @endif
 
         <div class="table-responsive">
             <table class="table custom-table-locked" style="min-width: 900px;">
                 <thead>
                     <tr>
-                        <th>Write-off ID</th>
+                        <th>WO ID</th>
                         <th>Date</th>
                         <th>Final write-off amount</th>
                         <th class="sticky-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="cashDepositeTableBody">
-                @forelse ($writeOffs as $writeOff)
-                    @php
-                        $canView = in_array('writeoff-writeback-view', session('permissions', []));
-                    @endphp
+                    @forelse ($writeOffs as $writeOff)
+                        @php
+                            $canView = in_array('writeoff-writeback-view', session('permissions', []));
+                        @endphp
 
-                    <tr
-                        @if($canView)
-                            class="clickable-row"
+                        <tr
+                            @if ($canView) class="clickable-row"
                             data-href="{{ url('write-off-details', $writeOff->id) }}"
-                            style="cursor:pointer;"
-                        @endif
-                    >
-                        <td>{{ $writeOff->id }}</td>
-                        <td>{{ \Carbon\Carbon::parse($writeOff->created_at)->format('Y-m-d') }}</td>
-                        <td>{{ number_format($writeOff->final_amount, 2) }}</td>
-                        <td class="sticky-column">
-                            @if(in_array('writeoff-writeback-download', session('permissions', [])))
-                                <a href="{{ url('write-off/download', $writeOff->id) }}"
-                                class="black-action-btn submit"
-                                style="text-decoration: none;"
-                                onclick="event.stopPropagation()">
-                                    Download
-                                </a>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center">No write-off records found.</td>
-                    </tr>
-                @endforelse
+                            style="cursor:pointer;" @endif>
+                            <td>{{ $writeOff->id }}</td>
+                            <td>{{ \Carbon\Carbon::parse($writeOff->created_at)->format('Y-m-d') }}</td>
+                            <td>{{ number_format($writeOff->final_amount, 2) }}</td>
+                            <td class="sticky-column">
+                                @if (in_array('writeoff-writeback-download', session('permissions', [])))
+                                    <a href="{{ url('write-off/download', $writeOff->id) }}"
+                                        class="black-action-btn submit" style="text-decoration: none;"
+                                        onclick="event.stopPropagation()">
+                                        Download
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">No write-off records found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
 
             </table>
@@ -146,9 +142,6 @@
 
     </div>
 </div>
-
-</div>
-
 
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
@@ -268,7 +261,8 @@
             const admNumber = row.children[3].textContent.toLowerCase();
             const admName = row.children[4].textContent.toLowerCase();
 
-            if (depositType.includes(searchQuery) || admNumber.includes(searchQuery) || admName.includes(searchQuery)) {
+            if (depositType.includes(searchQuery) || admNumber.includes(searchQuery) || admName.includes(
+                    searchQuery)) {
                 row.style.display = "";
             } else {
                 row.style.display = "none";
@@ -284,3 +278,5 @@
         });
     });
 </script>
+
+@include('layouts.footer2')
