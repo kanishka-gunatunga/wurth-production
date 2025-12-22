@@ -227,7 +227,7 @@ Route::post('/set-off/extra-payments', [SetOffController::class, 'getExtraPaymen
     ->name('set_off.extra_payments')->middleware(['authAdmin']);
 Route::post('/set-off/submit', [SetOffController::class, 'submitSetOff'])->name('set_off.submit')->middleware(['authAdmin']);
 Route::get('/set-off-main', [SetOffController::class, 'main'])->name('set_off.main')->middleware(['authAdmin']);
-Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details')->middleware(['authAdmin', 'setoff-view']);
+Route::get('/set-off-details/{id}', [SetOffController::class, 'details'])->name('set_off.details')->middleware(['authAdmin']);
 Route::get('/set-off/download/{id}', [SetOffController::class, 'download'])->name('set_off.download')->middleware(['authAdmin', 'permission:setoff-download']);
 
 Route::get('/file-upload', [UploadController::class, 'index'])->name('fileupload.index')->middleware(['authAdmin', 'permission:upload']);

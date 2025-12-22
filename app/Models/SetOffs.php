@@ -13,10 +13,12 @@ class SetOffs extends Model
         'extraPayment_or_creditNote_no',
         'final_amount',
         'reason',
+        'gl_breakdown',
     ];
 
     protected $casts = [
         'invoice_or_cheque_no' => 'array',
         'extraPayment_or_creditNote_no' => 'array',
+        'gl_breakdown' => 'array',
     ];
 }

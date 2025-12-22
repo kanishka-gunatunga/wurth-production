@@ -9,6 +9,8 @@ use App\Models\Invoices;
 use App\Models\CreditNote;
 use App\Models\SetOffs;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SetOffController extends Controller
 {
@@ -65,6 +67,7 @@ class SetOffController extends Controller
             'set_off_credit_notes' => 'nullable|array',
             'final_amount' => 'required|numeric',
             'reason' => 'nullable|string|max:255',
+            'gl_breakdown' => 'required|array|min:1',
         ]);
 
         $setOffInvoices = $request->set_off_invoices ?? [];
@@ -156,6 +159,7 @@ class SetOffController extends Controller
                 'extraPayment_or_creditNote_no' => $creditNoteJson,
                 'final_amount' => $finalAmount,
                 'reason' => $reason,
+                'gl_breakdown' => $request->gl_breakdown, // ✅ add
             ]);
 
             DB::commit();
@@ -248,20 +252,100 @@ class SetOffController extends Controller
 
     public function download($id)
     {
-        // Temporary fake download (for now)
         $setOff = SetOffs::findOrFail($id);
 
-        $content = "Set-Off Receipt\n\n" .
-            "Set-Off ID: {$setOff->id}\n" .
-            "Final Amount: {$setOff->final_amount}\n" .
-            "Date: {$setOff->created_at}\n" .
-            "Reason: {$setOff->reason}\n\n" .
-            "This is a placeholder receipt. Actual PDF format will be added later.";
+        /* ----------------------------------------
+       1️⃣ Collect UNIQUE customers and customer IDs
+    -----------------------------------------*/
+        $customerNames = [];
+        $customerIds   = [];
 
-        $fileName = "set_off_receipt_{$setOff->id}.txt";
+        // From invoices
+        foreach ($setOff->invoice_or_cheque_no ?? [] as $item) {
+            $invoice = Invoices::where('invoice_or_cheque_no', $item['invoice'])->first();
+            if ($invoice) {
+                $customer = \App\Models\Customers::where('customer_id', $invoice->customer_id)->first();
+                if ($customer) {
+                    $customerNames[$customer->customer_id] = $customer->name;
+                    $customerIds[$customer->customer_id]   = $customer->customer_id;
+                }
+            }
+        }
 
-        return response($content)
-            ->header('Content-Type', 'text/plain')
-            ->header('Content-Disposition', "attachment; filename={$fileName}");
+        // From credit notes & extra payments
+        foreach ($setOff->extraPayment_or_creditNote_no ?? [] as $item) {
+
+            // Try Credit Note
+            $credit = CreditNote::where('credit_note_id', $item['id'])->first();
+            if ($credit) {
+                $customerNames[$credit->customer_id] = $credit->customer_name;
+                $customerIds[$credit->customer_id]   = $credit->customer_id;
+            }
+
+            // Try Extra Payment
+            $extra = \App\Models\ExtraPayment::where('extra_payment_id', $item['id'])->first();
+            if ($extra) {
+                $customerNames[$extra->customer_id] = $extra->customer_name;
+                $customerIds[$extra->customer_id]   = $extra->customer_id;
+            }
+        }
+
+        /* ----------------------------------------
+       2️⃣ Prepare Excel
+    -----------------------------------------*/
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Base headers
+        $headers = [
+            'SO ID',
+            'SO Date',
+            'SO AMOUNT',
+            'CUSTOMER NAME',
+            'CUSTOMER NUMBER',
+            'DOCUMENT NUMBER',
+        ];
+
+        // Dynamic GL headers (from gl_breakdown array)
+        foreach ($setOff->gl_breakdown ?? [] as $gl) {
+            $headers[] = $gl['name'];
+        }
+
+        // Write headers
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $col++;
+        }
+
+        /* ----------------------------------------
+       3️⃣ Write data row
+    -----------------------------------------*/
+        $row = 2;
+        $col = 'A';
+
+        $sheet->setCellValue($col++ . $row, $setOff->id);
+        $sheet->setCellValue($col++ . $row, $setOff->created_at->format('Y-m-d'));
+        $sheet->setCellValue($col++ . $row, $setOff->final_amount);
+        $sheet->setCellValue($col++ . $row, implode(', ', $customerNames));
+        $sheet->setCellValue($col++ . $row, implode(', ', $customerIds));
+        $sheet->setCellValue($col++ . $row, ''); // Document Number (empty)
+
+        // GL values
+        foreach ($setOff->gl_breakdown ?? [] as $gl) {
+            $sheet->setCellValue($col++ . $row, $gl['amount']);
+        }
+
+        /* ----------------------------------------
+       4️⃣ Download
+    -----------------------------------------*/
+        $fileName = "set_off_{$setOff->id}.xlsx";
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }

@@ -184,3 +184,5 @@
         });
     });
 </script>
+
+@include('layouts.footer2')
