@@ -145,6 +145,18 @@ body {
     stroke: #cc0000;
 }
 
+/* Icon container */
+.member-stat-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #FFF5F6;
+    border-radius: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 /* Text wrapper */
 .stat-content {
     display: flex;

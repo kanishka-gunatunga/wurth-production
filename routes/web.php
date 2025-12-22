@@ -249,3 +249,7 @@ Route::get('/team-leader-dashboard', function () {
 Route::get('/area-sales-dashboard', function () {
     return view('dashboard.area_sales_dashboard');
 })->middleware(['authAdmin']);
+
+Route::get('/regional-sales-dashboard', function () {
+    return view('dashboard.regional_sales_dashboard');
+})->middleware(['authAdmin']);
