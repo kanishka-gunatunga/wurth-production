@@ -132,7 +132,7 @@ $other_details = UserDetails::where('user_id', Auth::user()->id)->first();
                         <i class="bi bi-chevron-down collapse-icon" style="color: #000;"></i>
                     </button>
                     <div class="collapse" id="collapseReminder">
-                        <a href="#" class="w-100 d-flex flex-row mb-3 mt-2"
+                        <a href="{{ url('adm/notifications-and-reminders') }}" class="w-100 d-flex flex-row mb-3 mt-2"
                             style="text-decoration: none !important;"
                             class="d-flex flex-row align-items-center mt-2">
                             <div class="d-flex flex-row justify-content-center align-items-center">

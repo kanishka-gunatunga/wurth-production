@@ -53,6 +53,7 @@ class AdvancedPaymentController extends Controller
                 'mobile_no'       => 'required',
                 'payment_amount'  => 'required|numeric|min:1',
                 'reason'          => 'required',
+                'attachment'      => 'nullable|file|max:5120', // 5MB = 5120 KB
             ]);
 
             DB::beginTransaction();
