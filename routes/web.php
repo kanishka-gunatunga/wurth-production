@@ -253,3 +253,7 @@ Route::get('/area-sales-dashboard', function () {
 Route::get('/regional-sales-dashboard', function () {
     return view('dashboard.regional_sales_dashboard');
 })->middleware(['authAdmin']);
+
+Route::get('/head-of-division-dashboard', function () {
+    return view('dashboard.head_of_division');
+})->middleware(['authAdmin']);

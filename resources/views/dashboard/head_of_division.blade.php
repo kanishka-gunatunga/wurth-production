@@ -45,6 +45,23 @@
         justify-content: flex-start;
         font-size: 11px;
         font-weight: 400;
+        color: #888888;
+    }
+
+    .progress-status-value {
+        display: flex;
+        justify-content: flex-start;
+        font-size: 11px;
+        font-weight: 600;
+        color: #333333;
+    }
+
+
+    .progress-status-small {
+        display: flex;
+        justify-content: flex-start;
+        font-size: 10px;
+        font-weight: 400;
         color: #999999;
     }
 
@@ -161,13 +178,19 @@
     }
 
     .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        display: flex;
+        gap: 52px;
         margin-bottom: 16px;
     }
 
     .stat-item {
+        display: flex;
+        flex-direction: column;
+        padding: 0px;
+        border-radius: 8px;
+    }
+
+    .stat-item-back {
         display: flex;
         flex-direction: column;
         background: #FAFAFA;
@@ -555,30 +578,6 @@
             <div class="col-lg-4 col-md-6 col-12">
                 <div class="stat-card">
                     <div class="stat-content">
-                        <div class="stat-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27"
-                                fill="none">
-                                <path
-                                    d="M17.786 22.2337V4.44784C17.786 3.8582 17.5518 3.29272 17.1348 2.87578C16.7179 2.45884 16.1524 2.22461 15.5628 2.22461H11.1163C10.5267 2.22461 9.96117 2.45884 9.54424 2.87578C9.1273 3.29272 8.89307 3.8582 8.89307 4.44784V22.2337"
-                                    stroke="#2196F3" stroke-width="2.22323" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M22.2322 6.66992H4.44637C3.21852 6.66992 2.22314 7.6653 2.22314 8.89315V20.0093C2.22314 21.2372 3.21852 22.2325 4.44637 22.2325H22.2322C23.4601 22.2325 24.4554 21.2372 24.4554 20.0093V8.89315C24.4554 7.6653 23.4601 6.66992 22.2322 6.66992Z"
-                                    stroke="#2196F3" stroke-width="2.22323" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-
-                        <p class="stat-label">Area Sales Managers</p>
-                        <h3 class="stat-number">8 ASMs</h3>
-                        <span class="progress-status">Managing 35 Team Leaders</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 col-12">
-                <div class="stat-card">
-                    <div class="stat-content">
                         <div class="stat-header">
                             <div class="stat-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27"
@@ -599,16 +598,19 @@
                                     <path d="M3.89062 9.4487L9.4487 3.89062" stroke="#4CAF50" stroke-width="1.11162"
                                         stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                +22.3%
+                                +18.5%
                             </div>
                         </div>
+                        <p class="stat-label">Total Division Revenue</p>
+                        <h3 class="stat-number">$45.8M</h3>
+                        <span class="progress-status">Q4 2025 Performance</span>
+                    </div>
 
-                        <p class="stat-label">Total Regional Collection</p>
-                        <h3 class="stat-number">LKR 9.1M</h3>
-                        <span class="progress-status">December 2025</span>
-                        <div class="progress-bar">
-                            <div class="progress-fill critical" style="width: 88.7%"></div>
-                        </div>
+                    <hr style="color: #999999">
+
+                    <div class="member-stats">
+                        <label>Target</label>
+                        <span style="color: #333333; font-size: 11px;">$48.4M Target</span>
                     </div>
                 </div>
             </div>
@@ -642,16 +644,47 @@
                                     <path d="M3.89062 9.4487L9.4487 3.89062" stroke="#4CAF50" stroke-width="1.11162"
                                         stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                +22.3%
+                                +3.2%
                             </div>
                         </div>
 
-                        <p class="stat-label">Regional Achievement</p>
-                        <h3 class="stat-number">78.5%</h3>
-                        <span class="progress-status">vs LKR 11.6M target</span>
-                        <div class="progress-bar">
-                            <div class="progress-fill good" style="width: 77.5%"></div>
+                        <p class="stat-label">Target Achievement</p>
+                        <h3 class="stat-number">94.7%</h3>
+                        <span class="progress-status">Division-wide average</span>
+                        <span class="progress-status-small">vs 91.5% last quarter</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
+                                fill="none">
+                                <path
+                                    d="M20.706 27.177V24.5887C20.706 23.2158 20.1607 21.8991 19.1898 20.9283C18.219 19.9575 16.9024 19.4121 15.5294 19.4121H7.76451C6.39158 19.4121 5.07489 19.9575 4.10409 20.9283C3.13328 21.8991 2.58789 23.2158 2.58789 24.5887V27.177"
+                                    stroke="#2196F3" stroke-width="2.58831" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M20.7061 4.04492C21.8161 4.3327 22.7992 4.98094 23.501 5.88788C24.2028 6.79482 24.5836 7.90912 24.5836 9.05588C24.5836 10.2026 24.2028 11.317 23.501 12.2239C22.7992 13.1308 21.8161 13.7791 20.7061 14.0668"
+                                    stroke="#2196F3" stroke-width="2.58831" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M28.4718 27.1748V24.5865C28.471 23.4395 28.0892 22.3253 27.3865 21.4188C26.6838 20.5123 25.6999 19.8649 24.5894 19.5781"
+                                    stroke="#2196F3" stroke-width="2.58831" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M11.6473 14.2341C14.5063 14.2341 16.8239 11.9164 16.8239 9.05747C16.8239 6.19851 14.5063 3.88086 11.6473 3.88086C8.78835 3.88086 6.4707 6.19851 6.4707 9.05747C6.4707 11.9164 8.78835 14.2341 11.6473 14.2341Z"
+                                    stroke="#2196F3" stroke-width="2.58831" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
                         </div>
+
+                        <p class="stat-label">Total Workforce</p>
+                        <h3 class="stat-number">1248</h3>
+                        <span class="progress-status">8 Regions • 42 Areas</span>
+                        <span class="progress-status-small">vs 91.5% last quarter</span>
                     </div>
                 </div>
             </div>
@@ -670,10 +703,10 @@
                             d="M15 16.25C17.0711 16.25 18.75 14.5711 18.75 12.5C18.75 10.4289 17.0711 8.75 15 8.75C12.9289 8.75 11.25 10.4289 11.25 12.5C11.25 14.5711 12.9289 16.25 15 16.25Z"
                             stroke="#CC0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <h2 class="section-title">Area Performance Overview</h2>
+                    <h2 class="section-title">Regional Performance Overview</h2>
                 </div>
                 <div class="filter-tabs">
-                    <button class="filter-tab active">All Areas</button>
+                    <button class="filter-tab active">All Regions</button>
                     <button class="filter-tab">Top Performers</button>
                 </div>
             </div>
@@ -692,9 +725,9 @@
                                             fill="#CC0000" />
                                     </svg>
                                 </div>
-                                <h4>Western</h4>
+                                <h4>H.K Perera</h4>
                             </div>
-                            <p>309 Total Members</p>
+                            <p>226 Members</p>
                         </div>
                         <span class="status-badge excellent">Excellent</span>
                     </div>
@@ -702,48 +735,38 @@
                     <!-- Stats Grid -->
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <span class="stat-label">Sale Managers</span>
-                            <span class="stat-value" style="color: #000000;">2</span>
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Team Leaders</span>
-                            <span class="stat-value" style="color: #000000;">96</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 2.1M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.4M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 87.5%"></div>
                         </div>
                     </div>
 
                     <div class="member-stats">
-                        <label>Collection</label>
-                        <span style="color: #CC0000;">LKR 2.1M</span>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
                     </div>
-                    <div class="member-stats">
-                        <label>Target</label>
-                        <span style="color: #999999;">LKR 2.4M</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill excellent" style="width: 87.5%"></div>
-                    </div>
-                    <div class="member-stats">
-                        <div class="achievement-text">87.5% Achievement</div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
-                            fill="none">
-                            <g clip-path="url(#clip0_4830_19396)">
-                                <path
-                                    d="M1.47892 8.85611C1.41914 8.69507 1.41914 8.51792 1.47892 8.35688C2.06114 6.94516 3.04942 5.7381 4.31849 4.88873C5.58755 4.03936 7.08023 3.58594 8.6073 3.58594C10.1344 3.58594 11.6271 4.03936 12.8961 4.88873C14.1652 5.7381 15.1535 6.94516 15.7357 8.35688C15.7955 8.51792 15.7955 8.69507 15.7357 8.85611C15.1535 10.2678 14.1652 11.4749 12.8961 12.3243C11.6271 13.1736 10.1344 13.6271 8.6073 13.6271C7.08023 13.6271 5.58755 13.1736 4.31849 12.3243C3.04942 11.4749 2.06114 10.2678 1.47892 8.85611Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M8.60742 10.7588C9.79586 10.7588 10.7593 9.79537 10.7593 8.60694C10.7593 7.4185 9.79586 6.45508 8.60742 6.45508C7.41899 6.45508 6.45557 7.4185 6.45557 8.60694C6.45557 9.79537 7.41899 10.7588 8.60742 10.7588Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4830_19396">
-                                    <rect width="17.2149" height="17.2149" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
-                    </div>
-
                 </div>
 
                 <!-- Southern Coast -->
@@ -759,54 +782,46 @@
                                             fill="#CC0000" />
                                     </svg>
                                 </div>
-                                <h4>Southern Coast</h4>
+                                <h4>H.K Perera</h4>
                             </div>
 
-                            <p>297 Total Members</p>
+                            <p>226 Members</p>
                         </div>
-                        <span class="status-badge excellent">Excellent</span>
+                        <span class="status-badge good">On Track</span>
                     </div>
+
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <span class="stat-label">Sale Managers</span>
-                            <span class="stat-value" style="color: #000000;">2</span>
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Team Leaders</span>
-                            <span class="stat-value" style="color: #000000;">96</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 1.8M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.1M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill good" style="width: 87.5%"></div>
                         </div>
                     </div>
                     <div class="member-stats">
-                        <label>Collection</label>
-                        <span style="color: #CC0000;">LKR 1.8M</span>
-                    </div>
-                    <div class="member-stats">
-                        <label>Target</label>
-                        <span style="color: #999999;">LKR 2.1M</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill excellent" style="width: 87.5%"></div>
-                    </div>
-                    <div class="member-stats">
-                        <div class="achievement-text">87.5% Achievement</div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
-                            fill="none">
-                            <g clip-path="url(#clip0_4830_19396)">
-                                <path
-                                    d="M1.47892 8.85611C1.41914 8.69507 1.41914 8.51792 1.47892 8.35688C2.06114 6.94516 3.04942 5.7381 4.31849 4.88873C5.58755 4.03936 7.08023 3.58594 8.6073 3.58594C10.1344 3.58594 11.6271 4.03936 12.8961 4.88873C14.1652 5.7381 15.1535 6.94516 15.7357 8.35688C15.7955 8.51792 15.7955 8.69507 15.7357 8.85611C15.1535 10.2678 14.1652 11.4749 12.8961 12.3243C11.6271 13.1736 10.1344 13.6271 8.6073 13.6271C7.08023 13.6271 5.58755 13.1736 4.31849 12.3243C3.04942 11.4749 2.06114 10.2678 1.47892 8.85611Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M8.60742 10.7588C9.79586 10.7588 10.7593 9.79537 10.7593 8.60694C10.7593 7.4185 9.79586 6.45508 8.60742 6.45508C7.41899 6.45508 6.45557 7.4185 6.45557 8.60694C6.45557 9.79537 7.41899 10.7588 8.60742 10.7588Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4830_19396">
-                                    <rect width="17.2149" height="17.2149" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
                     </div>
                 </div>
 
@@ -823,54 +838,46 @@
                                             fill="#CC0000" />
                                     </svg>
                                 </div>
-                                <h4>Central Hills</h4>
+                                <h4>H.K Perera</h4>
                             </div>
 
-                            <p>298 Total Members</p>
+                            <p>226 Members</p>
                         </div>
-                        <span class="status-badge excellent">Excellent</span>
+                        <span class="status-badge good">On Track</span>
                     </div>
+
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <span class="stat-label">Sale Managers</span>
-                            <span class="stat-value" style="color: #000000;">2</span>
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Team Leaders</span>
-                            <span class="stat-value" style="color: #000000;">96</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 1.8M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.1M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill good" style="width: 87.5%"></div>
                         </div>
                     </div>
                     <div class="member-stats">
-                        <label>Collection</label>
-                        <span style="color: #CC0000;">LKR 1.8M</span>
-                    </div>
-                    <div class="member-stats">
-                        <label>Target</label>
-                        <span style="color: #999999;">LKR 2.1M</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill excellent" style="width: 87.5%"></div>
-                    </div>
-                    <div class="member-stats">
-                        <div class="achievement-text">87.5% Achievement</div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
-                            fill="none">
-                            <g clip-path="url(#clip0_4830_19396)">
-                                <path
-                                    d="M1.47892 8.85611C1.41914 8.69507 1.41914 8.51792 1.47892 8.35688C2.06114 6.94516 3.04942 5.7381 4.31849 4.88873C5.58755 4.03936 7.08023 3.58594 8.6073 3.58594C10.1344 3.58594 11.6271 4.03936 12.8961 4.88873C14.1652 5.7381 15.1535 6.94516 15.7357 8.35688C15.7955 8.51792 15.7955 8.69507 15.7357 8.85611C15.1535 10.2678 14.1652 11.4749 12.8961 12.3243C11.6271 13.1736 10.1344 13.6271 8.6073 13.6271C7.08023 13.6271 5.58755 13.1736 4.31849 12.3243C3.04942 11.4749 2.06114 10.2678 1.47892 8.85611Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M8.60742 10.7588C9.79586 10.7588 10.7593 9.79537 10.7593 8.60694C10.7593 7.4185 9.79586 6.45508 8.60742 6.45508C7.41899 6.45508 6.45557 7.4185 6.45557 8.60694C6.45557 9.79537 7.41899 10.7588 8.60742 10.7588Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4830_19396">
-                                    <rect width="17.2149" height="17.2149" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
                     </div>
                 </div>
 
@@ -887,54 +894,156 @@
                                             fill="#CC0000" />
                                     </svg>
                                 </div>
-                                <h4>Nothern</h4>
+                                <h4>H.K Perera</h4>
                             </div>
 
-                            <p>167 Total Members</p>
+                            <p>226 Members</p>
                         </div>
                         <span class="status-badge attention">Needs Attention</span>
                     </div>
+
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <span class="stat-label">Sale Managers</span>
-                            <span class="stat-value" style="color: #000000;">2</span>
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Team Leaders</span>
-                            <span class="stat-value" style="color: #000000;">96</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 1.8M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.1M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill attention" style="width: 87.5%"></div>
                         </div>
                     </div>
                     <div class="member-stats">
-                        <label>Collection</label>
-                        <span style="color: #CC0000;">LKR 0.9M</span>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
+                    </div>
+                </div>
+
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-info">
+                            <div class="section-title-wrapper">
+                                <div class="member-stat-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="12"
+                                        viewBox="0 0 22 12" fill="none">
+                                        <path
+                                            d="M9.91116 4.45764L9.41409 6.77726H11.327V8.66008H9.0074L8.46515 11.2207H6.46184L7.00409 8.66008H4.26271L3.72046 11.2207H1.73221L2.27446 8.66008H2.36935e-05V6.77726H2.68115L3.17821 4.45764H0.918837V2.57482H3.5849L4.11209 0.0744459H6.10034L5.57315 2.57482H8.31453L8.84172 0.0744459H10.845L10.3178 2.57482H12.2458V4.45764H9.91116ZM7.90784 4.45764H5.16646L4.6694 6.77726H7.41078L7.90784 4.45764ZM14.4257 8.84083C15.3897 8.03749 16.1579 7.36972 16.7302 6.83751C17.3026 6.29526 17.7796 5.73293 18.1612 5.15051C18.5428 4.56809 18.7335 3.99572 18.7335 3.43339C18.7335 2.92126 18.613 2.51959 18.372 2.22838C18.131 1.93718 17.7595 1.79157 17.2574 1.79157C16.7553 1.79157 16.3687 1.96228 16.0976 2.3037C15.8265 2.63507 15.6859 3.09197 15.6759 3.67439H13.6274C13.6675 2.46938 14.024 1.55559 14.6968 0.933009C15.3796 0.310425 16.2432 -0.000867449 17.2875 -0.000867449C18.4323 -0.000867449 19.3109 0.305404 19.9235 0.917946C20.536 1.52045 20.8423 2.31876 20.8423 3.31289C20.8423 4.09614 20.6314 4.84424 20.2097 5.5572C19.7879 6.27016 19.3059 6.89274 18.7637 7.42495C18.2214 7.94712 17.5135 8.57974 16.6399 9.32283H21.0833V11.0701H13.6424V9.50358L14.4257 8.84083Z"
+                                            fill="#CC0000" />
+                                    </svg>
+                                </div>
+                                <h4>H.K Perera</h4>
+                            </div>
+
+                            <p>226 Members</p>
+                        </div>
+                        <span class="status-badge critical">Critical</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 1.8M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.1M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill critical" style="width: 87.5%"></div>
+                        </div>
                     </div>
                     <div class="member-stats">
-                        <label>Target</label>
-                        <span style="color: #999999;">LKR 1.5M</span>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill attention" style="width: 59%"></div>
+                </div>
+
+                <div class="team-member-card">
+                    <div class="member-header">
+                        <div class="member-info">
+                            <div class="section-title-wrapper">
+                                <div class="member-stat-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="12"
+                                        viewBox="0 0 22 12" fill="none">
+                                        <path
+                                            d="M9.91116 4.45764L9.41409 6.77726H11.327V8.66008H9.0074L8.46515 11.2207H6.46184L7.00409 8.66008H4.26271L3.72046 11.2207H1.73221L2.27446 8.66008H2.36935e-05V6.77726H2.68115L3.17821 4.45764H0.918837V2.57482H3.5849L4.11209 0.0744459H6.10034L5.57315 2.57482H8.31453L8.84172 0.0744459H10.845L10.3178 2.57482H12.2458V4.45764H9.91116ZM7.90784 4.45764H5.16646L4.6694 6.77726H7.41078L7.90784 4.45764ZM14.4257 8.84083C15.3897 8.03749 16.1579 7.36972 16.7302 6.83751C17.3026 6.29526 17.7796 5.73293 18.1612 5.15051C18.5428 4.56809 18.7335 3.99572 18.7335 3.43339C18.7335 2.92126 18.613 2.51959 18.372 2.22838C18.131 1.93718 17.7595 1.79157 17.2574 1.79157C16.7553 1.79157 16.3687 1.96228 16.0976 2.3037C15.8265 2.63507 15.6859 3.09197 15.6759 3.67439H13.6274C13.6675 2.46938 14.024 1.55559 14.6968 0.933009C15.3796 0.310425 16.2432 -0.000867449 17.2875 -0.000867449C18.4323 -0.000867449 19.3109 0.305404 19.9235 0.917946C20.536 1.52045 20.8423 2.31876 20.8423 3.31289C20.8423 4.09614 20.6314 4.84424 20.2097 5.5572C19.7879 6.27016 19.3059 6.89274 18.7637 7.42495C18.2214 7.94712 17.5135 8.57974 16.6399 9.32283H21.0833V11.0701H13.6424V9.50358L14.4257 8.84083Z"
+                                            fill="#CC0000" />
+                                    </svg>
+                                </div>
+                                <h4>H.K Perera</h4>
+                            </div>
+
+                            <p>226 Members</p>
+                        </div>
+                        <span class="status-badge good">On Track</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Areas</span>
+                            <span class="stat-value" style="color: #000000;">6</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">28</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">ADMs</span>
+                            <span class="stat-value" style="color: #000000;">186</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item-back">
+                        <div class="member-stats">
+                            <label>Collection</label>
+                            <span style="color: #CC0000;">LKR 1.8M</span>
+                        </div>
+                        <div class="member-stats">
+                            <label>Target</label>
+                            <span style="color: #999999;">LKR 2.1M</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill good" style="width: 87.5%"></div>
+                        </div>
                     </div>
                     <div class="member-stats">
-                        <div class="achievement-text">87.5% Achievement</div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
-                            fill="none">
-                            <g clip-path="url(#clip0_4830_19396)">
-                                <path
-                                    d="M1.47892 8.85611C1.41914 8.69507 1.41914 8.51792 1.47892 8.35688C2.06114 6.94516 3.04942 5.7381 4.31849 4.88873C5.58755 4.03936 7.08023 3.58594 8.6073 3.58594C10.1344 3.58594 11.6271 4.03936 12.8961 4.88873C14.1652 5.7381 15.1535 6.94516 15.7357 8.35688C15.7955 8.51792 15.7955 8.69507 15.7357 8.85611C15.1535 10.2678 14.1652 11.4749 12.8961 12.3243C11.6271 13.1736 10.1344 13.6271 8.6073 13.6271C7.08023 13.6271 5.58755 13.1736 4.31849 12.3243C3.04942 11.4749 2.06114 10.2678 1.47892 8.85611Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M8.60742 10.7588C9.79586 10.7588 10.7593 9.79537 10.7593 8.60694C10.7593 7.4185 9.79586 6.45508 8.60742 6.45508C7.41899 6.45508 6.45557 7.4185 6.45557 8.60694C6.45557 9.79537 7.41899 10.7588 8.60742 10.7588Z"
-                                    stroke="#CC0000" stroke-width="1.43457" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4830_19396">
-                                    <rect width="17.2149" height="17.2149" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
+                        <label>YoY</label>
+                        <span style="color: #4CAF50;">+22.3%</span>
                     </div>
                 </div>
             </div>
@@ -954,7 +1063,7 @@
                             stroke="#CC0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </span>
-                <h2 class="section-title">Top ASM Leaderboard</h2>
+                <h2 class="section-title">Top Regional Sales Managers</h2>
             </div>
 
             <div class="performer-item">
@@ -962,7 +1071,7 @@
                     <span class="performer-rank">🥇</span>
                     <div class="performer-details">
                         <h4>H.K Perera</h4>
-                        <p>Western • 8 Team Leaders</p>
+                        <p>Central Region • 8 Area Sales Managers</p>
                     </div>
                 </div>
                 <div class="performer-amount">
@@ -981,7 +1090,7 @@
                     <span class="performer-rank">🥈</span>
                     <div class="performer-details">
                         <h4>Tahan Perera</h4>
-                        <p>Western • 8 Team Leaders</p>
+                        <p>Western Region • 7 Area Sales Managers</p>
                     </div>
                 </div>
                 <div class="performer-amount">
@@ -1000,7 +1109,7 @@
                     <span class="performer-rank">🥉</span>
                     <div class="performer-details">
                         <h4>Pasan Randula</h4>
-                        <p>Western • 8 Team Leaders</p>
+                        <p>Eastern Region • 6 Area Sales Managers</p>
                     </div>
                 </div>
                 <div class="performer-amount">
@@ -1019,7 +1128,7 @@
                     <span class="performer-rank">🏅</span>
                     <div class="performer-details">
                         <h4>Irosh Yasas</h4>
-                        <p>Western • 8 Team Leaders</p>
+                        <p>Nothern Region • 5 Area Sales Managers</p>
                     </div>
                 </div>
                 <div class="performer-amount">
@@ -1038,7 +1147,7 @@
                     <span class="performer-rank">🏅</span>
                     <div class="performer-details">
                         <h4>Harshana Madushan</h4>
-                        <p>Western • 8 Team Leaders</p>
+                        <p>Southern Region • 5 Area Sales Managers</p>
                     </div>
                 </div>
                 <div class="performer-amount">
