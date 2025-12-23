@@ -1,5 +1,9 @@
 @include('layouts.dashboard-header')
 <style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
     .date-range {
         text-align: right;
         color: #7D8DA6;
@@ -37,7 +41,6 @@
     }
 
     .progress-status {
-        font-family: "Poppins", sans-serif;
         display: flex;
         justify-content: flex-start;
         font-size: 11px;
@@ -79,7 +82,6 @@
     }
 
     .filter-tab {
-        font-family: "Poppins", sans-serif;
         font-weight: 500;
         font-size: 12px;
         padding: 6px 16px;
@@ -119,7 +121,6 @@
     }
 
     .member-info h4 {
-        font-family: "Poppins", sans-serif;
         font-size: 16px;
         font-weight: 600;
         color: #000;
@@ -127,14 +128,12 @@
     }
 
     .member-info p {
-        font-family: "Poppins", sans-serif;
         font-weight: 400;
         font-size: 12px;
         color: #666666;
     }
 
     .status-badge {
-        font-family: "Poppins", sans-serif;
         padding: 4px 12px;
         border-radius: 4px;
         font-size: 12px;
@@ -161,6 +160,35 @@
         color: white;
     }
 
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        background: #FAFAFA;
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        font-weight: 400;
+        color: #666666;
+        font-family: 'Poppins', sans-serif;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+    }
+
     .member-stats {
         display: flex;
         justify-content: space-between;
@@ -172,7 +200,6 @@
     }
 
     .member-stats label {
-        font-family: "Poppins", sans-serif;
         font-size: 11px;
         font-weight: 400;
         color: #666666;
@@ -181,10 +208,23 @@
     }
 
     .member-stats span {
-        font-family: "Poppins", sans-serif;
         font-size: 14px;
         font-weight: 600;
         color: #000;
+    }
+
+    .progress-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .progress-percent {
+        font-size: 12px;
+        font-weight: 500;
+        color: #666;
+        white-space: nowrap;
     }
 
     .progress-bar {
@@ -219,7 +259,6 @@
     }
 
     .achievement-text {
-        font-family: "Poppins", sans-serif;
         font-size: 13px;
         font-weight: 600;
         color: #4CAF50;
@@ -260,7 +299,6 @@
     }
 
     .performer-details h4 {
-        font-family: "Poppins", sans-serif;
         font-size: 16px;
         font-weight: 500;
         color: #000;
@@ -268,14 +306,12 @@
     }
 
     .performer-details p {
-        font-family: "Poppins", sans-serif;
         font-weight: 400;
         font-size: 14px;
         color: #666666;
     }
 
     .performer-amount {
-        font-family: "Poppins", sans-serif;
         font-size: 16px;
         font-weight: 600;
         color: #CC0000;
@@ -301,7 +337,6 @@
         background-color: #CC0000;
         border-radius: 4px;
         color: white;
-        font-family: "Poppins", sans-serif;
         font-size: 12px;
     }
 
@@ -309,7 +344,6 @@
         background-color: #F5F5F5;
         border-radius: 4px;
         color: #666666;
-        font-family: "Poppins", sans-serif;
         font-size: 12px;
     }
 
@@ -339,7 +373,6 @@
         margin-bottom: -2px;
         font-size: 16px;
         font-weight: 500;
-        font-family: "Poppins", sans-serif;
     }
 
     .notification-tab.active {
@@ -378,7 +411,6 @@
     }
 
     .notification-content p {
-        font-family: "Poppins", sans-serif;
         font-weight: 500;
         font-size: 14px;
         color: #000000;
@@ -386,7 +418,6 @@
     }
 
     .notification-content span {
-        font-family: "Poppins", sans-serif;
         font-weight: 400;
         font-size: 14px;
         color: #999999;
@@ -460,6 +491,30 @@
         }
     }
 
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .growth-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 5px;
+        background: #E8F5E9;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4CAF50;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .growth-badge svg {
+        width: 20px;
+        height: 20px;
+    }
+
     .stat-card {
         display: inline-flex;
         align-items: center;
@@ -522,16 +577,28 @@
 
             <div class="stat-card">
                 <div class="stat-content">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27"
-                            fill="none">
-                            <path d="M13.3394 2.22461V24.4569" stroke="#CC0000" stroke-width="2.22323"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path
-                                d="M18.8977 5.55859H10.5606C9.52871 5.55859 8.53911 5.9685 7.80947 6.69814C7.07983 7.42778 6.66992 8.41738 6.66992 9.44925C6.66992 10.4811 7.07983 11.4707 7.80947 12.2004C8.53911 12.93 9.52871 13.3399 10.5606 13.3399H16.1187C17.1505 13.3399 18.1401 13.7498 18.8698 14.4794C19.5994 15.2091 20.0093 16.1987 20.0093 17.2306C20.0093 18.2624 19.5994 19.252 18.8698 19.9817C18.1401 20.7113 17.1505 21.1212 16.1187 21.1212H6.66992"
-                                stroke="#CC0000" stroke-width="2.22323" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27"
+                                fill="none">
+                                <path d="M13.3394 2.22461V24.4569" stroke="#CC0000" stroke-width="2.22323"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path
+                                    d="M18.8977 5.55859H10.5606C9.52871 5.55859 8.53911 5.9685 7.80947 6.69814C7.07983 7.42778 6.66992 8.41738 6.66992 9.44925C6.66992 10.4811 7.07983 11.4707 7.80947 12.2004C8.53911 12.93 9.52871 13.3399 10.5606 13.3399H16.1187C17.1505 13.3399 18.1401 13.7498 18.8698 14.4794C19.5994 15.2091 20.0093 16.1987 20.0093 17.2306C20.0093 18.2624 19.5994 19.252 18.8698 19.9817C18.1401 20.7113 17.1505 21.1212 16.1187 21.1212H6.66992"
+                                    stroke="#CC0000" stroke-width="2.22323" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="growth-badge">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
+                                fill="none">
+                                <path d="M3.89062 3.89062H9.4487V9.4487" stroke="#4CAF50" stroke-width="1.11162"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M3.89062 9.4487L9.4487 3.89062" stroke="#4CAF50" stroke-width="1.11162"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            +22.3%
+                        </div>
                     </div>
 
                     <p class="stat-label">Total Regional Collection</p>
@@ -545,22 +612,34 @@
 
             <div class="stat-card">
                 <div class="stat-content">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27"
-                            fill="none">
-                            <path
-                                d="M13.3398 24.4569C19.4791 24.4569 24.4559 19.48 24.4559 13.3408C24.4559 7.20148 19.4791 2.22461 13.3398 2.22461C7.2005 2.22461 2.22363 7.20148 2.22363 13.3408C2.22363 19.48 7.2005 24.4569 13.3398 24.4569Z"
-                                stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path
-                                d="M13.3396 20.0093C17.0232 20.0093 20.0093 17.0232 20.0093 13.3396C20.0093 9.65604 17.0232 6.66992 13.3396 6.66992C9.65604 6.66992 6.66992 9.65604 6.66992 13.3396C6.66992 17.0232 9.65604 20.0093 13.3396 20.0093Z"
-                                stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path
-                                d="M13.3394 15.5617C14.5673 15.5617 15.5627 14.5663 15.5627 13.3385C15.5627 12.1106 14.5673 11.1152 13.3394 11.1152C12.1116 11.1152 11.1162 12.1106 11.1162 13.3385C11.1162 14.5663 12.1116 15.5617 13.3394 15.5617Z"
-                                stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27"
+                                fill="none">
+                                <path
+                                    d="M13.3398 24.4569C19.4791 24.4569 24.4559 19.48 24.4559 13.3408C24.4559 7.20148 19.4791 2.22461 13.3398 2.22461C7.2005 2.22461 2.22363 7.20148 2.22363 13.3408C2.22363 19.48 7.2005 24.4569 13.3398 24.4569Z"
+                                    stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M13.3396 20.0093C17.0232 20.0093 20.0093 17.0232 20.0093 13.3396C20.0093 9.65604 17.0232 6.66992 13.3396 6.66992C9.65604 6.66992 6.66992 9.65604 6.66992 13.3396C6.66992 17.0232 9.65604 20.0093 13.3396 20.0093Z"
+                                    stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M13.3394 15.5617C14.5673 15.5617 15.5627 14.5663 15.5627 13.3385C15.5627 12.1106 14.5673 11.1152 13.3394 11.1152C12.1116 11.1152 11.1162 12.1106 11.1162 13.3385C11.1162 14.5663 12.1116 15.5617 13.3394 15.5617Z"
+                                    stroke="#4CAF50" stroke-width="2.22323" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="growth-badge">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
+                                fill="none">
+                                <path d="M3.89062 3.89062H9.4487V9.4487" stroke="#4CAF50" stroke-width="1.11162"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M3.89062 9.4487L9.4487 3.89062" stroke="#4CAF50" stroke-width="1.11162"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            +22.3%
+                        </div>
                     </div>
 
                     <p class="stat-label">Regional Achievement</p>
@@ -610,11 +689,23 @@
                                 </div>
                                 <h4>Western</h4>
                             </div>
-
                             <p>309 Total Members</p>
                         </div>
                         <span class="status-badge excellent">Excellent</span>
                     </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Sale Managers</span>
+                            <span class="stat-value" style="color: #000000;">2</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">96</span>
+                        </div>
+                    </div>
+
                     <div class="member-stats">
                         <label>Collection</label>
                         <span style="color: #CC0000;">LKR 2.1M</span>
@@ -670,6 +761,16 @@
                         </div>
                         <span class="status-badge excellent">Excellent</span>
                     </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Sale Managers</span>
+                            <span class="stat-value" style="color: #000000;">2</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">96</span>
+                        </div>
+                    </div>
                     <div class="member-stats">
                         <label>Collection</label>
                         <span style="color: #CC0000;">LKR 1.8M</span>
@@ -724,6 +825,16 @@
                         </div>
                         <span class="status-badge excellent">Excellent</span>
                     </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Sale Managers</span>
+                            <span class="stat-value" style="color: #000000;">2</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">96</span>
+                        </div>
+                    </div>
                     <div class="member-stats">
                         <label>Collection</label>
                         <span style="color: #CC0000;">LKR 1.8M</span>
@@ -777,6 +888,16 @@
                             <p>167 Total Members</p>
                         </div>
                         <span class="status-badge attention">Needs Attention</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Sale Managers</span>
+                            <span class="stat-value" style="color: #000000;">2</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Team Leaders</span>
+                            <span class="stat-value" style="color: #000000;">96</span>
+                        </div>
                     </div>
                     <div class="member-stats">
                         <label>Collection</label>
@@ -841,8 +962,11 @@
                 </div>
                 <div class="performer-amount">
                     LKR 85,500.00
-                    <div class="progress-bar">
-                        <div class="progress-fill critical" style="width: 88.7%"></div>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 88.7%"></div>
+                        </div>
+                        <span class="progress-percent">88.7%</span>
                     </div>
                 </div>
             </div>
@@ -855,7 +979,15 @@
                         <p>Western • 8 Team Leaders</p>
                     </div>
                 </div>
-                <div class="performer-amount">LKR 72,300.00</div>
+                <div class="performer-amount">
+                    LKR 85,500.00
+                    <div class="progress-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 88.7%"></div>
+                        </div>
+                        <span class="progress-percent">88.7%</span>
+                    </div>
+                </div>
             </div>
 
             <div class="performer-item">
@@ -866,7 +998,15 @@
                         <p>Western • 8 Team Leaders</p>
                     </div>
                 </div>
-                <div class="performer-amount">LKR 68,900.00</div>
+                <div class="performer-amount">
+                    LKR 85,500.00
+                    <div class="progress-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 88.7%"></div>
+                        </div>
+                        <span class="progress-percent">88.7%</span>
+                    </div>
+                </div>
             </div>
 
             <div class="performer-item">
@@ -877,7 +1017,15 @@
                         <p>Western • 8 Team Leaders</p>
                     </div>
                 </div>
-                <div class="performer-amount">LKR 65,200.00</div>
+                <div class="performer-amount">
+                    LKR 85,500.00
+                    <div class="progress-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 88.7%"></div>
+                        </div>
+                        <span class="progress-percent">88.7%</span>
+                    </div>
+                </div>
             </div>
 
             <div class="performer-item">
@@ -888,7 +1036,15 @@
                         <p>Western • 8 Team Leaders</p>
                     </div>
                 </div>
-                <div class="performer-amount">LKR 61,850.00</div>
+                <div class="performer-amount">
+                    LKR 85,500.00
+                    <div class="progress-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill excellent" style="width: 88.7%"></div>
+                        </div>
+                        <span class="progress-percent">88.7%</span>
+                    </div>
+                </div>
             </div>
         </div>
 
