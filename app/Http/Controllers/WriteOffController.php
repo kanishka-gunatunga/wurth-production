@@ -10,6 +10,9 @@ use App\Models\CreditNote;
 use App\Models\ExtraPayment;
 use App\Models\WriteOffs;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class WriteOffController extends Controller
 {
@@ -36,7 +39,6 @@ class WriteOffController extends Controller
 
         return response()->json($invoices);
     }
-
 
     public function getCreditNotes(Request $request)
     {
@@ -67,6 +69,7 @@ class WriteOffController extends Controller
             'write_off_credit_notes' => 'nullable|array',
             'final_amount' => 'required|numeric',
             'reason' => 'nullable|string|max:255',
+            'gl_breakdown' => 'required|array|min:1',
         ]);
 
         $writeOffInvoices = $request->write_off_invoices ?? [];
@@ -155,6 +158,7 @@ class WriteOffController extends Controller
                 'extraPayment_or_creditNote_no' => $creditNoteJson,
                 'final_amount' => $finalAmount,
                 'reason' => $reason,
+                'gl_breakdown' => $request->gl_breakdown, // ✅ NEW
             ]);
 
             DB::commit();
@@ -171,7 +175,6 @@ class WriteOffController extends Controller
             ], 500);
         }
     }
-
 
     public function main()
     {
@@ -241,20 +244,102 @@ class WriteOffController extends Controller
 
     public function download($id)
     {
-        // Temporary fake download (for now)
         $writeOff = WriteOffs::findOrFail($id);
 
-        $content = "Write-Off Receipt\n\n" .
-            "Write-Off ID: {$writeOff->id}\n" .
-            "Final Amount: {$writeOff->final_amount}\n" .
-            "Date: {$writeOff->created_at}\n" .
-            "Reason: {$writeOff->reason}\n\n" .
-            "This is a placeholder receipt. Actual PDF format will be added later.";
+        /* ----------------------------------------
+       1️⃣ Collect UNIQUE customers
+    -----------------------------------------*/
+        $customerNames = [];
+        $customerIds   = [];
 
-        $fileName = "write_off_receipt_{$writeOff->id}.txt";
+        // From invoices
+        foreach ($writeOff->invoice_or_cheque_no ?? [] as $item) {
+            $invoice = Invoices::where('invoice_or_cheque_no', $item['invoice'])->first();
+            if ($invoice) {
+                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                if ($customer) {
+                    $customerNames[$customer->customer_id] = $customer->name;
+                    $customerIds[$customer->customer_id]   = $customer->customer_id;
+                }
+            }
+        }
 
-        return response($content)
-            ->header('Content-Type', 'text/plain')
-            ->header('Content-Disposition', "attachment; filename={$fileName}");
+        // From credit notes & extra payments
+        foreach ($writeOff->extraPayment_or_creditNote_no ?? [] as $item) {
+
+            if ($item['type'] === 'extra_payment') {
+                $extra = ExtraPayment::where('extra_payment_id', $item['id'])->first();
+                if ($extra) {
+                    $customerNames[$extra->customer_id] = $extra->customer_name;
+                    $customerIds[$extra->customer_id]   = $extra->customer_id;
+                }
+            }
+
+            if ($item['type'] === 'credit_note') {
+                $credit = CreditNote::where('credit_note_id', $item['id'])->first();
+                if ($credit) {
+                    $customerNames[$credit->customer_id] = $credit->customer_name;
+                    $customerIds[$credit->customer_id]   = $credit->customer_id;
+                }
+            }
+        }
+
+        /* ----------------------------------------
+       2️⃣ Prepare Excel
+    -----------------------------------------*/
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Base headers
+        $headers = [
+            'WO ID',
+            'WO Date',
+            'WO Amount',
+            'Customer Name',
+            'Customer Number',
+            'Document Number',
+        ];
+
+        // Dynamic GL headers
+        foreach ($writeOff->gl_breakdown ?? [] as $gl) {
+            $headers[] = $gl['name'];
+        }
+
+        // Write headers
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $col++;
+        }
+
+        /* ----------------------------------------
+       3️⃣ Write data row
+    -----------------------------------------*/
+        $row = 2;
+        $col = 'A';
+
+        $sheet->setCellValue($col++ . $row, $writeOff->id);
+        $sheet->setCellValue($col++ . $row, $writeOff->created_at->format('Y-m-d'));
+        $sheet->setCellValue($col++ . $row, $writeOff->final_amount);
+        $sheet->setCellValue($col++ . $row, implode(', ', $customerNames));
+        $sheet->setCellValue($col++ . $row, implode(', ', $customerIds));
+        $sheet->setCellValue($col++ . $row, ''); // Document Number (empty)
+
+        // GL values
+        foreach ($writeOff->gl_breakdown ?? [] as $gl) {
+            $sheet->setCellValue($col++ . $row, $gl['amount']);
+        }
+
+        /* ----------------------------------------
+       4️⃣ Download
+    -----------------------------------------*/
+        $fileName = "write_off_{$writeOff->id}.xlsx";
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }

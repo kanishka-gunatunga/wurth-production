@@ -72,14 +72,15 @@
                                     </tr>
                                 </thead>
                                 <tbody id="invoiceDropdownOptions">
-                                    @foreach($customers as $customer)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="me-2" value="{{ $customer->customer_id }}">
-                                            {{ $customer->name }}
-                                        </td>
-                                        <td>{{ $customer->customer_id }}</td>
-                                    </tr>
+                                    @foreach ($customers as $customer)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="me-2"
+                                                    value="{{ $customer->customer_id }}">
+                                                {{ $customer->name }}
+                                            </td>
+                                            <td>{{ $customer->customer_id }}</td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
 
@@ -186,14 +187,56 @@
             <textarea class="additional-notes" rows="3" placeholder="Enter Write-Off Reason Here"></textarea>
         </div>
     </div>
+
+    <div class="styled-tab-sub p-4 mt-5" style="border-radius: 8px;">
+        <div class="table-responsive">
+            <table class="table unlock-column-table">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="glTableBody">
+                    <tr data-gl="GL1">
+                        <td>GL1</td>
+                        <td><input type="text" class="form-control gl-name" value="Re-classification" readonly>
+                        </td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL2">
+                        <td>GL2</td>
+                        <td><input type="text" class="form-control gl-name" value="Write-off" readonly></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL3">
+                        <td>GL3</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL4">
+                        <td>GL4</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL5">
+                        <td>GL5</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-
-<div class="d-flex justify-content-end mt-4 gap-3">
-    <a href="{{ url('/write-off-main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
-    <button type="button" class="red-action-btn-lg submit-writeoff-btn">Submit</button>
-</div>
-
+@section('footer-buttons')
+    <div class="d-flex justify-content-end mt-4 gap-3">
+        <a href="{{ url('/write-off-main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
+        <button type="button" class="red-action-btn-lg submit-writeoff-btn">Submit</button>
+    </div>
+@endsection
 
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
@@ -216,16 +259,17 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     /*
-  Consolidated script to:
-  - render invoice / credit rows
-  - expand rows to accept manual amount or full payment
-  - maintain invoiceState / creditState
-  - calculate final write-off
-  - fetch invoices/credit-notes for selected customers
-  - submit (requires at least 1 invoice OR 1 credit note)
-*/
+          Consolidated script to:
+          - render invoice / credit rows
+          - expand rows to accept manual amount or full payment
+          - maintain invoiceState / creditState
+          - calculate final write-off
+          - fetch invoices/credit-notes for selected customers
+          - submit (requires at least 1 invoice OR 1 credit note)
+        */
 
     $(function() {
         // States
@@ -294,7 +338,8 @@
         // Expand row builder
         function buildExpandedRow(idVal, type) {
             const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
-            const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state.fullPayment ? state.fullAmount : '');
+            const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state
+                .fullPayment ? state.fullAmount : '');
 
             return $(`
         <tr class="expanded-row">
@@ -340,7 +385,8 @@
         // Row click (expand/collapse) - delegate to tbody
         $(document).on('click', 'table tbody tr.checkbox-item', function(e) {
             // don't expand if clicked the checkbox itself
-            if ($(e.target).is('input[type="checkbox"]') || $(e.target).closest('input[type="checkbox"]').length) return;
+            if ($(e.target).is('input[type="checkbox"]') || $(e.target).closest(
+                    'input[type="checkbox"]').length) return;
 
             const $tr = $(this);
             const idVal = $tr.attr('data-id');
@@ -406,7 +452,8 @@
 
                 // Update “Balance Amount” (new 3rd column)
                 const remaining = Math.max(0, state.fullAmount - v);
-                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
+                const $mainRow = $tr.closest('tbody').find(
+                    `tr[data-id="${idVal}"][data-type="${type}"]`);
                 $mainRow.find('.row-balance').text(formatCurrency(remaining));
 
                 updateFinalWriteOff();
@@ -414,7 +461,8 @@
 
             // full pay handler
             $fullPay.on('change', function() {
-                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
+                const $mainRow = $tr.closest('tbody').find(
+                    `tr[data-id="${idVal}"][data-type="${type}"]`);
                 if ($(this).is(':checked')) {
                     state.fullPayment = true;
                     state.manualAmount = state.fullAmount;
@@ -511,8 +559,10 @@
             $('#invoiceDropdownOptions input[type="checkbox"]:checked').each(function() {
                 selectedCustomers.push($(this).val()); // IDs
                 // get name from the same row
-                const name = $(this).closest('td').text().trim(); // includes both checkbox and name
-                selectedCustomerNames.push(name.replace($(this).val(), '').trim()); // remove ID from text
+                const name = $(this).closest('td').text()
+                    .trim(); // includes both checkbox and name
+                selectedCustomerNames.push(name.replace($(this).val(), '')
+                    .trim()); // remove ID from text
             });
 
             if (selectedCustomers.length === 0) {
@@ -538,8 +588,10 @@
                     // Backend now returns only the balance (amount - paid_amount)
                     const table1Data = (invoices || []).map(inv => ({
                         fullName: inv.invoice_or_cheque_no,
-                        amount: safeParseFloat(inv.balance), // Use balance as main amount
-                        balance: safeParseFloat(inv.balance) // Same for dynamic updates
+                        amount: safeParseFloat(inv
+                            .balance), // Use balance as main amount
+                        balance: safeParseFloat(inv
+                            .balance) // Same for dynamic updates
                     }));
                     renderTable('table1', table1Data, 'invoice');
                     updateFinalWriteOff();
@@ -615,12 +667,36 @@
             });
 
             // Validate at least one invoice or credit note
-            if (Object.keys(writeOffInvoices).length === 0 && Object.keys(writeOffCreditNotes).length === 0) {
+            if (Object.keys(writeOffInvoices).length === 0 && Object.keys(writeOffCreditNotes)
+                .length === 0) {
                 alert('Please select at least one invoice or credit note.');
                 return;
             }
 
             const reason = $('.additional-notes').val() || '';
+
+            let glData = {};
+            let glFilledCount = 0;
+
+            $('#glTableBody tr').each(function() {
+                const glCode = $(this).data('gl');
+                const name = $(this).find('.gl-name').val();
+                const amount = parseFloat($(this).find('.gl-amount').val());
+
+                if (amount && amount > 0) {
+                    glData[glCode] = {
+                        name: name,
+                        amount: amount
+                    };
+                    glFilledCount++;
+                }
+            });
+
+            // At least one GL row required
+            if (glFilledCount === 0) {
+                alert('Please enter at least one GL value');
+                return;
+            }
 
             // Submit
             $.ajax({
@@ -630,8 +706,9 @@
                     _token: "{{ csrf_token() }}",
                     write_off_invoices: writeOffInvoices,
                     write_off_credit_notes: writeOffCreditNotes,
-                    final_amount: finalAmount.toFixed(2), // send as proper decimal
-                    reason: reason
+                    final_amount: finalAmount.toFixed(2),
+                    reason: reason,
+                    gl_breakdown: glData
                 },
                 success: function(res) {
                     if (res && res.success) {
@@ -669,3 +746,50 @@
         });
     }
 </script>
+
+<script>
+    function getFinalWriteOffAmount() {
+        const text = $('.red-bold-text').text();
+        // Extract the number AFTER "Rs."
+        const match = text.match(/Rs\.\s*([\d,]+(\.\d+)?)/);
+
+        if (!match) return 0;
+
+        return parseFloat(match[1].replace(/,/g, '')) || 0;
+    }
+
+    // Restrict GL amount input
+    $(document).on('input', '.gl-amount', function() {
+        const maxAmount = getFinalWriteOffAmount();
+        let val = $(this).val();
+
+        // Allow empty while typing
+        if (val === '') return;
+
+        // Allow only numbers + decimal
+        if (!/^\d*\.?\d*$/.test(val)) {
+            $(this).val(val.slice(0, -1));
+            return;
+        }
+
+        const num = parseFloat(val);
+
+        if (!isNaN(num) && num > maxAmount) {
+            alert('GL amount cannot exceed Final Write-off Amount');
+            $(this).val(maxAmount);
+        }
+    });
+
+    $(document).on('blur', '.gl-amount', function() {
+        let val = parseFloat($(this).val());
+
+        if (isNaN(val)) {
+            $(this).val('');
+            return;
+        }
+
+        $(this).val(val.toFixed(2));
+    });
+</script>
+
+@include('layouts.footer2')

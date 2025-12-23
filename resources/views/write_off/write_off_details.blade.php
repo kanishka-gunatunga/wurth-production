@@ -2,21 +2,52 @@
 <div class="main-wrapper">
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
-        <h1 class="header-title">Write-off ID - {{ $writeOff->id }}</h1>
+        <h1 class="header-title">WO ID - {{ $writeOff->id }}</h1>
     </div>
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-md"></div>
         <div class="slip-details">
             <p>
-                <span class="bold-text">Date :</span><span class="slip-detail-text">&nbsp;{{ $writeOff->created_at->format('Y-m-d') }}</span>
+                <span class="bold-text">Date :</span><span
+                    class="slip-detail-text">&nbsp;{{ $writeOff->created_at->format('Y-m-d') }}</span>
             </p>
             <p>
-                <span class="bold-text">Write-off reason :</span><span class="slip-detail-text">&nbsp;{{ $writeOff->reason ?? '-' }}</span>
+                <span class="bold-text">Write-off reason :</span><span
+                    class="slip-detail-text">&nbsp;{{ $writeOff->reason ?? '-' }}</span>
             </p>
             <p>
-                <span class="bold-text">Final Write-off Amount :</span><span class="slip-detail-text">&nbsp;Rs. {{ number_format($writeOff->final_amount, 2) }}</span>
+                <span class="bold-text">Final Write-off Amount :</span><span class="slip-detail-text">&nbsp;Rs.
+                    {{ number_format($writeOff->final_amount, 2) }}</span>
             </p>
+        </div>
+
+        <!-- GL Amounts -->
+        <div class="header-and-content-gap-lg"></div>
+        <p class="bold-text">GL Amounts</p>
+        <div class="table-responsive">
+            <table class="table unlock-column-table">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($writeOff->gl_breakdown as $glCode => $gl)
+                        <tr>
+                            <td>{{ $glCode }}</td>
+                            <td>{{ $gl['name'] ?? '-' }}</td>
+                            <td>{{ number_format((float) $gl['amount'], 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center">No GL data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
         <!-- Invoices/Return Cheque Table -->
@@ -35,13 +66,13 @@
                 </thead>
                 <tbody id="paymentSlipsInvoices">
                     @foreach ($invoicesData as $invoice)
-                    <tr>
-                        <td>{{ $invoice['invoiceNo'] }}</td>
-                        <td>{{ $invoice['customerName'] }}</td>
-                        <td>{{ $invoice['customerId'] }}</td>
-                        <td>{{ $invoice['admNo'] }}</td>
-                        <td>{{ number_format($invoice['writeOffAmount'], 2) }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ $invoice['invoiceNo'] }}</td>
+                            <td>{{ $invoice['customerName'] }}</td>
+                            <td>{{ $invoice['customerId'] }}</td>
+                            <td>{{ $invoice['admNo'] }}</td>
+                            <td>{{ number_format($invoice['writeOffAmount'], 2) }}</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -66,13 +97,13 @@
                 </thead>
                 <tbody id="paymentSlipsExtra">
                     @foreach ($creditNotesData as $credit)
-                    <tr>
-                        <td>{{ $credit['id'] }}</td>
-                        <td>{{ $credit['customerName'] }}</td>
-                        <td>{{ $credit['customerId'] }}</td>
-                        <td>{{ $credit['admNo'] }}</td>
-                        <td>{{ number_format($credit['writeOffAmount'], 2) }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ $credit['id'] }}</td>
+                            <td>{{ $credit['customerName'] }}</td>
+                            <td>{{ $credit['customerId'] }}</td>
+                            <td>{{ $credit['admNo'] }}</td>
+                            <td>{{ number_format($credit['writeOffAmount'], 2) }}</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -84,12 +115,11 @@
     </div>
 </div>
 
-
-<div class="d-flex justify-content-end mt-4 gap-3">
-    <a href="{{ url('/write-off-main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-</div>
-
-
+@section('footer-buttons')
+    <div class="d-flex justify-content-end mt-4 gap-3">
+        <a href="{{ url('/write-off-main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+    </div>
+@endsection
 
 
 <!-- dropdown script -->
@@ -102,10 +132,14 @@
             items.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault(); // stop page jump
-                    const selectedText = this.getAttribute("data-value") || this.textContent.trim();
-                    button.innerHTML = selectedText + '<span class="custom-arrow"></span>';
+                    const selectedText = this.getAttribute("data-value") || this
+                        .textContent.trim();
+                    button.innerHTML = selectedText +
+                        '<span class="custom-arrow"></span>';
                 });
             });
         });
     });
 </script>
+
+@include('layouts.footer2')

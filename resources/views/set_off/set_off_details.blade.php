@@ -22,6 +22,34 @@
             </p>
         </div>
 
+        <!-- GL Amounts -->
+        <div class="header-and-content-gap-lg"></div>
+        <p class="bold-text">GL Amounts</p>
+        <div class="table-responsive">
+            <table class="table unlock-column-table">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($setOff->gl_breakdown as $glCode => $gl)
+                        <tr>
+                            <td>{{ $glCode }}</td>
+                            <td>{{ $gl['name'] ?? '-' }}</td>
+                            <td>{{ number_format((float) $gl['amount'], 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center">No GL data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
         <!-- Invoices/Return Cheque Table -->
         <div class="header-and-content-gap-lg"></div>
         <p class="bold-text">Invoices/Return Cheque</p>
@@ -87,9 +115,11 @@
     </div>
 </div>
 
+@section('footer-buttons')
 <div class="d-flex justify-content-end mt-4 gap-3">
     <a href="{{ url('set-off-main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 </div>
+@endsection
 
 
 <!-- dropdown script -->
@@ -109,3 +139,5 @@
         });
     });
 </script>
+
+@include('layouts.footer2')

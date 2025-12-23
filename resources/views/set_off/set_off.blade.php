@@ -72,14 +72,15 @@
                                     </tr>
                                 </thead>
                                 <tbody id="invoiceDropdownOptions">
-                                    @foreach($customers as $customer)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="me-2" value="{{ $customer->customer_id }}">
-                                            {{ $customer->name }}
-                                        </td>
-                                        <td>{{ $customer->customer_id }}</td>
-                                    </tr>
+                                    @foreach ($customers as $customer)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="me-2"
+                                                    value="{{ $customer->customer_id }}">
+                                                {{ $customer->name }}
+                                            </td>
+                                            <td>{{ $customer->customer_id }}</td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
 
@@ -186,13 +187,57 @@
             <textarea class="additional-notes" rows="3" placeholder="Enter Set-Off Reason Here"></textarea>
         </div>
     </div>
+
+    <div class="styled-tab-sub p-4 mt-5" style="border-radius: 8px;">
+        <div class="table-responsive">
+            <table class="table unlock-column-table">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="glTableBody">
+                    <tr data-gl="GL1">
+                        <td>GL1</td>
+                        <td><input type="text" class="form-control gl-name" value="Re-classification" readonly>
+                        </td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL2">
+                        <td>GL2</td>
+                        <td><input type="text" class="form-control gl-name" value="Set-off" readonly></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL3">
+                        <td>GL3</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL4">
+                        <td>GL4</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                    <tr data-gl="GL5">
+                        <td>GL5</td>
+                        <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
+                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 @section('footer-buttons')
-<div class="d-flex justify-content-end mt-4 gap-3">
-    <a href="{{ url('set-off-main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
-    <button type="button" class="red-action-btn-lg submit-setoff-btn">Submit</button>
-</div>
+    <div class="d-flex justify-content-end mt-4 gap-3">
+        <a href="{{ url('set-off-main') }}" class="black-action-btn-lg" style="text-decoration: none;">Cancel</a>
+        <button type="button" class="red-action-btn-lg submit-setoff-btn">Submit</button>
+    </div>
 @endsection
+
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
     role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
@@ -292,7 +337,8 @@
         // Expand row builder
         function buildExpandedRow(idVal, type) {
             const state = (type === 'invoice' ? invoiceState : creditState)[idVal];
-            const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state.fullPayment ? state.fullAmount : '');
+            const manualValue = (!state.fullPayment && state.manualAmount) ? state.manualAmount : (state
+                .fullPayment ? state.fullAmount : '');
 
             return $(`
         <tr class="expanded-row">
@@ -338,7 +384,8 @@
         // Row click (expand/collapse) - delegate to tbody
         $(document).on('click', 'table tbody tr.checkbox-item', function(e) {
             // don't expand if clicked the checkbox itself
-            if ($(e.target).is('input[type="checkbox"]') || $(e.target).closest('input[type="checkbox"]').length) return;
+            if ($(e.target).is('input[type="checkbox"]') || $(e.target).closest(
+                    'input[type="checkbox"]').length) return;
 
             const $tr = $(this);
             const idVal = $tr.attr('data-id');
@@ -404,7 +451,8 @@
 
                 // Update “Balance Amount” (new 3rd column)
                 const remaining = Math.max(0, state.fullAmount - v);
-                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
+                const $mainRow = $tr.closest('tbody').find(
+                    `tr[data-id="${idVal}"][data-type="${type}"]`);
                 $mainRow.find('.row-balance').text(formatCurrency(remaining));
 
                 updateFinalSetOff();
@@ -412,7 +460,8 @@
 
             // full pay handler
             $fullPay.on('change', function() {
-                const $mainRow = $tr.closest('tbody').find(`tr[data-id="${idVal}"][data-type="${type}"]`);
+                const $mainRow = $tr.closest('tbody').find(
+                    `tr[data-id="${idVal}"][data-type="${type}"]`);
                 if ($(this).is(':checked')) {
                     state.fullPayment = true;
                     state.manualAmount = state.fullAmount;
@@ -535,8 +584,10 @@
                     // Backend now returns only the balance (amount - paid_amount)
                     const table1Data = (invoices || []).map(inv => ({
                         fullName: inv.invoice_or_cheque_no,
-                        amount: safeParseFloat(inv.balance), // Use balance as main amount
-                        balance: safeParseFloat(inv.balance) // Same for dynamic updates
+                        amount: safeParseFloat(inv
+                            .balance), // Use balance as main amount
+                        balance: safeParseFloat(inv
+                            .balance) // Same for dynamic updates
                     }));
                     renderTable('table1', table1Data, 'invoice');
                     updateFinalSetOff();
@@ -616,12 +667,22 @@
             });
 
             // Validate at least one invoice or credit note
-            if (Object.keys(setOffInvoices).length === 0 && Object.keys(setOffCreditNotes).length === 0) {
+            if (Object.keys(setOffInvoices).length === 0 && Object.keys(setOffCreditNotes).length ===
+                0) {
                 alert('Please select at least one invoice or credit note.');
                 return;
             }
 
             const reason = $('.additional-notes').val() || '';
+
+            let glBreakdown = {};
+
+            try {
+                glBreakdown = collectGLBreakdown();
+            } catch (e) {
+                alert(e.message);
+                return;
+            }
 
             // Submit
             $.ajax({
@@ -631,8 +692,9 @@
                     _token: "{{ csrf_token() }}",
                     set_off_invoices: setOffInvoices,
                     set_off_credit_notes: setOffCreditNotes,
-                    final_amount: finalAmount.toFixed(2), // send as proper decimal
-                    reason: reason
+                    final_amount: finalAmount.toFixed(2),
+                    reason: reason,
+                    gl_breakdown: glBreakdown
                 },
                 success: function(res) {
                     if (res && res.success) {
@@ -656,6 +718,90 @@
 
 
     });
+
+    function collectGLBreakdown() {
+        let glData = {};
+        let hasAtLeastOne = false;
+
+        // READ THE SAME FINAL VALUE USER SEES
+        const finalAmount = getFinalSetOffAmount();
+        const roundedFinal = Number(finalAmount.toFixed(2));
+
+        $('#glTableBody tr').each(function() {
+            const glKey = $(this).data('gl');
+            const name = $(this).find('.gl-name').val()?.trim();
+            const amount = parseFloat($(this).find('.gl-amount').val());
+
+            if (name && !isNaN(amount) && amount > 0) {
+                const roundedAmount = Number(amount.toFixed(2));
+
+                // ✅ ALLOW EQUAL
+                if (roundedAmount > roundedFinal) {
+                    throw new Error(
+                        `${glKey} amount cannot exceed Final Set-Off Amount (${roundedFinal.toFixed(2)})`
+                    );
+                }
+
+                glData[glKey] = {
+                    name: name,
+                    amount: roundedAmount
+                };
+
+                hasAtLeastOne = true;
+            }
+        });
+
+        if (!hasAtLeastOne) {
+            throw new Error('Please enter at least one GL value');
+        }
+
+        return glData;
+    }
+
+    $(document).on('input', '.gl-amount', function() {
+        const maxAmount = getFinalSetOffAmount();
+        let val = $(this).val();
+
+        // Allow empty while typing
+        if (val === '') return;
+
+        // Allow only numbers and decimal
+        if (!/^\d*\.?\d*$/.test(val)) {
+            $(this).val(val.slice(0, -1));
+            return;
+        }
+
+        const num = parseFloat(val);
+
+        const roundedMax = Number(maxAmount.toFixed(2));
+        const roundedNum = Number(num.toFixed(2));
+
+        if (roundedNum > roundedMax) {
+            $(this).val(roundedMax.toFixed(2));
+        }
+    });
+
+    $(document).on('blur', '.gl-amount', function() {
+        let val = parseFloat($(this).val());
+
+        if (isNaN(val)) {
+            $(this).val('');
+            return;
+        }
+
+        $(this).val(val.toFixed(2));
+    });
+
+    function getFinalSetOffAmount() {
+        const text = $('.red-bold-text').text();
+
+        // Match: Rs. 1,000.00
+        const match = text.match(/Rs\.\s*([\d,]+(\.\d+)?)/);
+
+        if (!match) return 0;
+
+        return parseFloat(match[1].replace(/,/g, ''));
+    }
 </script>
 
 <script>
