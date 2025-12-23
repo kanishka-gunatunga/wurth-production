@@ -169,7 +169,7 @@
             return;
         }
 
-        fetch(`/get-users-by-level/${selectedLevel}`)
+        fetch(`{{ url('/get-users-by-level') }}/${selectedLevel}`)
             .then(response => response.json())
             .then(data => {
                 userDropdown.disabled = false;
