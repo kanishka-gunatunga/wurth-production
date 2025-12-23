@@ -127,7 +127,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
             return;
         }
 
-        fetch(`/adm/get-users-by-level/${selectedLevel}`)
+        fetch(`{{ url('adm/get-users-by-level') }}/${selectedLevel}`)
             .then(response => response.json())
             .then(data => {
                 let userDropdown = $('#send_to');
@@ -178,8 +178,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
             userDropdown.empty().append('<option value="">Select User</option>');
 
             if (!selectedLevel) return;
-
-            fetch(`/adm/get-users-by-level/${selectedLevel}`)
+            fetch(`{{ url('adm/get-users-by-level') }}/${selectedLevel}`)
                 .then(response => response.json())
                 .then(data => {
                     userDropdown.empty().append('<option value="">Select User</option>');
