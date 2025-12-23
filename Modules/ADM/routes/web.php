@@ -94,4 +94,12 @@ Route::prefix('adm')->group(function () {
         'advance-payment/details/{id}',
         [AdvancedPaymentController::class, 'advanced_payment_details']
     )->middleware(ADMAuthenticated::class)->name('advance_payment.details');
+
+
+
+
+    // extra dashboard routes
+    Route::get('/recovery-manager-dashboard', function () {
+        return view('adm::dashboard.recovery_manager_dashboard');
+    })->middleware(ADMAuthenticated::class);
 });
