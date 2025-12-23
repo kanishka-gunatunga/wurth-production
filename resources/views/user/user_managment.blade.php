@@ -64,9 +64,7 @@ use App\Models\Divisions;
 
 <div class="main-wrapper">
 
-                
- @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
+
                  <div class="styled-tab-main">
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item mb-3">
@@ -98,7 +96,7 @@ use App\Models\Divisions;
                                    Replace Users
                                 </a>
                             </li>
-                            <li class="nav-item mb-3">
+                            <!-- <li class="nav-item mb-3">
                                 <a class="nav-link" data-bs-toggle="tab" href="#promote-user" role="tab" aria-controls="promote-user" aria-selected="true">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <g clip-path="url(#clip0_4885_9726)">
@@ -112,7 +110,7 @@ use App\Models\Divisions;
                                     </svg>
                                    Promote Users
                                 </a>
-                            </li>
+                            </li> -->
                         </ul>
 
                         <div class="tab-content">
@@ -440,10 +438,11 @@ use App\Models\Divisions;
                                     </div>
                                 </div>
                             </div>
-                            </form>
+                           
                               <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
                             <button type="submit" class="btn btn-danger submit">Save</button>
                         </div>
+                         </form>
                         </div> 
 
 
@@ -881,10 +880,21 @@ use App\Models\Divisions;
     function fillCard(card, res) {
         $(`${card} .detail-row:eq(0) .detail-value`).text(res.user.user_details.name);
         $(`${card} .detail-row:eq(1) .detail-value`).text(res.user.email);
-        $(`${card} .detail-row:eq(2) .detail-value`).text(res.user.user_details.mobile_number);
+        $(`${card} .detail-row:eq(2) .detail-value`).text(res.user.user_details.phone_number);
         $(`${card} .detail-row:eq(3) .detail-value`).text(res.division_name);
         $(`${card} .detail-row:eq(4) .detail-value`).text(res.role_name);
     }
 });
 
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

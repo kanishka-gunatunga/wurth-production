@@ -11,9 +11,6 @@ use App\Models\UserDetails;
             </div>
 
             <hr class="red-line">
-            
-            @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-            @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
             <form class="" action="" method="post">
                 @csrf
@@ -93,3 +90,14 @@ use App\Models\UserDetails;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
+    <script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

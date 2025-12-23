@@ -8,8 +8,6 @@ use App\Models\UserDetails;
                     <div class="col-lg-6 col-12">
                         <h1 class="header-title">Add Customer</h1>
                     </div>
-                    @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
                     <form class="" action="" method="post">
                     @csrf
@@ -126,4 +124,14 @@ use App\Models\UserDetails;
     crossorigin="anonymous"></script>
 
 
-   
+   <script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

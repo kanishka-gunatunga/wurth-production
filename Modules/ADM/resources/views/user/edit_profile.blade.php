@@ -35,8 +35,7 @@ use App\Models\UserDetails;
                 <h3 class="page-title mb-0" style="color: #000 !important;">Edit Profile</h3>
                 
             </div>
-            @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-            @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
+
             <div class="d-flex justify-content-center align-items-center mb-5 fixed-header">
                 <div class="profile-pic-container">
                     <?php if($other_details->profile_picture == ''){ ?>
@@ -193,3 +192,14 @@ use App\Models\UserDetails;
 </body>
 
 </html>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

@@ -114,9 +114,7 @@
                 <div class="card-body ps-4">
                     <h5 class="card-title">Upload Report</h5>
                     <p>Import data from the database</p>
-                        @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
-
+                      
                     <form id="uploadForm" method="POST" action="{{ route('admin.fileupload.store') }}" enctype="multipart/form-data">
                         @csrf
 
@@ -257,4 +255,15 @@ document.getElementById('uploadForm').addEventListener('submit', function (e) {
     }
 });
 
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

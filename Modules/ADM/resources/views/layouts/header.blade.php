@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('adm_assets/css/adm_styles.css') }}">
     <link rel="stylesheet" href="{{ asset('adm_assets/css/calander.css') }}">
     <link rel="stylesheet" href="{{ asset('adm_assets/css/custom.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
 
 </head>
 

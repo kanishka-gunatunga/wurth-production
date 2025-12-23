@@ -110,8 +110,7 @@ use App\Models\UserDetails;
             </a>
         </div>
          @endif
-        @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-        @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
+     
         <div class="table-responsive division-table">
             <table class="table">
                 <thead>
@@ -224,4 +223,15 @@ use App\Models\UserDetails;
             document.getElementById("mainSearchForm").submit();
         }
     }
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

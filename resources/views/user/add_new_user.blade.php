@@ -9,9 +9,7 @@ use App\Models\UserDetails;
                     <div class="col-lg-6 col-12">
                         <h1 class="header-title">Add User</h1>
                     </div>
-                    @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
-
+          
                     <form class="" action="" method="post">
                     @csrf
                         
@@ -85,7 +83,7 @@ use App\Models\UserDetails;
                             </div>         
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Phone Number</label>
-                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Phone Number"  name="phone_number" value="{{old('phone_number')}}">
+                                <input type="number" class="form-control custom-input" id="division-input" placeholder="Phone Number"  name="phone_number" value="{{old('phone_number')}}" pattern="[0-9]{10}" maxlength="10" minlength="10">
                                 @if($errors->has("phone_number")) <div class="alert alert-danger mt-2">{{ $errors->first('phone_number') }}</div>@endif
                             </div>
 
@@ -177,7 +175,7 @@ use App\Models\UserDetails;
         const divisionField = document.querySelector('select[name="division"]').parentElement;
         const admField = document.querySelector('input[name="adm_number"]').parentElement;
 
-        const rolesToHide = ["1", "2"];
+        const rolesToHide = ["1", "2", "7"];
 
         function toggleFields() {
             const selectedRole = userRoleSelect.value;
@@ -193,7 +191,9 @@ use App\Models\UserDetails;
             if(selectedRole == '2'){
                 divisionField.style.display = 'block';
             }
-
+            if(selectedRole == '7'){
+                divisionField.style.display = 'block';
+            }
             if(selectedRole == '6'){
                 admField.style.display = 'block';
             }
@@ -212,41 +212,73 @@ use App\Models\UserDetails;
     });
 
     $(document).ready(function () {
-    $('select[name="user_role"]').on('change', function () {
-        var user_role = $(this).val();
+
+    $('select[name="user_role"], select[name="division"]').on('change', function () {
+
+        var user_role = $('select[name="user_role"]').val();
+        var division  = $('select[name="division"]').val();
+
         var supervisor = $('select[name="supervisor"]');
         var second_supervisor = $('select[name="second_supervisor"]');
 
-        // Clear existing leave types
         supervisor.empty();
         second_supervisor.empty();
 
+        if (user_role == '1' || user_role == '7') {
+            supervisor.append('<option value="">No Supervisor Required</option>');
+            second_supervisor.append('<option value="">No Supervisor Required</option>');
+            return;
+        }
+
+        if (!division) {
+            supervisor.append('<option value="">Select Division First</option>');
+            second_supervisor.append('<option value="">Select Division First</option>');
+            return;
+        }
+
         if (user_role) {
             $.ajax({
-                url: '/get-supervisors/' + user_role,
+                url: '{{url('get-supervisors')}}',
                 type: 'GET',
+                data: {
+                    role: user_role,
+                    division: division
+                },
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data);
+
                     supervisor.append('<option value="">Select Supervisor</option>');
-
-                    $.each(data, function (key, value) {
-                        supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
-                    });
-
                     second_supervisor.append('<option value="">Select Supervisor</option>');
 
                     $.each(data, function (key, value) {
-                        second_supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
+                        supervisor.append(
+                            '<option value="' + value.id + '">' + value.user_details.name + '</option>'
+                        );
+                        second_supervisor.append(
+                            '<option value="' + value.id + '">' + value.user_details.name + '</option>'
+                        );
                     });
                 },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching leave types:', error);
+                error: function (xhr) {
+                    console.error(xhr.responseText);
                 }
             });
-        } else {
-            supervisor.append('<option value="">No Supervisor Available</option>');
         }
     });
+
 });
+
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

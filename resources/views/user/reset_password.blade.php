@@ -8,8 +8,7 @@
                         <img src="{{ asset('assets/images/wruth-logo.png') }}" alt="Logo" class="logo">
                     </div>
                     <div>
-                    @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
+
                         <form class="" action="" method="post">
                         @csrf
                             <p class="login-title text-center mb-5">LOGIN TO YOUR ACCOUNT</p>
@@ -39,3 +38,14 @@
     </div>
 </body>
 </html>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

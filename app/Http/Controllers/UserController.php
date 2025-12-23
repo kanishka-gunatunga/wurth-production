@@ -23,6 +23,7 @@ use App\Models\Deposits;
 use App\Models\InvoicePayments;
 use App\Models\ActivtiyLog;
 use App\Models\RolePermissions;
+use App\Models\Customers;
 use File;
 use Mail;
 use Image;
@@ -235,7 +236,7 @@ class UserController extends Controller
                 $q->where('email', 'LIKE', "%{$search}%")
                     ->orWhereHas('userDetails', function ($sub) use ($search) {
                         $sub->where('name', 'LIKE', "%{$search}%")
-                            ->orWhere('adm_number', 'LIKE', "%{$search}%");
+                            ->orWhere('user_id', 'LIKE', "%{$search}%");
                     });
             });
         }
@@ -308,12 +309,12 @@ public function getUserDetailsDivisonRole(Request $request)
             $request->validate([
                 'name'   => 'required',
                 'user_role'   => 'required',
-                'phone_number'   => 'required',
+                'phone_number'   => 'required|digits:10',
                 'adm_number'   => 'nullable|unique:user_details',
                 'email'   => 'required | email | unique:users',
                 "password" => "required | confirmed | min:6",
             ]);
-
+            // return var_dump($request); 
             if ($request->user_role == 2) {
                 $existingHead = UserDetails::where('division', $request->division)
                     ->whereHas('user', function ($q) {
@@ -483,23 +484,38 @@ public function getUserDetailsDivisonRole(Request $request)
         }
     }
 
-    public function get_supervisors($role)
-    {
+   public function get_supervisors(Request $request)
+{
+    $role     = $request->role;
+    $division = $request->division;
 
-        if ($role == '3') {
-            $supervisors = User::where('user_role', '2')->with('userDetails')->get();
-        }
-        if ($role == '4') {
-            $supervisors = User::where('user_role', '3')->with('userDetails')->get();
-        }
-        if ($role == '5') {
-            $supervisors = User::where('user_role', '4')->with('userDetails')->get();
-        }
-        if ($role == '6') {
-            $supervisors = User::where('user_role', '5')->with('userDetails')->get();
-        }
-        return response()->json($supervisors);
+    if (in_array($role, ['1', '7'])) {
+        return response()->json([]);
     }
+
+    $map = [
+        '3' => '2', // RSM → Head of Division
+        '4' => '3', // ASM → RSM
+        '5' => '4', // TL → ASM
+        '6' => '5', // ADM → TL
+        '8' => '2', // Recovery → HOD
+    ];
+
+    if (!isset($map[$role])) {
+        return response()->json([]);
+    }
+
+    $supervisorRole = $map[$role];
+
+    $supervisors = User::where('user_role', $supervisorRole)
+        ->whereHas('userDetails', function ($q) use ($division) {
+            $q->where('division', $division);
+        })
+        ->with('userDetails')
+        ->get();
+
+    return response()->json($supervisors);
+}
 
     public function locked_users(Request $request)
     {
@@ -764,8 +780,9 @@ public function switch_user(Request $request)
 }
 public function replace_user(Request $request)
 {
-    $userId = $request->user_id;           // User A (the one being replaced)
-    $replaceUserId = $request->replace_user_id; // User B (the one taking responsibilities)
+    $userId = $request->repalce_user_id;           // User A (the one being replaced)
+    $replaceUserId = $request->replace_switch_user_id; // User B (the one taking responsibilities)
+
 
     $userA = User::with('userDetails')->find($userId);
     $userB = User::with('userDetails')->find($replaceUserId);
@@ -776,7 +793,7 @@ public function replace_user(Request $request)
 
     $aDetails = $userA->userDetails;
     $bDetails = $userB->userDetails;
-
+    
     DB::beginTransaction();
 
     try {

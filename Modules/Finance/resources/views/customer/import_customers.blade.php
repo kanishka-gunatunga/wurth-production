@@ -1,7 +1,5 @@
 @include('finance::layouts.header')
 <div class="container-fluid">
-@if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                    @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
                 <form class="" action="" method="post"  enctype="multipart/form-data">
                 @csrf
@@ -155,3 +153,14 @@
 </script>
 
 @include('finance::layouts.footer')
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

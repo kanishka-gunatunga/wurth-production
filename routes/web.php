@@ -37,7 +37,7 @@ Route::match(['get', 'post'], '/user-managment', [UserController::class, 'user_m
 Route::match(['get', 'post'], '/add-new-user', [UserController::class, 'add_new_user'])->middleware(['authAdmin', 'permission:add-user']);
 Route::match(['get', 'post'], '/activate-user/{id}', [UserController::class, 'activate_user'])->middleware(['authAdmin', 'permission:status-change-user']);
 Route::match(['get', 'post'], '/deactivate-user/{id}', [UserController::class, 'deactivate_user'])->middleware(['authAdmin', 'permission:status-change-user']);
-Route::match(['get', 'post'], '/get-supervisors/{role}', [UserController::class, 'get_supervisors'])->middleware(['authAdmin']);
+Route::match(['get', 'post'], '/get-supervisors', [UserController::class, 'get_supervisors'])->middleware(['authAdmin']);
 Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_user'])->middleware(['authAdmin', 'permission:edit-user']);
 Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(['authAdmin', 'permission:security-locked']);
 Route::get('unlock-user/{id}', [UserController::class, 'unlock_user'])->middleware(['authAdmin', 'permission:security-locked-unlock']);

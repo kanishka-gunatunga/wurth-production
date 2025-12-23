@@ -176,8 +176,6 @@ use App\Models\UserDetails;
             <!-- Customers List Tab Pane -->
             <div id="customer-list" class="tab-pane fade show active" role="tabpanel"
                 aria-labelledby="customer-list-tab">
-                @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
                 <div class="mb-8">
                     <label for="division-input" class="form-label custom-input-label">
@@ -260,8 +258,6 @@ use App\Models\UserDetails;
 
             <!-- Temporary Customers Tab Pane -->
             <div id="temporary" class="tab-pane fade" role="tabpanel" aria-labelledby="temporary-tab">
-                @if(Session::has('success')) <div class="alert alert-success mt-2 mb-2">{{ Session::get('success') }}</div>@endif
-                @if(Session::has('fail')) <div class="alert alert-danger mt-2 mb-2">{{ Session::get('fail') }}</div>@endif
 
                 <label for="division-input" class="form-label custom-input-label" style="font-weight: 600px;">
                     Reset Password
@@ -473,5 +469,16 @@ use App\Models\UserDetails;
                     }
                 });
         }
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
     });
 </script>
