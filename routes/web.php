@@ -239,6 +239,9 @@ Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->m
 Route::get('/reports', [ReportsController::class, 'index'])
     ->middleware(['authAdmin', 'permission:reports'])
     ->name('reports.index');
+Route::post('/reports/download', [ReportsController::class, 'download'])
+    ->middleware(['authAdmin', 'permission:reports'])
+    ->name('reports.download');
 
 
 // extra dashboard routes
