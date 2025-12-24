@@ -152,6 +152,23 @@ class WriteOffController extends Controller
                 }
             }
 
+            $glBreakdown = $request->gl_breakdown;
+
+            foreach ($glBreakdown as $glCode => $gl) {
+
+                if (
+                    empty($gl['name']) ||
+                    !isset($gl['amount']) ||
+                    !is_numeric($gl['amount']) ||
+                    $gl['amount'] <= 0
+                ) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Invalid GL entry for {$glCode}. Both name and amount are required."
+                    ], 422);
+                }
+            }
+
             // ✅ Save Write-Off Record (final_amount only from invoices)
             WriteOffs::create([
                 'invoice_or_cheque_no' => $invoiceJson,
