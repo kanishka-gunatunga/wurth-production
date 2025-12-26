@@ -185,7 +185,7 @@ class ReturnChequeController extends Controller
             'amount',
             'document number',
             'reference',
-            'cx number',
+            'cx number', 
             'cx name',
             'adm code',
             'remark',
