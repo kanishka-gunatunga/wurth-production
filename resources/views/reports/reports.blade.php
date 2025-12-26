@@ -240,20 +240,28 @@
             <div class="container">
                 <div class="header">
                     <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M15 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V7L15 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M14 2V6C14 6.53043 14.2107 7.03914 14.5858 7.41421C14.9609 7.78929 15.4696 8 16 8H20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M10 9H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M16 13H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M16 17H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none">
+                            <path
+                                d="M15 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V7L15 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M14 2V6C14 6.53043 14.2107 7.03914 14.5858 7.41421C14.9609 7.78929 15.4696 8 16 8H20"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M10 9H8" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M16 13H8" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M16 17H8" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
                         </svg>
                     </div>
                     <h2 class="section-title">Select Report Type</h2>
                 </div>
 
                 <div class="dropdown w-100">
-                    <button class="btn custom-dropdown w-100 text-start" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn custom-dropdown w-100 text-start" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         -- Select a Report --
                         <span class="custom-arrow"></span>
                     </button>
@@ -261,27 +269,40 @@
                         <li class="dropdown-item fw-bold text-dark">
                             ORMR – Outstanding Receivable Management Reports
                         </li>
-                        <li><a class="dropdown-item" href="#" data-report="ARA">ARA - Accounts Receivable Aging (Dynamic Age Brackets)</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="YOO">YOO - Year-on-Year Outstanding</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="MOM">MOM - Month-on-Month Outstanding</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="ODB">ODB - Outstanding Days Breakdown (Age Analysis)</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="ARA">ARA - Accounts Receivable Aging
+                                (Dynamic Age Brackets)</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="YOO">YOO - Year-on-Year Outstanding</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#" data-report="MOM">MOM - Month-on-Month
+                                Outstanding</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="ODB">ODB - Outstanding Days Breakdown
+                                (Age Analysis)</a></li>
 
                         <li class="dropdown-item fw-bold text-dark">
                             RPI – Receivable Performance Indicators
                         </li>
-                        <li><a class="dropdown-item" href="#" data-report="DSO">DSO - Days Sales Outstanding</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="CCD">CCD - Collection Cycle Days (ADM)</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="TVC">TvC-AREC - Turnover vs Collection – AR Exposure Control</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="DSO">DSO - Days Sales Outstanding</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#" data-report="CCD">CCD - Collection Cycle Days
+                                (ADM)</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="TVC">TvC-AREC - Turnover vs Collection
+                                – AR Exposure Control</a></li>
 
                         <li class="dropdown-item fw-bold text-dark">
                             CMR - Collection Management Report
                         </li>
-                        <li><a class="dropdown-item" href="#" data-report="DCT">DCT - Daily Collection Tracker (ADM)</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="PBD">PBD - Pending Bank Deposit</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="DMDR">DMDR - Deposit Mismatch & Decline Register</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="PDCT">PDCT - Post-Dated Cheques Tracker</a></li>
-                        <li><a class="dropdown-item" href="#" data-report="RCS">RCS - Returned Cheque Summary</a></li>
-
+                        <li><a class="dropdown-item" href="#" data-report="DCT">DCT - Daily Collection Tracker
+                                (ADM)</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="PBD">PBD - Pending Bank Deposit</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#" data-report="DMDR">DMDR - Deposit Mismatch & Decline
+                                Register</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="PDCT">PDCT - Post-Dated Cheques
+                                Tracker</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="RCS">RCS - Returned Cheque Summary</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#" data-report="WO">Write-off</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="SO">Set-off</a></li>
                     </ul>
                 </div>
             </div>
@@ -1394,10 +1415,14 @@
                             </button>
                             <ul class="dropdown-menu custom-dropdown-menu w-100"
                                 aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 1</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 2</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 3</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer 4</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer
+                                        1</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer
+                                        2</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer
+                                        3</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">Customer
+                                        4</a></li>
                             </ul>
                         </div>
                     </div>
@@ -1470,10 +1495,14 @@
                             </button>
                             <ul class="dropdown-menu custom-dropdown-menu w-100"
                                 aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 1</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 2</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 3</a></li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 4</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 1</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 2</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 3</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 4</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -3312,19 +3341,100 @@
             </div>
         </div>
 
+        <form method="POST" action="{{ route('reports.download') }}">
+            @csrf
+            <input type="hidden" name="type" value="WO">
+            <div class="styled-tab-sub p-4 report-filters d-none" data-report="WO" style="border-radius: 8px;">
+                <!-- Section 1: Date Range -->
+                <div class="filter-section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <div class="section-number">1</div>
+                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">From Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="from_date" class="date-input" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">To Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="to_date" class="date-input" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-button-lg-row">
+                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
+                        Filters</button>
+                    <button type="submit" class="red-action-btn-lg">
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <form method="POST" action="{{ route('reports.download') }}">
+            @csrf
+            <input type="hidden" name="type" value="SO">
+            <div class="styled-tab-sub p-4 report-filters d-none" data-report="SO" style="border-radius: 8px;">
+                <!-- Section 1: Date Range -->
+                <div class="filter-section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <div class="section-number">1</div>
+                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">From Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="from_date" class="date-input" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">To Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="to_date" class="date-input" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-button-lg-row">
+                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
+                        Filters</button>
+                    <button type="submit" class="red-action-btn-lg">
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+        </form>
+
     </div>
 </div>
 
 
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
-    role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
+    role="alert" aria-live="assertive" aria-atomic="true"
+    style="z-index: 9999; display: none; min-width: 320px;">
     <div class="d-flex align-items-center">
         <span class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="12" fill="#fff" />
-                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
-                    stroke-linejoin="round" />
+                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </span>
         <div class="toast-body flex-grow-1">
@@ -3372,7 +3482,7 @@
 </script>
 
 <!-- Toast message on submit -->
-<script>
+{{-- <script>
     document.querySelector('.submit').addEventListener('click', function(e) {
         e.preventDefault();
         const toast = document.getElementById('user-toast');
@@ -3381,7 +3491,7 @@
             toast.style.display = 'none';
         }, 3000);
     });
-</script>
+</script> --}}
 
 <!-- Multiselect dropdown logic -->
 <script>
@@ -3428,7 +3538,8 @@
                 content.innerHTML = '';
 
                 if (selected.length === 0) {
-                    content.innerHTML = `<span class="multiselect-placeholder">${trigger.getAttribute('data-placeholder') || 'Select options'}</span>`;
+                    content.innerHTML =
+                        `<span class="multiselect-placeholder">${trigger.getAttribute('data-placeholder') || 'Select options'}</span>`;
                 } else {
                     selected.forEach(value => {
                         const tag = document.createElement('span');
@@ -3450,7 +3561,8 @@
                     closeBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
                         const value = this.getAttribute('data-value');
-                        const checkbox = Array.from(checkboxes).find(cb => cb.value === value);
+                        const checkbox = Array.from(checkboxes).find(cb => cb.value ===
+                            value);
                         if (checkbox) {
                             checkbox.checked = false;
                             updateDisplay();
@@ -3460,7 +3572,8 @@
             }
 
             // Store original placeholder
-            trigger.setAttribute('data-placeholder', content.querySelector('.multiselect-placeholder').textContent);
+            trigger.setAttribute('data-placeholder', content.querySelector('.multiselect-placeholder')
+                .textContent);
 
             // Checkbox change
             checkboxes.forEach(checkbox => {
@@ -3490,7 +3603,8 @@
                 const searchTerm = this.value.toLowerCase();
 
                 options.forEach(option => {
-                    const label = option.querySelector('label').textContent.toLowerCase();
+                    const label = option.querySelector('label').textContent
+                    .toLowerCase();
                     if (label.includes(searchTerm)) {
                         option.style.display = 'flex';
                     } else {

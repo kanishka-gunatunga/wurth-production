@@ -723,19 +723,29 @@
         let glData = {};
         let hasAtLeastOne = false;
 
-        // READ THE SAME FINAL VALUE USER SEES
         const finalAmount = getFinalSetOffAmount();
         const roundedFinal = Number(finalAmount.toFixed(2));
 
         $('#glTableBody tr').each(function() {
             const glKey = $(this).data('gl');
             const name = $(this).find('.gl-name').val()?.trim();
-            const amount = parseFloat($(this).find('.gl-amount').val());
+            const amountVal = $(this).find('.gl-amount').val();
+            const amount = parseFloat(amountVal);
 
-            if (name && !isNaN(amount) && amount > 0) {
+            // ❌ Amount entered but name missing
+            if (amountVal && (!name || name === '')) {
+                throw new Error(`Please enter GL name for ${glKey}`);
+            }
+
+            // ❌ Name entered but amount missing or zero
+            if (name && (!amountVal || isNaN(amount) || amount <= 0)) {
+                throw new Error(`Please enter GL amount for ${glKey}`);
+            }
+
+            // ✅ Both provided
+            if (name && amount > 0) {
                 const roundedAmount = Number(amount.toFixed(2));
 
-                // ✅ ALLOW EQUAL
                 if (roundedAmount > roundedFinal) {
                     throw new Error(
                         `${glKey} amount cannot exceed Final Set-Off Amount (${roundedFinal.toFixed(2)})`
@@ -752,7 +762,7 @@
         });
 
         if (!hasAtLeastOne) {
-            throw new Error('Please enter at least one GL value');
+            throw new Error('Please enter at least one GL with both name and amount');
         }
 
         return glData;

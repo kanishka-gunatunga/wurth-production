@@ -153,6 +153,20 @@ class SetOffController extends Controller
                 }
             }
 
+            foreach ($request->gl_breakdown as $glKey => $gl) {
+                if (
+                    empty($gl['name']) ||
+                    !isset($gl['amount']) ||
+                    !is_numeric($gl['amount']) ||
+                    $gl['amount'] <= 0
+                ) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Invalid GL entry for {$glKey}. Both name and amount are required."
+                    ], 422);
+                }
+            }
+
             // ✅ Save Set-Off Record (final_amount only from invoices)
             SetOffs::create([
                 'invoice_or_cheque_no' => $invoiceJson,

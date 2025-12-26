@@ -677,20 +677,47 @@
 
             let glData = {};
             let glFilledCount = 0;
+            let glError = null;
 
             $('#glTableBody tr').each(function() {
                 const glCode = $(this).data('gl');
-                const name = $(this).find('.gl-name').val();
-                const amount = parseFloat($(this).find('.gl-amount').val());
+                const name = $(this).find('.gl-name').val()?.trim();
+                const amountVal = $(this).find('.gl-amount').val();
+                const amount = parseFloat(amountVal);
 
-                if (amount && amount > 0) {
+                // Case 1: Amount entered but name missing ❌
+                if (amountVal && (!name || name === '')) {
+                    glError = `Please enter GL name for ${glCode}`;
+                    return false; // break loop
+                }
+
+                // Case 2: Name entered but amount missing ❌
+                if (name && (!amountVal || isNaN(amount) || amount <= 0)) {
+                    glError = `Please enter GL amount for ${glCode}`;
+                    return false; // break loop
+                }
+
+                // Case 3: Both provided ✅
+                if (name && amount > 0) {
                     glData[glCode] = {
                         name: name,
-                        amount: amount
+                        amount: Number(amount.toFixed(2))
                     };
                     glFilledCount++;
                 }
             });
+
+            // Stop submission if GL error
+            if (glError) {
+                alert(glError);
+                return;
+            }
+
+            // At least one GL required
+            if (glFilledCount === 0) {
+                alert('Please enter at least one GL with both name and amount');
+                return;
+            }
 
             // At least one GL row required
             if (glFilledCount === 0) {

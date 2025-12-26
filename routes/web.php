@@ -239,6 +239,9 @@ Route::match(['get', 'post'], '/backup', [BackupController::class, 'backup'])->m
 Route::get('/reports', [ReportsController::class, 'index'])
     ->middleware(['authAdmin', 'permission:reports'])
     ->name('reports.index');
+Route::post('/reports/download', [ReportsController::class, 'download'])
+    ->middleware(['authAdmin', 'permission:reports'])
+    ->name('reports.download');
 
 
 // extra dashboard routes
@@ -252,4 +255,8 @@ Route::get('/area-sales-dashboard', function () {
 
 Route::get('/regional-sales-dashboard', function () {
     return view('dashboard.regional_sales_dashboard');
+})->middleware(['authAdmin']);
+
+Route::get('/head-of-division-dashboard', function () {
+    return view('dashboard.head_of_division');
 })->middleware(['authAdmin']);
