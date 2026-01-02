@@ -346,7 +346,7 @@ use App\Models\Customers;
 
                                 <!-- Cheque Payment Accordion Item -->
                             <div id="chequeAccordion" class="accordion">
-                                <div id="chequeAccordionItem" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
+                                <div id="chequeAccordionItem1" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                     <p class="accordion-header" id="chequePaymentHeading">
                                         <button class="accordion-button d-flex justify-content-between" type="button"
                                             data-bs-toggle="collapse" data-bs-target="#cheque_payment1"
@@ -400,10 +400,10 @@ use App\Models\Customers;
                                                         <select class="form-select form-control"
                                                             aria-label="Default select example" id="bank_name"
                                                             name="bank_name">
-                                                            <option selected value="0">Bank Of Ceylon</option>
-                                                            <option value="1">One</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
+                                                            <option value="">-- Select Bank --</option>
+                                                            @foreach($banks as $bank)
+                                                                <option value="{{ $bank->BankID }}||{{ $bank->BankName }}">{{ $bank->BankName }}</option>
+                                                            @endforeach
                                                         </select>
                                                         <div class="invalid-feedback">
                                                             Bank Name is required
@@ -411,9 +411,10 @@ use App\Models\Customers;
                                                     </div>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="branch_name">Branch Name</label>
-                                                        <input type="text" class="form-control" id="branch_name"
-                                                            placeholder="Enter Branch Name" name="branch_name"
-                                                            required />
+                                
+                                                         <select class="form-select form-control" aria-label="Default select example" id="branch_name" name="branch_name">
+                                                            <option value="">-- Select Branch --</option>
+                                                        </select>
                                                         <div class="invalid-feedback">
                                                             Branch Name is required
                                                         </div>
@@ -693,7 +694,7 @@ use App\Models\Customers;
                             <h3 class="mb-0">Customer's E-signature</h3>
                             <p>Sign to confirm payment.</p>
                             <canvas id="signature-pad-customer" width="300" height="250"></canvas>
-                            <input type="hidden" name="customer_signature" id="customer_signature_input">
+                            <input type="hidden" name="customer_signature" id="customer_signature_input" requried>
                             <div class="d-flex flex-row my-2">
                                 <div class="clear-btn styled-button-red me-2">
                                     <button id="clear-customer"><span> Clear </span></button>
@@ -891,10 +892,12 @@ function calculateTotalAmount(accordionId) {
     let amount = parseFloat($(accordionId + ' .amount').val()) || 0;
     let discount = parseFloat($(accordionId + ' .discount').val()) || 0;
 
-    let totalAmount = amount - (amount * discount / 100);
-    totalAmount = totalAmount.toFixed(2);
+    if (discount > 100) discount = 100;
 
-    $(accordionId + ' .total-amount').text('Rs. ' + totalAmount);
+    let totalAmount = amount - (amount * discount / 100);
+    totalAmount = totalAmount < 0 ? 0 : totalAmount;
+
+    $(accordionId + ' .total-amount').text('Rs. ' + totalAmount.toFixed(2));
 }
 
 
@@ -1022,11 +1025,12 @@ $('#addFundTransfer').on('click', function () {
 
     $('#fundAccordion').append(newAccordionItem);
 
-    $(`#fundAccordionItem${newItemNumber} .amount, #fundAccordionItem${newItemNumber} .discount`).on('input', function () {
-        calculateTotalAmount(`#fundAccordionItem${newItemNumber}`);
-    });
-
-    calculateTotalAmount(`#fundAccordionItem${newItemNumber}`);
+    
+});
+$(document).on('input', '#fundAccordion .amount, #fundAccordion .discount', function () {
+    const accordionItem = $(this).closest('.accordion-item');
+    const accordionId = '#' + accordionItem.attr('id');
+    calculateTotalAmount(accordionId);
 });
 
 function appendPaymentSummery(paymentType, paid_amount, discount) {
@@ -1169,17 +1173,19 @@ $('#addChequePayment').on('click', function () {
                         <div class="input-group-collection-inner d-flex flex-column mb-3">
                             <label for="bank_name_${uniqueId}">Bank Name</label>
                             <select class="form-select form-control" id="bank_name_${uniqueId}" name="bank_name">
-                                <option selected value="0">Bank Of Ceylon</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                 <option value="">-- Select Bank --</option>
+                                @foreach($banks as $bank)
+                                    <option value="{{ $bank->BankID }}||{{ $bank->BankName }}">{{ $bank->BankName }}</option>
+                                @endforeach
                             </select>
                             <div class="invalid-feedback">Bank Name is required</div>
                         </div>
                         <div class="input-group-collection-inner d-flex flex-column mb-3">
                             <label for="branch_name_${uniqueId}">Branch Name</label>
-                            <input type="text" class="form-control" id="branch_name_${uniqueId}"
-                                placeholder="Enter Branch Name" name="branch_name" required />
+                  
+                                 <select class="form-select form-control" aria-label="Default select example" id="branch_name_${uniqueId}" name="branch_name">
+                                    <option value="">-- Select Branch --</option>
+                                </select>
                             <div class="invalid-feedback">Branch Name is required</div>
                         </div>
                         <div class="input-group-collection-inner d-flex flex-column mb-3">
@@ -1253,13 +1259,13 @@ $('#addChequePayment').on('click', function () {
 
     $('#chequeAccordion').append(newAccordionItem);
 
-    $(`#chequeAccordionItem${uniqueId} .amount, #chequeAccordionItem${uniqueId} .discount`).on('input', function () {
-        calculateTotalAmount2(`#chequeAccordionItem${uniqueId}`);
-    });
-
-    calculateTotalAmount2(`#chequeAccordionItem${uniqueId}`);
+ 
 });
-
+$(document).on('input', '#chequeAccordion .amount, #chequeAccordion .discount', function () {
+    const accordionItem = $(this).closest('.accordion-item');
+    const accordionId = '#' + accordionItem.attr('id');
+    calculateTotalAmount(accordionId);
+});
 
 $(document).on('submit', '[id^="ChequePaymentForm"]', function (e) {
     e.preventDefault();
@@ -1455,13 +1461,17 @@ const newAccordionItem = `
 
 $('#cardAccordion').append(newAccordionItem);
 
-$(`#cardAccordionItem${uniqueId} .amount, #cardAccordionItem${uniqueId} .discount`).on('input', function () {
-    calculateTotalAmount3(`#cardAccordionItem${uniqueId}`);
-});
+// $(`#cardAccordionItem${uniqueId} .amount, #cardAccordionItem${uniqueId} .discount`).on('input', function () {
+//     calculateTotalAmount3(`#cardAccordionItem${uniqueId}`);
+// });
 
-calculateTotalAmount3(`#cardAccordionItem${uniqueId}`);
+// calculateTotalAmount3(`#cardAccordionItem${uniqueId}`);
 });
-
+$(document).on('input', '#cardAccordion .amount, #cardAccordion .discount', function () {
+    const accordionItem = $(this).closest('.accordion-item');
+    const accordionId = '#' + accordionItem.attr('id');
+    calculateTotalAmount(accordionId);
+});
 $(document).on('submit', '[id^="CardPaymentForm"]', function (e) {
     e.preventDefault();
     preloader.style.display = 'flex';
@@ -1524,37 +1534,53 @@ $(document).on('change', '#temp_receipt', function () {
         $('.customer-e-signature').show();
     }
 });
-$(document).on('click', '#submit-payment', function(e) {
-        e.preventDefault(); 
-        preloader.style.display = 'flex';
+$(document).on('click', '#submit-payment', function (e) {
+    e.preventDefault();
 
-        var isTempReceiptChecked = $('#temp_receipt').is(':checked');
+    let paymentBatchId = $('#payment_batch_id').val();
+    if (!paymentBatchId) {
+        toastr.error('Please save at least one receipt before submitting the payment.');
+        return;
+    }
 
-        var formData = {
+    let isTempReceiptChecked = $('#temp_receipt').is(':checked');
+    let admSignature = $('#adm_signature_input').val();
+    if (!admSignature || admSignature.trim() === '') {
+        toastr.error('ADM signature is required before submitting the payment.');
+        return;
+    }
+
+    let customerSignature = $('#customer_signature_input').val();
+    if (!isTempReceiptChecked && (!customerSignature || customerSignature.trim() === '')) {
+        toastr.error('Customer signature is required for non-temporary receipts.');
+        return;
+    }
+
+    preloader.style.display = 'flex';
+
+    let formData = {
         temp_receipt: isTempReceiptChecked ? 1 : 0,
-        adm_signature: $('#adm_signature_input').val(),
-        customer_signature: $('#customer_signature_input').val(),
+        adm_signature: admSignature,
+        customer_signature: customerSignature,
         reason_for_temp: $('#reason_for_temp').val(),
-        payment_batch_id: $('#payment_batch_id').val()
-        };
-        console.log(formData);
-        $.ajax({
-            url: '{{ url('adm/save-invoice') }}/{{$invoice_details->id}}',
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                preloader.style.display = 'none';
-                console.log('Saved successfully:', response);
-                toastr.success(response.message);
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
+        payment_batch_id: paymentBatchId
+    };
 
-            },
-            error: function(xhr, status, error) {
+    $.ajax({
+        url: '{{ url('adm/save-invoice') }}/{{$invoice_details->id}}',
+        method: 'POST',
+        data: formData,
+        success: function (response) {
             preloader.style.display = 'none';
-            console.error('Error saving:', error);
-            
+            toastr.success(response.message);
+            $('#payment_batch_id').val('');
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+        },
+        error: function (xhr) {
+            preloader.style.display = 'none';
+
             let errorMessage = 'An unexpected error occurred';
 
             if (xhr.responseJSON) {
@@ -1564,13 +1590,64 @@ $(document).on('click', '#submit-payment', function(e) {
                 if (xhr.responseJSON.error) {
                     errorMessage += ' - ' + xhr.responseJSON.error;
                 }
-            } else if (xhr.responseText) {
-                errorMessage = xhr.responseText;
             }
 
             toastr.error(errorMessage);
         }
-        });
     });
+});
+
+
+    $(document).on('change', 'select[name="bank_name"]', function () {
+
+    const bankValue = $(this).val();
+    const accordionItem = $(this).closest('.accordion-item');
+    const branchSelect = accordionItem.find('select[name="branch_name"]');
+
+    branchSelect.html('<option value="">Loading branches...</option>');
+
+    if (!bankValue) {
+        branchSelect.html('<option value="">-- Select Branch --</option>');
+        return;
+    }
+
+    const bankId = bankValue.split('||')[0];
+
+    $.ajax({
+        url: "{{ url('adm/get-branches') }}",
+        type: "POST",
+        data: {
+            bank_id: bankId,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function (branches) {
+
+            let options = '<option value="">-- Select Branch --</option>';
+
+            branches.forEach(branch => {
+                options += `<option value="${branch.BranchName} - ${branch.BranchCode}">
+                                ${branch.BranchName} - ${branch.BranchCode}
+                            </option>`;
+            });
+
+            branchSelect.html(options);
+        },
+        error: function () {
+            branchSelect.html('<option value="">Failed to load branches</option>');
+        }
+    });
+});
+window.addEventListener('beforeunload', function (e) {
+    const paymentBatchId = $('#payment_batch_id').val()?.trim();
+
+    if (paymentBatchId) {
+        const confirmationMessage = 'You have an unsaved receipt. Plesase submit the payment before leaving the page.';
+        
+        e.preventDefault();
+        e.returnValue = confirmationMessage;
+
+        return confirmationMessage;
+    }
+});
 </script>
 

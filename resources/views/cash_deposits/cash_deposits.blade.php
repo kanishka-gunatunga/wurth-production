@@ -126,9 +126,10 @@
                     @forelse ($cashDeposits as $deposit)
                     @php
                     $statusClass = match (strtolower($deposit['status'])) {
-                    'approved' => 'success-status-btn',
+                    'accepted' => 'success-status-btn',
                     'deposited' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
+                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn'
                     };
                     @endphp
@@ -150,8 +151,8 @@
                         <td class="sticky-column">
                             @if(strtolower($deposit['status']) === 'deposited')
                              @if(in_array('deposits-cash-status', session('permissions', [])))
-                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
+                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="accepted">Accept</button>
+                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="declined">Decline</button>
                             @endif
                             @endif
                              @if(in_array('deposits-cash-download', session('permissions', [])))
@@ -351,7 +352,7 @@
     </div>
 </div>
 
-
+@include('layouts.footer2')
 
 <!-- for dropdown -->
 <script>
@@ -466,7 +467,7 @@
             e.stopPropagation();
 
             currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'approved' : 'rejected');
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'accepted' : 'declined');
 
             // Show modal
             document.getElementById('confirm-status-text').innerText = newStatus;
@@ -503,7 +504,7 @@
                             let statusCell = row.querySelector('td:nth-child(5) button');
 
                             statusCell.innerText = data.status;
-                            statusCell.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+                            statusCell.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide action buttons
                             row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');

@@ -3445,7 +3445,7 @@
     </div>
 </div>
 
-
+@include('layouts.footer2')
 <!-- Report dropdown → show filters -->
 <script>
     document.querySelectorAll('.dropdown').forEach(dropdown => {
@@ -3689,4 +3689,3 @@
         alert('Report generation started! Check console for filter details.');
     }
 </script>
-@include('layouts.footer2')

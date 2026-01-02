@@ -29,7 +29,7 @@
                     </div>
 
 
-                    <div class="row" id="role_permissions_admin">
+                    <div class="row" id="role_permissions_admin" style="display:none;">
                         <div class="col-md-3 ps-4">
                             <div class="row access-control-checks">
                             <div class="form-check">
@@ -259,6 +259,12 @@
                                             <label class="form-check-label" for="collectionreceiptsfinaladvancedremove_permission">Remove</label>
                                         </div>
                                         </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="collectionpendingreceipts_permission" value="pending-receipts">
+                                    <label class="form-check-label" for="collectionpendingreceipts_permission">Pending Receipts</label>
+                                </div>
+                                </div>
                                 <div class="row access-control-checks mx-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="permissions[]" id="collectionadvanced_permission" value="all-advanced-payments">
@@ -618,7 +624,77 @@
                            
                         </div>
                     </div>
-               
+                    <div class="row" id="role_permissions_adm" style="display:none;">
+                        <div class="col-md-3 ps-4">
+                            <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="dashboard_permission_adm" value="dashboard">
+                                <label class="form-check-label" for="dashboard_permission_adm">Dashboard</label>
+                            </div>
+                            </div>
+                            <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_collections_permission" value="collections">
+                                <label class="form-check-label" for="adm_collections_permission">Collections</label>
+                            </div>
+                            </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_collectionsbulk_permission" value="bulk-collection">
+                                    <label class="form-check-label" for="adm_collectionsbulk_permission">Bulk Payment</label>
+                                </div>
+                                </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_collectionsadvanced_permission" value="advanced-payment">
+                                    <label class="form-check-label" for="adm_collectionsadvanced_permission">Advanced Payment</label>
+                                </div>
+                                </div>
+                                <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_collectionsar_permission" value="all-reciepts">
+                                    <label class="form-check-label" for="adm_collectionsar_permission">All Reciepts</label>
+                                </div>
+                                </div>
+                                 <div class="row access-control-checks mx-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_collectionsinvocies_permission" value="all-invocies">
+                                    <label class="form-check-label" for="adm_collectionsinvocies_permission">All Invocies</label>
+                                </div>
+                                </div>
+                            <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_customers_permission" value="customers">
+                                <label class="form-check-label" for="adm_customers_permission">Customers</label>
+                            </div>
+                            </div>
+                              <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_inquiries_permission" value="inquiries">
+                                <label class="form-check-label" for="adm_inquiries_permission">Inquiries</label>
+                            </div>
+                            </div>
+                             <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_reminders_permission" value="reminders">
+                                <label class="form-check-label" for="adm_reminders_permission">Reminders</label>
+                            </div>
+                            </div>
+                             <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_deposit_permission" value="deposit">
+                                <label class="form-check-label" for="adm_deposit_permission">Deposit</label>
+                            </div>
+                            </div>
+                              <div class="row access-control-checks">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" id="adm_profile_permission" value="profile">
+                                <label class="form-check-label" for="adm_profile_permission">Profile</label>
+                            </div>
+                            </div>
+                                
+                        </div>
+                    </div>   
 
 
                 <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
@@ -633,7 +709,7 @@
 </body>
 
 </html>
-
+@include('layouts.footer2')
 
 
 
@@ -653,8 +729,15 @@
 
         function fetchPermissions() {
             const userRole = document.getElementById('head-of-division-select').value;
-            const $permissionContainer = $('#role_permissions_admin'); 
+            let $permissionContainer;
 
+            if (userRole === "6" || userRole === "8") {
+                $permissionContainer = $('#role_permissions_adm');
+            } else {
+                $permissionContainer = $('#role_permissions_admin');
+            }
+
+            // Clear all checkboxes
             $permissionContainer.find('input[type="checkbox"]').prop('checked', false);
 
             $.ajax({
@@ -704,9 +787,29 @@
             }
             return level;
         }
+        
 
 
         $('#role_permissions_admin').on('change', 'input[type="checkbox"]', function() {
+            const $this = $(this);
+            const isChecked = $this.prop('checked');
+            const currentLevel = getPermissionLevel($this);
+            const parentRow = $this.closest('.row.access-control-checks');
+            
+            let $nextRow = parentRow.next('.row.access-control-checks');
+            
+            while ($nextRow.length && getPermissionLevel($nextRow.find('input[type="checkbox"]')) > currentLevel) {
+                $nextRow.find('input[type="checkbox"]').prop('checked', isChecked);
+                
+                $nextRow = $nextRow.next('.row.access-control-checks');
+            }
+            
+            if (isChecked) {
+                updateParentCheckbox($this);
+            }
+        });
+
+        $('#role_permissions_adm').on('change', 'input[type="checkbox"]', function() {
             const $this = $(this);
             const isChecked = $this.prop('checked');
             const currentLevel = getPermissionLevel($this);
@@ -803,6 +906,29 @@
         });
         
     });
+
+    $(document).ready(function () {
+
+    function togglePermissionSections() {
+        const selectedRole = $('#head-of-division-select').val();
+        
+        if (selectedRole === '6' || selectedRole === '8') {
+            $('#role_permissions_adm').show();
+            $('#role_permissions_admin').hide();
+        } else {
+
+            $('#role_permissions_admin').show();
+            $('#role_permissions_adm').hide();
+        }
+    }
+
+    togglePermissionSections();
+
+    $('#head-of-division-select').on('change', function () {
+        togglePermissionSections();
+    });
+
+});
 </script>
 <script>
     $(document).ready(function() {

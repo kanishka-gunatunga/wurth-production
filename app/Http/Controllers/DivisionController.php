@@ -28,12 +28,12 @@ use PDF;
 class DivisionController extends Controller
 {
    
-    public function division_managment(Request $request)
+     public function division_managment(Request $request)
 {
     $search = $request->input('search');
 
     // Base query with relations
-    $query = Divisions::with(['userDetails.user', 'head.user']);
+    $query = Divisions::with(['userDetails.user', 'heads.user']);
 
     // Apply search filter if keyword is given
     if (!empty($search)) {
@@ -53,7 +53,6 @@ class DivisionController extends Controller
         'divisions' => $divisions,
     ]);
 }
-
 
 
     public function add_new_division(Request $request)

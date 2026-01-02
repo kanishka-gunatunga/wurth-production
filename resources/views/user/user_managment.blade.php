@@ -621,6 +621,9 @@ use App\Models\Divisions;
                 <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(7, $selectedRoles ?? []) ? 'active' : '' }}" data-role="7">
                     <span>Finance Manager</span>
                 </div>
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(8, $selectedRoles ?? []) ? 'active' : '' }}" data-role="8">
+                    <span>Recovery Manager</span>
+                </div>
             </div>
 
             <!-- Hidden input that stores selected role IDs -->
@@ -660,7 +663,7 @@ use App\Models\Divisions;
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
+@include('layouts.footer2')
 
 
 <!-- expand search bar  -->
@@ -739,7 +742,6 @@ use App\Models\Divisions;
         }
     }
 </script>
-@include('layouts.footer2')
 
 <script>
     $(document).ready(function () {

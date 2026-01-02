@@ -45,9 +45,11 @@
                                         <span
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                        We are sending you a duplicate copy of your receipt as requested.
+                                        We are sending you a duplicate copy of your receipt as requested. <Br> Please find attached your official receipt(s) for the recent payment(s).
                                         </p>
+                                        
                                         <p>The receipt is attached as a PDF document. If you have any questions, please contact our support team.</p>
+
                                     </td>
                                 </tr>
                                 <tr>

@@ -132,7 +132,7 @@ class ChequeDepositsController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:approved,rejected',
+            'status' => 'required|in:accepted,declined',
         ]);
 
         $deposit = Deposits::findOrFail($id);
@@ -146,8 +146,14 @@ class ChequeDepositsController extends Controller
         $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
 
         if (!empty($receiptIds)) {
-            \App\Models\InvoicePayments::whereIn('id', $receiptIds)
+            if(strtolower($request->status) == 'declined'){
+                InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => 'pending']);
+            }
+            else{
+                 InvoicePayments::whereIn('id', $receiptIds)
                 ->update(['status' => strtolower($request->status)]);
+            }
         }
 
         ActivitLogService::log('deposit', 'depsoite ('.$id.') status has been changed to '.$request->status);

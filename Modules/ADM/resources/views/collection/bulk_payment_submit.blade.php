@@ -464,10 +464,10 @@ foreach($grouped_data as $group){
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="bank_name">Bank Name</label>
                                                         <select class="form-select form-control" aria-label="Default select example" id="bank_name" name="bank_name">
-                                                            <option selected value="Bank Of Ceylon">Bank Of Ceylon</option>
-                                                            <option value="1">One</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
+                                                            <option value="">-- Select Bank --</option>
+                                                            @foreach($banks as $bank)
+                                                                <option value="{{ $bank->BankID }}||{{ $bank->BankName }}">{{ $bank->BankName }}</option>
+                                                            @endforeach
                                                         </select>
                                                         <div class="invalid-feedback">
                                                             Bank Name is required
@@ -475,7 +475,9 @@ foreach($grouped_data as $group){
                                                     </div>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="branch_name">Branch Name</label>
-                                                        <input type="text" class="form-control" id="branch_name" placeholder="Enter Branch Name" name="branch_name" required />
+                                                         <select class="form-select form-control" aria-label="Default select example" id="branch_name" name="branch_name">
+                                                            <option value="">-- Select Branch --</option>
+                                                        </select>
                                                         <div class="invalid-feedback">
                                                             Branch Name is required
                                                         </div>
@@ -774,7 +776,7 @@ foreach($grouped_data as $group){
                             <div class="col-12 d-flex flex-column py-4 text-center">
                                 <p class="gray-small-title mb-1" style="color: #595959; font-weight: 500;">Payment
                                     Amount</p>
-                                <p class="black-large-text mb-1" style="color:#CC0000">Rs. 500,000.00</p>
+                                <p class="black-large-text mb-1" style="color:#CC0000" id="final_payment_amount">Rs. 500,000.00</p>
                             </div>
                         </div>
                     </div>
@@ -845,8 +847,9 @@ foreach($grouped_data as $group){
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-        function initializeSignaturePad(canvasId) {
+        function initializeSignaturePad(canvasId, hiddenInputId) {
             var canvas = document.getElementById(canvasId);
+            var hiddenInput = document.getElementById(hiddenInputId);
 
             function resizeCanvas() {
                 var ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -861,6 +864,13 @@ foreach($grouped_data as $group){
             var signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(250,250,250)'
             });
+
+            signaturePad.onEnd = function () {
+            if (!signaturePad.isEmpty()) {
+                var dataURL = signaturePad.toDataURL();
+                hiddenInput.value = dataURL;
+            }
+        };
 
             return signaturePad;
         }
@@ -889,13 +899,14 @@ foreach($grouped_data as $group){
 
         document.getElementById("save-customer").addEventListener('click', function () {
             if (customerSignaturePad.isEmpty()) {
-                alert("Customer signature is empty.");
+                alert("Customer signature is empty."); 
             } else {
                 var dataURL = customerSignaturePad.toDataURL();
                 console.log("Customer signature saved:", dataURL);
             }
         });
-    </script>
+    </script> 
+
  <script>
 document.addEventListener('DOMContentLoaded', function () {
   const cloneCounts = { fund: 0, cheque: 0, cash: 0, card: 0 };
@@ -1846,83 +1857,53 @@ $(document).on("submit", ".ChequePaymentForm", function (e) {
 
 
 document.addEventListener('DOMContentLoaded', function () {
+
     const payableDisplay = document.querySelector('.final-payable-amount-card');
     const totalDisplay = document.querySelector('.total-amount-card');
-    const summaryContainer = document.getElementById('card-payment-summery');
 
+    /* ===== Calculate Totals (NO SUMMARY HERE) ===== */
     function updateTotalCard() {
         let totalPayable = 0;
         let totalAfterDiscount = 0;
-        let summaryHTML = '';
 
         document.querySelectorAll('.card-check-parent').forEach(parent => {
-            const isChecked = parent.querySelector('.card-check').checked;
-            if (isChecked) {
+            const checkbox = parent.querySelector('.card-check');
+            if (checkbox && checkbox.checked) {
+
                 const amountInput = parent.querySelector('.card-pay-input');
                 const discountInput = parent.querySelector('.card-pay-discount');
-                const invoiceLabel = parent.querySelector('.invoice-label')?.textContent || 'Invoice';
 
-                const amount = parseFloat(amountInput.value || 0);
-                const discountPercentage = parseFloat(discountInput?.value || 0);
+                const amount = parseFloat(amountInput?.value || 0);
+                const discountPercent = parseFloat(discountInput?.value || 0);
 
-                const discountAmount = (amount * discountPercentage) / 100;
+                const discountAmount = (amount * discountPercent) / 100;
                 const finalAmount = Math.max(0, amount - discountAmount);
 
                 totalPayable += amount;
                 totalAfterDiscount += finalAmount;
-
-                // Add this invoice to the summary
-                summaryHTML += `
-                    <div class="d-flex justify-content-between border-bottom py-1">
-                        <span>${invoiceLabel}</span>
-                        <span>Rs. ${finalAmount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div class="small text-muted mb-2">
-                        Amount: Rs. ${amount.toLocaleString('en-LK', { minimumFractionDigits: 2 })} |
-                        Discount: ${discountPercentage}% 
-                    </div>
-                `;
             }
         });
 
-        // Update main totals
         if (payableDisplay) {
-            payableDisplay.textContent = `Final Payable amount : Rs. ${totalPayable.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
-        }
-        if (totalDisplay) {
-            totalDisplay.textContent = `Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
+            payableDisplay.textContent =
+                `Final Payable amount : Rs. ${totalPayable.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
         }
 
-        // Update summary display
-        if (summaryContainer) {
-            if (summaryHTML === '') {
-                summaryContainer.innerHTML = `
-                    <div class="text-muted text-center py-2">No invoices selected yet</div>
-                `;
-            } else {
-                summaryContainer.innerHTML = `
-                    <div class="card border-0 shadow-sm p-3">
-                        <h6 class="fw-bold mb-2">Card Payment Summary</h6>
-                        ${summaryHTML}
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold">
-                            <span>Total Payable:</span>
-                            <span>Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
-                        </div>
-                    </div>
-                `;
-            }
+        if (totalDisplay) {
+            totalDisplay.textContent =
+                `Rs. ${totalAfterDiscount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
         }
     }
 
-    // Handle checkbox toggle
+    /* ===== Checkbox Toggle ===== */
     document.querySelectorAll('.card-check').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
+
             const parent = this.closest('.card-check-parent');
             const payInputDiv = parent.querySelector('.card-pay-amount-input');
             const amountInput = parent.querySelector('.card-pay-input');
-            const fullPaymentCheck = parent.querySelector('.full-invoice-check-card');
-            const invoiceAmount = parseFloat(fullPaymentCheck.dataset.invoiceAmount || 0);
+            const fullInvoiceCheck = parent.querySelector('.full-invoice-check-card');
+            const invoiceAmount = parseFloat(fullInvoiceCheck?.dataset.invoiceAmount || 0);
 
             if (this.checked) {
                 payInputDiv.style.display = 'block';
@@ -1931,102 +1912,167 @@ document.addEventListener('DOMContentLoaded', function () {
                 payInputDiv.style.display = 'none';
                 amountInput.value = '';
                 parent.querySelector('.card-pay-discount').value = '';
-                fullPaymentCheck.checked = false;
+                fullInvoiceCheck.checked = false;
             }
 
             updateTotalCard();
         });
     });
 
-    // Update totals on amount/discount input
+    /* ===== Amount / Discount Change ===== */
     document.querySelectorAll('.card-pay-input, .card-pay-discount').forEach(input => {
         input.addEventListener('input', updateTotalCard);
     });
 
-    // Handle full invoice selection
-    document.querySelectorAll('.full-invoice-check-card').forEach(fullPaymentCheckbox => {
-        fullPaymentCheckbox.addEventListener('change', function () {
+    /* ===== Full Invoice Checkbox ===== */
+    document.querySelectorAll('.full-invoice-check-card').forEach(fullCheck => {
+        fullCheck.addEventListener('change', function () {
+
             const parent = this.closest('.card-check-parent');
             const amountInput = parent.querySelector('.card-pay-input');
             const invoiceAmount = parseFloat(this.dataset.invoiceAmount || 0);
 
-            if (this.checked) {
-                amountInput.value = invoiceAmount;
-            } else {
-                amountInput.value = '';
-            }
-
+            amountInput.value = this.checked ? invoiceAmount : '';
             updateTotalCard();
         });
     });
+});
 
-    // Handle Card Payment Form Submit
-    $(document).on("submit", ".CardPaymentForm", function (e) {
-        e.preventDefault();
-        preloader.style.display = 'flex';
 
-        let form = $(this);
-        let formData = new FormData(this);
-        let hasSelectedInvoices = false;
+/* ============================
+   CARD PAYMENT SUBMIT
+   (Summary AFTER success)
+============================ */
 
-        form.find('.card-check-parent').each(function () {
-            const checkbox = $(this).find('.card-check')[0];
-            if (checkbox.checked) {
-                hasSelectedInvoices = true;
+$(document).on('submit', '.CardPaymentForm', function (e) {
+    e.preventDefault();
+    preloader.style.display = 'flex';
 
-                const invoiceId = checkbox.dataset.invoiceId;
-                const amountInput = $(this).find('.card-pay-input')[0];
-                const discountInput = $(this).find('.card-pay-discount')[0];
+    let form = $(this);
+    let formData = new FormData();
+    let hasSelectedInvoices = false;
 
-                const amount = parseFloat(amountInput?.value || 0);
-                const discount = parseFloat(discountInput?.value || 0);
+    const invoiceData = [];
 
-                if (invoiceId && amount > 0) {
-                    formData.append(`payments[${invoiceId}][invoice_id]`, invoiceId);
-                    formData.append(`payments[${invoiceId}][amount]`, amount);
-                    formData.append(`payments[${invoiceId}][discount]`, discount);
-                }
+    form.find('.card-check-parent').each(function () {
+        const checkbox = $(this).find('.card-check')[0];
+
+        if (checkbox && checkbox.checked) {
+            hasSelectedInvoices = true;
+
+            const invoiceId = $(checkbox).data('invoice-id');
+            const amountInput = $(this).find('.card-pay-input')[0];
+            const discountInput = $(this).find('.card-pay-discount')[0];
+
+            const amount = parseFloat(amountInput?.value || 0);
+            const discount = parseFloat(discountInput?.value || 0);
+
+            if (invoiceId && amount > 0) {
+                formData.append(`payments[${invoiceId}][invoice_id]`, invoiceId);
+                formData.append(`payments[${invoiceId}][amount]`, amount);
+                formData.append(`payments[${invoiceId}][discount]`, discount);
+
+                invoiceData.push({
+                    invoice_id: invoiceId,
+                    amount: amount,
+                    discount: discount
+                });
             }
-        });
+        }
+    });
 
-        if (!hasSelectedInvoices) {
+    if (!hasSelectedInvoices) {
+        preloader.style.display = 'none';
+        alert('Please select at least one invoice to make a payment.');
+        return;
+    }
+
+    /* ===== Extra Fields ===== */
+    formData.append('card_transfer_date', form.find('[name="card_transfer_date"]').val());
+
+    const batchId = $('#payment_batch_id').val();
+    if (batchId) {
+        formData.append('payment_batch_id', batchId);
+    }
+
+    const screenshot = form.find('[name="card_screenshot"]')[0]?.files[0];
+    if (screenshot) {
+        formData.append('card_screenshot', screenshot);
+    }
+
+    /* ===== AJAX ===== */
+    $.ajax({
+        url: '{{ url("adm/add-bulk-card-payment") }}',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+
+        success: function (response) {
             preloader.style.display = 'none';
-            alert('Please select at least one invoice to make a payment.');
-            return;
+            toastr.success(response.message);
+
+            form.trigger('reset');
+            $('#payment_batch_id').val(response.payment_batch_id);
+
+            /* ===== Build Summary (SAME AS FUND) ===== */
+            let selectedCustomers = [];
+            let selectedInvoices = [];
+            let totalAmount = 0;
+            let totalDiscount = 0;
+
+            invoiceData.forEach(item => {
+
+                selectedInvoices.push(item.invoice_id);
+                totalAmount += item.amount;
+
+                if (item.discount > 0) {
+                    totalDiscount += (item.amount * item.discount) / 100;
+                }
+
+                const parentWrapper = document
+                    .querySelector(`.card-check[data-invoice-id="${item.invoice_id}"]`)
+                    ?.closest('.form-check.my-3');
+
+                if (parentWrapper) {
+                    const customerInput = parentWrapper.querySelector('input[name="customer_name[]"]');
+                    if (customerInput && !selectedCustomers.includes(customerInput.value)) {
+                        selectedCustomers.push(customerInput.value);
+                    }
+                }
+            });
+
+            const formattedAmount = 'Rs. ' + totalAmount.toLocaleString();
+            const formattedDiscount = totalAmount > 0
+                ? ((totalDiscount / totalAmount) * 100).toFixed(2) + '%'
+                : '0%';
+
+            document.getElementById('card-payment-summery').innerHTML = `
+                <label class="form-check-label d-flex flex-column">
+                    <div class="d-flex mb-1">
+                        <span class="label-name">Selected Customers :</span>
+                        <span class="label-value">${selectedCustomers.join(', ')}</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="label-name">Selected Invoice Numbers :</span>
+                        <span class="label-value">${selectedInvoices.join(', ')}</span>
+                    </div>
+                    <div class="d-flex mb-1">
+                        <span class="label-name">Expect to pay :</span>
+                        <span class="label-value">${formattedAmount}</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="label-name">Discount :</span>
+                        <span class="label-value">${formattedDiscount}</span>
+                    </div>
+                </label>
+            `;
+        },
+
+        error: function (xhr) {
+            preloader.style.display = 'none';
+            toastr.error(xhr.responseJSON?.message || 'Unexpected error');
         }
-
-        // Explicit fields
-        formData.append('card_transfer_date', form.find('[name="card_transfer_date"]').val());
-
-        const batchId = $('#payment_batch_id').val();
-        if (batchId) {
-            formData.append('payment_batch_id', batchId);
-        }
-
-        const screenshot = form.find('[name="card_screenshot"]')[0]?.files[0];
-        if (screenshot) {
-            formData.append('card_screenshot', screenshot);
-        }
-
-        $.ajax({
-            url: '{{ url('adm/add-bulk-card-payment') }}',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                preloader.style.display = 'none';
-                toastr.success(response.message);
-                form.trigger('reset');
-                $('#payment_batch_id').val(response.payment_batch_id);
-                updateTotalCard();
-            },
-            error: function (xhr) {
-                preloader.style.display = 'none';
-                let errorMessage = xhr.responseJSON?.message || xhr.responseText || 'An unexpected error occurred';
-                toastr.error(errorMessage);
-            }
-        });
     });
 });
 $(document).on('change', '#temp_receipt', function () {
@@ -2039,51 +2085,125 @@ $(document).on('change', '#temp_receipt', function () {
     }
 });
 $(document).on('click', '#submit-payment', function(e) {
-        e.preventDefault(); 
-        preloader.style.display = 'flex';
+    e.preventDefault(); 
+    preloader.style.display = 'flex';
 
-        var isTempReceiptChecked = $('#temp_receipt').is(':checked');
+    const isTempReceiptChecked = $('#temp_receipt').is(':checked');
+    const admSignature = $('#adm_signature_input').val()?.trim();
+    const customerSignature = $('#customer_signature_input').val()?.trim();
+    const paymentBatchId = $('#payment_batch_id').val()?.trim();
 
-        var formData = {
+    // ===== Pre-submit Validation =====
+    if (!paymentBatchId) {
+        preloader.style.display = 'none';
+        toastr.error('Please save at least one receipt before submitting the payment.');
+        return;
+    }
+
+    if (!admSignature) {
+        preloader.style.display = 'none';
+        toastr.error('Admin signature is required.');
+        return;
+    }
+
+    if (!isTempReceiptChecked && !customerSignature) {
+        preloader.style.display = 'none';
+        toastr.error('Customer signature is required for non-temporary receipts.');
+        return;
+    }
+
+    // ===== Prepare form data =====
+    const formData = {
         temp_receipt: isTempReceiptChecked ? 1 : 0,
-        adm_signature: $('#adm_signature_input').val(),
-        customer_signature: $('#customer_signature_input').val(),
+        adm_signature: admSignature,
+        customer_signature: customerSignature || null,
         reason_for_temp: $('#reason_for_temp').val(),
-        payment_batch_id: $('#payment_batch_id').val()
-        };
-        console.log(formData);
-        $.ajax({
-            url: '{{ url('adm/save-bulk-payment') }}',
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                preloader.style.display = 'none';
-                console.log('Saved successfully:', response);
-                toastr.success(response.message);
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
+        payment_batch_id: paymentBatchId
+    };
 
-            },
-            error: function(xhr, status, error) {
+    console.log(formData);
+
+    // ===== AJAX Submit =====
+    $.ajax({
+        url: '{{ url("adm/save-bulk-payment") }}',
+        method: 'POST',
+        data: formData,
+        success: function(response) {
+            preloader.style.display = 'none';
+            console.log('Saved successfully:', response);
+            toastr.success(response.message);
+            $('#payment_batch_id').val('');
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+        },
+        error: function(xhr, status, error) {
             preloader.style.display = 'none';
             console.error('Error saving:', error);
-            
-            let errorMessage = 'An unexpected error occurred';
 
+            let errorMessage = 'An unexpected error occurred';
             if (xhr.responseJSON) {
-                if (xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                if (xhr.responseJSON.error) {
-                    errorMessage += ' - ' + xhr.responseJSON.error;
-                }
+                if (xhr.responseJSON.message) errorMessage = xhr.responseJSON.message;
+                if (xhr.responseJSON.error) errorMessage += ' - ' + xhr.responseJSON.error;
             } else if (xhr.responseText) {
                 errorMessage = xhr.responseText;
             }
 
             toastr.error(errorMessage);
         }
-        });
     });
+});
+
+
+window.addEventListener('beforeunload', function (e) {
+    const paymentBatchId = $('#payment_batch_id').val()?.trim();
+
+    if (paymentBatchId) {
+        const confirmationMessage = 'You have an unsaved receipt. Plesase submit the payment before leaving the page.';
+        
+        e.preventDefault();
+        e.returnValue = confirmationMessage;
+
+        return confirmationMessage;
+    }
+});
+ $(document).on('change', 'select[name="bank_name"]', function () {
+
+    const bankValue = $(this).val();
+    const accordionItem = $(this).closest('.accordion-item');
+    const branchSelect = accordionItem.find('select[name="branch_name"]');
+
+    branchSelect.html('<option value="">Loading branches...</option>');
+
+    if (!bankValue) {
+        branchSelect.html('<option value="">-- Select Branch --</option>');
+        return;
+    }
+
+    const bankId = bankValue.split('||')[0];
+
+    $.ajax({
+        url: "{{ url('adm/get-branches') }}",
+        type: "POST",
+        data: {
+            bank_id: bankId,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function (branches) {
+
+            let options = '<option value="">-- Select Branch --</option>';
+
+            branches.forEach(branch => {
+                options += `<option value="${branch.BranchName} - ${branch.BranchCode}">
+                                ${branch.BranchName} - ${branch.BranchCode}
+                            </option>`;
+            });
+
+            branchSelect.html(options);
+        },
+        error: function () {
+            branchSelect.html('<option value="">Failed to load branches</option>');
+        }
+    });
+});
     </script>

@@ -197,7 +197,7 @@
             onclick="document.getElementById('user-toast').style.display='none';"></button>
     </div>
 </div>
-
+@include('layouts.footer2')
 <script>
     document.getElementById('submitBtn').addEventListener('click', () => {
         document.getElementById('uploadForm').dispatchEvent(new Event('submit'));

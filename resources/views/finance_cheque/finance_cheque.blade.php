@@ -147,10 +147,11 @@
                         <td>
                             @php
                             $statusClass = match(strtolower($item['status'])) {
-                            'approved' => 'success-status-btn',
+                            'accepted' => 'success-status-btn',
                             'deposited' => 'blue-status-btn',
                             'rejected' => 'danger-status-btn',
-                            'over_to_finance' => 'blue-status-btn',
+                            'declined' => 'danger-status-btn',
+                            'over_to_finance' => 'dark-status-btn',
                             default => 'grey-status-btn'
                             };
 
@@ -167,22 +168,22 @@
                             @if ($status === 'deposited')
                             <button class="success-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="over_to_finance">Approve 1</button>
+                                data-status="over_to_finance">Recived by finance</button>
 
                             <button class="red-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="rejected">Reject</button>
+                                data-status="declined">Decline</button>
                             @endif
 
                             {{-- Over to finance → Show Approve 2 + Reject --}}
                             @if ($status === 'over_to_finance')
                             <button class="success-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="approved">Approve 2</button>
+                                data-status="accepted">Accept</button>
 
                             <button class="red-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="rejected">Reject</button>
+                                data-status="declined">Decline</button>
                             @endif
                             @endif
 
@@ -387,7 +388,7 @@
     </div>
 </div>
 
-
+@include('layouts.footer2')
 <!-- link entire row of table -->
 <script>
     document.addEventListener('click', function(e) {
@@ -574,9 +575,9 @@
 
                     statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
 
-                    if (selectedStatus === "approved") {
+                    if (selectedStatus === "accepted") {
                         statusBtn.className = "success-status-btn";
-                    } else if (selectedStatus === "rejected") {
+                    } else if (selectedStatus === "declined") {
                         statusBtn.className = "danger-status-btn";
                     } else {
                         statusBtn.className = "blue-status-btn";
@@ -591,11 +592,11 @@
                         row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
                         <button class="success-action-btn update-status"
                             data-id="${depositId}"
-                            data-status="approved">Approve 2</button>
+                            data-status="accepted">Accept</button>
 
                         <button class="red-action-btn update-status"
                             data-id="${depositId}"
-                            data-status="rejected">Reject</button>
+                            data-status="declined">Decline</button>
                     `);
                     }
 

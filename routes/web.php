@@ -111,8 +111,12 @@ Route::post('/return-cheques/import', [ReturnChequeController::class, 'importRet
 Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class, 'all_outstanding'])->middleware(['authAdmin', 'permission:all-outstanding']);
 
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(['authAdmin', 'permission:all-receipts']);
+Route::match(['get', 'post'], '/pending-receipts', [CollectionsController::class, 'pending_receipts'])->middleware(['authAdmin', 'permission:pending-receipts']);
 Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(['authAdmin', 'permission:all-receipts-final-sms']);
 Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(['authAdmin']);
+Route::get('/final-receipts-export', [CollectionsController::class, 'exportFinalReceipts'])
+    ->name('final.receipts.export')->middleware(['authAdmin', 'permission:all-receipts']);
+Route::match(['get', 'post'], 'reject-receipt/{id}', [CollectionsController::class, 'reject_receipt'])->middleware(['authAdmin']);
 
 Route::get('/all-collections', [CollectionsController::class, 'all_collections'])
     ->middleware(['authAdmin', 'permission:all-collections'])
@@ -260,3 +264,6 @@ Route::get('/regional-sales-dashboard', function () {
 Route::get('/head-of-division-dashboard', function () {
     return view('dashboard.head_of_division');
 })->middleware(['authAdmin']);
+
+
+ Route::get('/receipt/view/{type}/{uniqid}', [CollectionsController::class, 'viewReceiptPdf']);

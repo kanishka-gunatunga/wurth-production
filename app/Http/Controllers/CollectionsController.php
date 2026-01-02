@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Exports\ArrayExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Services\MobitelInstantSmsService;
 use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Invoices;
@@ -23,17 +23,25 @@ use App\Models\Customers;
 use App\Models\InvoicePayments;
 use App\Models\InvoicePaymentBatches;
 use App\Models\AdvancedPayment;
-
+use Illuminate\Support\Facades\Log;
+use App\Exports\FinalReceiptsExport;
+use App\Services\ActivitLogService;
+use App\Services\SystemNotificationService;
 use File;
 use Mail;
 use Image;
-use PDF;
-
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 class CollectionsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+ protected $smsService;
+
+    public function __construct(MobitelInstantSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
 
     public function all_outstanding(Request $request)
     {
@@ -381,83 +389,217 @@ class CollectionsController extends Controller
             'activeTab'
         ));
     }
-
-    public function resend_receipt()
+    public function exportFinalReceipts(Request $request)
     {
-        $request->validate([
-            'receipt_id' => 'required|exists:invoice_payments,id',
-            'mobile' => 'nullable|string',
-            'optional_number' => 'nullable|string',
-        ]);
+        return Excel::download(
+            new FinalReceiptsExport($request),
+            'final_receipts_' . now()->format('Y_m_d_His') . '.xlsx'
+        );
+    }
+    public function pending_receipts(Request $request)
+    {
+ 
+        // Final Receipts Search
+        $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])->where('status', 'pending')
+            ->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
 
-        $id = $request->receipt_id;
-        $mobile = $request->optional_number ?: $request->mobile;
-
-        if (!$mobile) {
-            return back()->with('error', 'No mobile number provided.');
+        if ($request->filled('final_search')) {
+            $search = $request->final_search;
+            $regularQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas(
+                        'invoice.customer',
+                        fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('adm', 'like', "%{$search}%")
+                    );
+            });
         }
 
-        $payment = InvoicePayments::findOrFail($id);
-        $invoice = Invoices::findOrFail($payment->invoice_id);
-        $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
-        $adm = UserDetails::where('adm_number', $customer->adm)->first();
-
-        // Folder for saving duplicate receipts
-        $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
-        if (!File::exists($folderPath)) {
-            File::makeDirectory($folderPath, 0755, true);
+        // Final Receipts Filters
+        if ($request->filled('final_adm_names')) {
+            $regularQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('name', $request->final_adm_names);
+            });
         }
 
-        // Check if duplicate already exists
-        if ($payment->duplicate_pdf && File::exists(public_path($payment->duplicate_pdf))) {
-            // Use existing file
-            $filePath = public_path($payment->duplicate_pdf);
-        } else {
-            // Generate new duplicate PDF
-            $pdf_name = 'duplicate_receipt_' . $payment->id . '_' . time() . '.pdf';
-            $filePath = $folderPath . '/' . $pdf_name;
+        if ($request->filled('final_adm_ids')) {
+            $regularQuery->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->final_adm_ids);
+            });
+        }
 
-            // Select correct receipt view by payment type
-            switch ($payment->type) {
-                case 'cash':
-                    $view = 'pdfs.collections.receipts.cash';
-                    break;
-                case 'fund-transfer':
-                    $view = 'pdfs.collections.receipts.fund-transfer';
-                    break;
-                case 'cheque':
-                    $view = 'pdfs.collections.receipts.cheque';
-                    break;
-                case 'card':
-                    $view = 'pdfs.collections.receipts.card';
-                    break;
-                default:
-                    return back()->with('error', 'Invalid payment type');
+        if ($request->filled('final_customers')) {
+            $regularQuery->whereHas('invoice.customer', function ($q) use ($request) {
+                $q->whereIn('name', $request->final_customers);
+            });
+        }
+
+        if ($request->filled('final_status')) {
+            $regularQuery->where('status', $request->final_status);
+        }
+
+        if ($request->filled('final_date_range')) {
+            $range = trim($request->final_date_range);
+
+            // Support both "YYYY-MM-DD to YYYY-MM-DD" and "YYYY-MM-DD - YYYY-MM-DD"
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
             }
 
-            // Generate and save PDF
-            $pdf = PDF::loadView($view, [
-                'is_duplicate' => 1,
-                'payment' => $payment,
-                'invoice' => $invoice,
-                'customer' => $customer,
-                'adm' => $adm
-            ])->setPaper('a4', 'portrait');
-
-            $pdf->save($filePath);
-
-            $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdf_name;
-            $payment->save();
+            // Make sure both dates are valid
+            if (!empty($start) && !empty($end)) {
+                $regularQuery->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
-        // Send email with the duplicate PDF attachment
-        if ($customer->email) {
-            Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
-        }
+        $regular_receipts = $regularQuery->paginate(15, ['*'], 'regular_page');
 
-        return back()->with('success', 'Receipt resent successfully to the customer.');
+        // Separate dropdown data for each tab (your existing code remains the same)
+        $finalAdmNames = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $finalAdmIds = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer.admDetails')
+            ->get()
+            ->pluck('invoice.customer.admDetails.adm_number')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $finalCustomers = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->with('invoice.customer')
+            ->get()
+            ->pluck('invoice.customer.name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        return view('collections.pending_receipts', compact(
+            'regular_receipts', 
+            'finalAdmNames',
+            'finalAdmIds',
+            'finalCustomers',
+        ));
     }
 
+  public function resend_receipt(Request $request)
+{
+    $request->validate([
+        'receipt_id' => 'required|exists:invoice_payments,id',
+        'mobile' => 'nullable|string',
+        'optional_number' => 'nullable|string',
+    ]);
+
+    $id = $request->receipt_id;
+    $mobile = $request->optional_number ?: $request->mobile;
+
+    if (!$mobile) {
+        return back()->with('fail', 'No mobile number provided.');
+    }
+
+   $payment = InvoicePayments::with([
+        'invoice.customer',
+        'adm.userDetails',
+        'batch'
+    ])->findOrFail($id);
+
+    $customer = $payment->invoice->customer;
+    $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
+    File::ensureDirectoryExists($folderPath);
+
+    if (!empty($payment->duplicate_pdf) && File::exists(public_path($payment->duplicate_pdf))) {
+        $filePath = public_path($payment->duplicate_pdf);
+    }
+    else{
+
+        $pdfName = 'duplicate_receipt_' . $payment->uniqid . '_' . time() . '.pdf';
+        $filePath = $folderPath . '/' . $pdfName;
+
+        $pdf = PDF::loadView('pdfs.collections.receipts.pdf', [
+            'payment'      => $payment,
+            'batch'        => $payment->batch,
+            'is_duplicate' => 1,
+            'is_temp'   => 0,
+        ])
+        ->setPaper('a4', 'portrait')
+        ->setOption('margin-bottom', 50);
+
+        $pdf->save($filePath);
+
+        $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdfName;
+        $payment->save();
+    }
+
+    if (!empty($customer->email)) {
+        try {
+            Mail::to($customer->email)->send(
+                new SendReceiptMail($payment, $filePath, 1)
+            );
+        } catch (\Exception $e) {
+            Log::error(
+                'Admin resend email failed for Payment ID '
+                . $payment->id . ': ' . $e->getMessage()
+            );
+        }
+    }
+
+
+    $toNumber = preg_replace('/^0/', '94', $mobile);
+
+    $smsMessage  = "Receipt Resent Successfully\n";
+    $smsMessage .= "Receipt No: " . $payment->uniqid . "\n";
+    $smsMessage .= "Amount: LKR " . number_format($payment->final_payment, 2) . "\n";
+    $smsMessage .= "Payment Method: " . ucfirst($payment->type) . "\n";
+    $smsMessage .= "ADM No: "
+        . ($payment->adm->userDetails->adm_number ?? '-') . "\n";
+
+    if (strtolower($payment->type) === 'cheque') {
+        $smsMessage .= "Cheque No: " . ($payment->cheque_number ?? '-') . "\n";
+        $smsMessage .= "Deposit Date: " . ($payment->cheque_date ?? '-') . "\n";
+        $smsMessage .= "Bank: " . ($payment->bank_name ?? '-') . "\n";
+        $smsMessage .= "Branch: " . ($payment->branch_name ?? '-') . "\n";
+    }
+
+    $smsMessage .= "\nInvoice:\n";
+    $smsMessage .= $payment->invoice->invoice_or_cheque_no
+        . " - LKR " . number_format($payment->invoice->amount, 2) . "\n";
+
+    $smsMessage .= "\nView Receipt:\n"
+        . url('/receipt/view/duplicate/' . $payment->uniqid);
+
+    try {
+        $this->smsService->sendInstantSms(
+            [(string) $toNumber],
+            $smsMessage,
+            "Receipt"
+        );
+
+        Log::info(
+            'Admin resend SMS sent to ' . $toNumber
+            . ' (Payment ID: ' . $payment->id . ')'
+        );
+    } catch (\Exception $e) {
+        Log::error(
+            'Admin resend SMS failed for Payment ID '
+            . $payment->id . ': ' . $e->getMessage()
+        );
+    }
+
+    return back()->with('success', 'Receipt resent successfully via Email & SMS.');
+}
     public function remove_advanced_payment($id)
     {
         AdvancedPayment::where('id', $id)->delete();
@@ -849,4 +991,88 @@ class CollectionsController extends Controller
     {
         //
     }
+
+    
+public function viewReceiptPdf($type,$uniqid)
+{
+    
+    $receipt = InvoicePayments::where('uniqid', $uniqid)->firstOrFail();
+    if($type == 'duplicate'){
+        $pdfPath = public_path($receipt->duplicate_pdf);
+    }
+    else{
+        $pdfPath = public_path($receipt->pdf_path);
+    }
+    if (!file_exists($pdfPath)) {
+        abort(404, "PDF not found.");
+    }
+
+    return response()->file($pdfPath);
+}
+public function reject_receipt(Request $request, $id)
+{
+    try {
+        $payment = InvoicePayments::with([
+            'invoice.customer',
+            'adm.userDetails'
+        ])->findOrFail($id);
+        $payment->status = 'rejected';
+        $payment->save();
+
+        ActivitLogService::log(
+            'receipt',
+            'receipt (' . $payment->id . ') status has been changed to rejected'
+        );
+
+        SystemNotificationService::log(
+            'receipt',
+            $payment->id,
+            'Your receipt (' . $payment->id . ') status has been rejected',
+            $payment->adm_id
+        );
+
+        $toNumber = preg_replace(
+            '/^0/',
+            '94',
+            $payment->invoice->customer->mobile_number ?? ''
+        );
+
+        if (!empty($toNumber)) {
+
+            $smsMessage  = "IMPORTANT NOTICE\n";
+            $smsMessage .= "Receipt No: " . $payment->id . "\n";
+            $smsMessage .= "This receipt has been CANCELLED and REJECTED.\n";
+            $smsMessage .= "Please IGNORE this receipt.\n\n";
+            $smsMessage .= "If you have already received this receipt, ";
+            $smsMessage .= "it is no longer valid.\n\n";
+            $smsMessage .= "For clarification, please contact the office.";
+
+            try {
+                $this->smsService->sendInstantSms(
+                    [(string) $toNumber],
+                    $smsMessage,
+                    "Receipt"
+                );
+
+                Log::info(
+                    'Cancellation SMS sent to ' . $toNumber .
+                    ' (Payment ID: ' . $payment->id . ')'
+                );
+
+            } catch (\Exception $e) {
+                Log::error(
+                    'Cancellation SMS failed for Payment ID '
+                    . $payment->id . ': ' . $e->getMessage()
+                );
+            }
+        }
+        return back()->with('success', 'Receipt rejected.');
+       
+
+    } catch (\Exception $e) {
+
+        return back()->with('fail', $e->getMessage());
+    }
+}
+
 }

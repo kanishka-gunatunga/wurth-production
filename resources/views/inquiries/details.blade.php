@@ -395,7 +395,7 @@
     @endif
 @endsection
 
-
+@include('layouts.footer2')
 <!-- dropdown script -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -536,5 +536,3 @@
         });
     });
 </script>
-
-@include('layouts.footer2')

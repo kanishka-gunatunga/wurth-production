@@ -146,9 +146,10 @@
                         <td>
                             @php
                             $statusClass = match(strtolower($item['status'])) {
-                            'approved' => 'success-status-btn',
+                            'accepted' => 'success-status-btn',
                             'deposited' => 'blue-status-btn',
                             'rejected' => 'danger-status-btn',
+                            'declined' => 'danger-status-btn',
                             default => 'grey-status-btn'
                             };
                             @endphp
@@ -157,8 +158,8 @@
                         <td class="sticky-column">
                             @if (strtolower($item['status']) === 'deposited')
                              @if(in_array('deposits-cheque-status', session('permissions', [])))
-                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="accepted">Accept</button>
+                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="declined">Decline</button>
                              @endif
                             @endif
 
@@ -360,7 +361,7 @@
     </div>
 </div>
 
-
+@include('layouts.footer2')
 <!-- for dropdown -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -513,7 +514,7 @@
             e.stopPropagation();
 
             currentStatusButton = e.target;
-            newStatus = e.target.classList.contains('success-action-btn') ? 'approved' : 'rejected';
+            newStatus = e.target.classList.contains('success-action-btn') ? 'accepted' : 'declined';
 
             // Show confirmation modal
             document.getElementById('confirm-status-text').innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
@@ -550,7 +551,7 @@
                         // Update UI instantly
                         const statusButton = row.querySelector('td:nth-child(8) button');
                         statusButton.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                        statusButton.className = newStatus === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+                        statusButton.className = newStatus === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
 
                         // Hide Approve/Reject buttons
                         row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');

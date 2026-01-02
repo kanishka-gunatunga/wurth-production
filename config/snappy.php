@@ -33,17 +33,24 @@ return [
     |
     */
     
-    'pdf' => [
-        'enabled' => true,
-        'binary'  => env('WKHTML_PDF_BINARY', '/usr/local/bin/wkhtmltopdf'),
-        'timeout' => false,
-        'options' => [],
-        'env'     => [],
+     'pdf' => [
+    'enabled' => true,
+    'binary' => env('WKHTMLTOPDF_PATH', 'C:\wkhtmltopdf\bin\wkhtmltopdf.exe'),
+    'timeout' => false,
+    'options' => [
+        'enable-local-file-access' => true, // 👈 REQUIRED for local fonts/images
+        'no-stop-slow-scripts' => true,
+        'disable-smart-shrinking' => false,
+        'margin-bottom' => 50,
+        'page-size' => 'A4',
     ],
+    'env'     => [],
+],
+
     
     'image' => [
         'enabled' => true,
-        'binary'  => env('WKHTML_IMG_BINARY', '/usr/local/bin/wkhtmltoimage'),
+        'binary'  => env('WKHTML_IMG_BINARY', base_path('/vendor/h4cc/wkhtmltoimage-amd64/bin/wkhtmltoimage-amd64')),
         'timeout' => false,
         'options' => [],
         'env'     => [],

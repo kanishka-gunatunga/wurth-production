@@ -12,7 +12,34 @@ class InvoicePayments extends Model
     protected $table = 'invoice_payments';
     protected $primaryKey = 'id';
 
-
+    protected $fillable = [
+        'invoice_id',
+        'uniqid',
+        'batch_id',
+        'adm_id',
+        'type',
+        'is_bulk',
+        'amount',
+        'discount',
+        'final_payment',
+        'transfer_date',
+        'transfer_reference_number',
+        'screenshot',
+        'cheque_number',
+        'cheque_amount',
+        'cheque_date',
+        'cheque_image',
+        'bank_name',
+        'branch_name',
+        'post_dated',
+        'card_transfer_date',
+        'card_image',
+        'status',
+        'pdf_path',
+        'duplicate_pdf',
+        'created_at',
+        'updated_at',
+    ];
     /**
      * Each payment belongs to one invoice.
      * 

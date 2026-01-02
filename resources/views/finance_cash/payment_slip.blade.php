@@ -39,9 +39,11 @@
                     }
 
                     $statusClass = match($status) {
-                    'Approved' => 'success-status-btn',
-                    'Deposited' => 'blue-status-btn',
-                    'Rejected' => 'danger-status-btn',
+                    'accepted' => 'success-status-btn',
+                    'deposited' => 'blue-status-btn',
+                    'rejected' => 'danger-status-btn',
+                    'declined' => 'danger-status-btn',
+                    'over_to_finance' => 'dark-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp
@@ -150,21 +152,27 @@
 </div>
 
 
-<div class="action-button-lg-row">
-    <a href="{{ url('/finance-cash') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 
-    @if(strtolower($status) !== 'approved')
-    @if(in_array('deposits-finance-cash-status', session('permissions', [])))
-    <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+<div id="footer-buttons-container" class="action-button-lg-row" style="display:flex; gap:1.2rem;">
+    <a href="{{ url('/finance-cash') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
+     @if(in_array('deposits-finance-cash-status', session('permissions', [])))                
+    @php
+    $currentStatus = strtolower($deposit['status']);
+    if ($currentStatus === 'pending') $currentStatus = 'deposited';
+    @endphp
+
+    @if ($currentStatus === 'deposited' || $currentStatus === 'declined')
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="over_to_finance">Recieved by finance</button>
+    @elseif ($currentStatus === 'over_to_finance')
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="accepted">Accept</button>
     @endif
     @endif
 </div>
 
 
-
-
+@include('layouts.footer2')
 <!-- dropdown script -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -246,10 +254,10 @@
                             // Update status button visually
                             const statusBtn = document.querySelector('.slip-detail-text button');
                             statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'approved') {
+                            if (data.status.toLowerCase() === 'accepted') {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
                             }
                         } else {

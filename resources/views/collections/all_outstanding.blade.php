@@ -234,7 +234,7 @@
 
 
 
-
+@include('layouts.footer2')
 
 
 
@@ -576,4 +576,3 @@
 }
 </script>
 
-@include('layouts.footer2')

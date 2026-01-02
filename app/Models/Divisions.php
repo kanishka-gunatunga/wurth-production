@@ -20,11 +20,21 @@ class Divisions extends Model
     {
         return $this->hasMany(UserDetails::class, 'division', 'id');
     }
-    public function head()
+public function heads()
 {
-    return $this->hasOne(UserDetails::class, 'division', 'id')
-                ->whereHas('user', function ($q) {
-                    $q->where('user_role', 2); // Role 2 = HOD
-                });
+    return $this->hasMany(UserDetails::class, 'division', 'id')
+        ->whereHas('user', function ($q) {
+            $q->where('user_role', 2)
+              ->where('status', 'active');
+        });
 }
+
+/**
+ * Single division head (latest)
+ */
+public function head()
+{
+    return $this->heads()->latest()->first();
+}
+
 }

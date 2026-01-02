@@ -343,7 +343,7 @@
     </div>
 </form>
 
-
+@include('layouts.footer2')
 <!-- expand search bar  -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {

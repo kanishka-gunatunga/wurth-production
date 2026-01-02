@@ -149,7 +149,7 @@
     @endif
 </div>
 
-
+@include('layouts.footer2')
 <!-- toast message -->
 <script>
     document.addEventListener('click', function(e) {

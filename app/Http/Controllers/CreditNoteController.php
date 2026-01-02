@@ -21,6 +21,7 @@ class CreditNoteController extends Controller
 
     try {
         $file = $request->file('file');
+         $fileName = $file->getClientOriginalName();
         $spreadsheet = IOFactory::load($file->getPathname());
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();

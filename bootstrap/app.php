@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\CheckPermission;
+use Modules\ADM\Http\Middleware\ADMAuthenticated;
 use App\Http\Middleware\AuthAdmin;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
          $middleware->alias([
             'permission' => CheckPermission::class,
             'authAdmin' => AuthAdmin::class,
+            'authADM' => ADMAuthenticated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -145,7 +145,7 @@
             onclick="document.getElementById('user-toast').style.display='none';"></button>
     </div>
 </div>
-
+@include('layouts.footer2')
 <script>
     // Cancel button redirect
     document.querySelector('.cancel').addEventListener('click', function(e) {

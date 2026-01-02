@@ -45,9 +45,10 @@
                 <span class="slip-detail-text">
                     @php
                     $statusClass = match($deposit['status']) {
-                    'Approved' => 'success-status-btn',
+                    'Accepted' => 'success-status-btn',
                     'Deposited' => 'blue-status-btn',
                     'Rejected' => 'danger-status-btn',
+                    'Declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp
@@ -166,22 +167,22 @@
     $currentStatus = strtolower($deposit['status']);
     @endphp
      @if(in_array('deposits-cheque-status', session('permissions', [])))                            
-    @if ($currentStatus !== 'approved')
+    @if ($currentStatus !== 'accepted')
     <button class="red-action-btn-lg update-status-btn"
         data-id="{{ $deposit['id'] }}"
-        data-status="rejected">
-        Reject
+        data-status="declined">
+        Declined
     </button>
     <button class="success-action-btn-lg update-status-btn"
         data-id="{{ $deposit['id'] }}"
-        data-status="approved">
-        Approve
+        data-status="accepted">
+        Accept
     </button>
     @endif
      @endif
 </div>
 
-
+@include('layouts.footer2')
 
 <script>
     // Payment slips data
@@ -470,11 +471,11 @@
                     // Update visual status instantly
                     statusButton.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
 
-                    if (selectedStatus === 'approved') {
+                    if (selectedStatus === 'accepted') {
                         statusButton.className = 'success-status-btn';
                         approveBtn.style.display = 'none';
                         rejectBtn.style.display = 'none';
-                    } else if (selectedStatus === 'rejected') {
+                    } else if (selectedStatus === 'declined') {
                         statusButton.className = 'danger-status-btn';
                         approveBtn.style.display = 'inline-block';
                         rejectBtn.style.display = 'inline-block';

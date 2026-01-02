@@ -20,8 +20,7 @@ class UploadController extends Controller
     $request->validate([
         'file_type' => 'required|string',
         'file' => 'required|mimes:xlsx,xls,csv|max:10240',
-    ]);
-
+    ]); 
     $file = $request->file('file');
     $fileName = $file->getClientOriginalName();
 

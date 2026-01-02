@@ -309,6 +309,7 @@
                                 in_array('all-collections', session('permissions')) ||
                                 in_array('all-outstanding', session('permissions')) ||
                                 in_array('all-receipts', session('permissions')) ||
+                                in_array('pending-receipts', session('permissions')) ||
                                 in_array('all-collections-add', session('permissions')) ||
                                 in_array('all-advanced-payments', session('permissions')))
                             <li class="nav-item">
@@ -386,6 +387,21 @@
                                                         </svg>
                                                     </span>
                                                     All Receipts
+                                                </a>
+                                            </li>
+                                        @endif
+                                        @if (in_array('pending-receipts', session('permissions')))
+                                            <li class="nav-item">
+                                                <a href="{{ url('/pending-receipts') }}" class="nav-link">
+                                                    <span class="me-4">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24"
+                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M4 20.7705V3.23047L5.27 4.19247L6.616 3.23147L7.962 4.19247L9.308 3.23147L10.654 4.19247L12 3.23147L13.346 4.19247L14.692 3.23147L16.038 4.19247L17.384 3.23147L18.731 4.19247L20 3.23147V20.7695L18.73 19.8085L17.384 20.7695L16.038 19.8085L14.692 20.7695L13.346 19.8085L12 20.7695L10.654 19.8085L9.308 20.7695L7.962 19.8085L6.616 20.7695L5.269 19.8085L4 20.7705ZM6.5 15.8855H17.5V14.8855H6.5V15.8855ZM6.5 12.5005H17.5V11.5005H6.5V12.5005ZM6.5 9.11647H17.5V8.11647H6.5V9.11647ZM5 19.1005H19V4.90047H5V19.1005Z"
+                                                                fill="#090909" />
+                                                        </svg>
+                                                    </span>
+                                                    Pending Receipts
                                                 </a>
                                             </li>
                                         @endif

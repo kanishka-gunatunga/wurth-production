@@ -273,7 +273,7 @@
     </div>
 </form>
 
-
+@include('layouts.footer2')
 
 <!-- link entire row of table -->
 <script>
@@ -363,4 +363,3 @@
         });
     });
 </script>
-@include('layouts.footer2')

@@ -83,9 +83,17 @@ class CustomerController extends Controller
 
     // --- PAGINATION (with separate query page names) ---
     $customers = $customersQuery->paginate(15, ['*'], 'customers_page')
-        ->appends($request->except('customers_page'));
+    ->appends([
+        'active_tab' => 'customer-list',
+        'search' => $search,
+        'adm' => $selectedAdms,
+    ]);
     $temp_customers = $tempCustomersQuery->paginate(15, ['*'], 'temp_page')
-        ->appends($request->except('temp_page'));
+    ->appends([
+        'active_tab' => 'temporary',
+        'temp_search' => $tempSearch,
+        'temp_adm' => $tempSelectedAdms,
+    ]);
 
     // --- ADM list for filters (ADM = users with user_role 6) ---
     $adms = User::where('user_role', 6)->with('userDetails')->get();
@@ -171,7 +179,7 @@ class CustomerController extends Controller
     return view('customer.edit_customer', ['customer_details' => $customer_details,'adms' => $adms]);
     }
     if($request->isMethod('post')){
-
+        // return $request;
         $request->validate([
             'customer_id'   => 'required',
             'name'   => 'required',
@@ -180,7 +188,7 @@ class CustomerController extends Controller
             'email'   => 'required',
             'whatsapp_number'   => 'required',
             'adm'   => 'required',
-            'avilable_time'   => 'required',
+            // 'avilable_time'   => 'required',
         ]);
         
         if(Customers::where("id", "=", $id)->where("customer_id", "=", $request->customer_id)->exists()){
@@ -300,7 +308,7 @@ public function importCustomers(Request $request)
             }
 
             $customer = new Customers();
-            $customer->is_temp = 1;
+            $customer->is_temp = 0;
             $customer->customer_id = $row['customer'];
             $customer->name = $row['name 1'];
             $customer->adm = $row['sales rep. no.'];

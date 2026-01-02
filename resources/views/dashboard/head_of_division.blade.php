@@ -1314,7 +1314,6 @@
     </div>
 </div>
 
-
 <script>
     const tabs = document.querySelectorAll('.notification-tab');
     const lists = document.querySelectorAll('.notification-list');

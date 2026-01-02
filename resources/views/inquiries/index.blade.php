@@ -298,7 +298,7 @@
         </div>
     </div>
 </div>
-
+@include('layouts.footer2')
 
 <!-- link entire row of table -->
 <script>

@@ -120,7 +120,7 @@
     <a href="{{ url('set-off-main') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 </div>
 @endsection
-
+@include('layouts.footer2')
 
 <!-- dropdown script -->
 <script>
@@ -140,4 +140,3 @@
     });
 </script>
 
-@include('layouts.footer2')

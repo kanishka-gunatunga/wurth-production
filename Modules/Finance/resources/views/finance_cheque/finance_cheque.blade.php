@@ -140,7 +140,7 @@
                             'approved' => 'success-status-btn',
                             'deposited' => 'blue-status-btn',
                             'rejected' => 'danger-status-btn',
-                            'over_to_finance' => 'blue-status-btn',
+                            'over_to_finance' => 'dark-status-btn',
                             default => 'grey-status-btn'
                             };
 

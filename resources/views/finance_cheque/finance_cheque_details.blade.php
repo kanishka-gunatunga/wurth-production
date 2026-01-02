@@ -42,10 +42,11 @@
                 <span class="slip-detail-text">
                     @php
                     $statusClass = match($deposit['status']) {
-                    'Approved' => 'success-status-btn',
-                    'Deposited' => 'blue-status-btn',
-                    'Rejected' => 'danger-status-btn',
-                    'Over_to_finance' => 'blue-status-btn',
+                    'accepted' => 'success-status-btn',
+                    'deposited' => 'blue-status-btn',
+                    'rejected' => 'danger-status-btn',
+                    'declined' => 'danger-status-btn',
+                    'over_to_finance' => 'dark-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp
@@ -178,17 +179,17 @@
     if ($currentStatus === 'pending') $currentStatus = 'deposited';
     @endphp
 
-    @if ($currentStatus === 'deposited' || $currentStatus === 'rejected')
-    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Approve 1</button>
+    @if ($currentStatus === 'deposited' || $currentStatus === 'declined')
+    <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+    <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recived by finance</button>
     @elseif ($currentStatus === 'over_to_finance')
-    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve 2</button>
+    <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+    <button class="success-action-btn-lg update-status-btn" data-status="accepted">Accept</button>
     @endif
     @endif
 </div>
 
-
+@include('layouts.footer2')
 
 <!-- dropdown script -->
 <script>
@@ -293,7 +294,7 @@
                 statusButton.textContent = formatted;
 
                 // Update badge color
-                if (selectedStatus === "approved") {
+                if (selectedStatus === "accepted") {
                     statusButton.className = "success-status-btn";
                 } else if (selectedStatus === "rejected") {
                     statusButton.className = "danger-status-btn";
@@ -317,19 +318,19 @@
             // Remove old buttons except Back
             footer.innerHTML = `<a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>`;
 
-            if (status === "approved") return;
+            if (status === "accepted") return;
 
-            if (status === "deposited" || status === "rejected") {
+            if (status === "deposited" || status === "declined") {
                 footer.innerHTML += `
-            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-            <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Approve 1</button>
+            <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+            <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recieved by finance</button>
         `;
             }
 
             if (status === "over_to_finance") {
                 footer.innerHTML += `
-            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-            <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve 2</button>
+            <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+            <button class="success-action-btn-lg update-status-btn" data-status="accepted">Accept</button>
         `;
             }
 

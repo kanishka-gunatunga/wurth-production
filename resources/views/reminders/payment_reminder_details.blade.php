@@ -74,7 +74,7 @@
     <a href="{{ url('reminders') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 </div>
 
-
+@include('layouts.footer2')
 <!-- toast message -->
 <script>
     document.addEventListener('click', function(e) {

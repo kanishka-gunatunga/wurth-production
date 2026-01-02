@@ -128,7 +128,9 @@ use App\Models\UserDetails;
                     ?>
                         <tr>
                             <td>{{ $division->division_name ?? '-' }}</td>
-                            <td>{{ $division->head->user->name ?? '-' }}</td>
+                           <td>{{ $division->head()?->name ?? '-' }}</td>
+
+
                             <td>{{$division->registered_date}}</td>
                             <td>{{ $division->userDetails->count() }}</td>
                             <td>
@@ -159,7 +161,7 @@ use App\Models\UserDetails;
 </div>
 
 
-
+@include('layouts.footer2')
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

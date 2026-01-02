@@ -128,7 +128,7 @@
         </button>
     </div>
 </div>
-
+@include('layouts.footer2')
 
 <script>
     document.querySelectorAll('.dropdown').forEach(dropdown => {

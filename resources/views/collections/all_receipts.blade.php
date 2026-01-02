@@ -178,9 +178,12 @@ $activeTab = request('active_tab', 'final');
                 </div>
                  @if(in_array('all-receipts-final-export', session('permissions', [])))   
                 <div class="col-12 d-flex justify-content-end pe-0 mb-3 gap-3">
-                    <button class="add-new-division-btn mb-3 submit">
-                        Export
-                    </button>
+           
+                    <a href="{{ route('final.receipts.export', request()->query()) }}"
+                        class="add-new-division-btn mb-3 submit">
+                            Export
+                        </a>
+
                 </div>
                 @endif
                 <div class="table-responsive">
@@ -216,12 +219,13 @@ $activeTab = request('active_tab', 'final');
                                     @if($payment->status == 'exported')
                                     <button class="yellow-status-btn"> Exported</button>
                                     @endif
-                                    @if($payment->status == 'approved')
-                                    <button class="success-status-btn"> Approved</button>
+                                    @if($payment->status == 'accepted')
+                                    <button class="success-status-btn"> Accepted</button>
                                     @endif
                                     @if($payment->status == 'rejected')
                                     <button class="danger-status-btn"> Rejected</button>
                                     @endif
+
                                 </td>
 
                                 <!-- Actions -->
@@ -241,7 +245,7 @@ $activeTab = request('active_tab', 'final');
                                         </a>
                                         @endif
                                         @if(in_array('all-receipts-final-edit', session('permissions', [])))
-                                        <a href="{{ url('/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <!-- <a href="{{ url('/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a> -->
                                         @endif
                                     </div>
                                 </td>
@@ -320,7 +324,7 @@ $activeTab = request('active_tab', 'final');
                                         </a>
                                         @endif
                                          @if(in_array('all-receipts-temporary-edit', session('permissions', [])))
-                                        <a href="{{ url('/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <!-- <a href="{{ url('/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a> -->
                                         @endif
                                     </div>
                                 </td>
@@ -409,7 +413,7 @@ $activeTab = request('active_tab', 'final');
                                         </a>
                                         @endif
                                          @if(in_array('all-receipts-advanced-edit', session('permissions', [])))
-                                        <a href="{{ url('/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <!-- <a href="{{ url('/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a> -->
                                         @endif
                                          @if(in_array('all-receipts-advanced-remove', session('permissions', [])))
                                         <a href="{{ url('/remove-advanced-payment/'.$advanced_payment->id) }}"><button class="red-action-btn">Remove</button></a>
@@ -731,7 +735,7 @@ $activeTab = request('active_tab', 'final');
 </div>
 
 
-
+@include('layouts.footer2')
 
 <!-- for dropdown -->
 <script>

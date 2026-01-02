@@ -107,7 +107,7 @@ class FinanceCashController extends Controller
         $request->merge(['status' => ucfirst(strtolower($request->status))]);
 
         $request->validate([
-            'status' => 'required|in:approved,rejected',
+            'status' => 'required|in:accepted,declined,over_to_finance',
         ]);
 
         $deposit = Deposits::findOrFail($id);
@@ -120,8 +120,15 @@ class FinanceCashController extends Controller
             ->toArray();
 
         if (!empty($receiptIds)) {
-            InvoicePayments::whereIn('id', $receiptIds)
+            if($request->status == 'declined'){
+                 InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => 'pending']);
+            }
+            else{
+                 InvoicePayments::whereIn('id', $receiptIds)
                 ->update(['status' => $request->status]);
+            }
+           
         }
 
         ActivitLogService::log('deposit', 'deposit ('.$id.') status has been changed to '.$request->status);

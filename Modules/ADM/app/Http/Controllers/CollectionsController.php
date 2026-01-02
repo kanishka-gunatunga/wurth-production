@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Mail\SendReceiptMail;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
 use App\Models\UserDetails;
@@ -22,17 +23,25 @@ use App\Models\Invoices;
 use App\Models\Customers;
 use App\Models\InvoicePayments;
 use App\Models\InvoicePaymentBatches;
-
+use App\Services\MobitelInstantSmsService;
+use App\Models\Bank;
+use App\Models\Branch;
 use File;
 use Mail;
 use Image;
-use PDF;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 class CollectionsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
+    protected $smsService;
+
+    public function __construct(MobitelInstantSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
     public function collections()
 {
     $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
@@ -136,7 +145,8 @@ class CollectionsController extends Controller
         $invoice_details = Invoices::where('id',$id)->first();
         $customer_details = Customers::where('customer_id', $invoice_details->customer_id)->first();
         $payments  = InvoicePayments::where('invoice_id',$id)->get();
-        return view('adm::collection.view_invoice', ['invoice_details' => $invoice_details,'customer_details' => $customer_details,'payments' => $payments]);
+        $banks = Bank::all();
+        return view('adm::collection.view_invoice', ['invoice_details' => $invoice_details,'customer_details' => $customer_details,'payments' => $payments,'banks' => $banks]);
     }
     }    
 
@@ -161,8 +171,9 @@ class CollectionsController extends Controller
             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
         }
 
-
+        $uniqid = uniqid();
         $payment = new InvoicePayments();
+        $payment->uniqid = $uniqid;
         $payment->invoice_id = $id;
         $payment->batch_id = $payment_batch->id;
         $payment->type = 'cash';
@@ -179,31 +190,67 @@ class CollectionsController extends Controller
         $invoice->update();
 
 
-        $invoice= Invoices::where('id', $payment->invoice_id)->first();
-        $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+        // $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+        //     'is_duplicate' => 0,
+        //     'payment' => $payment,
+        //     'invoice' => $invoice,
+        //     'customer' => $customer,
+        //     'adm' => $adm
+        // ])->setPaper('a4', 'portrait');
+        
+        // $updated_payment = InvoicePayments::with(['invoice.customer', 'adm.userDetails'])
+        // ->find($payment->id);
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-            'is_duplicate' => 0,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+        // $pdf = PDF::loadView('pdfs.collections.receipts.pdf', ['payment' => $updated_payment])
+        // ->setPaper('a4')
+        // ->setOption('margin-bottom', 50);
 
-        $folder = public_path('uploads/adm/collections/receipts/original/');
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
-        }
+        // $folder = public_path('uploads/adm/collections/receipts/original/');
+        // if (!File::exists($folder)) {
+        //     File::makeDirectory($folder, 0755, true);
+        // }
 
-        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
-        $filePath = $folder.'/'.$pdf_name;
-        $pdf->save($filePath);
+        // $pdf_name = 'receipt_'.$uniqid.'_'.time().'.pdf';
+        // $filePath = $folder.'/'.$pdf_name;
+        // $pdf->save($filePath);
 
-        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-        $payment->save();
+        // $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        // $payment->save();
 
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        // if (!empty($updated_payment->invoice->customer->email)) {
+        // try {
+        //     Mail::to($updated_payment->invoice->customer->email)->send(new SendReceiptMail($updated_payment, $filePath));
+        // } catch (\Exception $e) {
+        //     Log::error('Email sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
+        // }
+        // }
+        
+        // $toNumber = preg_replace('/^0/', '94', $updated_payment->invoice->customer->mobile_number ?? '');
+
+        // $smsMessage = "Thank you for your payment.\n";
+        // $smsMessage .= "Receipt No: " . $updated_payment->id . "\n";
+        // $smsMessage .= "Amount: " . number_format($updated_payment->final_payment, 2) . "\n";
+        // $smsMessage .= "Payment Method: " . ucfirst($updated_payment->type) . "\n";
+        // $smsMessage .= "ADM No:  " . $updated_payment->adm->userDetails->adm_number . "\n";
+
+        // if (strtolower($updated_payment->type) === 'cheque') {
+        //     $smsMessage .= "Cheque No: " . ($updated_payment->cheque_number ?? '-') . "\n";
+        //     $smsMessage .= "Deposit Date: " . ($updated_payment->cheque_date ?? '-') . "\n";
+        //     $smsMessage .= "Bank: " . ($updated_payment->bank_name ?? '-') . "\n";
+        //     $smsMessage .= "Branch: " . ($updated_payment->branch_name ?? '-') . "\n";
+        // }
+
+        // $smsMessage .= "\nInvoices:\n";
+        // $smsMessage .= " - " . $updated_payment->invoice->invoice_or_cheque_no . " : " . number_format($updated_payment->invoice->amount, 2) . "\n";
+        // $smsMessage .= "\nView your receipt:\n" . url('/receipt/view/' . $uniqid.' .');
+
+        // try {
+        //     $numbers = [(string) $toNumber];
+        //     $this->smsService->sendInstantSms($numbers, $smsMessage, "Receipt");
+        //     Log::info('SMS sent to ' . $toNumber, (array)$smsResponse);
+        // } catch (\Exception $e) {
+        //     Log::error('SMS sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
+        // }
 
         return response()->json([
             'status' => "success",
@@ -250,9 +297,11 @@ public function add_fund_transfer($id,Request $request)
         else{
             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
         }
-
+        $uniqid = uniqid();
+        
         $payment = new InvoicePayments();
         $payment->invoice_id = $id;
+        $payment->uniqid = $uniqid;
         $payment->batch_id = $payment_batch->id;
         $payment->type = 'fund-transfer';
         $payment->is_bulk = 0;
@@ -264,38 +313,74 @@ public function add_fund_transfer($id,Request $request)
         $payment->screenshot = $screenshot_name;
         $payment->status = 'pending';
         $payment->adm_id = Auth::user()->id;
-        
         $payment->save();
         
         $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->amount;
         $invoice->update();
 
-        $invoice= Invoices::where('id', $payment->invoice_id)->first();
-        $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+       
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
-            'is_duplicate' => 0,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+        // $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
+        //     'is_duplicate' => 0,
+        //     'payment' => $payment,
+        //     'invoice' => $invoice,
+        //     'customer' => $customer,
+        //     'adm' => $adm
+        // ])->setPaper('a4', 'portrait');
+        // $updated_payment = InvoicePayments::with(['invoice.customer', 'adm.userDetails'])
+        // ->find($payment->id);
 
-        $folder = public_path('uploads/adm/collections/receipts/original');
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
-        }
+        // $pdf = PDF::loadView('pdfs.collections.receipts.pdf', ['payment' => $updated_payment])
+        // ->setPaper('a4')
+        // ->setOption('margin-bottom', 50);
 
-        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
-        $filePath = $folder.'/'.$pdf_name;
-        $pdf->save($filePath);
+        // $folder = public_path('uploads/adm/collections/receipts/original');
+        // if (!File::exists($folder)) {
+        //     File::makeDirectory($folder, 0755, true);
+        // }
 
-        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-        $payment->save();
+        // $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        // $filePath = $folder.'/'.$pdf_name;
+        // $pdf->save($filePath);
 
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        // $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        // $payment->save();
+
+        // if (!empty($updated_payment->invoice->customer->email)) {
+        // try {
+        //     Mail::to($updated_payment->invoice->customer->email)->send(new SendReceiptMail($updated_payment, $filePath));
+        // } catch (\Exception $e) {
+        //     Log::error('Email sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
+        // }
+        // }
+
+        // $toNumber = preg_replace('/^0/', '94', $updated_payment->invoice->customer->mobile_number ?? '');
+
+        // $smsMessage = "Thank you for your payment.\n";
+        // $smsMessage .= "Receipt No: " . $updated_payment->id . "\n";
+        // $smsMessage .= "Amount: " . number_format($updated_payment->final_payment, 2) . "\n";
+        // $smsMessage .= "Payment Method: " . ucfirst($updated_payment->type) . "\n";
+        // $smsMessage .= "ADM No:  " . $updated_payment->adm->userDetails->adm_number . "\n";
+
+        // if (strtolower($updated_payment->type) === 'cheque') {
+        //     $smsMessage .= "Cheque No: " . ($updated_payment->cheque_number ?? '-') . "\n";
+        //     $smsMessage .= "Deposit Date: " . ($updated_payment->cheque_date ?? '-') . "\n";
+        //     $smsMessage .= "Bank: " . ($updated_payment->bank_name ?? '-') . "\n";
+        //     $smsMessage .= "Branch: " . ($updated_payment->branch_name ?? '-') . "\n";
+        // }
+
+        // $smsMessage .= "\nInvoices:\n";
+        // $smsMessage .= " - " . $updated_payment->invoice->invoice_or_cheque_no . " : " . number_format($updated_payment->invoice->amount, 2) . "\n";
+        // $smsMessage .= "\nView your receipt:\n" . url('/receipt/view/' . $uniqid.' .');
+
+        // try {
+        //     $numbers = [(string) $toNumber];
+        //     $this->smsService->sendInstantSms($numbers, $smsMessage, "Receipt");
+        //     Log::info('SMS sent to ' . $toNumber, (array)$smsResponse);
+        // } catch (\Exception $e) {
+        //     Log::error('SMS sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
+        // }
 
         return response()->json([
             'status' => "success",
@@ -338,15 +423,18 @@ public function add_cheque_payment($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
-             $payment_batch->adm_id = Auth::user()->id;
+            $payment_batch->adm_id = Auth::user()->id;
             $payment_batch->save();  
         }
         else{
             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
         }
 
+        $uniqid = uniqid();
+
         $payment = new InvoicePayments();
         $payment->invoice_id = $id;
+        $payment->uniqid = $uniqid;
         $payment->batch_id = $payment_batch->id;
         $payment->type = 'cheque';
         $payment->is_bulk = 0;
@@ -370,32 +458,32 @@ public function add_cheque_payment($id,Request $request)
         $invoice->update();
 
 
-        $invoice= Invoices::where('id', $payment->invoice_id)->first();
-        $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+        // $invoice= Invoices::where('id', $payment->invoice_id)->first();
+        // $customer= Customers::where('customer_id', $invoice->customer_id)->first();
+        // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
-            'is_duplicate' => 0,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+        // $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
+        //     'is_duplicate' => 0,
+        //     'payment' => $payment,
+        //     'invoice' => $invoice,
+        //     'customer' => $customer,
+        //     'adm' => $adm
+        // ])->setPaper('a4', 'portrait');
 
-        $folder = public_path('uploads/adm/collections/receipts/original');
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
-        }
+        // $folder = public_path('uploads/adm/collections/receipts/original');
+        // if (!File::exists($folder)) {
+        //     File::makeDirectory($folder, 0755, true);
+        // }
 
-        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
-        $filePath = $folder.'/'.$pdf_name;
-        $pdf->save($filePath);
+        // $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        // $filePath = $folder.'/'.$pdf_name;
+        // $pdf->save($filePath);
 
-        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-        $payment->save();
+        // $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        // $payment->save();
 
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        // Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -441,8 +529,9 @@ public function add_card_payment($id,Request $request)
         else{
             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
         }
-
+        $uniqid = uniqid();
         $payment = new InvoicePayments();
+        $payment->uniqid = $uniqid;
         $payment->invoice_id = $id;
         $payment->batch_id = $payment_batch->id;
         $payment->type = 'card';
@@ -462,32 +551,32 @@ public function add_card_payment($id,Request $request)
         $invoice->update();
 
 
-        $invoice= Invoices::where('id', $payment->invoice_id)->first();
-        $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-        $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+        // $invoice= Invoices::where('id', $payment->invoice_id)->first();
+        // $customer= Customers::where('customer_id', $invoice->customer_id)->first();
+        // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
-        $pdf = PDF::loadView('pdfs.collections.receipts.card', [
-            'is_duplicate' => 0,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+        // $pdf = PDF::loadView('pdfs.collections.receipts.card', [
+        //     'is_duplicate' => 0,
+        //     'payment' => $payment,
+        //     'invoice' => $invoice,
+        //     'customer' => $customer,
+        //     'adm' => $adm
+        // ])->setPaper('a4', 'portrait');
 
-        $folder = public_path('uploads/adm/collections/receipts/original');
-        if (!File::exists($folder)) {
-            File::makeDirectory($folder, 0755, true);
-        }
+        // $folder = public_path('uploads/adm/collections/receipts/original');
+        // if (!File::exists($folder)) {
+        //     File::makeDirectory($folder, 0755, true);
+        // }
 
-        $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
-        $filePath = $folder.'/'.$pdf_name;
-        $pdf->save($filePath);
+        // $pdf_name = 'receipt_'.$payment->id.'_'.time().'.pdf';
+        // $filePath = $folder.'/'.$pdf_name;
+        // $pdf->save($filePath);
 
-        $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-        $payment->save();
+        // $payment->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+        // $payment->save();
 
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+        // Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
         return response()->json([
             'status' => "success",
@@ -548,8 +637,108 @@ public function save_invoice($id,Request $request)
         $batch->customer_signature = $customerSignatureName ?? '';
         $batch->reason_for_temp = $request->reason_for_temp;
         $batch->update();
-        
+        $is_temp = 0;
+        if( $request->temp_receipt == 1){
+        $is_temp = 1;    
+        }
+        $batch = InvoicePaymentBatches::with([
+            'payments.invoice.customer',
+            'payments.adm.userDetails'
+        ])->findOrFail($request->payment_batch_id);
 
+        $receiptPaths = [];
+        
+        foreach ($batch->payments as $payment) {
+
+            $uniqid = $payment->uniqid;
+
+            $pdf = PDF::loadView('pdfs.collections.receipts.pdf', [
+                'payment' => $payment,
+                'batch'   => $batch,
+                'is_duplicate'   => 0,
+                'is_temp'   => $is_temp,
+            ])
+            ->setPaper('a4', 'portrait')
+            ->setOption('margin-bottom', 50);
+
+            $folder = public_path('uploads/adm/collections/receipts/original/');
+            File::ensureDirectoryExists($folder);
+
+            $pdfName = 'receipt_' . $uniqid . '_' . time() . '.pdf';
+            $filePath = $folder . $pdfName;
+
+            $pdf->save($filePath);
+
+            $payment->pdf_path = 'uploads/adm/collections/receipts/original/' . $pdfName;
+            $payment->save();
+
+            $receiptPaths[] = $filePath;
+
+            $customerEmail = $payment->invoice->customer->email ?? null;
+
+            if (!empty($customerEmail) && !empty($payment->pdf_path)) {
+                try {
+                    Mail::to($customerEmail)->send(
+                        new SendReceiptMail($payment, $filePath, 0)
+                    );
+                } catch (\Exception $e) {
+                    Log::error(
+                        'Email sending failed for Payment ID '
+                        . $payment->id . ': ' . $e->getMessage()
+                    );
+                }
+            }
+
+            $toNumber = preg_replace(
+                '/^0/',
+                '94',
+                $payment->invoice->customer->mobile_number ?? ''
+            );
+
+            if (empty($toNumber)) {
+                continue;
+            }
+
+            $smsMessage  = "Thank you for your payment.\n";
+            $smsMessage .= "Receipt No: " . $payment->uniqid . "\n";
+            $smsMessage .= "Amount: LKR " . number_format($payment->final_payment, 2) . "\n";
+            $smsMessage .= "Payment Method: " . ucfirst($payment->type) . "\n";
+            $smsMessage .= "ADM No: "
+                . ($payment->adm->userDetails->adm_number ?? '-') . "\n";
+
+            if (strtolower($payment->type) === 'cheque') {
+                $smsMessage .= "Cheque No: " . ($payment->cheque_number ?? '-') . "\n";
+                $smsMessage .= "Deposit Date: " . ($payment->cheque_date ?? '-') . "\n";
+                $smsMessage .= "Bank: " . ($payment->bank_name ?? '-') . "\n";
+                $smsMessage .= "Branch: " . ($payment->branch_name ?? '-') . "\n";
+            }
+
+            $smsMessage .= "\nInvoice:\n";
+            $smsMessage .= $payment->invoice->invoice_or_cheque_no
+                . " - LKR " . number_format($payment->invoice->amount, 2) . "\n";
+
+            $smsMessage .= "\nView Receipt:\n"
+                . url('/receipt/view/original/' . $payment->uniqid.' .');
+
+            try {
+                $this->smsService->sendInstantSms(
+                    [(string) $toNumber],
+                    $smsMessage,
+                    "Receipt"
+                );
+
+                Log::info(
+                    'SMS sent to ' . $toNumber
+                    . ' (Payment ID: ' . $payment->id . ')'
+                );
+
+            } catch (\Exception $e) {
+                Log::error(
+                    'SMS sending failed for Payment ID '
+                    . $payment->id . ': ' . $e->getMessage()
+                );
+            }
+        }
         return response()->json([
             'status' => "success",
             'message' => 'Payment Details Saved',
@@ -567,67 +756,109 @@ public function save_invoice($id,Request $request)
 }
 public function resend_receipt($id)
 {
-    $payment = InvoicePayments::findOrFail($id);
-    $invoice = Invoices::findOrFail($payment->invoice_id);
-    $customer = Customers::where('customer_id', $invoice->customer_id)->firstOrFail();
-    $adm = UserDetails::where('user_id', $payment->adm_id)->first();
+    $payment = InvoicePayments::with([
+        'invoice.customer',
+        'adm.userDetails',
+        'batch'
+    ])->findOrFail($id);
 
-    // Folder for saving duplicate receipts
+    $customer = $payment->invoice->customer;
+
     $folderPath = public_path('uploads/adm/collections/receipts/duplicates');
-    if (!File::exists($folderPath)) {
-        File::makeDirectory($folderPath, 0755, true);
-    }
+    File::ensureDirectoryExists($folderPath);
 
-    // Check if duplicate already exists
-    if ($payment->duplicate_pdf && File::exists(public_path($payment->duplicate_pdf))) {
-        // Use existing file
+    if (!empty($payment->duplicate_pdf) && File::exists(public_path($payment->duplicate_pdf))) {
+
         $filePath = public_path($payment->duplicate_pdf);
+
     } else {
-        // Generate new duplicate PDF
-        $pdf_name = 'duplicate_receipt_' . $payment->id . '_' . time() . '.pdf';
-        $filePath = $folderPath . '/' . $pdf_name;
 
-        // Select correct receipt view by payment type
-        switch ($payment->type) {
-            case 'cash':
-                $view = 'pdfs.collections.receipts.cash';
-                break;
-            case 'fund-transfer':
-                $view = 'pdfs.collections.receipts.fund-transfer';
-                break;
-            case 'cheque':
-                $view = 'pdfs.collections.receipts.cheque';
-                break;
-            case 'card':
-                $view = 'pdfs.collections.receipts.card';
-                break;
-            default:
-                return back()->with('error', 'Invalid payment type');
-        }
+        $pdfName = 'duplicate_receipt_' . $payment->uniqid . '_' . time() . '.pdf';
+        $filePath = $folderPath . '/' . $pdfName;
 
-        // Generate and save PDF
-        $pdf = PDF::loadView($view, [
+        $pdf = PDF::loadView('pdfs.collections.receipts.pdf', [
+            'payment'      => $payment,
+            'batch'        => $payment->batch,
             'is_duplicate' => 1,
-            'payment' => $payment,
-            'invoice' => $invoice,
-            'customer' => $customer,
-            'adm' => $adm
-        ])->setPaper('a4', 'portrait');
+            'is_temp' => 0,
+        ])
+        ->setPaper('a4', 'portrait')
+        ->setOption('margin-bottom', 50);
 
         $pdf->save($filePath);
 
-        $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdf_name;
+        $payment->duplicate_pdf = 'uploads/adm/collections/receipts/duplicates/' . $pdfName;
         $payment->save();
     }
 
-    // Send email with the duplicate PDF attachment
-    if ($customer->email) {
-        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
+    if (!empty($customer->email)) {
+        try {
+            Mail::to($customer->email)->send(
+                new SendReceiptMail($payment, $filePath, 1)
+            );
+        } catch (\Exception $e) {
+            Log::error(
+                'Duplicate receipt email failed for Payment ID '
+                . $payment->id . ': ' . $e->getMessage()
+            );
+        }
     }
 
-    return back()->with('success', 'Receipt resent successfully to the customer.');
-}
+     $toNumber = preg_replace(
+        '/^0/',
+        '94',
+        $customer->mobile_number ?? ''
+    );
 
+    if (!empty($toNumber)) {
+
+        $smsMessage  = "You have reqeusted a copy of a reciept \n";
+        $smsMessage .= "Receipt No: " . $payment->uniqid . "\n";
+        $smsMessage .= "Amount: LKR " . number_format($payment->final_payment, 2) . "\n";
+        $smsMessage .= "Payment Method: " . ucfirst($payment->type) . "\n";
+        $smsMessage .= "ADM No: "
+            . ($payment->adm->userDetails->adm_number ?? '-') . "\n";
+
+        if (strtolower($payment->type) === 'cheque') {
+            $smsMessage .= "Cheque No: " . ($payment->cheque_number ?? '-') . "\n";
+            $smsMessage .= "Deposit Date: " . ($payment->cheque_date ?? '-') . "\n";
+            $smsMessage .= "Bank: " . ($payment->bank_name ?? '-') . "\n";
+            $smsMessage .= "Branch: " . ($payment->branch_name ?? '-') . "\n";
+        }
+
+        $smsMessage .= "\nInvoice:\n";
+        $smsMessage .= $payment->invoice->invoice_or_cheque_no
+            . " - LKR " . number_format($payment->invoice->amount, 2) . "\n";
+
+        $smsMessage .= "\nView Receipt:\n"
+            . url('/receipt/view/duplicate/' . $payment->uniqid.' .');
+
+        try {
+            $this->smsService->sendInstantSms(
+                [(string) $toNumber],
+                $smsMessage,
+                "Receipt"
+            );
+
+            Log::info(
+                'Resend SMS sent to ' . $toNumber
+                . ' (Payment ID: ' . $payment->id . ')'
+            );
+
+        } catch (\Exception $e) {
+            Log::error(
+                'Resend SMS failed for Payment ID '
+                . $payment->id . ': ' . $e->getMessage()
+            );
+        }
+    }
+
+
+    return back()->with(
+        'success',
+        'Duplicate receipt resent successfully to the customer.'
+    );
+}
 
     public function search_bulk_payment(Request $request)
     {
@@ -681,8 +912,8 @@ public function resend_receipt($id)
                 'invoices' => $invoices
             ];
         });
-    
-        return view('adm::collection.bulk_payment_submit', ['grouped_data' => $groupedWithCustomers]);
+        $banks = Bank::all();
+        return view('adm::collection.bulk_payment_submit', ['grouped_data' => $groupedWithCustomers,'banks' => $banks]);
     }
     
     public function add_bulk_cash_payments(Request $request)
@@ -703,7 +934,9 @@ public function resend_receipt($id)
             $discount =  ($payment['amount'] * ($payment['discount'] ?? 0)) / 100;
             $final_payment = $payment['amount']-$discount;
 
+            $uniqid = uniqid();
             $payment_data = new InvoicePayments();
+            $payment_data->uniqid = $uniqid;
             $payment_data->invoice_id =  $payment['invoice_id'];
             $payment_data->batch_id = $payment_batch->id;
             $payment_data->type = 'cash';
@@ -719,31 +952,31 @@ public function resend_receipt($id)
             $invoice->paid_amount = $invoice->paid_amount + $payment['amount'];
             $invoice->update();
 
-            $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
-            $customer= Customers::where('customer_id', $invoice->customer_id)->first();
-            $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+            // $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
+            // $customer= Customers::where('customer_id', $invoice->customer_id)->first();
+            // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
             
-            $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
-                'is_duplicate' => 0,
-                'payment' => $payment_data,
-                'invoice' => $invoice,
-                'customer' => $customer,
-                'adm' => $adm
-            ])->setPaper('a4', 'portrait');
+            // $pdf = PDF::loadView('pdfs.collections.receipts.cash', [
+            //     'is_duplicate' => 0,
+            //     'payment' => $payment_data,
+            //     'invoice' => $invoice,
+            //     'customer' => $customer,
+            //     'adm' => $adm
+            // ])->setPaper('a4', 'portrait');
 
-            $folder = public_path('uploads/adm/collections/receipts/original');
-            if (!File::exists($folder)) {
-                File::makeDirectory($folder, 0755, true);
-            }
+            // $folder = public_path('uploads/adm/collections/receipts/original');
+            // if (!File::exists($folder)) {
+            //     File::makeDirectory($folder, 0755, true);
+            // }
 
-            $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
-            $filePath = $folder.'/'.$pdf_name;
-            $pdf->save($filePath);
+            // $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+            // $filePath = $folder.'/'.$pdf_name;
+            // $pdf->save($filePath);
 
-            $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-            $payment_data->save();
+            // $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+            // $payment_data->save();
 
-            Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+            // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
 
 
         }
@@ -867,9 +1100,11 @@ public function add_bulk_fund_transfer(Request $request)
                     : $discountValue;
 
                 $final_payment = $amount - $discount;
+                $uniqid = uniqid();
 
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->uniqid = $uniqid;
                 $payment_data->batch_id = $payment_batch->id;
                 $payment_data->type = 'fund-transfer';
                 $payment_data->is_bulk = 1;
@@ -889,30 +1124,30 @@ public function add_bulk_fund_transfer(Request $request)
                 $invoice->save();
 
                 // generate receipt + email
-                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+                // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
-                'is_duplicate' => 0,
-                'payment' => $payment_data,
-                'invoice' => $invoice,
-                'customer' => $customer,
-                'adm' => $adm
-                ])->setPaper('a4', 'portrait');
+                // $pdf = PDF::loadView('pdfs.collections.receipts.fund-transfer', [
+                // 'is_duplicate' => 0,
+                // 'payment' => $payment_data,
+                // 'invoice' => $invoice,
+                // 'customer' => $customer,
+                // 'adm' => $adm
+                // ])->setPaper('a4', 'portrait');
 
-                $folder = public_path('uploads/adm/collections/receipts/original');
-                if (!File::exists($folder)) {
-                    File::makeDirectory($folder, 0755, true);
-                }
+                // $folder = public_path('uploads/adm/collections/receipts/original');
+                // if (!File::exists($folder)) {
+                //     File::makeDirectory($folder, 0755, true);
+                // }
 
-                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
-                $filePath = $folder.'/'.$pdf_name;
-                $pdf->save($filePath);
+                // $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                // $filePath = $folder.'/'.$pdf_name;
+                // $pdf->save($filePath);
 
-                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-                $payment_data->save();
+                // $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                // $payment_data->save();
 
-                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+                // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -1029,9 +1264,10 @@ public function add_bulk_cheque_payment(Request $request)
             foreach ($payments as $data) {
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
-
+                $uniqid = uniqid();
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->uniqid = $uniqid;
                 $payment_data->batch_id = $payment_batch->id;
                 $payment_data->type = 'cheque';
                 $payment_data->is_bulk = 1;
@@ -1054,31 +1290,31 @@ public function add_bulk_cheque_payment(Request $request)
                 $invoice->save();
 
                 // Send receipt
-                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+                // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
-                'is_duplicate' => 0,
-                'payment' => $payment_data,
-                'invoice' => $invoice,
-                'customer' => $customer,
-                'adm' => $adm
-                ])->setPaper('a4', 'portrait');
+                // $pdf = PDF::loadView('pdfs.collections.receipts.cheque', [
+                // 'is_duplicate' => 0,
+                // 'payment' => $payment_data,
+                // 'invoice' => $invoice,
+                // 'customer' => $customer,
+                // 'adm' => $adm
+                // ])->setPaper('a4', 'portrait');
 
-                $folder = public_path('uploads/adm/collections/receipts/original');
-                if (!File::exists($folder)) {
-                    File::makeDirectory($folder, 0755, true);
-                }
+                // $folder = public_path('uploads/adm/collections/receipts/original');
+                // if (!File::exists($folder)) {
+                //     File::makeDirectory($folder, 0755, true);
+                // }
 
-                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
-                $filePath = $folder.'/'.$pdf_name;
-                $pdf->save($filePath);
+                // $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                // $filePath = $folder.'/'.$pdf_name;
+                // $pdf->save($filePath);
 
-                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-                $payment_data->save();
+                // $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                // $payment_data->save();
 
-                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+                // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -1121,9 +1357,10 @@ public function add_bulk_card_payment(Request $request)
             foreach ($payments as $data) {
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
-
+                $uniqid = uniqid();
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
+                $payment_data->uniqid = $uniqid;
                 $payment_data->batch_id = $payment_batch->id;
                 $payment_data->type = 'card';
                 $payment_data->is_bulk = 1;
@@ -1141,30 +1378,30 @@ public function add_bulk_card_payment(Request $request)
                 $invoice->save();
 
                 // Send receipt
-                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                $adm= UserDetails::where('user_id', Auth::user()->id)->first();
+                // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
+                // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
 
-                $pdf = PDF::loadView('pdfs.collections.receipts.card', [
-                'is_duplicate' => 0,
-                'payment' => $payment_data,
-                'invoice' => $invoice,
-                'customer' => $customer,
-                'adm' => $adm
-                ])->setPaper('a4', 'portrait');
+                // $pdf = PDF::loadView('pdfs.collections.receipts.card', [
+                // 'is_duplicate' => 0,
+                // 'payment' => $payment_data,
+                // 'invoice' => $invoice,
+                // 'customer' => $customer,
+                // 'adm' => $adm
+                // ])->setPaper('a4', 'portrait');
 
-                $folder = public_path('uploads/adm/collections/receipts/original');
-                if (!File::exists($folder)) {
-                    File::makeDirectory($folder, 0755, true);
-                }
+                // $folder = public_path('uploads/adm/collections/receipts/original');
+                // if (!File::exists($folder)) {
+                //     File::makeDirectory($folder, 0755, true);
+                // }
 
-                $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
-                $filePath = $folder.'/'.$pdf_name;
-                $pdf->save($filePath);
+                // $pdf_name = 'receipt_'.$payment_data->id.'_'.time().'.pdf';
+                // $filePath = $folder.'/'.$pdf_name;
+                // $pdf->save($filePath);
 
-                $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
-                $payment_data->save();
+                // $payment_data->pdf_path = 'uploads/adm/collections/receipts/original/'.$pdf_name;
+                // $payment_data->save();
 
-                Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+                // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
             }
 
             return response()->json([
@@ -1223,8 +1460,108 @@ public function save_bulk_payment(Request $request)
         $batch->customer_signature = $customerSignatureName ?? '';
         $batch->reason_for_temp = $request->reason_for_temp;
         $batch->update();
-        
+        $is_temp = 0;
+        if( $request->temp_receipt == 1){
+        $is_temp = 1;    
+        }
+        $batch = InvoicePaymentBatches::with([
+            'payments.invoice.customer',
+            'payments.adm.userDetails'
+        ])->findOrFail($request->payment_batch_id);
 
+        $receiptPaths = [];
+        
+        foreach ($batch->payments as $payment) {
+
+            $uniqid = $payment->uniqid;
+
+            $pdf = PDF::loadView('pdfs.collections.receipts.pdf', [
+                'payment' => $payment,
+                'batch'   => $batch,
+                'is_duplicate'   => 0,
+                'is_temp'   => $is_temp,
+            ])
+            ->setPaper('a4', 'portrait')
+            ->setOption('margin-bottom', 50);
+
+            $folder = public_path('uploads/adm/collections/receipts/original/');
+            File::ensureDirectoryExists($folder);
+
+            $pdfName = 'receipt_' . $uniqid . '_' . time() . '.pdf';
+            $filePath = $folder . $pdfName;
+
+            $pdf->save($filePath);
+
+            $payment->pdf_path = 'uploads/adm/collections/receipts/original/' . $pdfName;
+            $payment->save();
+
+            $receiptPaths[] = $filePath;
+
+            $customerEmail = $payment->invoice->customer->email ?? null;
+
+            if (!empty($customerEmail) && !empty($payment->pdf_path)) {
+                try {
+                    Mail::to($customerEmail)->send(
+                        new SendReceiptMail($payment, $filePath, 0)
+                    );
+                } catch (\Exception $e) {
+                    Log::error(
+                        'Email sending failed for Payment ID '
+                        . $payment->id . ': ' . $e->getMessage()
+                    );
+                }
+            }
+
+            $toNumber = preg_replace(
+                '/^0/',
+                '94',
+                $payment->invoice->customer->mobile_number ?? ''
+            );
+
+            if (empty($toNumber)) {
+                continue;
+            }
+
+            $smsMessage  = "Thank you for your payment.\n";
+            $smsMessage .= "Receipt No: " . $payment->uniqid . "\n";
+            $smsMessage .= "Amount: LKR " . number_format($payment->final_payment, 2) . "\n";
+            $smsMessage .= "Payment Method: " . ucfirst($payment->type) . "\n";
+            $smsMessage .= "ADM No: "
+                . ($payment->adm->userDetails->adm_number ?? '-') . "\n";
+
+            if (strtolower($payment->type) === 'cheque') {
+                $smsMessage .= "Cheque No: " . ($payment->cheque_number ?? '-') . "\n";
+                $smsMessage .= "Deposit Date: " . ($payment->cheque_date ?? '-') . "\n";
+                $smsMessage .= "Bank: " . ($payment->bank_name ?? '-') . "\n";
+                $smsMessage .= "Branch: " . ($payment->branch_name ?? '-') . "\n";
+            }
+
+            $smsMessage .= "\nInvoice:\n";
+            $smsMessage .= $payment->invoice->invoice_or_cheque_no
+                . " - LKR " . number_format($payment->invoice->amount, 2) . "\n";
+
+            $smsMessage .= "\nView Receipt:\n"
+                . url('/receipt/view/original/' . $payment->uniqid.' .');
+
+            try {
+                $this->smsService->sendInstantSms(
+                    [(string) $toNumber],
+                    $smsMessage,
+                    "Receipt"
+                );
+
+                Log::info(
+                    'SMS sent to ' . $toNumber
+                    . ' (Payment ID: ' . $payment->id . ')'
+                );
+
+            } catch (\Exception $e) {
+                Log::error(
+                    'SMS sending failed for Payment ID '
+                    . $payment->id . ': ' . $e->getMessage()
+                );
+            }
+        }
         return response()->json([
             'status' => "success",
             'message' => 'Payment Details Saved',
@@ -1252,7 +1589,156 @@ public function receipts()
     ]);
 }
 
+public function temporary_receipts()
+{
+     $collections = InvoicePaymentBatches::with(['payments', 'admDetails'])
+            ->where('temp_receipt', 1)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->through(function ($batch) {
+                return [
+                    'collection_id' => $batch->id,
+                    'collection_date' => $batch->created_at->format('Y-m-d'),
+                    'total_collected_amount' => $batch->payments->sum('final_payment'),
+                ];
+            });
 
+    return view('adm::collection.temporary_receipts', [
+        'collections' => $collections,
+    ]);
+}
+public function view_temp_receipt($id,Request $request)
+    {
+        if($request->isMethod('get')){
+        $batch = InvoicePaymentBatches::with([
+            'payments.invoice.customer',
+        ])->findOrFail($id);
+
+        $payments = $batch->payments->map(function ($payment) {
+            return [
+                'receipt_no' => $payment->id, // Receipt number = id from invoice_payments
+                 'customer_name'   => $payment->invoice?->customer?->name ?? 'N/A',
+                'invoice_no' => $payment->invoice_id,
+                'status' => $payment->status ?? 'N/A',
+                'payment_method' => $payment->type ?? 'N/A',
+                'amount' => number_format($payment->final_payment ?? 0, 2),
+            ];
+        });
+
+        return view('adm::collection.view_temp_receipt', [
+            'batch' => $batch,
+            'payments' => $payments,
+        ]);
+    }
+    if ($request->isMethod('post')) {
+        $request->validate([
+            'customer_signature' => 'required',
+            'batch_id'           => 'required',
+        ]);
+
+        try {
+            $batch = InvoicePaymentBatches::where('id', $request->batch_id)
+                ->where('temp_receipt', 1)
+                ->with('payments.invoice.customer', 'payments.adm.userDetails')
+                ->firstOrFail();
+
+            // Save customer signature
+            if (strpos($request->customer_signature, 'data:image/png;base64') === 0) {
+                $signature = str_replace('data:image/png;base64,', '', $request->customer_signature);
+                $signature = str_replace(' ', '+', $signature);
+
+                $signatureName = 'customer_signature_' . Str::random(10) . '.png';
+
+                $folder = public_path('uploads/adm/collections/signatures/customer');
+                File::ensureDirectoryExists($folder);
+
+                File::put($folder . '/' . $signatureName, base64_decode($signature));
+
+                $batch->temp_receipt = 0;
+                $batch->customer_signature = $signatureName;
+                $batch->save();
+            }
+
+            foreach ($batch->payments as $payment) {
+                $customer = $payment->invoice->customer;
+
+                $folderPath = public_path('uploads/adm/collections/receipts/originals');
+                File::ensureDirectoryExists($folderPath);
+
+                $pdfName = 'receipt_' . $payment->uniqid . '_' . time() . '.pdf';
+                $filePath = $folderPath . '/' . $pdfName;
+
+                $pdf = PDF::loadView('pdfs.collections.receipts.pdf', [
+                    'payment'      => $payment,
+                    'batch'        => $batch,
+                    'is_duplicate' => 0,
+                    'is_temp'      => 0,
+                ])
+                ->setPaper('a4', 'portrait')
+                ->setOption('margin-bottom', 50);
+
+                $pdf->save($filePath);
+
+                $payment->original_pdf = 'uploads/adm/collections/receipts/originals/' . $pdfName;
+                $payment->save();
+
+                if (!empty($customer->email)) {
+                    try {
+                        Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath, 0));
+                    } catch (\Exception $e) {
+                        Log::error(
+                            'Original receipt email failed for Payment ID '
+                            . $payment->id . ': ' . $e->getMessage()
+                        );
+                    }
+                }
+
+      
+                $toNumber = preg_replace('/^0/', '94', $customer->mobile_number ?? '');
+                if (!empty($toNumber)) {
+                    $smsMessage  = "Your receipt has been generated and sent.\n";
+                    $smsMessage .= "Receipt No: " . $payment->uniqid . "\n";
+                    $smsMessage .= "Amount: LKR " . number_format($payment->final_payment, 2) . "\n";
+                    $smsMessage .= "Payment Method: " . ucfirst($payment->type) . "\n";
+                    $smsMessage .= "ADM No: " . ($payment->adm->userDetails->adm_number ?? '-') . "\n";
+
+                    if (strtolower($payment->type) === 'cheque') {
+                        $smsMessage .= "Cheque No: " . ($payment->cheque_number ?? '-') . "\n";
+                        $smsMessage .= "Deposit Date: " . ($payment->cheque_date ?? '-') . "\n";
+                        $smsMessage .= "Bank: " . ($payment->bank_name ?? '-') . "\n";
+                        $smsMessage .= "Branch: " . ($payment->branch_name ?? '-') . "\n";
+                    }
+
+                    $smsMessage .= "\nInvoice:\n";
+                    $smsMessage .= $payment->invoice->invoice_or_cheque_no
+                        . " - LKR " . number_format($payment->invoice->amount, 2) . "\n";
+
+                    $smsMessage .= "\nView Receipt:\n" . url('/receipt/view/original/' . $payment->uniqid);
+
+                    try {
+                        $this->smsService->sendInstantSms([(string) $toNumber], $smsMessage, "Receipt");
+                        Log::info(
+                            'Original receipt SMS sent to ' . $toNumber
+                            . ' (Payment ID: ' . $payment->id . ')'
+                        );
+                    } catch (\Exception $e) {
+                        Log::error(
+                            'Original receipt SMS failed for Payment ID '
+                            . $payment->id . ': ' . $e->getMessage()
+                        );
+                    }
+                }
+            }
+
+            return redirect('adm/temporary-receipts')->with('success', 'Customer signature saved and original receipts sent successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Error in view_temp_receipt: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to save customer signature or send receipts.');
+        }
+    }
+
+    }
 
     function logout()
     {
@@ -1306,4 +1792,10 @@ public function receipts()
     {
         //
     }
+    public function get_branches(Request $request)
+{
+    $bankId = $request->bank_id;
+    $branches = Branch::where('BankID', $bankId)->get(['BranchCode', 'BranchName']);
+    return response()->json($branches);
+}
 }

@@ -40,9 +40,10 @@
                 $label = $status === 'pending' ? 'Pending' : ucfirst($status);
 
                 $statusClass = match($label) {
-                'Approved' => 'success-status-btn',
-                'Pending' => 'grey-status-btn',
-                'Rejected' => 'danger-status-btn',
+                'accepted' => 'success-status-btn',
+                'pending' => 'grey-status-btn',
+                'rejected' => 'danger-status-btn',
+                'declined' => 'danger-status-btn',
                 default => 'grey-status-btn',
                 };
                 @endphp

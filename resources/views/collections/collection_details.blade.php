@@ -31,7 +31,7 @@
                         <td>{{ ucfirst($payment['payment_method']) }}</td>
                         <td>
                             <button class="
-                                    @if(strtolower($payment['status']) === 'approved') success-status-btn
+                                    @if(strtolower($payment['status']) === 'accepted') success-status-btn
                                     @elseif(strtolower($payment['status']) === 'deposited') blue-status-btn
                                     @elseif(strtolower($payment['status']) === 'rejected') danger-status-btn
                                     @else grey-status-btn @endif">
@@ -53,7 +53,7 @@
         </nav>
     </div>
 </div>
-
+@include('layouts.footer2')
 <!-- Toast message -->
 <div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
     role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">

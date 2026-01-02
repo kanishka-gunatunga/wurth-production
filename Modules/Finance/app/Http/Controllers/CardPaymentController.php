@@ -113,7 +113,7 @@ class CardPaymentController extends Controller
 
         $newStatus = strtolower($request->input('status'));
 
-        if (!in_array($newStatus, ['approved', 'rejected'])) {
+        if (!in_array($newStatus, ['accepted', 'declined'])) {
             return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
         }
 

@@ -111,7 +111,7 @@ class FundTransferController extends Controller
 
         $newStatus = strtolower($request->input('status'));
 
-        if (!in_array($newStatus, ['approved', 'rejected'])) {
+        if (!in_array($newStatus, ['accepted', 'declined'])) {
             return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
         }
 
@@ -120,7 +120,12 @@ class FundTransferController extends Controller
 
         try {
             // Update the status in invoice_payments
-            $payment->status = $newStatus;
+            if($newStatus == 'declined'){
+                $payment->status = 'pending';
+            }
+            else{
+                $payment->status = $newStatus;
+            }
             $payment->save();
 
             // Check if deposit already exists for this payment

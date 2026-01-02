@@ -57,9 +57,10 @@
                     $label = $status === 'pending' ? 'Pending' : ucfirst($status);
 
                     $statusClass = match($label) {
-                    'Approved' => 'success-status-btn',
-                    'Pending' => 'grey-status-btn',
-                    'Rejected' => 'danger-status-btn',
+                    'accepted' => 'success-status-btn',
+                    'pending' => 'grey-status-btn',
+                    'rejected' => 'danger-status-btn',
+                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp
@@ -128,12 +129,12 @@
     @if(strtolower($status) !== 'approved')
      @if(in_array('deposits-fund-transfer-status', session('permissions', [])))  
     <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="accepted">Accept</button>
     @endif
     @endif
 </div>
-
+@include('layouts.footer2')
 
 <!-- dropdown script -->
 <script>
@@ -215,10 +216,10 @@
                             // Update status button visually
                             const statusBtn = document.querySelector('.slip-detail-text button');
                             statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
+                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'approved') {
+                            if (data.status.toLowerCase() === 'accepted') {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
                             }
                         } else {

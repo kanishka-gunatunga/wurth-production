@@ -328,19 +328,22 @@ use App\Models\UserDetails;
 
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Number</p>
-                @foreach($adms as $adm)
-                <div class="form-check custom-circle-checkbox">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="adm{{ $adm->id }}"
-                        name="adm[]"
-                        value="{{ $adm->userDetails->adm_number }}"
-                        {{ in_array( $adm->userDetails->adm_number, $selectedAdms ?? []) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="adm{{ $adm->id }}">
-                        {{ $adm->userDetails->adm_number }}
-                    </label>
-                </div>
+               @foreach($adms as $adm)
+                    @if(!empty($adm->userDetails->adm_number))
+                        <div class="form-check custom-circle-checkbox">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="adm{{ $adm->id }}"
+                                name="temp_adm[]"
+                                value="{{ $adm->userDetails->adm_number }}"
+                                {{ in_array($adm->userDetails->adm_number, $tempSelectedAdms ?? []) ? 'checked' : '' }}>
+                            
+                            <label class="form-check-label" for="adm{{ $adm->id }}">
+                                {{ $adm->userDetails->adm_number }}
+                            </label>
+                        </div>
+                    @endif
                 @endforeach
 
                 <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
@@ -376,20 +379,24 @@ use App\Models\UserDetails;
 
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Number</p>
-                @foreach($adms as $adm)
-                <div class="form-check custom-circle-checkbox">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="adm{{ $adm->id }}"
-                        name="adm[]"
-                        value="{{ $adm->userDetails->adm_number }}"
-                        {{ in_array( $adm->userDetails->adm_number, $selectedAdms ?? []) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="adm{{ $adm->id }}">
-                        {{ $adm->userDetails->adm_number }}
-                    </label>
-                </div>
+               @foreach($adms as $adm)
+                    @if(!empty($adm->userDetails->adm_number))
+                        <div class="form-check custom-circle-checkbox">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="adm{{ $adm->id }}"
+                                name="temp_adm[]"
+                                value="{{ $adm->userDetails->adm_number }}"
+                                {{ in_array($adm->userDetails->adm_number, $tempSelectedAdms ?? []) ? 'checked' : '' }}>
+                            
+                            <label class="form-check-label" for="adm{{ $adm->id }}">
+                                {{ $adm->userDetails->adm_number }}
+                            </label>
+                        </div>
+                    @endif
                 @endforeach
+
 
                 <button type="submit" class="red-action-btn-lg mt-4">Apply Filter</button>
             </div>
@@ -400,7 +407,7 @@ use App\Models\UserDetails;
 
 </html>
 
-
+@include('layouts.footer2')
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -507,7 +514,7 @@ use App\Models\UserDetails;
     }
 </script>
 
-@include('layouts.footer2')
+
 <script>
     $(document).ready(function() {
         @if(Session::has('success'))

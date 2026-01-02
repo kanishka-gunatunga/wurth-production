@@ -351,7 +351,7 @@
         </div>
     </div>
 
-
+@include('layouts.footer2')
     <script>
         const notificationsData = {
             paymentNotifications: [{

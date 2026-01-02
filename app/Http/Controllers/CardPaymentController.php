@@ -115,7 +115,7 @@ class CardPaymentController extends Controller
 
         $newStatus = strtolower($request->input('status'));
 
-        if (!in_array($newStatus, ['approved', 'rejected'])) {
+        if (!in_array($newStatus, ['accepted', 'declined'])) {
             return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
         }
 
@@ -123,7 +123,12 @@ class CardPaymentController extends Controller
 
         try {
             // Update payment status
-            $payment->status = $newStatus;
+            if($newStatus == 'declined'){
+                $payment->status = 'pending';
+            }
+            else{
+                $payment->status = $newStatus;
+            }
             $payment->save();
 
             // Check for existing deposit
