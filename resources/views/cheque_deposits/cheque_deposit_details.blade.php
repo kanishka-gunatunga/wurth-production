@@ -45,10 +45,10 @@
                 <span class="slip-detail-text">
                     @php
                     $statusClass = match($deposit['status']) {
-                    'Accepted' => 'success-status-btn',
-                    'Deposited' => 'blue-status-btn',
-                    'Rejected' => 'danger-status-btn',
-                    'Declined' => 'danger-status-btn',
+                    'accepted' => 'success-status-btn',
+                    'pending' => 'blue-status-btn',
+                    'rejected' => 'danger-status-btn',
+                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp

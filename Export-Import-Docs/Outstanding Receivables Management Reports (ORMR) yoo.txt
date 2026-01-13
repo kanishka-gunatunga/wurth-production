@@ -1,0 +1,37 @@
+Year-on-Year Outstanding (YOO)										
+										
+Sum of Out Amount		Column Labels								
+ADM Name	ADM Name	2019	2020	2021	2022	2023	2024	2025	Grand Total	Total Over 90 Days
+409	Nadeera Fernando	"653,203.50"	"846,850.00"	"649,135.42"	"1,250,146.14"	"1,617,748.68"	"23,791,161.58"	"1,206,568.14"	"30,014,813.46"	"9,004,444.04"
+412	Suren Peters	"741,242.23"	"1,469,915.76"	"714,614.08"	"166,699.19"	"2,813,872.05"	"13,490,063.24"	"33,959.11"	"19,430,365.66"	"8,743,664.55"
+491	Pubudu Dilshan	"122,794.00"	"146,645.13"	"195,093.78"	"548,488.55"	"1,080,683.50"	"11,270,670.50"	"29,628.00"	"13,394,003.46"	"6,000,000.00"
+566	Priyan Prabuddha	"148,549.00"	"4,324.05"	"174,426.93"	"414,907.60"	"1,140,609.51"	"21,389,681.36"	"-11,104.50"	"23,261,393.95"	"15,000,000.00"
+578	Pramuditha Elapatha	"25,294.00"	500.00	"19,789.00"	"-3,539.51"	"2,103,726.25"	"17,747,274.77"	-182.00	"19,892,862.51"	"1,200,000.00"
+Grand Total		"1,691,082.73"	"2,468,234.94"	"1,753,059.21"	"2,376,701.97"	"8,756,639.99"	"87,688,851.45"	"1,258,868.75"	"105,993,439.04"	" 39,948,108.59 "
+										
+Shows outstanding invoices broken down by financial year										
+"(2020, 2021, 2022, 2023, 2024, 2025)."										
+"ADM-wise, Division-wise, Team-wise, Sub-team-wise filters."										
+Shows invoice-level details										
+90 Days? Must Appear as a Separate Column										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+"When a user selects or clicks on any total value, it  must drill down and show the  invoice-level breakdown for that total.?"										
+										
+										

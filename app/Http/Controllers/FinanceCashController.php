@@ -9,6 +9,7 @@ use App\Models\UserDetails;
 use App\Models\InvoicePayments;
 use App\Models\Invoices;
 use App\Models\Customers;
+use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArrayExport;
 use App\Services\ActivitLogService;
@@ -16,35 +17,107 @@ use App\Services\SystemNotificationService;
 
 class FinanceCashController extends Controller
 {
-    public function index(Request $request)
-    {
-        // Fetch only finance_cash deposits
-        $financeCashDeposits = Deposits::where('type', 'finance_cash')
-            ->orderByDesc('created_at')
-            ->paginate(10);
+   public function index(Request $request)
+{
+    $adms = User::where('user_role', 6)->with('userDetails')->get();
+    $customers = Customers::where('is_temp', 0)->get();
 
-        // Transform the results
-        $financeCashDeposits->getCollection()->transform(function ($deposit) {
-            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+    // base query - ONLY finance cash deposits
+    $query = Deposits::where('type', 'finance-cash');
 
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') {
-                $status = 'deposited';
-            }
-
-            return [
-                'id' => $deposit->id,
-                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-                'adm_number' => $admDetails->adm_number ?? 'N/A',
-                'adm_name' => $admDetails->name ?? 'N/A',
-                'amount' => $deposit->amount ?? 0,
-                'status' => ucfirst($status ?: 'Deposited'),
-                'attachment_path' => $deposit->attachment_path ?? null,
-            ];
-        });
-
-        return view('finance_cash.finance_cash', compact('financeCashDeposits'));
+    /* -------------------- ADM NAME FILTER -------------------- */
+    if ($request->filled('adm_names')) {
+        $query->whereIn('adm_id', $request->adm_names);
     }
+
+    /* -------------------- ADM NUMBER FILTER -------------------- */
+    if ($request->filled('adm_ids')) {
+        // Convert adm_number → user_id
+        $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
+            ->pluck('user_id')
+            ->toArray();
+
+        $query->whereIn('adm_id', $admUserIds);
+    }
+
+    /* -------------------- STATUS FILTER -------------------- */
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    /* -------------------- DATE RANGE FILTER -------------------- */
+    if ($request->filled('date_range')) {
+
+        $range = trim($request->date_range);
+
+        if (str_contains($range, 'to')) {
+            [$start, $end] = array_map('trim', explode('to', $range));
+        } elseif (str_contains($range, '-')) {
+            [$start, $end] = array_map('trim', explode('-', $range));
+        } else {
+            $start = $end = $range;
+        }
+
+        if (!empty($start) && !empty($end)) {
+            $query->whereBetween('date_time', [
+                date('Y-m-d 00:00:00', strtotime($start)),
+                date('Y-m-d 23:59:59', strtotime($end)),
+            ]);
+        }
+    }
+
+    /* -------------------- GLOBAL SEARCH BOX -------------------- */
+    if ($request->filled('search')) {
+
+        $search = trim($request->search);
+
+        // Find matching ADM IDs by name or ADM number
+        $admIds = UserDetails::where('name', 'like', "%$search%")
+            ->orWhere('adm_number', 'like', "%$search%")
+            ->pluck('user_id')
+            ->toArray();
+
+        $query->whereIn('adm_id', $admIds);
+    }
+
+    /* -------------------- CUSTOMER FILTER -------------------- */
+    if ($request->filled('customers')) {
+        $query->whereHas('reciepts.invoice.customer', function ($q) use ($request) {
+            $q->whereIn('customer_id', $request->customers);
+        });
+    }
+
+    /* -------------------- PAGINATION -------------------- */
+    $financeCashDeposits = $query
+        ->orderByDesc('created_at')
+        ->paginate(10);
+
+    /* -------------------- TRANSFORM FOR VIEW -------------------- */
+    $financeCashDeposits->getCollection()->transform(function ($deposit) {
+
+        $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+
+        return [
+            'id' => $deposit->id,
+            'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+            'adm_number' => $admDetails->adm_number ?? 'N/A',
+            'adm_name' => $admDetails->name ?? 'N/A',
+            'amount' => $deposit->amount ?? 0,
+            'status' => $deposit->status,
+            'attachment_path' => $deposit->attachment_path ?? null,
+        ];
+    });
+
+    // keep filter values in UI
+    $filters = $request->all();
+
+    return view('finance_cash.finance_cash', compact(
+        'financeCashDeposits',
+        'filters',
+        'adms',
+        'customers'
+    ));
+}
 
     public function show($id)
     {
@@ -73,11 +146,11 @@ class FinanceCashController extends Controller
         $depositDate = $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A';
         $totalAmount = $deposit->amount ?? 0;
 
-        $status = strtolower($deposit->status ?? '');
-        if ($status === 'pending') {
-            $status = 'deposited';
-        }
-        $status = ucfirst($status ?: 'Deposited');
+        $status = $deposit->status;
+        // if ($status === 'pending') {
+        //     $status = 'deposited';
+        // }
+        // $status = ucfirst($status ?: 'Deposited');
 
         return view('finance_cash.payment_slip', compact(
             'deposit',
@@ -91,20 +164,48 @@ class FinanceCashController extends Controller
         ));
     }
 
-    public function downloadAttachment($id)
-    {
-        $deposit = Deposits::findOrFail($id);
+   public function downloadAttachment($id)
+{
+    $deposit = Deposits::findOrFail($id);
 
-        if (!$deposit->attachment_path || !file_exists(public_path($deposit->attachment_path))) {
-            return back()->with('error', 'No file found for this record.');
-        }
-
-        return response()->download(public_path($deposit->attachment_path));
+    if (!$deposit->attachment_path) {
+        return back()->with('fail', 'No files found for this record.');
     }
+
+    // Decode JSON if multiple files stored
+    $attachments = json_decode($deposit->attachment_path, true);
+    if (!$attachments || count($attachments) === 0) {
+        return back()->with('fail', 'No valid files found.');
+    }
+
+    $zipFileName = 'deposit_'.$deposit->id.'_attachments.zip';
+    $zip = new \ZipArchive;
+    $zipPath = public_path('temp/'.$zipFileName); // temporary location
+
+    // Make sure temp folder exists
+    if (!file_exists(public_path('temp'))) {
+        mkdir(public_path('temp'), 0755, true);
+    }
+
+    if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+        foreach ($attachments as $filePath) {
+            $fullPath = public_path($filePath);
+            if (file_exists($fullPath)) {
+                // Add file to ZIP with just the filename
+                $zip->addFile($fullPath, basename($fullPath));
+            }
+        }
+        $zip->close();
+    } else {
+        return back()->with('fail', 'Failed to create ZIP file.');
+    }
+
+    // Return ZIP as download and delete after sending
+    return response()->download($zipPath)->deleteFileAfterSend(true);
+}
 
     public function updateStatus(Request $request, $id)
     {
-        $request->merge(['status' => ucfirst(strtolower($request->status))]);
 
         $request->validate([
             'status' => 'required|in:accepted,declined,over_to_finance',
@@ -144,7 +245,7 @@ class FinanceCashController extends Controller
     {
         $search = $request->input('search');
 
-        $financeCashDeposits = Deposits::where('type', 'finance_cash')
+        $financeCashDeposits = Deposits::where('type', 'finance-cash')
             ->orderByDesc('created_at')
             ->get();
 
@@ -188,8 +289,8 @@ class FinanceCashController extends Controller
 
         $financeCashDeposits->getCollection()->transform(function ($deposit) {
             $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') $status = 'deposited';
+            $status = $deposit->status;
+            // if ($status === 'pending') $status = 'deposited';
 
             return [
                 'id' => $deposit->id,
@@ -197,7 +298,7 @@ class FinanceCashController extends Controller
                 'adm_number' => $admDetails->adm_number ?? 'N/A',
                 'adm_name' => $admDetails->name ?? 'N/A',
                 'amount' => $deposit->amount ?? 0,
-                'status' => ucfirst($status ?: 'Deposited'),
+                'status' =>$status,
                 'attachment_path' => $deposit->attachment_path ?? null,
             ];
         });
@@ -209,7 +310,7 @@ class FinanceCashController extends Controller
 
     public function filter(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cash');
+        $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
             $admUserIds = UserDetails::whereIn('name', $request->adm_names)
@@ -264,8 +365,8 @@ class FinanceCashController extends Controller
 
         $financeCashDeposits->getCollection()->transform(function ($deposit) {
             $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') $status = 'deposited';
+            $status = $deposit->status;
+            // if ($status === 'pending') $status = 'deposited';
 
             return [
                 'id' => $deposit->id,
@@ -273,7 +374,7 @@ class FinanceCashController extends Controller
                 'adm_number' => $admDetails->adm_number ?? 'N/A',
                 'adm_name' => $admDetails->name ?? 'N/A',
                 'amount' => $deposit->amount ?? 0,
-                'status' => ucfirst($status ?: 'Deposited'),
+                'status' => $status ,
                 'attachment_path' => $deposit->attachment_path ?? null,
             ];
         });
@@ -285,7 +386,7 @@ class FinanceCashController extends Controller
 
     public function exportFiltered(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cash');
+        $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
             $admUserIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id')->toArray();
@@ -338,15 +439,15 @@ class FinanceCashController extends Controller
 
         $data = $deposits->map(function ($deposit) {
             $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') $status = 'deposited';
+            $status = $deposit->status;
+            // if ($status === 'pending') $status = 'deposited';
 
             return [
                 'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
                 'ADM Number' => $admDetails->adm_number ?? 'N/A',
                 'ADM Name' => $admDetails->name ?? 'N/A',
                 'Amount' => $deposit->amount ?? 0,
-                'Status' => ucfirst($status ?: 'Deposited'),
+                'Status' => $status,
             ];
         })->toArray();
 

@@ -36,26 +36,28 @@
             <p>
                 <span class="bold-text">Status :</span>
                 @php
-                $status = strtolower($cardPayment->status ?? 'pending');
-                $label = $status === 'pending' ? 'Pending' : ucfirst($status);
+                $status = strtolower($cardPayment->status ?? '');
 
-                $statusClass = match($label) {
+                $statusClass = match($status) {
                 'Accepted' => 'success-status-btn',
                 'Pending' => 'grey-status-btn',
                 'Rejected' => 'danger-status-btn',
                 'Declined' => 'danger-status-btn',
                 default => 'grey-status-btn',
                 };
+
+                 $statusLabel = str_replace('_', ' ', $cardPayment->status);
+                    $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                 @endphp
                 <span class="slip-detail-text">
-                    <button class="{{ $statusClass }}">{{ $label }}</button>
+                    <button class="{{ $statusClass }}">{{ $statusLabel }}</button>
                 </span>
             </p>
 @if(in_array('deposits-card-payment-download', session('permissions', [])))
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($cardPayment->card_image)
-                <a href="{{ asset('uploads/payments/' . $cardPayment->card_image) }}">
+                <a href=" {{ asset('uploads/adm/collections/card_screenshots/' . $cardPayment->card_image) }}" download>
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else

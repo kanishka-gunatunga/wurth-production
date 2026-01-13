@@ -103,7 +103,7 @@ use App\Models\Customers;
                     <div class="card-view px-0 ">
                         <div class="d-flex flex-row justify-content-between align-items-center px-3 mb-2">
                             <h4 class="black-title mb-0">Payment Details </h4>
-                            <a href="" class="my-3 small-button">
+                            <button class="my-3 small-button" data-bs-toggle="modal" data-bs-target="#editCustomer">
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -112,22 +112,63 @@ use App\Models\Customers;
                                 </svg>
 
                                 Edit
-                            </a>
+                            </button>
+
+                            <div class="modal fade" id="editCustomer" tabindex="-1" aria-labelledby="editCustomerLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                
+                                     <div class="modal-body">
+                                <form id="updateCustomerForm">
+
+                                    @csrf
+
+                                    <input type="hidden" name="id" value="{{ $customer_details->id }}">
+
+                                    <div class="input-group-collection-inner">
+                                        <label>Customer Name</label>
+                                        <input type="text" class="form-control" name="name" value="{{ $customer_details->name }}">
+                                    </div>
+
+                                    <div class="input-group-collection-inner">
+                                        <label>Mobile Number</label>
+                                        <input type="text" class="form-control" name="mobile_number" value="{{ $customer_details->mobile_number }}">
+                                    </div>
+
+                                    <div class="input-group-collection-inner">
+                                        <label>Email</label>
+                                        <input type="email" class="form-control" name="email" value="{{ $customer_details->email }}">
+                                    </div>
+
+                                    <div class="input-group-collection-inner">
+                                        <label>Address</label>
+                                        <textarea class="form-control" name="address">{{ $customer_details->address }}</textarea>
+                                    </div>
+
+                                    <button type="button" id="saveCustomerBtn" class="my-3 small-button w-100">
+                                        Save Details
+                                    </button>
+                                </form>
+                                </div>
+                                
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex flex-column px-3">
                             <label class="form-check-label d-flex flex-column" for="flexCheckDefault">
                                 <div class="d-flex flex-row mb-1">
                                     <span class="label-name">Customer’s Mobile No. :</span>
-                                    <span class="label-value"> {{$customer_details->mobile_number ?? '-'}}</span>
+                                    <span class="label-value customer-mobile">{{ $customer_details->mobile_number }}</span>
                                 </div>
                                 <div class="d-flex flex-row mb-1">
                                     <span class="label-name">Customer’s Email :</span>
-                                    <span class="label-value"> {{$customer_details->mobile_number ?? '-'}}</span>
+                                    <span class="label-value customer-email">{{ $customer_details->email }}</span>
                                 </div>
                                 <div class="d-flex flex-row mb-1">
                                     <span class="label-name">Customer’s Address : </span>
-                                    <span class="label-value"> {{$customer_details->address ?? '-'}}</span>
+                                    <span class="label-value customer-address">{{ $customer_details->address }}</span>
                                 </div>
                                 <div class="d-flex flex-row mb-1">
                                     <span class="label-name">Invoice Date : </span>
@@ -1649,5 +1690,59 @@ window.addEventListener('beforeunload', function (e) {
         return confirmationMessage;
     }
 });
+</script>
+
+<script>
+    
+$('#saveCustomerBtn').on('click', function () {
+
+    $.ajax({
+        url: "{{ url('adm/update-customer-ajax') }}",
+        type: "POST",
+        data: {
+            id: $('input[name="id"]').val(),
+            name: $('input[name="name"]').val(),
+            mobile_number: $('input[name="mobile_number"]').val(),
+            email: $('input[name="email"]').val(),
+            address: $('textarea[name="address"]').val(),
+            _token: "{{ csrf_token() }}"
+        },
+
+        beforeSend: function () {
+            $('#saveCustomerBtn').text('Saving...');
+        },
+
+        success: function (res) {
+
+            $('#saveCustomerBtn').text('Save Details');
+
+            if (res.status) {
+
+                $('.customer-mobile').text(res.customer.mobile_number);
+                $('.customer-email').text(res.customer.email);
+                $('.customer-address').text(res.customer.address);
+
+                toastr.success("Customer details updated successfully");
+
+            } else {
+                toastr.warning("Update failed. Try again");
+            }
+        },
+
+        error: function (xhr) {
+            $('#saveCustomerBtn').text('Save Details');
+
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                $.each(xhr.responseJSON.errors, function (key, value) {
+                    toastr.error(value[0]);
+                });
+            } else {
+                toastr.error("Something went wrong. Please try again");
+            }
+        }
+    });
+});
+
+
 </script>
 

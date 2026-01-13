@@ -7,6 +7,8 @@ use App\Models\InvoicePayments;
 use Illuminate\Http\Request;
 use App\Models\Deposits;
 use App\Models\UserDetails;
+use App\Models\Customers;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,6 +20,8 @@ class FundTransferController extends Controller
 {
     public function index(Request $request)
     {
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
         $query = InvoicePayments::with([
             'invoice.customer.admDetails'
         ])
@@ -42,7 +46,7 @@ class FundTransferController extends Controller
             });
         }
 
-        // ----------------------
+        // ---------------------- 
         // APPLY FILTERS
         // ----------------------
         if ($request->filled('adm_ids')) {
@@ -51,17 +55,18 @@ class FundTransferController extends Controller
             });
         }
 
-        if ($request->filled('adm_names')) {
+       if ($request->filled('adm_names')) {
             $query->whereHas('invoice.customer.admDetails', function ($q) use ($request) {
-                $q->whereIn('name', $request->adm_names);
+                $q->whereIn('user_id', $request->adm_names);
             });
         }
 
         if ($request->filled('customers')) {
             $query->whereHas('invoice.customer', function ($q) use ($request) {
-                $q->whereIn('name', $request->customers);
+                $q->whereIn('customer_id', $request->customers);
             });
         }
+
 
         if ($request->filled('date_range')) {
             // Normalize the input format
@@ -93,7 +98,7 @@ class FundTransferController extends Controller
         $fundTransfers = $query->paginate(10);
         $filters = $request->all();
 
-        return view('fund_transfer.fund_transfers', compact('fundTransfers', 'filters'));
+        return view('fund_transfer.fund_transfers', compact('fundTransfers', 'filters', 'customers', 'adms'));
     }
 
     public function show($id)

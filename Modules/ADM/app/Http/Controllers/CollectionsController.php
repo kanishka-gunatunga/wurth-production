@@ -44,6 +44,7 @@ class CollectionsController extends Controller
 
     public function collections()
 {
+    if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
 
     // Eager load related customer data for efficiency
@@ -66,6 +67,13 @@ class CollectionsController extends Controller
     $all_customers = Customers::where('adm', $adm_no)
         ->orWhere('secondary_adm', $adm_no)
         ->get();
+    }
+    else{
+         $invoices = Invoices::with('customer')->paginate(15);
+         $all_invoices = Invoices::with('customer')->get();
+         $all_customers = Customers::get();
+    }
+  
 
     return view('adm::collection.collections', [
         'invoices' => $invoices,
@@ -78,6 +86,7 @@ class CollectionsController extends Controller
 
      public function bulk_payment()
 {
+    if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
     // Get all customers under this ADM (primary or secondary)
@@ -97,6 +106,14 @@ class CollectionsController extends Controller
               ->orWhere('secondary_adm', $adm_no);
         })
         ->get();
+    } else{
+        $customers = Customers::pluck('customer_id');
+
+        $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
+        $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+
+        $all_customers = Customers::get();
+    }
 
     return view('adm::collection.bulk_payment', [
         'invoices' => $invoices,
@@ -108,6 +125,8 @@ class CollectionsController extends Controller
   public function search_invoices(Request $request)
 {
     $query = $request->input('query');
+
+    if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::id())->value('adm_number');
 
     // Fetch invoices with related customer data (include primary + secondary ADM)
@@ -123,6 +142,17 @@ class CollectionsController extends Controller
               });
         })
         ->get();
+    }
+    else{
+         $invoices = Invoices::with('customer')
+         ->where(function ($q) use ($query) {
+            $q->where('invoice_or_cheque_no', 'LIKE', "%{$query}%")
+              ->orWhereHas('customer', function ($q) use ($query) {
+                  $q->where('name', 'LIKE', "%{$query}%");
+              });
+        })
+        ->get();
+    }
 
     // Build HTML rows efficiently
     $invoice_data = $invoices->map(function ($invoice) {
@@ -158,13 +188,24 @@ class CollectionsController extends Controller
         $request->validate([
             'cash_amount'   => 'required',
         ]);
-
+        $invoice = Invoices::with('customer')->find($id);
         $discount =  ($request->cash_amount * ($request->cash_discount ?? 0)) / 100;
         $final_payment = $request->cash_amount-$discount;
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->adm_id = Auth::user()->id;
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $customer = $invoice->customer;
+
+                $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
             $payment_batch->save();  
         }
         else{
@@ -181,11 +222,21 @@ class CollectionsController extends Controller
         $payment->amount = $request->cash_amount;
         $payment->discount = $request->cash_discount;
         $payment->final_payment = $final_payment;
-        $payment->adm_id = Auth::user()->id;
+        if(Auth::user()->user_role == 6 ){
+            $payment->adm_id = Auth::user()->id;
+        }
+        else {
+            $customer = $invoice->customer;
+
+            $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+            $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+            $payment->adm_id = $adm ? $adm->user_id : null; 
+        }
         $payment->status = 'pending';
         $payment->save();
 
-        $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->cash_amount;
         $invoice->update();
 
@@ -282,7 +333,7 @@ public function add_fund_transfer($id,Request $request)
             'transfer_reference_number'   => 'required',
             'screenshot'   => 'required',
         ]);
-
+        $invoice = Invoices::with('customer')->find($id);
         $discount =  ($request->amount * ($request->discount ?? 0)) / 100;
         $final_payment = $request->amount-$discount;
 
@@ -291,7 +342,18 @@ public function add_fund_transfer($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->adm_id = Auth::user()->id;
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $customer = $invoice->customer;
+
+                $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
             $payment_batch->save();  
         }
         else{
@@ -312,10 +374,20 @@ public function add_fund_transfer($id,Request $request)
         $payment->transfer_reference_number = $request->transfer_reference_number;
         $payment->screenshot = $screenshot_name;
         $payment->status = 'pending';
-        $payment->adm_id = Auth::user()->id;
+        if(Auth::user()->user_role == 6 ){
+            $payment->adm_id = Auth::user()->id;
+        }
+        else {
+            $customer = $invoice->customer;
+
+            $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+            $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+            $payment->adm_id = $adm ? $adm->user_id : null; 
+        }
         $payment->save();
         
-        $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->amount;
         $invoice->update();
 
@@ -414,7 +486,7 @@ public function add_cheque_payment($id,Request $request)
             'branch_name'   => 'required',
             'cheque_image'   => 'required',
         ]);
-
+        $invoice = Invoices::with('customer')->find($id);
         $discount =  ($request->cheque_amount * ($request->discount ?? 0)) / 100;
         $final_payment = $request->cheque_amount-$discount;
 
@@ -423,7 +495,18 @@ public function add_cheque_payment($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
-            $payment_batch->adm_id = Auth::user()->id;
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $customer = $invoice->customer;
+
+                $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
             $payment_batch->save();  
         }
         else{
@@ -431,7 +514,7 @@ public function add_cheque_payment($id,Request $request)
         }
 
         $uniqid = uniqid();
-
+        
         $payment = new InvoicePayments();
         $payment->invoice_id = $id;
         $payment->uniqid = $uniqid;
@@ -448,12 +531,22 @@ public function add_cheque_payment($id,Request $request)
         $payment->bank_name = $request->bank_name;
         $payment->branch_name = $request->branch_name;
         $payment->post_dated = $request->post_dated;
-        $payment->adm_id = Auth::user()->id;
+        if(Auth::user()->user_role == 6 ){
+            $payment->adm_id = Auth::user()->id;
+        }
+        else {
+            $customer = $invoice->customer;
+
+            $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+            $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+            $payment->adm_id = $adm ? $adm->user_id : null; 
+        }
         $payment->status = 'pending';
         $payment->save();
         
        
-        $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->cheque_amount;
         $invoice->update();
 
@@ -514,7 +607,7 @@ public function add_card_payment($id,Request $request)
             'card_transfer_date'   => 'required',
             'card_screenshot'   => 'required',
         ]);
-
+        $invoice = Invoices::with('customer')->find($id);
         $discount =  ($request->card_amount * ($request->card_discount ?? 0)) / 100;
         $final_payment = $request->card_amount-$discount;
 
@@ -523,13 +616,25 @@ public function add_card_payment($id,Request $request)
 
         if($request->payment_batch_id == ''){
             $payment_batch = new InvoicePaymentBatches();
-             $payment_batch->adm_id = Auth::user()->id;
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $customer = $invoice->customer;
+
+                $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
             $payment_batch->save();  
         }
         else{
             $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
         }
         $uniqid = uniqid();
+       
         $payment = new InvoicePayments();
         $payment->uniqid = $uniqid;
         $payment->invoice_id = $id;
@@ -541,12 +646,21 @@ public function add_card_payment($id,Request $request)
         $payment->card_transfer_date = $request->card_transfer_date;
         $payment->final_payment = $final_payment;
         $payment->card_image = $image_name;
-        $payment->adm_id = Auth::user()->id;
+        if(Auth::user()->user_role == 6 ){
+            $payment->adm_id = Auth::user()->id;
+        }
+        else {
+            $customer = $invoice->customer;
+
+            $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+            $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+            $payment->adm_id = $adm ? $adm->user_id : null; 
+        }
         $payment->status = 'pending';
         $payment->save();
         
-       
-        $invoice =  Invoices::where('id', $id)->first();
         $invoice->paid_amount = $invoice->paid_amount + $request->card_amount;
         $invoice->update();
 
@@ -922,17 +1036,28 @@ public function resend_receipt($id)
         
         try {
         
-        if($request->payment_batch_id == ''){
+        if ($request->payment_batch_id == '') {
             $payment_batch = new InvoicePaymentBatches();
-             $payment_batch->adm_id = Auth::user()->id;
-            $payment_batch->save();  
-        }
-        else{
-            $payment_batch =  InvoicePaymentBatches::where('id', $request->payment_batch_id)->first();
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $last_payment = end($request->payments);
+                $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
+                $last_customer = $last_invoice->customer;
+                $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
+
+            $payment_batch->save();
+        } else {
+            $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
         }
         foreach ($request->payments as $payment) {
             $discount =  ($payment['amount'] * ($payment['discount'] ?? 0)) / 100;
             $final_payment = $payment['amount']-$discount;
+            $invoice = Invoices::with('customer')->where('id', $payment['invoice_id'])->first();
 
             $uniqid = uniqid();
             $payment_data = new InvoicePayments();
@@ -944,11 +1069,21 @@ public function resend_receipt($id)
             $payment_data->amount = $payment['amount'];
             $payment_data->discount = $payment['discount'];
             $payment_data->final_payment = $final_payment;
-            $payment_data->adm_id = Auth::user()->id;
+            if(Auth::user()->user_role == 6 ){
+                $payment_data->adm_id = Auth::user()->id;
+            }
+            else {
+                $customer = $invoice->customer;
+
+                $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                $payment_data->adm_id = $adm ? $adm->user_id : null; 
+            }
             $payment_data->status = 'pending';
             $payment_data->save();
 
-            $invoice = Invoices::where('id', $payment['invoice_id'])->first();
             $invoice->paid_amount = $invoice->paid_amount + $payment['amount'];
             $invoice->update();
 
@@ -1075,10 +1210,21 @@ public function add_bulk_fund_transfer(Request $request)
         try {
             $payments = $request->input('payments', []);
 
-            if (empty($request->payment_batch_id)) {
-                $payment_batch = new InvoicePaymentBatches();
-                 $payment_batch->adm_id = Auth::user()->id;
-                $payment_batch->save();
+           if ($request->payment_batch_id == '') {
+            $payment_batch = new InvoicePaymentBatches();
+            if(Auth::user()->user_role == 6 ){
+                $payment_batch->adm_id = Auth::user()->id;
+            }
+            else {
+                $last_payment = end($request->payments);
+                $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
+                $last_customer = $last_invoice->customer;
+                $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
+                $adm = UserDetails::where('adm_number', $adm_number)->first();
+                $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+            }
+
+            $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
             }
@@ -1101,7 +1247,7 @@ public function add_bulk_fund_transfer(Request $request)
 
                 $final_payment = $amount - $discount;
                 $uniqid = uniqid();
-
+                $invoice = Invoices::with('customer')->where('id', $data['invoice_id'])->first();
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
                 $payment_data->uniqid = $uniqid;
@@ -1114,12 +1260,22 @@ public function add_bulk_fund_transfer(Request $request)
                 $payment_data->transfer_date = $request->transfer_date;
                 $payment_data->transfer_reference_number = $request->transfer_reference_number;
                 $payment_data->screenshot = $screenshot_name;
+                 if(Auth::user()->user_role == 6 ){
                 $payment_data->adm_id = Auth::user()->id;
+                }
+                else {
+                    $customer = $invoice->customer;
+
+                    $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                    $payment_data->adm_id = $adm ? $adm->user_id : null; 
+                }
                 $payment_data->status = 'pending';
                 $payment_data->save();
 
                 // update invoice
-                $invoice = Invoices::find($data['invoice_id']);
                 $invoice->paid_amount += $amount;
                 $invoice->save();
 
@@ -1246,9 +1402,20 @@ public function add_bulk_cheque_payment(Request $request)
         try {
             $payments = $request->payments;
 
-            if (empty($request->payment_batch_id)) {
+            if ($request->payment_batch_id == '') {
                 $payment_batch = new InvoicePaymentBatches();
-                 $payment_batch->adm_id = Auth::user()->id;
+                if(Auth::user()->user_role == 6 ){
+                    $payment_batch->adm_id = Auth::user()->id;
+                }
+                else {
+                    $last_payment = end($request->payments);
+                    $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
+                    $last_customer = $last_invoice->customer;
+                    $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+                    $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+                }
+
                 $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
@@ -1265,6 +1432,8 @@ public function add_bulk_cheque_payment(Request $request)
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
                 $uniqid = uniqid();
+                $invoice = Invoices::with('customer')->where('id', $data['invoice_id'])->first();
+
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
                 $payment_data->uniqid = $uniqid;
@@ -1281,11 +1450,21 @@ public function add_bulk_cheque_payment(Request $request)
                 $payment_data->bank_name = $request->bank_name;
                 $payment_data->branch_name = $request->branch_name;
                 $payment_data->post_dated = $request->post_dated == 1 ? 1 : 0;
-                $payment_data->adm_id = Auth::user()->id;
+                if(Auth::user()->user_role == 6 ){
+                    $payment_data->adm_id = Auth::user()->id;
+                }
+                else {
+                    $customer = $invoice->customer;
+
+                    $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                    $payment_data->adm_id = $adm ? $adm->user_id : null; 
+                }
                 $payment_data->status = 'pending';
                 $payment_data->save();
 
-                $invoice = Invoices::find($data['invoice_id']);
                 $invoice->paid_amount += $data['amount'];
                 $invoice->save();
 
@@ -1338,9 +1517,20 @@ public function add_bulk_card_payment(Request $request)
         try {
             $payments = $request->payments;
 
-            if (empty($request->payment_batch_id)) {
+            if ($request->payment_batch_id == '') {
                 $payment_batch = new InvoicePaymentBatches();
-                 $payment_batch->adm_id = Auth::user()->id;
+                if(Auth::user()->user_role == 6 ){
+                    $payment_batch->adm_id = Auth::user()->id;
+                }
+                else {
+                    $last_payment = end($request->payments);
+                    $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
+                    $last_customer = $last_invoice->customer;
+                    $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+                    $payment_batch->adm_id = $adm ? $adm->user_id : null; 
+                }
+
                 $payment_batch->save();
             } else {
                 $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
@@ -1358,6 +1548,7 @@ public function add_bulk_card_payment(Request $request)
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
                 $uniqid = uniqid();
+                $invoice = Invoices::with('customer')->where('id', $data['invoice_id'])->first();
                 $payment_data = new InvoicePayments();
                 $payment_data->invoice_id = $data['invoice_id'];
                 $payment_data->uniqid = $uniqid;
@@ -1369,11 +1560,22 @@ public function add_bulk_card_payment(Request $request)
                 $payment_data->final_payment = $final_payment;
                 $payment_data->card_transfer_date = $request->card_transfer_date;
                 $payment_data->card_image = $screenshot_name;
-                $payment_data->adm_id = Auth::user()->id;
+                 if(Auth::user()->user_role == 6 ){
+                    $payment_data->adm_id = Auth::user()->id;
+                }
+                else {
+                    $customer = $invoice->customer;
+
+                    $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                    $payment_data->adm_id = $adm ? $adm->user_id : null; 
+                }
                 $payment_data->status = 'pending';
                 $payment_data->save();
 
-                $invoice = Invoices::find($data['invoice_id']);
+
                 $invoice->paid_amount += $data['amount'];
                 $invoice->save();
 

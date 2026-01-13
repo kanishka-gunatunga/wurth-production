@@ -17,7 +17,7 @@ class FinanceCashController extends Controller
     public function index(Request $request)
     {
         // Fetch only finance_cash deposits
-        $financeCashDeposits = Deposits::where('type', 'finance_cash')
+        $financeCashDeposits = Deposits::where('type', 'finance-cash')
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -132,7 +132,7 @@ class FinanceCashController extends Controller
     {
         $search = $request->input('search');
 
-        $financeCashDeposits = Deposits::where('type', 'finance_cash')
+        $financeCashDeposits = Deposits::where('type', 'finance-cash')
             ->orderByDesc('created_at')
             ->get();
 
@@ -197,7 +197,7 @@ class FinanceCashController extends Controller
 
     public function filter(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cash');
+        $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
             $admUserIds = UserDetails::whereIn('name', $request->adm_names)
@@ -273,7 +273,7 @@ class FinanceCashController extends Controller
 
     public function exportFiltered(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cash');
+        $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
             $admUserIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id')->toArray();

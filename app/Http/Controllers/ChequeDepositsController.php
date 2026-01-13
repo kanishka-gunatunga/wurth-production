@@ -12,47 +12,115 @@ use App\Exports\ArrayExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\ActivitLogService;
 use App\Services\SystemNotificationService;
-
-
+use App\Models\Invoices;
+use App\Models\User;
+use App\Models\Customers;
+use Illuminate\Support\Facades\Response;
 class ChequeDepositsController extends Controller
 {
     /**
      * Show the cheque deposits page with data.
-     */
-    public function index()
-    {
-        // Fetch cheque deposits with pagination (10 per page)
-        $deposits = Deposits::where('type', 'cheque')
-            ->orderByDesc('created_at')
-            ->paginate(10);
+     */ 
+    public function index(Request $request)
+{
+    $adms = User::where('user_role', 6)->with('userDetails')->get();
+    $customers = Customers::where('is_temp', 0)->get();
 
-        // Transform results before sending to view
-        $deposits->getCollection()->transform(function ($deposit) {
-            $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
+    // base query
+    $query = Deposits::where('type', 'cheque');
 
-            // Convert pending → Deposited
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') {
-                $status = 'deposited';
-            }
+    if ($request->filled('search')) {
+        $search = trim($request->search);
 
-            return [
-                'id' => $deposit->id,
-                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-                'adm_number' => $userDetail?->adm_number ?? 'N/A',
-                'adm_name' => $userDetail?->name ?? 'N/A',
-                'bank_name' => $deposit->bank_name,
-                'branch_name' => $deposit->branch_name,
-                'amount' => $deposit->amount ?? 0,
-                'status' => ucfirst($status ?: 'Deposited'),
-                'attachment_path' => $deposit->attachment_path ?? null,
-            ];
+        // ADM user IDs by name or adm_number
+        $admUserIds = UserDetails::where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%$search%")
+              ->orWhere('adm_number', 'LIKE', "%$search%");
+        })->pluck('user_id');
+
+        // customer IDs by name or id
+        $customerIds = Customers::where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%$search%")
+              ->orWhere('customer_id', 'LIKE', "%$search%");
+        })->pluck('customer_id');
+
+        $query->where(function ($q) use ($admUserIds, $customerIds) {
+            // match ADM
+            $q->whereIn('adm_id', $admUserIds)
+
+            // OR match customer through receipts → invoice payments
+            ->orWhereHas('reciepts.invoice.customer', function ($c) use ($customerIds) {
+                $c->whereIn('customer_id', $customerIds);
+            });
         });
-
-        return view('cheque_deposits.cheque_deposits', [
-            'data' => $deposits,
-        ]);
     }
+
+    if ($request->filled('adm_names')) {
+        $query->whereIn('adm_id', $request->adm_names);
+    }
+
+    if ($request->filled('adm_ids')) {
+        $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
+            ->pluck('user_id');
+
+        $query->whereIn('adm_id', $admUserIds);
+    }
+
+    if ($request->filled('customers')) {
+        $query->whereHas('reciepts.invoice.customer', function ($q) use ($request) {
+            $q->whereIn('customer_id', $request->customers);
+        });
+    }
+
+    if ($request->filled('date_range')) {
+
+        $range = trim($request->date_range);
+
+        if (str_contains($range, 'to')) {
+            [$start, $end] = array_map('trim', explode('to', $range));
+        } elseif (str_contains($range, '-')) {
+            [$start, $end] = array_map('trim', explode('-', $range));
+        } else {
+            $start = $end = $range;
+        }
+
+        if (!empty($start) && !empty($end)) {
+            $query->whereBetween('date_time', [
+                date('Y-m-d 00:00:00', strtotime($start)),
+                date('Y-m-d 23:59:59', strtotime($end)),
+            ]);
+        }
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    $deposits = $query->orderByDesc('created_at')->paginate(10);
+
+    $deposits->getCollection()->transform(function ($deposit) {
+        $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
+
+        return [
+            'id' => $deposit->id,
+            'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+            'adm_number' => $userDetail?->adm_number ?? 'N/A',
+            'adm_name' => $userDetail?->name ?? 'N/A',
+            'bank_name' => $deposit->bank_name ?? 'N/A',
+            'branch_name' => $deposit->branch_name ?? 'N/A',
+            'amount' => $deposit->amount ?? 0,
+            'status' => $deposit->status,
+            'attachment_path' => $deposit->attachment_path ?? null,
+        ];
+    });
+
+    return view('cheque_deposits.cheque_deposits', [
+        'data' => $deposits,
+        'adms' => $adms,
+        'customers' => $customers,
+        'filters' => $request->all(),
+    ]);
+}
 
     /**
      * Show a single cheque deposit details.
@@ -74,10 +142,10 @@ class ChequeDepositsController extends Controller
             ->paginate(10);
 
         // ✅ Convert pending → Deposited in show page too
-        $status = strtolower($deposit->status ?? '');
-        if ($status === 'pending') {
-            $status = 'deposited';
-        }
+        // $status = strtolower($deposit->status ?? '');
+        // if ($status === 'pending') {
+        //     $status = 'deposited';
+        // }
 
         $depositData = [
             'id' => $deposit->id,
@@ -87,7 +155,7 @@ class ChequeDepositsController extends Controller
             'bank_name' => $deposit->bank_name,
             'branch_name' => $deposit->branch_name,
             'amount' => $deposit->amount ?? 0,
-            'status' => ucfirst($status ?: 'Deposited'),
+            'status' => $deposit->status,
             'attachment_path' => $deposit->attachment_path ?? null,
         ];
 
@@ -101,33 +169,44 @@ class ChequeDepositsController extends Controller
      * Download attachment file if available.
      */
     public function downloadAttachment($id)
-    {
-        $deposit = Deposits::findOrFail($id);
+{
+    $deposit = Deposits::findOrFail($id);
 
-        $path = $deposit->attachment_path;
-
-        if (!$path) {
-            return back()->with('error', 'No file found for this record.');
-        }
-
-        // Check if file exists in "storage/app" (default local disk)
-        if (Storage::disk('local')->exists($path)) {
-            return Storage::disk('local')->download($path);
-        }
-
-        // Check if file exists in "public" folder
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->download($path);
-        }
-
-        // Fallback: check absolute path (if you store in public folder manually)
-        $absolutePath = public_path($path);
-        if (file_exists($absolutePath)) {
-            return response()->download($absolutePath);
-        }
-
-        return back()->with('error', 'No file found for this record.');
+    if (!$deposit->attachment_path) {
+        return back()->with('fail', 'No files found for this record.');
     }
+
+    // Decode JSON if multiple files stored
+    $attachments = json_decode($deposit->attachment_path, true);
+    if (!$attachments || count($attachments) === 0) {
+        return back()->with('fail', 'No valid files found.');
+    }
+
+    $zipFileName = 'deposit_'.$deposit->id.'_attachments.zip';
+    $zip = new \ZipArchive;
+    $zipPath = public_path('temp/'.$zipFileName); // temporary location
+
+    // Make sure temp folder exists
+    if (!file_exists(public_path('temp'))) {
+        mkdir(public_path('temp'), 0755, true);
+    }
+
+    if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+        foreach ($attachments as $filePath) {
+            $fullPath = public_path($filePath);
+            if (file_exists($fullPath)) {
+                // Add file to ZIP with just the filename
+                $zip->addFile($fullPath, basename($fullPath));
+            }
+        }
+        $zip->close();
+    } else {
+        return back()->with('fail', 'Failed to create ZIP file.');
+    }
+
+    // Return ZIP as download and delete after sending
+    return response()->download($zipPath)->deleteFileAfterSend(true);
+}
 
     public function updateStatus(Request $request, $id)
     {
@@ -371,8 +450,8 @@ class ChequeDepositsController extends Controller
 
         $data = $deposits->map(function ($deposit) {
             $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = strtolower($deposit->status ?? '');
-            if ($status === 'pending') $status = 'deposited';
+            $status = $deposit->status;
+            // if ($status === 'pending') $status = 'deposited';
 
             return [
                 'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
@@ -381,7 +460,7 @@ class ChequeDepositsController extends Controller
                 'Bank Name' => $deposit->bank_name,
                 'Branch Name' => $deposit->branch_name,
                 'Amount' => $deposit->amount ?? 0,
-                'Status' => ucfirst($status ?: 'Deposited'),
+                'Status' => $status,
             ];
         })->toArray();
 

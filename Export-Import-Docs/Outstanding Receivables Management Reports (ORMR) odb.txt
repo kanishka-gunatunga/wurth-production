@@ -1,0 +1,99 @@
+Outstanding Days Breakdown - ODB																
+	ADM Nuwan Hasanka -591 Employee No 10469 - Exit AR Review Hale on 07.01.2025 ( Resignation given on 23rd November - Last Date of Employment 31st Dec 2024															
+ Customer No 	 Customer Name 	 ADM No 	 ADM Name 	Document Date	 Reference 	 Doument  Amount 	 Outstanding Amount 	Days arrears	0 - 30	31 - 60	61 - 90 	91 - 120	…...	 Paid & Post -Dted Cheque / Not deposited to bank ( Coillection) 	 Chq no / Rcp No / depost date 	 Comments / Notification 
+190014803	 Apex Enterprises 	591	Nuwan P	23-Jul-2024	4227288588	" 54,583.00 "	" 17,583.00 "	538								" Cx agreed to pay Rs 10,000/= today - Letter "
+190014803	 Apex Enterprises 	591	Nuwan P	5-Aug-2024	4227291005	" 12,443.00 "	" 12,443.00 "	525								
+  190014803  Total 							" 30,026.00 "									
+190015296	 Aruna Motors 	591	Nuwan P	30-Sep-2024	4227298445	" 17,150.00 "	" 7,150.00 "	469						" 7,150.00 "	 Chq no Amout Deposid date  	
+190015296	 Aruna Motors 	591	Nuwan P	4-Oct-2024	4227299415	" 25,233.00 "	" 15,783.00 "	465						" 2,850.00 "		" Rcpt No 240914 DD 26.11.2024 Cash Rs 10,000/= "
+190015296	 Aruna Motors 	591	Nuwan P	4-Oct-2024	4227299373	" 3,400.00 "	 -   	465								 Cx agreed to deposit Rs 10K today 
+  190015296  Total 							" 22,933.00 "									
+190014581	 Bimal Motors 	591	Nuwan P	20-Sep-2024	4227297036	" 6,372.00 "	" 6,372.00 "	479						" 6,372.00 "	 Chq no Amout Deposid date  	
+190014581	 Bimal Motors 	591	Nuwan P	20-Sep-2024	4227297037	" 16,591.00 "	" 16,591.00 "	479						" 16,591.00 "	 Chq no Amout Deposid date  	
+190014581	 Bimal Motors 	591	Nuwan P	20-Sep-2024	4227297035	" 28,320.00 "	" 28,320.00 "	479						" 28,320.00 "	 Chq no Amout Deposid date  	
+190014581	 Bimal Motors 	591	Nuwan P	20-Sep-2024	4227297038	" 14,927.00 "	" 14,927.00 "	479						" 14,927.00 "	 Chq no Amout Deposid date  	
+190014581	 Bimal Motors 	591	Nuwan P	5-Oct-2024	4227299579	" 26,550.00 "	" 26,550.00 "	464						" 26,550.00 "	 Chq no Amout Deposid date  	
+  190014581  Total 							" 92,760.00 "									
+190014955	 Dissanayaka Motors 	591		7-Aug-2024	4227291308	" 11,900.00 "	" 11,900.00 "	523								 Legal action to be taken 
+  190014955  Total 							" 11,900.00 "									
+190015202	 Harindra Motors 	591		20-Sep-2024	4227296903	" 1,381.00 "	" 1,381.00 "	479						" 1,381.00 "	 Cash amount  	 Cash To be given to finance 
+  190015202  Total 							" 1,381.00 "									
+190014572	 Hero Motors 	591		24-Jul-2024	4227288822	" 8,400.00 "	" 8,400.00 "	537								 Letter - Phone did not Responded 
+  190014572  Total 							" 8,400.00 "									
+190010172	 Indika Motors 	591		19-May-2023	  	" (6,141.00)"	 -   	969								
+190010172	 Indika Motors 	591		31-Oct-2024	4227303854	" 7,200.00 "	" 1,059.00 "	438								 Cx agreed to pay & wants to come of 09th January 
+190010172	 Indika Motors 	591		31-Oct-2024	4227303805	" 64,900.00 "	" 29,900.00 "	438								
+  190010172  Total 							" 30,959.00 "									
+190014586	 Jagath Motors 	591		13-Sep-2024	234455	 (194.00)	 (194.00)	486								
+190014586	 Jagath Motors 	591		21-Oct-2024	4227301531	" 18,766.00 "	" 18,766.00 "	448								 Final reminder sent 
+  190014586  Total 							" 18,572.00 "									
+190015864	 Jeyakumaran Motor Works (Pvt) Ltd 	591		31-Oct-2024	4227303881	" 5,173.00 "	" 5,173.00 "	438						" 5,173.00 "	 Chq no Amout Deposid date  	 Cash To be given to finance 
+  190015864  Total 							" 5,173.00 "									
+190015653	 Kaveesh Oil Mart 	591		24-Oct-2024	4227302035	" 3,499.00 "	 -   	445								 unable contact via phone - Letter 
+  190015653  Total 							 -   									
+190007318	 Keerthi Motors 	591		25-Jul-2024	4227289062	" 18,172.00 "	" 18,172.00 "	536								 Returned Googs collected by ADM on 12.12.2024 
+  190007318  Total 							" 18,172.00 "									
+190006904	 Kingstar Motors 	591		27-Sep-2024	4227297971	" 12,654.00 "	" 12,654.00 "	472								 LOD sent 
+  190006904  Total 							" 12,654.00 "									
+190015361	 Kumara Motors 	591		8-Oct-2024	4227299777	" 14,290.00 "	" 14,290.00 "	461								 Will be paid on date …..../next week 
+  190015361  Total 							" 14,290.00 "									
+190005703	 Minu Motors 	591		27-Dec-2024	4227311328	" 14,400.00 "	 -   	381								
+  190005703  Total 							 -   									
+190002413	 N. R. Motors 	591		28-Feb-2024	4227272655	" 34,200.00 "	" 4,200.00 "	684								 Closed customer 
+  190002413  Total 							" 4,200.00 "									
+190014097	 N. R. Motors 	591		22-Dec-2023	214343	" (4,135.00)"	" (4,135.00)"	752								
+190014097	 N. R. Motors 	591		4-Oct-2024	4227299465	" 32,285.00 "	" 32,285.00 "	465						" 32,285.00 "		 Cash to be handover to finance today 
+  190014097  Total 							" 28,150.00 "									
+190015702	 New Asanka Motors 	591		24-Oct-2024	4227301982	" 5,809.00 "	" 3,809.00 "	445								 Cx agreed to pay tomorrow 
+  190015702  Total 							" 3,809.00 "									
+190004932	 Nishan Motors 	591		30-Oct-2024	4227303113	" 29,556.00 "	" 29,556.00 "	439								 Legal action taken 
+190004932	 Nishan Motors 	591		30-Oct-2024	4227303190	" 11,800.00 "	" 11,800.00 "	439								
+  190004932  Total 							" 41,356.00 "									
+190001551	 Pathum Motors 	591		30-Sep-2024	4227298754	" 10,705.00 "	" 10,705.00 "	469								 Customer wants to returned 
+190001551	 Pathum Motors 	591		30-Oct-2024	4227303088	" 2,950.00 "	" 2,950.00 "	439								
+  190001551  Total 							" 13,655.00 "									
+190014917	 Pradeepa Motors 	591		20-Sep-2024	4227296946	" 14,400.00 "	" 2,800.00 "	479								 Discount to be cleared 
+  190014917  Total 							" 2,800.00 "									
+190013554	 Prasad Motors 	591		30-Sep-2024	4227298351	" 9,540.00 "	" 9,540.00 "	469								 Letter - Cx wanted to call him on Friday.  
+  190013554  Total 							" 9,540.00 "									
+190006214	 Prasanna Motors 	591		31-Jul-2024	4227290522	" 124,311.00 "	" 25,000.00 "	530						" 10,000.00 "		
+  190006214  Total 							" 25,000.00 "									
+190009701	 Prasanna Motors 	591		31-Aug-2023	4227252546	" 77,280.00 "	 -   	865								
+  190009701  Total 							 -   									
+190006941	 Rathna Motors 	591		31-Oct-2024	4227304081	" 35,400.00 "	" 11,000.00 "	438								 Short supply 
+190006941	 Rathna Motors 	591		31-Oct-2024	4227304094	" 35,400.00 "	" 35,400.00 "	438								 Cx agreed to pay 
+  190006941  Total 							" 46,400.00 "									
+190008463	 Royal Motors 	591		20-Sep-2024	4227296931	" 15,930.00 "	" 5,000.00 "	479								
+  190008463  Total 							" 5,000.00 "									
+190015337	 Sakura Motors 	591		14-Oct-2024	4227300530	" 24,721.00 "	" 24,721.00 "	455								 Confirmation collected 
+  190015337  Total 							" 24,721.00 "									
+190007999	 Sanithma Traders 	591		29-Aug-2024	4227294233	" 14,455.00 "	 295.00 	501								 Deduct from ADM 
+  190007999  Total 							 295.00 									
+190014663	 Saranga Motors 	591		22-Jul-2024	4227288247	" 5,000.00 "	 -   	539								
+  190014663  Total 							 -   									
+190014639	 Scooter Home 	591		21-Nov-2024	4227306497	" 2,099.00 "	" 2,099.00 "	417						" 2,099.00 "		
+  190014639  Total 							" 2,099.00 "									
+190009895	 Senuthmee Bajaj Service Centre 	591		31-Jul-2024	4227290260	" 13,971.00 "	" 13,971.00 "	530						" 13,971.00 "		
+  190009895  Total 							" 13,971.00 "									
+190015757	 Shaidu Motors 	591		31-Oct-2024	4227303958	" 5,685.00 "	 -   	438								
+  190015757  Total 							 -   									
+190014094	 Skipper Motors 	591		30-Sep-2024	4227298244	" 4,177.00 "	" 4,177.00 "	469						" 4,177.00 "		
+  190014094  Total 							" 4,177.00 "									
+190011841	 Sudesh Motors 	591		30-Aug-2024	4227294516	" 21,523.00 "	" 1,523.00 "	500								
+190011841	 Sudesh Motors 	591		26-Sep-2024	4227297792	" 21,523.00 "	" 5,673.00 "	473								
+190011841	 Sudesh Motors 	591		30-Sep-2024	234477	" (10,000.00)"	" (10,000.00)"	469								
+190011841	 Sudesh Motors 	591		14-Oct-2024	4227300558	" 32,804.00 "	" 2,804.00 "	455								
+  190011841  Total 							 -   									
+190014789	 Sunny Motors 	591		23-Aug-2024	4227293143	" 7,298.00 "	" 7,298.00 "	507						" 7,298.00 "		 Binuri has not updated the recpt Yet 
+  190014789  Total 							" 7,298.00 "									
+190014470	 Vista Motors 	591		4-Oct-2024	4227299501	" 28,320.00 "	" 3,320.00 "	465						" 3,320.00 "		 Binuri has not updated the recpt Yet 
+  190014470  Total 							" 3,320.00 "									
+ Grand Total 							" 503,011.00 "							" 182,464.00 "		
+																
+																
+The report should reflect figures only after the deposits have been made to the bank and the upload has been completed by the Finance Department.”																
+"All post-dated cheques collected, as well as any receipts not yet deposited to the bank as of the report generation date, must be shown in a separate column next to the relevant invoice. This is to ensure that any cheques currently on hand can be clearly identified and tracked at any given moment.”"																
+"This report should be  generated and filtered by Customer wise ADM-wise, Team-wise, Sub-Team, and Division-wise"																
+"A separate column should be included next to the invoice number to display backend comments or notifications. This section should capture remarks such as: ‘Customer agreed to pay next week, please visit’ or ‘Customer wants to return goods for this invoice as it was not ordered.’ This will enable better follow-up and coordination between Sales and Finance.”"																
+																
+The report should  to be downloaded/exported to Excel format for further analysis and sharing.”																

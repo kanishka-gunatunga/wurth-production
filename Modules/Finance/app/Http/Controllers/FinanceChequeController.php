@@ -17,7 +17,7 @@ class FinanceChequeController extends Controller
 {
     public function index()
     {
-        $deposits = Deposits::where('type', 'finance_cheque')
+        $deposits = Deposits::where('type', 'finance-cheque')
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -122,7 +122,7 @@ class FinanceChequeController extends Controller
     {
         $search = $request->input('search');
 
-        $deposits = Deposits::where('type', 'finance_cheque')
+        $deposits = Deposits::where('type', 'finance-cheque')
             ->orderByDesc('created_at')
             ->get();
 
@@ -194,7 +194,7 @@ class FinanceChequeController extends Controller
 
     public function filter(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cheque');
+        $query = Deposits::where('type', 'finance-cheque');
 
         if ($request->filled('adm_names')) {
             $admIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id');
@@ -276,7 +276,7 @@ class FinanceChequeController extends Controller
 
     public function export(Request $request)
     {
-        $query = Deposits::where('type', 'finance_cheque');
+        $query = Deposits::where('type', 'finance-cheque');
 
         // Apply the same filters as in filter() method
         if ($request->filled('adm_names')) {

@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use App\Models\InvoicePayments;
 use App\Models\Invoices;
 use App\Models\Customers;
+use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Deposits;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ class CardPaymentController extends Controller
 {
     public function index(Request $request)
     {
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
         $query = InvoicePayments::with([
             'invoice.customer.userDetail' // Keep relation for ADM Name
         ])->where('type', 'card'); // Only card payments
@@ -50,7 +53,7 @@ class CardPaymentController extends Controller
         // ----------------------
         if ($request->filled('adm_ids')) {
             $query->whereHas('invoice.customer', function ($q) use ($request) {
-                $q->whereIn('adm', $request->adm_ids);
+                $q->whereIn('user_id', $request->adm_names);
             });
         }
 
@@ -62,7 +65,7 @@ class CardPaymentController extends Controller
 
         if ($request->filled('customers')) {
             $query->whereHas('invoice.customer', function ($q) use ($request) {
-                $q->whereIn('name', $request->customers);
+                $q->whereIn('customer_id', $request->customers);
             });
         }
 
@@ -96,7 +99,7 @@ class CardPaymentController extends Controller
         $cardPayments = $query->orderBy('card_transfer_date', 'desc')->paginate(10);
         $filters = $request->all();
 
-        return view('card_payment.card_payments', compact('cardPayments', 'filters'));
+        return view('card_payment.card_payments', compact('cardPayments', 'filters','customers','adms'));
     }
 
     public function show($id)

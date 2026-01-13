@@ -43,7 +43,7 @@
                     @php
                     $statusClass = match($deposit['status']) {
                     'accepted' => 'success-status-btn',
-                    'deposited' => 'blue-status-btn',
+                    'pending' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
                     'declined' => 'danger-status-btn',
                     'over_to_finance' => 'dark-status-btn',
@@ -175,11 +175,10 @@
     <a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
      @if(in_array('deposits-finance-cheque-status', session('permissions', [])))                
     @php
-    $currentStatus = strtolower($deposit['status']);
-    if ($currentStatus === 'pending') $currentStatus = 'deposited';
+    $currentStatus =$deposit['status'];
     @endphp
 
-    @if ($currentStatus === 'deposited' || $currentStatus === 'declined')
+    @if ($currentStatus === 'pending' || $currentStatus === 'declined')
     <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
     <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recived by finance</button>
     @elseif ($currentStatus === 'over_to_finance')
@@ -320,7 +319,7 @@
 
             if (status === "accepted") return;
 
-            if (status === "deposited" || status === "declined") {
+            if (status === "pending" || status === "declined") {
                 footer.innerHTML += `
             <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
             <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recieved by finance</button>

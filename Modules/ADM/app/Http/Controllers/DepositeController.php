@@ -38,11 +38,16 @@ class DepositeController extends Controller
 { 
     if ($request->isMethod('get')) {
         $banks = Bank::all();
+         if(Auth::user()->user_role == 6 ){
         $deposites = Deposits::where('adm_id', auth()->id())
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->get();
-
+         } else{
+            $deposites = Deposits::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->get();
+         }
         $cashTotal = $deposites->filter(function($d) {
             return in_array(strtolower($d->type), ['cash', 'finance - cash']);
         })->sum('amount');
@@ -85,7 +90,20 @@ class DepositeController extends Controller
         if (!is_array($receiptIds) || empty($receiptIds)) {
             return redirect()->back()->with('error', 'Invalid receipts selected.');
         }
-
+        $depositAdmId = null;
+        if(Auth::user()->user_role == 6) {
+            $depositAdmId = auth()->id();
+        } else {
+            $lastReceipt = InvoicePayments::with('invoice.customer')->find(end($receiptIds));
+            if($lastReceipt && $lastReceipt->invoice && $lastReceipt->invoice->customer){
+                $customer = $lastReceipt->invoice->customer;
+                $admNumber = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+                $admDetails = UserDetails::where('adm_number', $admNumber)->first();
+                $depositAdmId = $admDetails ? $admDetails->user_id : auth()->id();
+            } else {
+                $depositAdmId = auth()->id(); 
+            }
+        }
         // 🧩 Handle "finance-cheque" differently
         if ($depositType === 'finance - cheque' || $depositType === 'finance-cheque') {
             foreach ($receiptIds as $receiptId) {
@@ -97,7 +115,7 @@ class DepositeController extends Controller
                 $deposit->date_time = now();
                 $deposit->amount = $receipt->final_payment ?? 0; // Use individual receipt amount
                 $deposit->reciepts = json_encode([['reciept_id' => $receiptId]]);
-                $deposit->adm_id = auth()->id();
+                $deposit->adm_id = $depositAdmId;
                 $deposit->status = 'pending';
                 $deposit->bank_name = $request->cheque_bank;
                 $deposit->branch_name = $request->cheque_branch;
@@ -116,7 +134,7 @@ class DepositeController extends Controller
             $deposit->date_time = now();
             $deposit->amount = $request->deposit_total;
             $deposit->reciepts = $receipts->toJson();
-            $deposit->adm_id = auth()->id();
+            $deposit->adm_id = $depositAdmId;
             $deposit->status = 'pending';
             $deposit->bank_name = $request->cheque_bank;
             $deposit->branch_name = $request->cheque_branch;
@@ -134,14 +152,20 @@ class DepositeController extends Controller
 
 public function get_receipts(Request $request)
 {
-
+    if(Auth::user()->user_role == 6) {
     $paymentsQuery = InvoicePayments::with(['invoice.customer', 'batch'])
         ->where('status', 'pending')
         ->where('adm_id', Auth::id())
         ->whereHas('batch', function ($q) {
-            $q->where('temp_receipt', 0); // exclude temp receipts
+            $q->where('temp_receipt', 0);
         });
-
+    }else{
+         $paymentsQuery = InvoicePayments::with(['invoice.customer', 'batch'])
+        ->where('status', 'pending')
+        ->whereHas('batch', function ($q) {
+            $q->where('temp_receipt', 0);
+        });
+    }
     // ✅ Filter by deposit type (based on InvoicePayments.type)
     if ($request->filled('deposit_type')) {
         $depositType = strtolower($request->deposit_type);

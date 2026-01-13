@@ -54,25 +54,27 @@
                 <span class="slip-detail-text">&nbsp;
                     @php
                     $status = strtolower($deposit->status ?? '');
-                    $label = $status === 'pending' ? 'Pending' : ucfirst($status);
 
-                    $statusClass = match($label) {
+                    $statusClass = match($status) {
                     'accepted' => 'success-status-btn',
                     'pending' => 'grey-status-btn',
                     'rejected' => 'danger-status-btn',
                     'declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
+
+                     $statusLabel = str_replace('_', ' ', $deposit->status);
+                    $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                     @endphp
 
-                    <button class="{{ $statusClass }}">{{ $label }}</button>
+                    <button class="{{ $statusClass }}">{{ $statusLabel }}</button>
                 </span>
             </p>
             @if(in_array('deposits-fund-transfer-download', session('permissions', [])))        
             <p>
                 <span class="bold-text">Attachment Download :</span>
                 @if($deposit->screenshot)
-                <a href="{{ asset('uploads/payments/' . $deposit->screenshot) }}">
+                <a href="{{ asset('uploads/adm/collections/fund_transfer_reciepts/' . $deposit->screenshot) }}" download>
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else

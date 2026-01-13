@@ -69,18 +69,18 @@
             <h1 class="header-title">Cash Deposits</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <form id="searchForm" method="POST" action="{{ url('cash-deposits/search') }}">
-                @csrf
+            <form id="searchForm" method="GET" action="{{ url('cash-deposits') }}">
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                     <input
                         type="text"
                         name="search"
                         class="search-input"
-                        placeholder="Search customer ID, Name or ADM ID, Name"
+                        placeholder="Search ADM ID or ADM Name"
                         value="{{ $filters['search'] ?? '' }}" />
                 </div>
             </form>
+
             <button class="header-btn" id="search-toggle-button"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             <button class="header-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchByFilter" aria-controls="offcanvasRight"><i class="fa-solid fa-filter fa-xl"></i></button>
         </div>
@@ -127,7 +127,7 @@
                     @php
                     $statusClass = match (strtolower($deposit['status'])) {
                     'accepted' => 'success-status-btn',
-                    'deposited' => 'blue-status-btn',
+                    'pending' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
                     'declined' => 'danger-status-btn',
                     default => 'grey-status-btn'
@@ -149,13 +149,13 @@
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
                         <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
-                            @if(strtolower($deposit['status']) === 'deposited')
+                            @if(strtolower($deposit['status']) === 'pending')
                              @if(in_array('deposits-cash-status', session('permissions', [])))
                             <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="accepted">Accept</button>
                             <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="declined">Decline</button>
                             @endif
                             @endif
-                             @if(in_array('deposits-cash-download', session('permissions', [])))
+                            @if(in_array('deposits-cash-download', session('permissions', [])))
                             @if($deposit['attachment_path'])
                             <a href="{{ url('cash-deposits/download', $deposit['id']) }}"
                                 class="black-action-btn submit"
@@ -187,8 +187,8 @@
 </div>
 
 
-<form method="POST" action="{{ url('cash-deposits/filter') }}">
-    @csrf
+<form method="GET" action="{{ url('cash-deposits') }}">
+ 
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
         <div class="row d-flex justify-content-end">
@@ -204,7 +204,7 @@
             </div class="col-6">
 
             <div>
-                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+               <a href="{{ url('cash-deposits') }}"><button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button></a> 
             </div>
         </div>
         <div class="offcanvas-body">
@@ -243,14 +243,11 @@
             <!-- ADM Name Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Name</p>
-                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                    @foreach ($cashDeposits->pluck('adm_name')->unique() as $admName)
-                    @if($admName)
-                    <option value="{{ $admName }}"
-                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                        {{ $admName }}
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2-filter" multiple  >
+                    @foreach ($adms as $adm)
+                    <option value="{{ $adm->id }}" {{ !empty($filters['adm_names']) && in_array($adm->id, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $adm->userDetails->name }}
                     </option>
-                    @endif
                     @endforeach
                 </select>
             </div>
@@ -258,27 +255,26 @@
             <!-- ADM ID Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM ID</p>
-                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                    @foreach ($cashDeposits->pluck('adm_number')->unique() as $admId)
-                    <option value="{{ $admId }}"
-                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                        {{ $admId }}
-                    </option>
-                    @endforeach
-                </select>
+               <select id="filter-adm-id" name="adm_ids[]" class="form-control select2-filter" multiple>
+                @foreach($adms as $adm)
+                    @if(!empty($adm->userDetails->adm_number))
+                        <option value="{{ $adm->userDetails->adm_number }}"  {{ !empty($filters['adm_ids']) && in_array($adm->userDetails->adm_number, $filters['adm_ids']) ? 'selected' : '' }}>
+                            {{ $adm->userDetails->adm_number }}
+                        </option>
+                    @endif
+                @endforeach
+            </select>
             </div>
 
             <!-- Customers Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Customers</p>
-                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                    @foreach ($cashDeposits->pluck('customer_name')->unique() as $customer)
-                    @if($customer)
-                    <option value="{{ $customer }}"
-                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                        {{ $customer }}
+                <select id="filter-customer" name="customers[]" class="form-control select2-filter" multiple >
+                    @foreach ($customers as $customer)
+                    <option value="{{ $customer->customer_id }}" {{ !empty($filters['customers']) && in_array($customer->customer_id, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer->name }}
                     </option>
-                    @endif
+                
                     @endforeach
                 </select>
             </div>
@@ -289,9 +285,17 @@
                     placeholder="Select date range"
                     value="{{ $filters['date_range'] ?? '' }}" />
             </div>
-
+            
+             <div class="mt-5 filter-categories">
+                <p class="filter-title">Status</p>
+                <select id="filter-status" name="status" class="form-control select2-filter">
+                    @foreach ($cashDeposits->pluck('status')->unique() as $status)
+                        <option value="{{ $status }}"  {{ ($filters['status'] ?? '') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                    @endforeach
+                </select>
+            </div>
             <!-- Styled Status Dropdown -->
-            <div class="mt-5 filter-categories">
+            <!-- <div class="mt-5 filter-categories">
                 <p class="filter-title">Status</p>
                 <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
                     <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
@@ -304,7 +308,7 @@
                         @endforeach
                     </ul>
                 </div>
-            </div>
+            </div> -->
             <div class="mt-4 d-flex justify-content-start">
                 <button type="submit" class="red-action-btn-lg">Apply Filters</button>
             </div>
@@ -480,44 +484,65 @@
         }
 
         // Yes button
-        if (e.target.id === 'confirm-yes-btn') {
-            document.getElementById('confirm-status-modal').style.display = 'none';
+       if (e.target.id === 'confirm-yes-btn') {
+    // Hide the confirmation modal
+    document.getElementById('confirm-status-modal').style.display = 'none';
 
-            if (currentStatusButton) {
-                const depositId = currentStatusButton.dataset.id;
-
-                fetch(`{{ url('/cash-deposits/update-status') }}/${depositId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update status visually
-                            let row = currentStatusButton.closest('tr');
-                            let statusCell = row.querySelector('td:nth-child(5) button');
-
-                            statusCell.innerText = data.status;
-                            statusCell.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
-
-                            // Hide action buttons
-                            row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
-                        } else {
-                            alert('Failed to update status.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Error updating status.');
-                    });
+    if (currentStatusButton) {
+        const depositId = currentStatusButton.dataset.id;
+        console.log(newStatus);
+        fetch(`{{ url('/cash-deposits/update-status') }}/${depositId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json', // ensures Laravel returns JSON
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(async res => {
+            // Check HTTP status
+            if (!res.ok) {
+                const text = await res.text();
+                console.error('HTTP Error:', res.status, text);
+                throw new Error(`Server returned status ${res.status}`);
             }
-        }
+
+            // Try parsing JSON
+            try {
+                return await res.json();
+            } catch (err) {
+                const text = await res.text();
+                console.error('Invalid JSON response:', text);
+                throw new Error('Server returned invalid JSON.');
+            }
+        })
+        .then(data => {
+            if (data && data.success) {
+                // Update the table row visually
+                const row = currentStatusButton.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(5) button');
+
+                statusCell.innerText = data.status;
+                statusCell.className = data.status.toLowerCase() === 'accepted' 
+                    ? 'success-status-btn' 
+                    : 'danger-status-btn';
+
+                // Hide action buttons
+                row.querySelectorAll('.success-action-btn, .red-action-btn')
+                   .forEach(btn => btn.style.display = 'none');
+
+                toastr.success("Status updated successfully");
+            } else {
+                toastr.error(data?.message || 'Failed to update status.');
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error:', err);
+            toastr.error(err.message || 'An unexpected error occurred.');
+        });
+    }
+}
 
     });
 </script>
@@ -556,4 +581,26 @@
             setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+
+    $(document).ready(function () {
+    // Initialize all normal select2
+    $('.select2-filter').select2({
+        width: '100%',
+        dropdownParent: $('#searchByFilter')  // IMPORTANT for offcanvas
+    });
+
+    
+});
+
 </script>

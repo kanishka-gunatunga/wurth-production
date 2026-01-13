@@ -32,23 +32,22 @@
                     &nbsp;
                     @php
                     $status = strtolower($deposit->status ?? ''); // or $inquiry->status if different
-                    if ($status === 'pending') {
-                    $status = 'Deposited';
-                    } else {
-                    $status = ucfirst($status);
-                    }
+                    
 
                     $statusClass = match($status) {
                     'accepted' => 'success-status-btn',
-                    'deposited' => 'blue-status-btn',
+                    'pending' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
                     'declined' => 'danger-status-btn',
                     'over_to_finance' => 'dark-status-btn',
                     default => 'grey-status-btn',
                     };
+
+                     $statusLabel = str_replace('_', ' ', $deposit->status);
+                    $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                     @endphp
 
-                    <button class="{{ $statusClass }}">{{ $status }}</button>
+                    <button class="{{ $statusClass }}">{{ $statusLabel }}</button>
                 </span>
             </p>
 
@@ -158,10 +157,9 @@
      @if(in_array('deposits-finance-cash-status', session('permissions', [])))                
     @php
     $currentStatus = strtolower($deposit['status']);
-    if ($currentStatus === 'pending') $currentStatus = 'deposited';
     @endphp
 
-    @if ($currentStatus === 'deposited' || $currentStatus === 'declined')
+    @if ($currentStatus === 'pending' || $currentStatus === 'declined')
     <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
     <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="over_to_finance">Recieved by finance</button>
     @elseif ($currentStatus === 'over_to_finance')
@@ -205,70 +203,113 @@
         }
     });
 </script>
-
-<!-- for approve/reject buttons -->
 <script>
-    let currentStatusButton = null;
-    let newStatus = '';
+document.addEventListener('DOMContentLoaded', function () {
 
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('update-status-btn')) {
-            e.preventDefault();
+    let selectedStatus = '';
+    let selectedDepositId = '';
 
-            const button = e.target;
-            const depositId = button.dataset.id;
-            const newStatus = button.dataset.status;
+    const modal = document.getElementById('confirm-status-modal');
+    const confirmText = document.getElementById('confirm-status-text');
+    const yesBtn = document.getElementById('confirm-yes-btn');
+    const noBtn = document.getElementById('confirm-no-btn');
+    const closeBtn = document.getElementById('confirm-modal-close');
 
-            // Show confirmation modal
-            document.getElementById('confirm-status-text').innerText = newStatus;
-            const modal = document.getElementById('confirm-status-modal');
-            modal.style.display = 'block';
+    // OPEN MODAL
+    document.addEventListener('click', function(e){
+        if (!e.target.classList.contains('update-status-btn')) return;
 
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            const noBtn = document.getElementById('confirm-no-btn');
-            const closeBtn = document.getElementById('confirm-modal-close');
+        e.preventDefault();
 
-            function closeModal() {
-                modal.style.display = 'none';
-            }
-            noBtn.onclick = closeModal;
-            closeBtn.onclick = closeModal;
+        selectedStatus = e.target.dataset.status.toLowerCase();
+        selectedDepositId = e.target.dataset.id;
 
-            yesBtn.onclick = function() {
-                modal.style.display = 'none';
-
-                // Send AJAX request to update status
-                fetch(`{{ url('/finance-cash/update-status') }}/${depositId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update status button visually
-                            const statusBtn = document.querySelector('.slip-detail-text button');
-                            statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
-
-                            // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'accepted') {
-                                document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
-                            }
-                        } else {
-                            alert('Failed to update status.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Error updating status.');
-                    });
-            };
-        }
+        confirmText.innerText = selectedStatus.replace(/_/g,' ').toUpperCase();
+        modal.style.display = 'block';
     });
+
+    // CLOSE MODAL
+    noBtn.onclick = closeBtn.onclick = function(){
+        modal.style.display = 'none';
+    };
+
+    // CONFIRM YES
+    yesBtn.onclick = async function(){
+
+        modal.style.display = 'none';
+
+        try{
+
+            const response = await fetch(`{{ url('/finance-cash/update-status') }}/${selectedDepositId}`,{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    status: selectedStatus
+                })
+            });
+
+            const res = await response.json();
+
+            if(!res.success){
+                alert("Failed to update status.");
+                return;
+            }
+
+            // UPDATE MAIN STATUS BADGE
+            const badge = document.querySelector('.slip-detail-text button');
+
+            // Format text
+            let formatted = selectedStatus.replace(/_/g,' ');
+            formatted = formatted.replace(/\b\w/g,c => c.toUpperCase());
+
+            badge.textContent = formatted;
+
+            if(selectedStatus === 'accepted'){
+                badge.className = 'success-status-btn';
+            }else if(selectedStatus === 'declined'){
+                badge.className = 'danger-status-btn';
+            }else{
+                badge.className = 'blue-status-btn';
+            }
+
+            // REBUILD FOOTER BUTTONS
+            rebuildFooter(selectedStatus);
+
+        }catch(err){
+            console.error(err);
+            alert("Error updating status.");
+        }
+
+    };
+
+    function rebuildFooter(status){
+
+        const footer = document.getElementById('footer-buttons-container');
+
+        footer.innerHTML = `
+            <a href="{{ url('/finance-cash') }}" class="grey-action-btn-lg" style="text-decoration:none;">Back</a>
+        `;
+
+        if(status === 'accepted') return;
+
+        if(status === 'pending' || status === 'declined'){
+            footer.innerHTML += `
+                <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
+                <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="over_to_finance">Recieved by finance</button>
+            `;
+        }
+
+        if(status === 'over_to_finance'){
+            footer.innerHTML += `
+                <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
+                <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="accepted">Accept</button>
+            `;
+        }
+    }
+
+});
 </script>

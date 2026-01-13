@@ -69,15 +69,14 @@
             <h1 class="header-title">Finance - Cash Deposits</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <form id="searchForm" method="POST" action="{{ url('/finance-cash/search') }}">
-                @csrf
+            <form id="searchForm" method="GET" action="{{ url('finance-cash') }}">
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                     <input
                         type="text"
                         name="search"
                         class="search-input"
-                        placeholder="Search customer ID, Name or ADM ID, Name"
+                        placeholder="Search ADM ID or ADM Name"
                         value="{{ $filters['search'] ?? '' }}" />
                 </div>
             </form>
@@ -132,12 +131,15 @@
                     @php
                     $statusClass = match (strtolower($deposit['status'])) {
                     'accepted' => 'success-status-btn',
-                    'deposited' => 'blue-status-btn',
+                    'pending' => 'blue-status-btn',
                     'rejected' => 'danger-status-btn',
                     'declined' => 'danger-status-btn',
                     'over_to_finance' => 'dark-status-btn',
                     default => 'grey-status-btn'
                     };
+
+                    $statusLabel = str_replace('_', ' ', $deposit['status']);
+                    $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                     @endphp
                     @php
                         $canView = in_array('deposits-finance-cash-view', session('permissions', []));
@@ -156,42 +158,51 @@
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
                         <td>
                             <button class="{{ $statusClass }}">
-                                {{ ucfirst($deposit['status']) }}
+                                {{ $statusLabel }}
                             </button>
                         </td>
+                         <td class="sticky-column">
+                            @php $status = strtolower($deposit['status']); @endphp
+                            @if(in_array('deposits-finance-cash-status', session('permissions', [])))
+                            {{-- Deposited → Show Approve 1 + Reject --}}
+                            @if ($status === 'pending')
+                            <button class="success-action-btn update-status"
+                                data-id="{{ $deposit['id'] }}"
+                                data-status="over_to_finance"
+                                >Recived by finance</button>
 
-                        <td class="sticky-column">
-                            @if(strtolower($deposit['status']) === 'deposited')
-                                @if(in_array('deposits-finance-cash-status', session('permissions', [])))
-                                    <button class="success-action-btn"
-                                            data-id="{{ $deposit['id'] }}"
-                                            data-status="accepted"
-                                            onclick="event.stopPropagation()">
-                                        Accept
-                                    </button>
-
-                                    <button class="red-action-btn"
-                                            data-id="{{ $deposit['id'] }}"
-                                            data-status="declined"
-                                            onclick="event.stopPropagation()">
-                                        Decline
-                                    </button>
-                                @endif
+                            <button class="red-action-btn update-status"
+                                data-id="{{ $deposit['id'] }}"
+                                data-status="declined"
+                                 >Decline</button>
                             @endif
 
-                            @if(in_array('deposits-finance-cash-download', session('permissions', [])))
-                                @if($deposit['attachment_path'])
-                                    <a href="{{ url('/finance-cash/download', $deposit['id']) }}"
-                                    class="black-action-btn submit"
-                                    style="text-decoration: none;"
-                                    onclick="event.stopPropagation()">
-                                        Download
-                                    </a>
-                                @else
-                                    <button class="black-action-btn" disabled>No File</button>
-                                @endif
+                            {{-- Over to finance → Show Approve 2 + Reject --}}
+                            @if ($status === 'over_to_finance')
+                            <button class="success-action-btn update-status"
+                                data-id="{{ $deposit['id'] }}"
+                                data-status="accepted"
+                                >Accept</button>
+
+                            <button class="red-action-btn update-status"
+                                data-id="{{ $deposit['id'] }}"
+                                data-status="declined"
+                                >Decline</button>
+                            @endif
+                            @endif
+
+                             @if(in_array('deposits-finance-cash-download', session('permissions', [])))
+                            {{-- Always show Download --}}
+                            @if ($deposit['attachment_path'])
+                            <a href="{{ url('/finance-cash/download', $deposit['id']) }}"
+                                class="black-action-btn submit"
+                                style="text-decoration: none;">Download</a>
+                            @else
+                            <button class="black-action-btn" disabled>No File</button>
+                            @endif
                             @endif
                         </td>
+                       
                     </tr>
                     @empty
                     <tr>
@@ -210,8 +221,8 @@
     </div>
 </div>
 
-<form method="POST" action="{{ url('/finance-cash/filter') }}">
-    @csrf
+<form method="GET" action="{{ url('finance-cash') }}">
+
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
         <div class="row d-flex justify-content-end">
@@ -227,7 +238,7 @@
             </div class="col-6">
 
             <div>
-                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+              <a href="{{ url('finance-cash') }}"><button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button></a> 
             </div>
         </div>
         <div class="offcanvas-body">
@@ -264,16 +275,13 @@
         </div> -->
 
             <!-- ADM Name Dropdown -->
-            <div class="mt-5 filter-categories">
+           <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Name</p>
-                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                    @foreach ($financeCashDeposits->pluck('adm_name')->unique() as $admName)
-                    @if($admName)
-                    <option value="{{ $admName }}"
-                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                        {{ $admName }}
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2-filter" multiple  >
+                    @foreach ($adms as $adm)
+                    <option value="{{ $adm->id }}" {{ !empty($filters['adm_names']) && in_array($adm->id, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $adm->userDetails->name }}
                     </option>
-                    @endif
                     @endforeach
                 </select>
             </div>
@@ -281,30 +289,30 @@
             <!-- ADM ID Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM ID</p>
-                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                    @foreach ($financeCashDeposits->pluck('adm_number')->unique() as $admId)
-                    <option value="{{ $admId }}"
-                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                        {{ $admId }}
+               <select id="filter-adm-id" name="adm_ids[]" class="form-control select2-filter" multiple>
+                @foreach($adms as $adm)
+                    @if(!empty($adm->userDetails->adm_number))
+                        <option value="{{ $adm->userDetails->adm_number }}"  {{ !empty($filters['adm_ids']) && in_array($adm->userDetails->adm_number, $filters['adm_ids']) ? 'selected' : '' }}>
+                            {{ $adm->userDetails->adm_number }}
+                        </option>
+                    @endif
+                @endforeach
+            </select>
+            </div>
+
+            <!-- Customers Dropdown -->
+           <div class="mt-5 filter-categories">
+                <p class="filter-title">Customers</p>
+                <select id="filter-customer" name="customers[]" class="form-control select2-filter" multiple >
+                    @foreach ($customers as $customer)
+                    <option value="{{ $customer->customer_id }}" {{ !empty($filters['customers']) && in_array($customer->customer_id, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer->name }}
                     </option>
+                
                     @endforeach
                 </select>
             </div>
 
-            <!-- Customers Dropdown -->
-            <div class="mt-5 filter-categories">
-                <p class="filter-title">Customers</p>
-                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                    @foreach ($financeCashDeposits->pluck('customer_name')->unique() as $customer)
-                    @if($customer)
-                    <option value="{{ $customer }}"
-                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                        {{ $customer }}
-                    </option>
-                    @endif
-                    @endforeach
-                </select>
-            </div>
 
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Date</p>
@@ -312,21 +320,14 @@
                     placeholder="Select date range"
                     value="{{ $filters['date_range'] ?? '' }}" />
             </div>
-
-            <!-- Styled Status Dropdown -->
-            <div class="mt-5 filter-categories">
+            
+             <div class="mt-5 filter-categories">
                 <p class="filter-title">Status</p>
-                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
-                        Choose Status
-                    </button>
-                    <ul id="custom-status-menu" class="custom-dropdown-menu"
-                        style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
-                        @foreach ($financeCashDeposits->pluck('status')->unique() as $status)
-                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                <select id="filter-status" name="status" class="form-control select2-filter">
+                    @foreach ($financeCashDeposits->pluck('status')->unique() as $status)
+                        <option value="{{ $status }}"  {{ ($filters['status'] ?? '') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="mt-4 d-flex justify-content-start">
                 <button type="submit" class="red-action-btn-lg">Apply Filters</button>
@@ -475,74 +476,95 @@
         searchInput.addEventListener("keydown", startIdleTimer);
     });
 </script>
-
-<!-- for approve/reject buttons -->
 <script>
-    let currentStatusButton = null;
-    let newStatus = '';
+    let currentButton = null;
+    let selectedStatus = '';
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
 
-        // Approve / Reject buttons
-        if (e.target.classList.contains('success-action-btn') || e.target.classList.contains('red-action-btn') ||
-            e.target.classList.contains('success-action-btn-lg')) {
-
+        // CLICK ON UPDATE BUTTON
+        if (e.target.classList.contains('update-status')) {
             e.preventDefault();
             e.stopPropagation();
 
-            currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'accepted' : 'declined');
+            currentButton = e.target;
+            selectedStatus = currentButton.dataset.status;
 
-            // Show modal
-            document.getElementById('confirm-status-text').innerText = newStatus;
-            document.getElementById('confirm-status-modal').style.display = 'block';
+            // set text in modal
+            document.getElementById("confirm-status-text").innerText =
+                selectedStatus.replaceAll('_', ' ').toUpperCase();
+
+            document.getElementById("confirm-status-modal").style.display = "block";
         }
 
-        // Close modal
+        // CLOSE MODAL
         if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
             document.getElementById('confirm-status-modal').style.display = 'none';
         }
 
-        // Yes button
+        // CONFIRM YES
         if (e.target.id === 'confirm-yes-btn') {
+
             document.getElementById('confirm-status-modal').style.display = 'none';
 
-            if (currentStatusButton) {
-                const depositId = currentStatusButton.dataset.id;
+            if (!currentButton) return;
 
-                fetch(`{{ url('/finance-cash/update-status') }}/${depositId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update status visually
-                            let row = currentStatusButton.closest('tr');
-                            let statusCell = row.querySelector('td:nth-child(5) button');
+            const row = currentButton.closest("tr");
+            const depositId = currentButton.dataset.id;
 
-                            statusCell.innerText = data.status;
-                            statusCell.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
+            fetch(`{{ url('/finance-cash/update-status') }}/${depositId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    status: selectedStatus
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
 
-                            // Hide action buttons
-                            row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
-                        } else {
-                            alert('Failed to update status.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Error updating status.');
-                    });
-            }
+                if (!data.success) return;
+
+                // UPDATE STATUS BUTTON TEXT
+                const statusBtn = row.querySelector("td:nth-child(5) button");
+                let label = selectedStatus.replaceAll('_', ' ');
+                statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
+
+                // UPDATE STATUS COLOR
+                if (selectedStatus === "accepted") {
+                    statusBtn.className = "success-status-btn";
+                } else if (selectedStatus === "declined") {
+                    statusBtn.className = "danger-status-btn";
+                } else if (selectedStatus === "over_to_finance") {
+                    statusBtn.className = "dark-status-btn";
+                } else {
+                    statusBtn.className = "blue-status-btn";
+                }
+
+                // REMOVE CURRENT ACTION BUTTONS
+                const actionButtons = row.querySelectorAll(".success-action-btn, .red-action-btn");
+                actionButtons.forEach(btn => btn.remove());
+
+                // AFTER OVER_TO_FINANCE → show ACCEPT + DECLINE
+                if (selectedStatus === "over_to_finance") {
+                    row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
+                        <button class="success-action-btn update-status"
+                            data-id="${depositId}"
+                            data-status="accepted"
+                            onclick="event.stopPropagation()">Accept</button>
+
+                        <button class="red-action-btn update-status"
+                            data-id="${depositId}"
+                            data-status="declined"
+                            onclick="event.stopPropagation()">Decline</button>
+                    `);
+                }
+
+            })
+            .catch(err => console.error(err));
         }
-
     });
 </script>
 
@@ -580,4 +602,26 @@
             setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+
+    $(document).ready(function () {
+    // Initialize all normal select2
+    $('.select2-filter').select2({
+        width: '100%',
+        dropdownParent: $('#searchByFilter')  // IMPORTANT for offcanvas
+    });
+
+    
+});
+
 </script>

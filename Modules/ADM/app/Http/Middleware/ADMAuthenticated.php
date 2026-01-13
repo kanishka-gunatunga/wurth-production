@@ -18,7 +18,7 @@ class ADMAuthenticated
     public function handle(Request $request, Closure $next)
     {
         if(Auth::check()){
-            if(Auth::user()->user_role == 6 && Auth::user()->status == "active"){
+            if((Auth::user()->user_role == 6 || Auth::user()->user_role == 8) && Auth::user()->status == "active"){
                 return $next($request);
             } else{ 
                 $request->session()->flush();

@@ -15,7 +15,8 @@ td {
 .danger-status-btn,
 .yellow-status-btn,
 .grey-status-btn,
-.blue-status-btn {
+.blue-status-btn,
+.dark-status-btn {
     font-family: "Poppins", sans-serif;
     border-radius: 20px;
     border: 0;
@@ -50,7 +51,10 @@ td {
     background-color: #2196f3;
     color: #ffffff;
 }
-
+.dark-status-btn {
+    background-color: #000;
+    color: #ffffff;
+}
 .success-action-btn,
 .success-action-btn1,
 .red-action-btn,
@@ -328,7 +332,7 @@ td {
 
 .select2-container--default .select2-selection--multiple {
     display: inline;
-    border: none !important;
+    /* border: none !important; */
     background-color: #ffffff;
     font-family: Poppins, sans-serif !important;
 }

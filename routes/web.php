@@ -246,7 +246,7 @@ Route::get('/reports', [ReportsController::class, 'index'])
 Route::post('/reports/download', [ReportsController::class, 'download'])
     ->middleware(['authAdmin', 'permission:reports'])
     ->name('reports.download');
-
+Route::post('/download-report/{type}', [ReportsController::class, 'download_report'])->middleware(['authAdmin', 'permission:reports']);
 
 // extra dashboard routes
 Route::get('/team-leader-dashboard', function () {

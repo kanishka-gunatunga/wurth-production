@@ -69,7 +69,7 @@
             <h1 class="header-title">Finance - Cheque Deposites</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
-            <form id="searchForm" method="POST" action="{{ url('finance-cheque/search') }}">
+            <form id="searchForm" method="get" action="{{ url('finance-cheque') }}">
                 @csrf
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
@@ -77,7 +77,7 @@
                         type="text"
                         name="search"
                         class="search-input"
-                        placeholder="Search customer ID, Name or ADM ID, Name"
+                        placeholder="Search ADM ID or Name"
                         value="{{ $filters['search'] ?? '' }}" />
                 </div>
             </form>
@@ -148,7 +148,7 @@
                             @php
                             $statusClass = match(strtolower($item['status'])) {
                             'accepted' => 'success-status-btn',
-                            'deposited' => 'blue-status-btn',
+                            'pending' => 'blue-status-btn',
                             'rejected' => 'danger-status-btn',
                             'declined' => 'danger-status-btn',
                             'over_to_finance' => 'dark-status-btn',
@@ -165,7 +165,7 @@
                             @php $status = strtolower($item['status']); @endphp
                             @if(in_array('deposits-finance-cheque-status', session('permissions', [])))
                             {{-- Deposited → Show Approve 1 + Reject --}}
-                            @if ($status === 'deposited')
+                            @if ($status === 'pending')
                             <button class="success-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
                                 data-status="over_to_finance">Recived by finance</button>
@@ -222,8 +222,9 @@
 
 </div>
 
-<form method="POST" action="{{ url('finance-cheque/filter') }}">
-    @csrf
+
+<form method="GET" action="{{ url('finance-cheque') }}">
+
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="searchByFilter"
         aria-labelledby="offcanvasRightLabel">
         <div class="row d-flex justify-content-end">
@@ -239,7 +240,7 @@
             </div class="col-6">
 
             <div>
-                <button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button>
+                 <a href="{{ url('finance-cheque') }}"><button type="button" class="btn rounded-phill" id="clear-filters">Clear All</button></a>
             </div>
         </div>
         <div class="offcanvas-body">
@@ -276,16 +277,13 @@
         </div> -->
 
             <!-- ADM Name Dropdown -->
-            <div class="mt-5 filter-categories">
+           <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Name</p>
-                <select id="filter-adm-name" name="adm_names[]" class="form-control select2" multiple>
-                    @foreach ($data->pluck('adm_name')->unique() as $admName)
-                    @if($admName)
-                    <option value="{{ $admName }}"
-                        {{ !empty($filters['adm_names']) && in_array($admName, $filters['adm_names']) ? 'selected' : '' }}>
-                        {{ $admName }}
+                <select id="filter-adm-name" name="adm_names[]" class="form-control select2-filter" multiple  >
+                    @foreach ($adms as $adm)
+                    <option value="{{ $adm->id }}" {{ !empty($filters['adm_names']) && in_array($adm->id, $filters['adm_names']) ? 'selected' : '' }}>
+                        {{ $adm->userDetails->name }}
                     </option>
-                    @endif
                     @endforeach
                 </select>
             </div>
@@ -293,27 +291,27 @@
             <!-- ADM ID Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM ID</p>
-                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                    @foreach ($data->pluck('adm_number')->unique() as $admId)
-                    <option value="{{ $admId }}"
-                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                        {{ $admId }}
-                    </option>
-                    @endforeach
-                </select>
+               <select id="filter-adm-id" name="adm_ids[]" class="form-control select2-filter" multiple>
+                @foreach($adms as $adm)
+                    @if(!empty($adm->userDetails->adm_number))
+                        <option value="{{ $adm->userDetails->adm_number }}"  {{ !empty($filters['adm_ids']) && in_array($adm->userDetails->adm_number, $filters['adm_ids']) ? 'selected' : '' }}>
+                            {{ $adm->userDetails->adm_number }}
+                        </option>
+                    @endif
+                @endforeach
+            </select>
             </div>
 
+
             <!-- Customers Dropdown -->
-            <div class="mt-5 filter-categories">
+             <div class="mt-5 filter-categories">
                 <p class="filter-title">Customers</p>
-                <select id="filter-customer" name="customers[]" class="form-control select2" multiple>
-                    @foreach ($data->pluck('customer_name')->unique() as $customer)
-                    @if($customer)
-                    <option value="{{ $customer }}"
-                        {{ !empty($filters['customers']) && in_array($customer, $filters['customers']) ? 'selected' : '' }}>
-                        {{ $customer }}
+                <select id="filter-customer" name="customers[]" class="form-control select2-filter" multiple >
+                    @foreach ($customers as $customer)
+                    <option value="{{ $customer->customer_id }}" {{ !empty($filters['customers']) && in_array($customer->customer_id, $filters['customers']) ? 'selected' : '' }}>
+                        {{ $customer->name }}
                     </option>
-                    @endif
+                
                     @endforeach
                 </select>
             </div>
@@ -324,21 +322,14 @@
                     placeholder="Select date range"
                     value="{{ $filters['date_range'] ?? '' }}" />
             </div>
-
-            <!-- Styled Status Dropdown -->
-            <div class="mt-5 filter-categories">
+            
+             <div class="mt-5 filter-categories">
                 <p class="filter-title">Status</p>
-                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                    <button type="button" id="custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
-                        Choose Status
-                    </button>
-                    <ul id="custom-status-menu" class="custom-dropdown-menu"
-                        style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
-                        @foreach ($data->pluck('status')->unique() as $status)
-                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ $status }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                <select id="filter-status" name="status" class="form-control select2-filter">
+                    @foreach ($data->pluck('status')->unique() as $status)
+                        <option value="{{ $status }}"  {{ ($filters['status'] ?? '') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="mt-4 d-flex justify-content-start">
@@ -641,4 +632,26 @@
             setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });
     });
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+
+    $(document).ready(function () {
+    // Initialize all normal select2
+    $('.select2-filter').select2({
+        width: '100%',
+        dropdownParent: $('#searchByFilter')  // IMPORTANT for offcanvas
+    });
+
+    
+});
+
 </script>

@@ -225,7 +225,7 @@ $(document).ready(function () {
         let method = $(this).val();
         $("#chequeInputs").hide();
 
-        if (method === "Cheque") {
+        if (method === "cheque") {
             $("#chequeInputs").show();
         }
     });
@@ -257,12 +257,20 @@ $(document).ready(function () {
     } else {
         branchDropdown.empty().append('<option value="">-- Select Branch --</option>');
     }
-})
+}) 
 $('form').on('submit', function (e) {
-    // Prevent empty submission
+    e.preventDefault(); // always prevent default first
+
+    // Check if any receipt is selected
     if (selectedReceipts.size === 0) {
-        alert('Please select at least one receipt.');
-        e.preventDefault();
+        toastr.error('Please select at least one receipt.');
+        return false;
+    }
+
+    // Check if screenshot is selected
+    const screenshotInput = $('#screenshot')[0];
+    if (!screenshotInput.files || screenshotInput.files.length === 0) {
+        toastr.error('Please upload at least one transfer screenshot.');
         return false;
     }
 
@@ -272,6 +280,22 @@ $('form').on('submit', function (e) {
         name: 'selected_receipts',
         value: JSON.stringify(Array.from(selectedReceipts))
     }).appendTo(this);
+
+    // Now submit the form
+    this.submit();
 });
+
 });
+</script>
+
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

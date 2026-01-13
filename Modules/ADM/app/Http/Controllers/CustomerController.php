@@ -31,6 +31,7 @@ class CustomerController extends Controller
     
      public function customers()
 {
+    if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
     // Permanent customers (primary or secondary ADM)
@@ -63,7 +64,15 @@ class CustomerController extends Controller
               ->orWhere('secondary_adm', $adm_no);
         })
         ->count();
+    } else{
+        $customers = Customers::where('is_temp', 0)->paginate(15);
 
+        $temp_customers = Customers::where('is_temp', 1)->paginate(15);
+
+        $customers_count = Customers::where('is_temp', 0)->count();
+
+        $temp_customers_count = Customers::where('is_temp', 1)->count();
+    }
     return view('adm::customer.customers', [
         'customers' => $customers,
         'temp_customers' => $temp_customers,
@@ -76,6 +85,7 @@ class CustomerController extends Controller
     public function search_customers(Request $request)
 {
     $query = $request->input('query');
+    if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
     $customers = Customers::where('is_temp', 0)
@@ -88,7 +98,15 @@ class CustomerController extends Controller
               ->orWhere('customer_id', 'LIKE', "%{$query}%");
         })
         ->get();
-
+    }
+    else{
+         $customers = Customers::where('is_temp', 0)
+         ->where(function($q) use ($query) {
+            $q->where('name', 'LIKE', "%{$query}%")
+              ->orWhere('customer_id', 'LIKE', "%{$query}%");
+        })
+        ->get();
+    }
     $customer_data = '';
     foreach ($customers as $customer) {
         $customer_data .= '
@@ -105,6 +123,7 @@ class CustomerController extends Controller
    public function search_temp_customers(Request $request)
 {
     $query = $request->input('query');
+     if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
 
     $customers = Customers::where('is_temp', 1)
@@ -117,7 +136,14 @@ class CustomerController extends Controller
               ->orWhere('customer_id', 'LIKE', "%{$query}%");
         })
         ->get();
-
+     } else{
+        $customers = Customers::where('is_temp', 1)
+        ->where(function($q) use ($query) {
+            $q->where('name', 'LIKE', "%{$query}%")
+              ->orWhere('customer_id', 'LIKE', "%{$query}%");
+        })
+        ->get();
+     }
     $customer_data = '';
     foreach ($customers as $customer) {
         $customer_data .= '
@@ -178,4 +204,25 @@ class CustomerController extends Controller
     {
         //
     }
+
+    public function update_customer_ajax(Request $request)
+{
+    $customer = Customers::where('id', $request->id)->first();
+
+    if (!$customer) {
+        return response()->json(['status' => false, 'message' => 'Customer not found']);
+    }
+
+    $customer->name = $request->name;
+    $customer->mobile_number = $request->mobile_number;
+    $customer->email = $request->email;
+    $customer->address = $request->address;
+    $customer->save();
+
+    return response()->json([
+        'status' => true,
+        'customer' => $customer
+    ]);
+}
+
 }

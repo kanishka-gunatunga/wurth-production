@@ -23,10 +23,11 @@ foreach($grouped_data as $group){
             </div>
             <div class="d-flex flex-column">
                 <div class="d-flex w-100 flex-column px-3 mb-3 mt-3">
+                    
                     <div class="card-view px-0 ">
                         <div class="d-flex flex-row justify-content-between align-items-center px-3 mb-2">
                             <h4 class="black-title mb-0">Bulk Payment Details</h4>
-                            <a href="" class="my-3 small-button">
+                            <!-- <a href="" class="my-3 small-button">
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -35,39 +36,55 @@ foreach($grouped_data as $group){
                                 </svg>
 
                                 Edit
-                            </a>
+                            </a> -->
                         </div>
 
                         <div class="d-flex flex-column px-3">
-                            <span class="title-label-name mb-2" style="font-size: 14px !important;">Selected Customers
-                                Details</span>
+    <span class="title-label-name mb-2" style="font-size: 14px !important;">
+        Selected Customers Details
+    </span>
 
-                            <?php
-                            foreach($grouped_data as $group){ 
-                                $customer = $group['customer'];
-                                $invoices = $group['invoices'];
-                            ?>
-                            <label class="form-check-label d-flex flex-column mb-3" for="flexCheckDefault">
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Customer Name : </span>
-                                    <span class="label-value">{{$customer->name ?? '-'}}</span>
-                                </div>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Customer’s Mobile No. : </span>
-                                    <span class="label-value">{{$customer->mobile_number ?? '-'}}</span>
-                                </div>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Customer’s Email : </span>
-                                    <span class="label-value">{{$customer->email ?? '-'}}</span>
-                                </div>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="label-name">Customer’s Address : </span>
-                                    <span class="label-value">{{$customer->address ?? '-'}}</span>
-                                </div>
-                            </label>
-                            <?php } ?>
-                        </div>
+    <?php foreach($grouped_data as $group): 
+        $customer = $group['customer'];
+        $invoices = $group['invoices'];
+    ?>
+    <label class="form-check-label d-flex flex-column mb-3 position-relative">
+        <!-- Wrap name and edit button in a flex row -->
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="d-flex flex-row">
+                <span class="label-name">Customer Name: </span>
+                <span class="label-value ml-1">{{$customer->name ?? '-'}}</span>
+            </div>
+            <button 
+                class="small-button editCustomerBtn"
+                data-id="{{$customer->id}}" 
+                data-name="{{$customer->name}}" 
+                data-mobile="{{$customer->mobile_number}}" 
+                data-email="{{$customer->email}}" 
+                data-address="{{$customer->address}}">
+                Edit
+            </button>
+        </div>
+
+        <!-- Other customer details -->
+        <div class="d-flex flex-row mb-1">
+            <span class="label-name">Mobile No.: </span>
+            <span class="label-value ml-1">{{$customer->mobile_number ?? '-'}}</span>
+        </div>
+        <div class="d-flex flex-row mb-1">
+            <span class="label-name">Email: </span>
+            <span class="label-value ml-1">{{$customer->email ?? '-'}}</span>
+        </div>
+        <div class="d-flex flex-row mb-1">
+            <span class="label-name">Address: </span>
+            <span class="label-value ml-1">{{$customer->address ?? '-'}}</span>
+        </div>
+    </label>
+    <?php endforeach; ?>
+</div>
+
                     </div>
+
                     <div class="d-flex flex-column collapse-wrapper w-100 px-0 mt-4">
                         <div class="d-flex flex-column collapse-wrapper w-100 px-0 mt-4">
                             <div class="accordion" id="paymentAccordion">
@@ -776,7 +793,7 @@ foreach($grouped_data as $group){
                             <div class="col-12 d-flex flex-column py-4 text-center">
                                 <p class="gray-small-title mb-1" style="color: #595959; font-weight: 500;">Payment
                                     Amount</p>
-                                <p class="black-large-text mb-1" style="color:#CC0000" id="final_payment_amount">Rs. 500,000.00</p>
+                                <p class="black-large-text mb-1" style="color:#CC0000" id="final_payment_amount"></p>
                             </div>
                         </div>
                     </div>
@@ -840,6 +857,44 @@ foreach($grouped_data as $group){
                 </div>
             </div>
         </div>
+        <!-- Edit Customer Modal (Single modal reused for all customers) -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="updateCustomerForm">
+                    @csrf
+                    <input type="hidden" name="id" id="customerId">
+
+                    <div class="input-group-collection-inner">
+                        <label>Customer Name</label>
+                        <input type="text" class="form-control" name="name" id="customerName">
+                    </div>
+
+                    <div class="input-group-collection-inner">
+                        <label>Mobile Number</label>
+                        <input type="text" class="form-control" name="mobile_number" id="customerMobile">
+                    </div>
+
+                    <div class="input-group-collection-inner">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="email" id="customerEmail">
+                    </div>
+
+                    <div class="input-group-collection-inner">
+                        <label>Address</label>
+                        <textarea class="form-control" name="address" id="customerAddress"></textarea>
+                    </div>
+
+                    <button type="button" id="saveCustomerBtn" class="my-3 small-button w-100">
+                        Save Details
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input type="hidden"   id="payment_batch_id" name="payment_batch_id" value="" />
 @include('adm::layouts.footer')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.3.5/signature_pad.min.js"
@@ -1316,6 +1371,8 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Please select at least one invoice to make a payment.');
             return;
         }
+        let currentPaymentAmount = 0;
+        invoiceData.forEach(item => currentPaymentAmount += item.amount);
 
         var batchId = $('#payment_batch_id').val();
 
@@ -1338,6 +1395,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll('.cash-pay-amount-input').forEach(div => div.style.display = 'none');
                 updateTotal();
 
+
+                let finalPaymentEl = document.getElementById('final_payment_amount');
+                let previousAmount = 0;
+                if(finalPaymentEl && finalPaymentEl.innerText) {
+                    previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+                }
+
+                let newFinalAmount = previousAmount + currentPaymentAmount;
+
+                if(finalPaymentEl) {
+                    finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+                }
 
                 // ====== Build Summary Data ======
                 let selectedCustomers = [];
@@ -1547,6 +1616,9 @@ $(document).on('submit', '.FundTransferForm', function (e) {
     formData.append('transfer_reference_number', transferReferenceNumber);
     if (screenshotFile) formData.append('screenshot', screenshotFile);
 
+    let currentPaymentAmount = 0;
+    invoiceData.forEach(item => currentPaymentAmount += item.amount);
+
     $.ajax({
         url: '{{ url("adm/add-bulk-fund-transfer") }}',
         method: 'POST',
@@ -1559,6 +1631,16 @@ $(document).on('submit', '.FundTransferForm', function (e) {
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
             updateTotalFund();
+
+            let finalPaymentEl = document.getElementById('final_payment_amount');
+            let previousAmount = 0;
+            if (finalPaymentEl && finalPaymentEl.innerText) {
+                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            }
+            let newFinalAmount = previousAmount + currentPaymentAmount;
+            if (finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+            }
 
             // ===== Build Summary Data (like cash summary) =====
             let selectedCustomers = [];
@@ -1768,7 +1850,8 @@ $(document).on("submit", ".ChequePaymentForm", function (e) {
     if (chequeImage) {
         formData.append('cheque_image', chequeImage);
     }
-
+    let currentPaymentAmount = 0;
+    invoiceData.forEach(item => currentPaymentAmount += item.amount);
     $.ajax({
         url: '{{ url("adm/add-bulk-cheque-payment") }}',
         method: 'POST',
@@ -1782,7 +1865,15 @@ $(document).on("submit", ".ChequePaymentForm", function (e) {
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
             updateTotalCheque();
-
+            let finalPaymentEl = document.getElementById('final_payment_amount');
+            let previousAmount = 0;
+            if (finalPaymentEl && finalPaymentEl.innerText) {
+                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            }
+            let newFinalAmount = previousAmount + currentPaymentAmount;
+            if (finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+            }
             // ===== Build Cheque Payment Summary =====
             let selectedCustomers = [];
             let selectedInvoices = [];
@@ -1999,7 +2090,8 @@ $(document).on('submit', '.CardPaymentForm', function (e) {
     if (screenshot) {
         formData.append('card_screenshot', screenshot);
     }
-
+    let currentPaymentAmount = 0;
+    invoiceData.forEach(item => currentPaymentAmount += item.amount);
     /* ===== AJAX ===== */
     $.ajax({
         url: '{{ url("adm/add-bulk-card-payment") }}',
@@ -2015,6 +2107,17 @@ $(document).on('submit', '.CardPaymentForm', function (e) {
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
 
+            let finalPaymentEl = document.getElementById('final_payment_amount');
+            let previousAmount = 0;
+            if (finalPaymentEl && finalPaymentEl.innerText) {
+                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            }
+            let newFinalAmount = previousAmount + currentPaymentAmount;
+            if (finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+            }
+
+            
             /* ===== Build Summary (SAME AS FUND) ===== */
             let selectedCustomers = [];
             let selectedInvoices = [];
@@ -2206,4 +2309,77 @@ window.addEventListener('beforeunload', function (e) {
         }
     });
 });
+    </script>
+    <script>
+        $(document).ready(function() {
+
+    // Open modal and populate data
+    $('.editCustomerBtn').on('click', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const mobile = $(this).data('mobile');
+        const email = $(this).data('email');
+        const address = $(this).data('address');
+
+        $('#customerId').val(id);
+        $('#customerName').val(name);
+        $('#customerMobile').val(mobile);
+        $('#customerEmail').val(email);
+        $('#customerAddress').val(address);
+
+        $('#editCustomerModal').modal('show');
+    });
+
+    // Save customer via AJAX
+    $('#saveCustomerBtn').on('click', function() {
+        const id = $('#customerId').val();
+        const data = {
+            id: id,
+            name: $('#customerName').val(),
+            mobile_number: $('#customerMobile').val(),
+            email: $('#customerEmail').val(),
+            address: $('#customerAddress').val(),
+            _token: "{{ csrf_token() }}"
+        };
+
+        $.ajax({
+            url: "{{ url('adm/update-customer-ajax') }}",
+            type: "POST",
+            data: data,
+            beforeSend: function() {
+                $('#saveCustomerBtn').text('Saving...');
+            },
+            success: function(res) {
+                $('#saveCustomerBtn').text('Save Details');
+
+                if(res.status) {
+                    // Update the values on the page dynamically
+                    const customerRow = $('.editCustomerBtn[data-id="'+id+'"]').closest('label');
+                    customerRow.find('.label-value').eq(0).text(res.customer.name);
+                    customerRow.find('.label-value').eq(1).text(res.customer.mobile_number);
+                    customerRow.find('.label-value').eq(2).text(res.customer.email);
+                    customerRow.find('.label-value').eq(3).text(res.customer.address);
+
+                    toastr.success("Customer details updated successfully");
+           
+                } else {
+                    toastr.warning("Update failed. Try again");
+                }
+            },
+            error: function(xhr) {
+                $('#saveCustomerBtn').text('Save Details');
+
+                if(xhr.responseJSON && xhr.responseJSON.errors) {
+                    $.each(xhr.responseJSON.errors, function(key, value) {
+                        toastr.error(value[0]);
+                    });
+                } else {
+                    toastr.error("Something went wrong. Please try again");
+                }
+            }
+        });
+    });
+
+});
+
     </script>

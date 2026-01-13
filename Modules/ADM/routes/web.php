@@ -59,6 +59,8 @@ Route::prefix('adm')->group(function () {
     Route::match(['get', 'post'], 'customers', [CustomerController::class, 'customers'])->middleware(['authADM', 'permission:customers']);
     Route::match(['get', 'post'], 'search-customers', [CustomerController::class, 'search_customers'])->middleware(['authADM']);
     Route::match(['get', 'post'], 'search-temp-customers', [CustomerController::class, 'search_temp_customers'])->middleware(['authADM']);
+    Route::match(['get', 'post'], 'update-customer-ajax', [CustomerController::class, 'update_customer_ajax'])->middleware(['authADM']);
+
 
     Route::match(['get', 'post'], 'notifications-and-reminders', [NotificationsRemindersController::class, 'notifications_and_reminders'])->middleware(['authADM', 'permission:reminders']);
     Route::match(['get', 'post'], 'create-reminder', [NotificationsRemindersController::class, 'create_reminder'])->middleware(['authADM']);
