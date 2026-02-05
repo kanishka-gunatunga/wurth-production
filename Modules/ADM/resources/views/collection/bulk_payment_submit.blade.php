@@ -151,7 +151,7 @@ foreach($grouped_data as $group){
                                                                     <div class="col-md-6 mb-2">
                                                                     <input type="hidden" name="invoice_ids[]" value="{{ $invoice->id }}">
                                                                     
-                                                                    <input type="number" class="form-control cash-pay-input" placeholder="Enter payble amount" name="cash_amounts[{{ $invoice->id }}]" required="" >
+                                                                    <input type="number" class="form-control format-preview cash-pay-input" placeholder="Enter payble amount" name="cash_amounts[{{ $invoice->id }}]" required="" >
                                                                     </div>
                                                                     <div class="col-md-6  mb-2">
                                                                     <div class="form-check my-2">
@@ -262,7 +262,7 @@ foreach($grouped_data as $group){
                                                                         <div class="row">
                                                                         <div class="col-md-6 mb-2">
                                                                         <input type="hidden" name="invoice_ids[]" value="{{ $invoice->id }}">
-                                                                        <input type="number" class="form-control fund-pay-input" placeholder="Enter payble amount" name="fund_amounts[{{ $invoice->id }}]" required="" >
+                                                                        <input type="number" class="form-control format-preview fund-pay-input" placeholder="Enter payble amount" name="fund_amounts[{{ $invoice->id }}]" required="" >
                                                                         </div>
                                                                         <div class="col-md-6  mb-2">
                                                                         <div class="form-check my-2">
@@ -429,7 +429,7 @@ foreach($grouped_data as $group){
                                                                         <div class="row">
                                                                         <div class="col-md-6 mb-2">
                                                                         <input type="hidden" name="invoice_ids[]" value="{{ $invoice->id }}">
-                                                                        <input type="number" class="form-control cheque-pay-input" placeholder="Enter payble amount" name="cheque_amounts[{{ $invoice->id }}]" required="" >
+                                                                        <input type="number" class="form-control format-preview cheque-pay-input" placeholder="Enter payble amount" name="cheque_amounts[{{ $invoice->id }}]" required="" >
                                                                         </div>
                                                                         <div class="col-md-6  mb-2">
                                                                         <div class="form-check my-2">
@@ -473,7 +473,7 @@ foreach($grouped_data as $group){
                                                     </div>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="cheque_amount">Cheque Amount</label>
-                                                        <input type="number" class="form-control" id="cheque_amount" placeholder="Enter Cheque Amount" name="cheque_amount"  required />
+                                                        <input type="number" class="form-control format-preview" id="cheque_amount" placeholder="Enter Cheque Amount" name="cheque_amount"  required />
                                                         <div class="invalid-feedback">
                                                             Cheque Amount is required
                                                         </div>
@@ -632,7 +632,7 @@ foreach($grouped_data as $group){
                                                                         <div class="row">
                                                                         <div class="col-md-6 mb-2">
                                                                         <input type="hidden" name="invoice_ids[]" value="{{ $invoice->id }}">
-                                                                        <input type="number" class="form-control card-pay-input" placeholder="Enter payble amount" name="card_amounts[{{ $invoice->id }}]" required="" >
+                                                                        <input type="number" class="form-control format-preview card-pay-input" placeholder="Enter payble amount" name="card_amounts[{{ $invoice->id }}]" required="" >
                                                                         </div>
                                                                         <div class="col-md-6  mb-2">
                                                                         <div class="form-check my-2">
@@ -1564,8 +1564,8 @@ document.addEventListener('DOMContentLoaded', function () {
             updateTotalFund();
         });
     });
-}); 
-$(document).on('submit', '.FundTransferForm', function (e) {
+
+    $(document).on('submit', '.FundTransferForm', function (e) {
     e.preventDefault();
     preloader.style.display = 'flex';
 
@@ -1704,6 +1704,8 @@ $(document).on('submit', '.FundTransferForm', function (e) {
     });
 });
 
+}); 
+
 
 
 //Cheque Payment Functions
@@ -1784,9 +1786,9 @@ document.addEventListener('DOMContentLoaded', function () {
             updateTotalCheque();
         });
     });
-});
 
 
+    
 // ===================== Cheque Payment Submit =====================
 $(document).on("submit", ".ChequePaymentForm", function (e) {
     e.preventDefault();
@@ -1945,6 +1947,9 @@ $(document).on("submit", ".ChequePaymentForm", function (e) {
         }
     });
 });
+});
+
+
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -2027,9 +2032,8 @@ document.addEventListener('DOMContentLoaded', function () {
             updateTotalCard();
         });
     });
-});
 
-
+    
 /* ============================
    CARD PAYMENT SUBMIT
    (Summary AFTER success)
@@ -2106,7 +2110,7 @@ $(document).on('submit', '.CardPaymentForm', function (e) {
 
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
-
+              updateTotalCard();
             let finalPaymentEl = document.getElementById('final_payment_amount');
             let previousAmount = 0;
             if (finalPaymentEl && finalPaymentEl.innerText) {
@@ -2178,6 +2182,9 @@ $(document).on('submit', '.CardPaymentForm', function (e) {
         }
     });
 });
+});
+
+
 $(document).on('change', '#temp_receipt', function () {
     if ($(this).is(':checked')) {
         $('.temp-receipt-reason').show();

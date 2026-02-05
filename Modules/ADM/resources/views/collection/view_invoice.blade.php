@@ -199,9 +199,7 @@ use App\Models\Customers;
                                 <!-- Cash Payment Accordion Item -->
                                 <div class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                     <p class="accordion-header" id="cashPaymentHeading">
-                                        <button class="accordion-button d-flex justify-content-between" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#cash_payment1"
-                                            aria-expanded="false" aria-controls="cash_payment1">
+                                        <button class="accordion-button collapsed d-flex justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#cash_payment1" aria-expanded="false" aria-controls="cash_payment1">
                                             <svg class="me-2" width="30" height="22" viewBox="0 0 30 22" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -228,7 +226,7 @@ use App\Models\Customers;
                                                 <form id="CashPaymentForm" class="CashPaymentForm content needs-validation p-0 border-0 px-1" novalidate>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="amount">Amount</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control format-preview"
                                                             placeholder="Enter Amount" name="cash_amount" required />
                                                         <div class="invalid-feedback">
                                                             Amount is required
@@ -264,14 +262,12 @@ use App\Models\Customers;
                                         </div>
                                     </div>
                                 </div>
-
+                                </div>
                                 <!-- Fund Transfer Accordion Item -->
                                 <div id="fundAccordion" class="accordion">
                                     <div id="fundAccordionItem1" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                         <p class="accordion-header" id="fundTransferHeading1">
-                                            <button class="accordion-button d-flex justify-content-between" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#cash_payment2_1"
-                                                aria-expanded="false" aria-controls="cash_payment2_1">
+                                            <button class="accordion-button collapsed d-flex justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#cash_payment2_1" aria-expanded="false" aria-controls="cash_payment2_1">
                                                 <svg class="me-2" width="22" height="20" viewBox="0 0 22 20" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -289,7 +285,7 @@ use App\Models\Customers;
                                                 <form id="FundTransferForm1" class="content needs-validation p-0 border-0 px-1" enctype="multipart/form-data" novalidate>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="amount1">Amount</label>
-                                                        <input type="number" class="form-control amount" placeholder="Enter Amount" name="amount" required />
+                                                        <input type="number" class="form-control amount format-preview" placeholder="Enter Amount" name="amount" required />
                                                         <div class="invalid-feedback">
                                                             Amount is required
                                                         </div>
@@ -383,15 +379,13 @@ use App\Models\Customers;
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary my-2 add-another-button" id="addFundTransfer">+ Add Another Fund Transfer</button>
+                                <button class="btn btn-primary my-2 add-another-button text-start" id="addFundTransfer">+ Add Another Fund Transfer</button>
 
                                 <!-- Cheque Payment Accordion Item -->
                             <div id="chequeAccordion" class="accordion">
                                 <div id="chequeAccordionItem1" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                     <p class="accordion-header" id="chequePaymentHeading">
-                                        <button class="accordion-button d-flex justify-content-between" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#cheque_payment1"
-                                            aria-expanded="false" aria-controls="cheque_payment1">
+                                        <button class="accordion-button collapsed d-flex justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#cheque_payment1" aria-expanded="false" aria-controls="cheque_payment1">
                                             <svg class="me-2" width="23" height="18" viewBox="0 0 23 18" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -404,7 +398,7 @@ use App\Models\Customers;
                                         </button>
                                     </p>
                                     <div id="cheque_payment1" class="accordion-collapse collapse"
-                                        aria-labelledby="chequePaymentHeading" data-bs-parent="#paymentAccordion"
+                                        aria-labelledby="chequePaymentHeading" data-bs-parent="#chequeAccordion"
                                         style="border-top: 1px solid #dee2e6 !important;">
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
@@ -429,7 +423,7 @@ use App\Models\Customers;
                                                     </div>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="cheque_amount">Cheque Amount</label>
-                                                        <input type="number" class="form-control amount" id="cheque_amount"
+                                                        <input type="number" class="form-control amount format-preview" id="cheque_amount"
                                                             placeholder="Enter Cheque Amount" name="cheque_amount"
                                                             required />
                                                         <div class="invalid-feedback">
@@ -552,7 +546,7 @@ use App\Models\Customers;
                                 </div>
                                
                                 </div>
-                                <button class="btn btn-primary my-2 add-another-button" id="addChequePayment">+ Add
+                                <button class="btn btn-primary my-2 add-another-button text-start" id="addChequePayment">+ Add
                                     Another Cheque
                                     Payment</button>
                                     
@@ -560,9 +554,7 @@ use App\Models\Customers;
                                 <div id="cardAccordion" class="accordion"> 
                                 <div id="cardAccordionItem" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                     <p class="accordion-header" id="cardPaymentHeading">
-                                        <button class="accordion-button d-flex justify-content-between" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#card_payment1"
-                                            aria-expanded="false" aria-controls="card_payment1">
+                                        <button class="accordion-button collapsed d-flex justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#card_payment1" aria-expanded="false" aria-controls="card_payment1">
                                             <svg class="me-2" width="22" height="18" viewBox="0 0 22 18" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
@@ -574,7 +566,7 @@ use App\Models\Customers;
                                         </button>
                                     </p>
                                     <div id="card_payment1" class="accordion-collapse collapse"
-                                        aria-labelledby="cardPaymentHeading" data-bs-parent="#paymentAccordion"
+                                        aria-labelledby="cardPaymentHeading" data-bs-parent="#cardAccordion"
                                         style="border-top: 1px solid #dee2e6 !important;">
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
@@ -582,7 +574,7 @@ use App\Models\Customers;
                                                     class="content needs-validation p-0 border-0 px-1" novalidate>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="card_amount">Amount</label>
-                                                        <input type="number" class="form-control amount" id="card_amount"
+                                                        <input type="number" class="form-control amount format-preview" id="card_amount"
                                                             placeholder="Enter Amount" name="card_amount" required />
                                                         <div class="invalid-feedback">
                                                             Amount is required
@@ -678,13 +670,13 @@ use App\Models\Customers;
                                     </div>
                                 </div>
                                 </div>
-                                <button class="btn btn-primary my-2 add-another-button" id="addCardPayment">+ Add
+                                <button class="btn btn-primary my-2 add-another-button text-start" id="addCardPayment">+ Add
                                     Another Card
                                     Payment</button>
                             </div>
                         </div>
 
-                    </div>
+                 
 
                     <!-- payment summery section -->
                     <div class="d-flex flex-column w-100 shadow-border mb-3 py-3 pb-2 px-3 "
@@ -949,7 +941,7 @@ $('#addFundTransfer').on('click', function () {
     let newAccordionItem = `
         <div id="fundAccordionItem${newItemNumber}" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
             <p class="accordion-header" id="fundTransferHeading${newItemNumber}">
-                <button class="accordion-button d-flex justify-content-between" type="button"
+                <button class="accordion-button collapsed d-flex justify-content-between" type="button"
                     data-bs-toggle="collapse" data-bs-target="#cash_payment2_${newItemNumber}"
                     aria-expanded="false" aria-controls="cash_payment2_${newItemNumber}">
                     <svg class="me-2" width="22" height="20" viewBox="0 0 22 20" fill="none"
@@ -968,7 +960,7 @@ $('#addFundTransfer').on('click', function () {
                     <form id="FundTransferForm${newItemNumber}" class="content needs-validation p-0 border-0 px-1" novalidate enctype="multipart/form-data">
                         <div class="input-group-collection-inner d-flex flex-column mb-3">
                             <label for="amount${newItemNumber}">Amount</label>
-                            <input type="number" class="form-control amount" placeholder="Enter Amount" name="amount" required />
+                            <input type="number" class="form-control amount format-preview" placeholder="Enter Amount" name="amount" required />
                             <div class="invalid-feedback">
                                 Amount is required
                             </div>
@@ -1175,7 +1167,7 @@ $('#addChequePayment').on('click', function () {
     const newAccordionItem = `
         <div id="chequeAccordionItem${uniqueId}" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
             <p class="accordion-header" id="chequePaymentHeading${uniqueId}">
-                <button class="accordion-button d-flex justify-content-between" type="button"
+                <button class="accordion-button collapsed d-flex justify-content-between" type="button"
                     data-bs-toggle="collapse" data-bs-target="#cheque_payment1_${uniqueId}"
                     aria-expanded="false" aria-controls="cheque_payment1_${uniqueId}">
                     <svg class="me-2" width="23" height="18" viewBox="0 0 23 18" fill="none"
@@ -1189,7 +1181,7 @@ $('#addChequePayment').on('click', function () {
                 </button>
             </p>
             <div id="cheque_payment1_${uniqueId}" class="accordion-collapse collapse"
-                aria-labelledby="chequePaymentHeading${uniqueId}" data-bs-parent="#paymentAccordion"
+                aria-labelledby="chequePaymentHeading${uniqueId}" data-bs-parent="#chequeAccordion"
                 style="border-top: 1px solid #dee2e6 !important;">
                 <div class="accordion-body card card-body border-0">
                     <form id="ChequePaymentForm_${uniqueId}" class="content needs-validation p-0 border-0 px-1" novalidate>
@@ -1207,7 +1199,7 @@ $('#addChequePayment').on('click', function () {
                         </div>
                         <div class="input-group-collection-inner d-flex flex-column mb-3">
                             <label for="cheque_amount_${uniqueId}">Cheque Amount</label>
-                            <input type="number" class="form-control amount" id="cheque_amount_${uniqueId}"
+                            <input type="number" class="form-control amount format-preview" id="cheque_amount_${uniqueId}"
                                 placeholder="Enter Cheque Amount" name="cheque_amount" required />
                             <div class="invalid-feedback">Cheque Amount is required</div>
                         </div>
@@ -1380,7 +1372,7 @@ const uniqueId = 'card_' + new Date().getTime();
 const newAccordionItem = `
     <div id="cardAccordionItem${uniqueId}" class="accordion-item shadow-border mb-3" style="border-radius: 8px;">
                                     <p class="accordion-header" id="cardPaymentHeading${uniqueId}">
-                                        <button class="accordion-button d-flex justify-content-between" type="button"
+                                        <button class="accordion-button collapsed d-flex justify-content-between" type="button"
                                             data-bs-toggle="collapse" data-bs-target="#card_payment1${uniqueId}"
                                             aria-expanded="false" aria-controls="card_payment1${uniqueId}">
                                             <svg class="me-2" width="22" height="18" viewBox="0 0 22 18" fill="none"
@@ -1394,7 +1386,7 @@ const newAccordionItem = `
                                         </button>
                                     </p>
                                     <div id="card_payment1${uniqueId}" class="accordion-collapse collapse"
-                                        aria-labelledby="cardPaymentHeading${uniqueId}" data-bs-parent="#paymentAccordion"
+                                        aria-labelledby="cardPaymentHeading${uniqueId}" data-bs-parent="#cardAccordion"
                                         style="border-top: 1px solid #dee2e6 !important;">
                                         <div class="accordion-body card card-body border-0">
                                             <div class="card card-body border-0">
@@ -1402,7 +1394,7 @@ const newAccordionItem = `
                                                     class="content needs-validation p-0 border-0 px-1" novalidate>
                                                     <div class="input-group-collection-inner d-flex flex-column mb-3">
                                                         <label for="card_amount${uniqueId}">Amount</label>
-                                                        <input type="number" class="form-control amount" id="card_amount${uniqueId}"
+                                                        <input type="number" class="form-control amount format-preview" id="card_amount${uniqueId}"
                                                             placeholder="Enter Amount" name="card_amount" required />
                                                         <div class="invalid-feedback">
                                                             Amount is required

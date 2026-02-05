@@ -124,13 +124,11 @@
                 <tbody>
                     @forelse($cardPayments as $payment)
                     @php
-                    $customer = $payment->invoice->customer ?? null;
-                    $userDetail = $customer->userDetail ?? null;
                     $statusClass = match (strtolower($payment['status'])) {
-                    'accepted' => 'success-status-btn',
+                    'approved' => 'success-status-btn',
                     'deposited' => 'blue-status-btn',
+                    'voided' => 'danger-status-btn',
                     'rejected' => 'danger-status-btn',
-                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn'
                     };
                     @endphp
@@ -142,22 +140,22 @@
                             class="clickable-row"
                             data-href="{{ url('card-payments', $payment['id']) }}"
                             style="cursor:pointer;"
-                        @endif
+                    @endif
                     >
-                        <td>{{ $payment->card_transfer_date ?? '-' }}</td>
-                        <td>{{ $customer->adm ?? '-' }}</td>
-                        <td>{{ $userDetail->name ?? '-' }}</td>
-                        <td>{{ number_format($payment->final_payment, 2) }}</td>
+                        <td>{{ $payment['date'] }}</td>
+                        <td>{{ $payment['adm_number'] }}</td>
+                        <td>{{ $payment['adm_name'] }}</td>
+                        <td>{{ number_format($payment['amount'], 2) }}</td>
                         <td><button class="{{ $statusClass }}">{{ ucfirst($payment['status']) }}</button></td>
                         <td class="sticky-column">
                             @if(strtolower($payment['status']) === 'pending')
                              @if(in_array('deposits-card-payment-status', session('permissions', [])))
-                            <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="accepted">Accept</button>
-                            <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="declined">Decline</button>
+                            <button class="success-action-btn" data-id="{{ $payment['id'] }}" data-status="approved">Approve</button>
+                            <button class="red-action-btn" data-id="{{ $payment['id'] }}" data-status="rejected">Reject</button>
                              @endif
                             @endif
                               @if(in_array('deposits-card-payment-view', session('permissions', [])))
-                            <a href="{{ url('card-payments', $payment->id) }}"
+                            <a href="{{ url('card-payments', $payment['id']) }}"
                                 class="black-action-btn"
                                 onclick="event.stopPropagation()" style="text-decoration: none;">
                                 View More
@@ -335,7 +333,13 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+ <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <label style="font-weight:600;">Remark (required when declining)</label>
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark"></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -402,13 +406,18 @@
             e.stopPropagation();
 
             currentStatusButton = e.target; // Save clicked button reference
-            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'accepted' : 'declined');
+            newStatus = currentStatusButton.dataset.status || (currentStatusButton.classList.contains('success-action-btn') || currentStatusButton.classList.contains('success-action-btn-lg') ? 'approved' : 'rejected');
 
             // Show modal
             document.getElementById('confirm-status-text').innerText = newStatus;
             document.getElementById('confirm-status-modal').style.display = 'block';
         }
-
+        if (newStatus === 'rejected') {
+            document.getElementById('remark-box').style.display = 'block';
+        } else {
+            document.getElementById('remark-box').style.display = 'none';
+            document.getElementById('decline-remark').value = '';
+        }
         // Close modal
         if (e.target.id === 'confirm-modal-close' || e.target.id === 'confirm-no-btn') {
             document.getElementById('confirm-status-modal').style.display = 'none';
@@ -429,7 +438,7 @@
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
-                            status: newStatus
+                            status: newStatus,remark: document.getElementById('decline-remark').value || null
                         })
                     })
                     .then(async (res) => {
@@ -445,7 +454,7 @@
 
                         statusCell.innerText = data.status;
                         statusCell.className =
-                            data.status.toLowerCase() === "accepted" ?
+                            data.status.toLowerCase() === "approved" ?
                             "success-status-btn" :
                             "danger-status-btn";
 

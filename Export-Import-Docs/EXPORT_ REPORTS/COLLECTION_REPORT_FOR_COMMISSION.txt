@@ -1,0 +1,26 @@
+		"This report should be able to filter for,"													
+				Customer Code											
+				ADM Code											
+				Team											
+				Division											
+				Date range											
+															
+															
+DIVISION	TEAM	Sales Rep.	Sales Rep. Name	Customer Name	Customer	Invoice Number	Amount	0 - 30	31 - 60	61 - 90 	91 - 120	121-180	181-360	360<	
+CONSTRUCTION	RAVINDU	480	ExAjith Dharmathilaka	Brandix Apparel Solutions Limited	190000674	4227375544	" 55,970.00 "	" 10,000.00 "	" 45,970.00 "	 -   	 -   	 -   	 -   	 -   	
+CONSTRUCTION	RAVINDU	480					" 55,970.00 "	" 10,000.00 "	" 45,970.00 "	 -   	 -   	 -   	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	Beira Brush (Pvt) Ltd	190009748	4227375446	" 14,160.00 "	 -   	 -   	" 14,160.00 "	 -   	 -   	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	DPL Premier Gloves Ltd	190009597	4227375459	" 5,200.00 "	 -   	 -   	 -   	" 5,200.00 "	 -   	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	DPL Premier Gloves Ltd	190009597	4227375557	" 10,000.00 "	 -   	 -   	 -   	" 10,000.00 "	 -   	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	Dipped Products PLC	190009594	4227375460	" 35,850.00 "	 -   	 -   	" 5,000.00 "	" 15,850.00 "	" 15,000.00 "	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	Eco Spindles (Pvt) Ltd	190009388	4227375496	" 46,800.00 "	 -   	 -   	 -   	 -   	" 46,800.00 "	 -   	 -   	
+AUTO	RASHMIKA	483	Rashmika Wijesinghe	Ceylon Beverage Can (Pvt) Ltd	190009187	4227375495	" 24,600.00 "	 -   	" 4,600.00 "	" 20,000.00 "	 -   	 -   	 -   	 -   	
+AUTO	RASHMIKA	483					" 136,610.00 "	 -   	" 4,600.00 "	" 39,160.00 "	" 31,050.00 "	" 61,800.00 "	 -   	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Promowatch (Pvt) Ltd	190009439	4227375346	" 264,960.00 "	 -   	 -   	" 64,960.00 "	" 200,000.00 "	 -   	 -   	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Monara Creations (Pvt) Ltd	190009118	4227375384	" 212,329.00 "	 -   	" 10,000.00 "	" 200,000.00 "	" 2,329.00 "	 -   	 -   	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Rocell Bathware Ltd	190008969	4227375469	" 5,980.00 "	 -   	 -   	 -   	 -   	" 5,980.00 "	 -   	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Rocell Bathware Ltd	190008969	4227375350	" 90,000.00 "	 -   	 -   	 -   	 -   	 -   	" 90,000.00 "	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Rocell Bathware Ltd	190008969	4227375448	" 30,025.00 "	 -   	 -   	 -   	 -   	 -   	 -   	" 30,025.00 "	
+AUTO	ASHAN	485	Gihan Chamara	Lanka Tiles PLC	190005614	4227375431	" 3,105.00 "	 -   	 -   	 -   	" 3,105.00 "	 -   	 -   	 -   	
+AUTO	ASHAN	485	Gihan Chamara	Fly Adds (Pvt) Ltd	190008357	4227375414	" 79,350.00 "	 -   	" 79,350.00 "	 -   	 -   	 -   	 -   	 -   	
+AUTO	ASHAN	485					" 685,749.00 "	 -   	" 89,350.00 "	" 264,960.00 "	" 205,434.00 "	" 5,980.00 "	" 90,000.00 "	" 30,025.00 "	

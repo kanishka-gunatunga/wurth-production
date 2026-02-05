@@ -1,0 +1,23 @@
+		"This report should be able to filter for,"																
+				Customer Code														
+				ADM Code														
+				Team														
+				Division														
+				Date range														
+																		
+Customer Name 	Customer	Sales Rep.	Team	Division	Document Number	Reference	Document Date	Arrears after net due date	Local Crcy Doc Amount	Total of Intervals	From: 0  To: 29	From: 30  To: 59	From: 60  To: 89	From: 90  To: 119	From: 120  To: 179	From: 180  To: 359	From: 360  To: 9999	Text
+Isuru Motors	190018311	651	Ranga	Auto	4227357275	4227357275	9/15/2025	76	" 21,990.48 "	" 21,990.48 "	 -   	 -   	" 21,990.48 "	 -   	 -   	 -   	 -   	
+Isuru Motors	190018311	651	Ranga	Auto	2000038324	274240	11/24/2025	6	" (19,395.00)"	" (19,395.00)"	" (19,395.00)"	 -   	 -   	 -   	 -   	 -   	 -   	4227347968
+	190018311	651	Ranga	Auto					" 2,595.48 "	" 2,595.48 "	" (19,395.00)"	 -   	" 21,990.48 "	 -   	 -   	 -   	 -   	
+Thutheepan Welding Shop	190018719	647	Samith	Auto	4227365858	4227365858	10/25/2025	36	" 9,499.00 "	" 9,499.00 "	 -   	" 9,499.00 "	 -   	 -   	 -   	 -   	 -   	
+	190018719	647	Samith	Auto					" 9,499.00 "	" 9,499.00 "	 -   	" 9,499.00 "	 -   	 -   	 -   	 -   	 -   	
+Wickramasigha Oil Mart	190018520	663	Isuru	Trade	4227358998	4227358998	9/21/2025	70	" 14,537.60 "	 0.60 	 -   	 -   	 0.60 	 -   	 -   	 -   	 -   	
+	190018520	663	Isuru	Trade					" 14,537.60 "	 0.60 	 -   	 -   	 0.60 	 -   	 -   	 -   	 -   	
+"""Asiri"" Building Construction"	190019291	646	Isuru	Trade	4227371848	4227371848	11/21/2025	9	" 121,729.98 "	" 121,729.98 "	" 121,729.98 "	 -   	 -   	 -   	 -   	 -   	 -   	
+"""Asiri"" Building Construction"	190019291	646	Isuru	Trade	4227373382	4227373382	11/28/2025	2	" 179,501.36 "	" 179,501.36 "	" 179,501.36 "	 -   	 -   	 -   	 -   	 -   	 -   	
+	190019291	646	Isuru	Trade					" 301,231.34 "	" 301,231.34 "	" 301,231.34 "	 -   	 -   	 -   	 -   	 -   	 -   	
+"""Gamini"" Shop"	190019398	673	Ashan	Metal	4227372488	4227372488	11/25/2025	5	" 17,884.47 "	" 17,884.47 "	" 17,884.47 "	 -   	 -   	 -   	 -   	 -   	 -   	
+	190019398	673	Ashan	Metal					" 17,884.47 "	" 17,884.47 "	" 17,884.47 "	 -   	 -   	 -   	 -   	 -   	 -   	
+"""Niwahana"" Landscaping Design"	190018346	626	Rashmika	Metal	190000125	Rtn Chq-123456	9/13/2025	78	" 12,097.36 "	" 12,097.36 "	 -   	 -   	" 12,097.36 "	 -   	 -   	 -   	 -   	None representable - Account closed
+	190018346	626	Rashmika	Metal					" 12,097.36 "	" 12,097.36 "	 -   	 -   	" 12,097.36 "	 -   	 -   	 -   	 -   	
+									" 357,845.25 "	" 343,308.25 "	" 299,720.81 "	" 9,499.00 "	" 34,088.44 "	 -   	 -   	 -   	 -   	

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AdvancedPayment;
+use App\Services\ActivitLogService;
 
 class AdvancedPaymentsController extends Controller
 {
@@ -34,6 +35,9 @@ class AdvancedPaymentsController extends Controller
 
         $payment->status = $request->status;
         $payment->save();
+
+        // Log the activity
+        ActivitLogService::log('advanced_payment', "Advanced Payment ({$payment->id}) status changed to {$request->status}");
 
         return response()->json([
             'success' => true,

@@ -211,7 +211,7 @@ use App\Models\UserDetails;
         });
     });
 
-    $(document).ready(function () {
+    $(document).ready(function () { 
 
     $('select[name="user_role"], select[name="division"]').on('change', function () {
 

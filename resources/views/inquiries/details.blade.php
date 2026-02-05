@@ -310,7 +310,7 @@
                             </div>
                         </div>
                         @if ($inquiry->attachement)
-                            <a href="{{ route('inquiries.download', $inquiry->id) }}">
+                            <a href="{{ asset('uploads/adm/inquiry/attachments/'.$inquiry->attachement) }}" download>
                                 <button class="black-action-btn">
                                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">

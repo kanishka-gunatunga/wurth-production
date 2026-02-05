@@ -26,13 +26,13 @@ use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\WriteOffController;
 use App\Http\Controllers\SetOffController;
 use App\Http\Controllers\ReportsController;
-
+use App\Http\Controllers\DashboardController;
 Route::match(['get', 'post'], '/', [UserController::class, 'index']);
 Route::match(['get', 'post'], 'forgot-password', [UserController::class, 'forgot_password']);
 Route::match(['get', 'post'], 'enter-otp', [UserController::class, 'enter_otp']);
 Route::match(['get', 'post'], 'reset-password', [UserController::class, 'reset_password']);
 Route::match(['get', 'post'], 'logout', [UserController::class, 'logout'])->middleware(['authAdmin']);
-Route::match(['get', 'post'], '/dashboard', [UserController::class, 'dashboard'])->middleware(['authAdmin', 'permission:dashboard']);
+Route::match(['get', 'post'], '/dashboard', [DashboardController::class, 'dashboard'])->middleware(['authAdmin', 'permission:dashboard']);
 Route::match(['get', 'post'], '/user-managment', [UserController::class, 'user_managment'])->middleware(['authAdmin', 'permission:user-Management']);
 Route::match(['get', 'post'], '/add-new-user', [UserController::class, 'add_new_user'])->middleware(['authAdmin', 'permission:add-user']);
 Route::match(['get', 'post'], '/activate-user/{id}', [UserController::class, 'activate_user'])->middleware(['authAdmin', 'permission:status-change-user']);
@@ -40,7 +40,8 @@ Route::match(['get', 'post'], '/deactivate-user/{id}', [UserController::class, '
 Route::match(['get', 'post'], '/get-supervisors', [UserController::class, 'get_supervisors'])->middleware(['authAdmin']);
 Route::match(['get', 'post'], '/edit-user/{id}', [UserController::class, 'edit_user'])->middleware(['authAdmin', 'permission:edit-user']);
 Route::match(['get', 'post'], '/locked-users', [UserController::class, 'locked_users'])->middleware(['authAdmin', 'permission:security-locked']);
-Route::get('unlock-user/{id}', [UserController::class, 'unlock_user'])->middleware(['authAdmin', 'permission:security-locked-unlock']);
+Route::match(['get', 'post'], '/unlock-user/{id}', [UserController::class, 'unlock_user'])->middleware(['authAdmin', 'permission:security-locked-unlock']);
+
 Route::match(['get', 'post'], '/settings', [UserController::class, 'settings'])->middleware(['authAdmin', 'permission:settings']);
 Route::post('/update-profile-picture', [UserController::class, 'updateProfilePicture'])->middleware(['authAdmin']);
 Route::post('/delete-profile-picture', [UserController::class, 'deleteProfilePicture'])->middleware(['authAdmin']);
@@ -112,7 +113,7 @@ Route::match(['get', 'post'], '/all-outstanding', [CollectionsController::class,
 
 Route::match(['get', 'post'], '/all-receipts', [CollectionsController::class, 'all_receipts'])->middleware(['authAdmin', 'permission:all-receipts']);
 Route::match(['get', 'post'], '/pending-receipts', [CollectionsController::class, 'pending_receipts'])->middleware(['authAdmin', 'permission:pending-receipts']);
-Route::match(['get', 'post'], 'resend-receipt/{id}', [CollectionsController::class, 'resend_receipt'])->middleware(['authAdmin', 'permission:all-receipts-final-sms']);
+Route::match(['get', 'post'], 'resend-receipt', [CollectionsController::class, 'resend_receipt'])->middleware(['authAdmin', 'permission:all-receipts-final-sms']);
 Route::match(['get', 'post'], 'remove-advanced-payment/{id}', [CollectionsController::class, 'remove_advanced_payment'])->middleware(['authAdmin']);
 Route::get('/final-receipts-export', [CollectionsController::class, 'exportFinalReceipts'])
     ->name('final.receipts.export')->middleware(['authAdmin', 'permission:all-receipts']);
@@ -210,6 +211,7 @@ Route::post('/fund-transfers/export', [FundTransferController::class, 'export'])
     ->name('fund_transfers.export')->middleware(['authAdmin']);
 
 Route::get('/card-payments', [CardPaymentController::class, 'index'])->name('card_payments.index')->middleware(['authAdmin', 'permission:deposits-card-payment']);
+Route::get('/card-payments/download/{id}', [CardPaymentController::class, 'downloadAttachment'])->name('card_payments.download')->middleware(['authAdmin', 'permission:deposits-card-payment-download']);
 Route::get('/card-payments/{id}', [CardPaymentController::class, 'show'])->name('card_payments.show')->middleware(['authAdmin', 'permission:deposits-card-payment-view']);
 Route::post('/card-payments/update-status/{id}', [CardPaymentController::class, 'updateStatus'])
     ->name('card_payments.update_status')->middleware(['authAdmin', 'permission:deposits-card-payment-status']);

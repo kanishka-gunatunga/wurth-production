@@ -25,6 +25,7 @@ use File;
 use Mail;
 use Image;
 use PDF;
+use App\Services\ActivitLogService;
 
 class AdvancedPaymentController extends Controller
 {
@@ -140,7 +141,10 @@ class AdvancedPaymentController extends Controller
                 $advancedPayment->status = 'pending';
                 $advancedPayment->save();
 
+                
                 DB::commit();
+
+                ActivitLogService::log('advanced_payment', "Advanced Payment created. Amount: {$request->payment_amount}");
 
                 return back()->with('success', 'Advanced Payment Successfully Added');
             } catch (\Exception $e) {

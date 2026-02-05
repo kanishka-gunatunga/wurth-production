@@ -137,10 +137,9 @@
                                 @endif
 
                                 @if ($inquiry->attachement)
-                                    <a href="{{ route('inquiries.download', $inquiry->id) }}"
-                                        class="black-action-btn submit" style="text-decoration: none;"
-                                        onclick="showDownloadToast(event)">
-                                        Download
+                                   
+                                     <a href="{{ asset('uploads/adm/inquiry/attachments/'.$inquiry->attachement) }}" download>
+                                        <button class="black-action-btn">Download</button>
                                     </a>
                                 @else
                                     <button class="black-action-btn" disabled>No File</button>

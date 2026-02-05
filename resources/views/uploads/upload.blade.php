@@ -134,6 +134,8 @@
                                     <li><a class="dropdown-item" href="#" data-value="customer">Customer Report</a></li>
                                     <li><a class="dropdown-item" href="#" data-value="invoice">Invoices</a></li>
                                      <li><a class="dropdown-item" href="#" data-value="credit-note">Credit Notes</a></li>
+                                      <li><a class="dropdown-item" href="#" data-value="extra-payment">Extra Payments</a></li>
+                                      <li><a class="dropdown-item" href="#" data-value="adm-targets">ADM Targets</a></li>
                                 </ul>
                                 
                             </div>

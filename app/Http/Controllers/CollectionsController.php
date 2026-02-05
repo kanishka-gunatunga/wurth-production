@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Invoices;
 use App\Models\Customers;
+use App\Models\Divisions;
 use App\Models\InvoicePayments;
 use App\Models\InvoicePaymentBatches;
 use App\Models\AdvancedPayment;
@@ -31,6 +32,7 @@ use File;
 use Mail;
 use Image;
 use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use App\Mail\SendReceiptMail;
 class CollectionsController extends Controller
 {
     /**
@@ -50,7 +52,10 @@ class CollectionsController extends Controller
 
         $invoices = Invoices::with(['customer.admDetails', 'customer.secondaryAdm'])
             ->where('type', 'invoice')
-            ->whereColumn('amount', '>', 'paid_amount')
+            ->where(function ($q) {
+                $q->whereColumn('amount', '>', 'paid_amount')
+                ->orWhereNull('paid_amount');
+            })
             ->whereHas('customer', function ($query) {
                 $query->where('is_temp', 0);
             });
@@ -598,16 +603,20 @@ class CollectionsController extends Controller
         );
     }
 
+    ActivitLogService::log('collection', "Receipt resent to $mobile for Payment ID: $id");
+
     return back()->with('success', 'Receipt resent successfully via Email & SMS.');
 }
     public function remove_advanced_payment($id)
     {
         AdvancedPayment::where('id', $id)->delete();
+        ActivitLogService::log('collection', "Advanced payment removed ID: $id");
         return back()->with('success', 'Advanced Payment Removed');
     }
 
     public function all_collections()
     {
+         $divisions = Divisions::where('status', 'active')->get();
         // Use paginate instead of get()
         $collections = InvoicePaymentBatches::with(['payments', 'admDetails'])
             ->orderBy('created_at', 'desc')
@@ -620,7 +629,7 @@ class CollectionsController extends Controller
                     'adm_name' => $batch->admDetails->name ?? 'N/A',
                     'division' => $batch->division ?? null,
                     'customers' => $batch->payments
-                        ->pluck('invoice.customer.name')
+                        ->pluck('invoice.customer.name') 
                         ->filter()
                         ->unique()
                         ->values()
@@ -639,7 +648,7 @@ class CollectionsController extends Controller
             'date_range' => '',
         ];
 
-        return view('collections.all_collections', compact('collections', 'filters'));
+        return view('collections.all_collections', compact('collections', 'filters', 'divisions'));
     }
 
     public function collection_details($id)
@@ -751,6 +760,7 @@ class CollectionsController extends Controller
 
     public function filter_collections(Request $request)
     {
+        $divisions = Divisions::where('status', 'active')->get();
         $query = InvoicePaymentBatches::with(['payments.invoice.customer', 'admDetails'])
             ->orderBy('created_at', 'desc');
 
@@ -825,7 +835,7 @@ class CollectionsController extends Controller
         // Pass back filters to preserve in Blade
         $filters = $request->only(['adm_names', 'adm_ids', 'customers', 'divisions', 'date_range']);
 
-        return view('collections.all_collections', compact('collections', 'filters'));
+        return view('collections.all_collections', compact('collections', 'filters', 'divisons'));
     }
 
     public function export_collections(Request $request)
@@ -1016,18 +1026,18 @@ public function reject_receipt(Request $request, $id)
             'invoice.customer',
             'adm.userDetails'
         ])->findOrFail($id);
-        $payment->status = 'rejected';
+        $payment->status = 'voided';
         $payment->save();
 
         ActivitLogService::log(
             'receipt',
-            'receipt (' . $payment->id . ') status has been changed to rejected'
+            'receipt (' . $payment->id . ') status has been changed to voided'
         );
 
         SystemNotificationService::log(
             'receipt',
             $payment->id,
-            'Your receipt (' . $payment->id . ') status has been rejected',
+            'Your receipt (' . $payment->id . ') status has been voided',
             $payment->adm_id
         );
 
@@ -1041,7 +1051,7 @@ public function reject_receipt(Request $request, $id)
 
             $smsMessage  = "IMPORTANT NOTICE\n";
             $smsMessage .= "Receipt No: " . $payment->id . "\n";
-            $smsMessage .= "This receipt has been CANCELLED and REJECTED.\n";
+            $smsMessage .= "This receipt has been CANCELLED and VOIDED.\n";
             $smsMessage .= "Please IGNORE this receipt.\n\n";
             $smsMessage .= "If you have already received this receipt, ";
             $smsMessage .= "it is no longer valid.\n\n";
@@ -1066,7 +1076,7 @@ public function reject_receipt(Request $request, $id)
                 );
             }
         }
-        return back()->with('success', 'Receipt rejected.');
+        return back()->with('success', 'Receipt Voided.');
        
 
     } catch (\Exception $e) {

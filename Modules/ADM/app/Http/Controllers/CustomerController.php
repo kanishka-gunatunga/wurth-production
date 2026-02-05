@@ -23,6 +23,7 @@ use File;
 use Mail;
 use Image;
 use PDF;
+use App\Services\ActivitLogService;
 class CustomerController extends Controller
 {
     /**
@@ -218,6 +219,9 @@ class CustomerController extends Controller
     $customer->email = $request->email;
     $customer->address = $request->address;
     $customer->save();
+
+
+    ActivitLogService::log('customer', "Customer updated (AJAX): {$customer->name} ({$customer->customer_id})");
 
     return response()->json([
         'status' => true,

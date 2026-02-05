@@ -1,0 +1,18 @@
+Collection Cycle Days Report (Specimen)									
+									
+Period: November 2025									
+ADM No: 855									
+ADM Name: Sanjeewa									
+									
+Invoice No	Customer No	Customer Name	Invoice Date	Invoice Amount (Rs)	Collection Date	Payment Mode	Collected Amount (Rs)	Cycle Days	
+4227252255	190008001	ABC Motors	2/8/2025	"150,000.00"	5/11/2025	Cheque	"150,000.00"	95	
+4227335289	190001234	Prime Traders	18-09-2025	"275,000.00"	12/11/2025	Cash	"275,000.00"	55	
+4227218595	190005245	City Auto	1/10/2025	"325,000.00"	20-11-2025	Fund Transfer	"325,000.00"	50	
+4327258945	190014564	Lanka Tools	15-Oct-25	"500,000.00"	28-Dec-25	PDC (Realised)	"500,000.00"	74	
+Total				"1,250,000.00"			"1,250,000.00"		
+									
+Total Invoices Collected:	4								
+Total Realised Collection: Rs 	"1,250,000.00"								
+Average Cycle Days: Days	68.5								
+Fastest Cycle: Days	50								
+Slowest Cycle:  Days	95								

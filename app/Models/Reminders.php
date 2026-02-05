@@ -12,14 +12,15 @@ class Reminders extends Model
     protected $table = 'reminders';
     protected $primaryKey = 'id';
 
+    protected $casts = [
+        'send_to' => 'array',
+    ];
+
     public function user()
     {
         // adm_id in inquiries → id in users
         return $this->belongsTo(User::class, 'sent_user_id', 'id');
     }
 
-    public function recipient()
-    {
-        return $this->belongsTo(User::class, 'send_to', 'id');
-    }
+   
 }

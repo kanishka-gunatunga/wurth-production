@@ -70,7 +70,10 @@ public function backup(Request $request)
                 'disk'      => 'local',
                 'status'    => 'success',
                 'size'      => $fileSize,
+                'size'      => $fileSize,
             ]);
+
+            ActivitLogService::log('backup', "System backup created successfully. File: " . basename($latestFile));
 
             return response()->json([
                 'success' => true,

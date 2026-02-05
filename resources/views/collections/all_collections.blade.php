@@ -250,10 +250,10 @@
             <!-- Divisions -->
             <div class="mt-5 radio-selection filter-categories">
                 <p class="filter-title">Divisions</p>
-                @foreach ($collections->pluck('division')->filter()->unique() as $division)
+                @foreach ($divisions as $division)
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="divisions[]" value="{{ $division }}">
-                    <label class="form-check-label">{{ $division }}</label>
+                    <input class="form-check-input" type="radio" name="divisions[]" value="{{ $division->id }}">
+                    <label class="form-check-label">{{ $division->division_name }}</label>
                 </div>
                 @endforeach
             </div>

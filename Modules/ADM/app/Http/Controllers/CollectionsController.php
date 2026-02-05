@@ -26,6 +26,9 @@ use App\Models\InvoicePaymentBatches;
 use App\Services\MobitelInstantSmsService;
 use App\Models\Bank;
 use App\Models\Branch;
+use App\Models\Deposits;
+use App\Services\ActivitLogService;
+
 use File;
 use Mail;
 use Image;
@@ -53,6 +56,10 @@ class CollectionsController extends Controller
             $query->where('adm', $adm_no)
                   ->orWhere('secondary_adm', $adm_no);
         })
+        ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
+        })
         ->paginate(15);
 
     // Fetch all invoices (no pagination) for totals
@@ -60,6 +67,10 @@ class CollectionsController extends Controller
         ->whereHas('customer', function ($query) use ($adm_no) {
             $query->where('adm', $adm_no)
                   ->orWhere('secondary_adm', $adm_no);
+        })
+       ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
         })
         ->get();
 
@@ -69,12 +80,22 @@ class CollectionsController extends Controller
         ->get();
     }
     else{
-         $invoices = Invoices::with('customer')->paginate(15);
-         $all_invoices = Invoices::with('customer')->get();
+         $invoices = Invoices::with('customer')
+         ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
+        })
+         ->paginate(15);
+         $all_invoices = Invoices::with('customer')
+         ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
+        })
+         ->get();
          $all_customers = Customers::get();
     }
   
-
+ 
     return view('adm::collection.collections', [
         'invoices' => $invoices,
         'all_invoices' => $all_invoices,
@@ -83,8 +104,7 @@ class CollectionsController extends Controller
 }
 
 
-
-     public function bulk_payment()
+public function bulk_payment()
 {
     if(Auth::user()->user_role == 6 ){
     $adm_no = UserDetails::where('user_id', Auth::user()->id)->value('adm_number');
@@ -97,8 +117,18 @@ class CollectionsController extends Controller
         ->pluck('customer_id');
 
     // Get invoices of those customers
-    $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
-    $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+    $invoices = Invoices::whereIn('customer_id', $customers)
+    ->where(function ($q) {
+        $q->whereColumn('amount', '>', 'paid_amount')
+          ->orWhereNull('paid_amount');
+    })
+    ->paginate(15);
+    $all_invoices = Invoices::whereIn('customer_id', $customers)
+    ->where(function ($q) {
+        $q->whereColumn('amount', '>', 'paid_amount')
+          ->orWhereNull('paid_amount');
+    })
+    ->get();
 
     // Get full customer details (primary or secondary ADM)
     $all_customers = Customers::where(function($q) use ($adm_no) {
@@ -109,8 +139,18 @@ class CollectionsController extends Controller
     } else{
         $customers = Customers::pluck('customer_id');
 
-        $invoices = Invoices::whereIn('customer_id', $customers)->paginate(15);
-        $all_invoices = Invoices::whereIn('customer_id', $customers)->get();
+        $invoices = Invoices::whereIn('customer_id', $customers)
+        ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+              ->orWhereNull('paid_amount');
+        })
+        ->paginate(15);
+        $all_invoices = Invoices::whereIn('customer_id', $customers)
+        ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+              ->orWhereNull('paid_amount');
+        })
+        ->get();
 
         $all_customers = Customers::get();
     }
@@ -135,6 +175,10 @@ class CollectionsController extends Controller
             $q->where('adm', $adm_no)
               ->orWhere('secondary_adm', $adm_no);
         })
+        ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+              ->orWhereNull('paid_amount');
+        })
         ->where(function ($q) use ($query) {
             $q->where('invoice_or_cheque_no', 'LIKE', "%{$query}%")
               ->orWhereHas('customer', function ($q) use ($query) {
@@ -150,6 +194,10 @@ class CollectionsController extends Controller
               ->orWhereHas('customer', function ($q) use ($query) {
                   $q->where('name', 'LIKE', "%{$query}%");
               });
+        })
+        ->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
         })
         ->get();
     }
@@ -303,16 +351,16 @@ class CollectionsController extends Controller
         //     Log::error('SMS sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
         // }
 
+        ActivitLogService::log('collection', "Cash collection added. Invoice: $id, Amount: {$request->cash_amount}"); 
+
         return response()->json([
             'status' => "success",
-            'message' => 'Payment added successfully',
+            'message' => "Cash collection added. Amount: {$request->cash_amount}",
             'amount' => $request->cash_amount,
             'discount' => $request->cash_discount,
             'payment_batch_id' => $payment_batch->id,
         ], 201);
-        
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         return response()->json([
             'status' => "fail",
             'message' => 'Request failed',
@@ -453,17 +501,19 @@ public function add_fund_transfer($id,Request $request)
         // } catch (\Exception $e) {
         //     Log::error('SMS sending failed for Receipt ID ' . $updated_payment->id . ': ' . $e->getMessage());
         // }
+        
+        // ActivitLogService::log('collection', "Invoice/Receipts saved. Batch ID: {$payment_batch->id}");
+
+        ActivitLogService::log('collection', "Fund transfer collection added. Invoice: $id, Amount: {$request->amount}");
 
         return response()->json([
             'status' => "success",
-            'message' => 'Payment added successfully',
+            'message' =>  "Fund transfer collectionadded. Amount: {$request->amount}",
             'amount' => $request->amount,
             'discount' => $request->discount,
             'payment_batch_id' => $payment_batch->id,
         ], 201);
-        
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         return response()->json([
             'status' => "fail",
             'message' => 'Request failed',
@@ -578,16 +628,16 @@ public function add_cheque_payment($id,Request $request)
 
         // Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
+        ActivitLogService::log('collection', "Cheque collection added. Invoice: $id, Cheque No: {$request->cheque_number}, Amount: {$request->cheque_amount}");
+
         return response()->json([
             'status' => "success",
-            'message' => 'Payment added successfully',
+            'message' =>  "Cheque collection added. Amount: {$request->cheque_amount}",
             'amount' => $request->cheque_amount,
             'discount' => $request->discount,
             'payment_batch_id' => $payment_batch->id,
         ], 201);
-        
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         return response()->json([
             'status' => "fail",
             'message' => 'Request failed',
@@ -692,16 +742,16 @@ public function add_card_payment($id,Request $request)
 
         // Mail::to($customer->email)->send(new SendReceiptMail($payment, $filePath));
 
+        ActivitLogService::log('collection', "Card collection added. Invoice: $id, Amount: {$request->card_amount}");
+
         return response()->json([
             'status' => "success",
-            'message' => 'Payment added successfully',
+            'message' =>  "Card collection added. Amount: {$request->card_amount}",
             'amount' => $request->card_amount,
             'discount' => $request->card_discount,
             'payment_batch_id' => $payment_batch->id,
         ], 201);
-        
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         return response()->json([
             'status' => "fail",
             'message' => 'Request failed',
@@ -808,7 +858,7 @@ public function save_invoice($id,Request $request)
                 '94',
                 $payment->invoice->customer->mobile_number ?? ''
             );
-
+ 
             if (empty($toNumber)) {
                 continue;
             }
@@ -852,10 +902,37 @@ public function save_invoice($id,Request $request)
                     . $payment->id . ': ' . $e->getMessage()
                 );
             }
+
+            if($payment->type == 'fund-transfer'){
+
+                
+                $deposit = new Deposits();
+                $deposit->type = 'fund-transfer';
+                $deposit->date_time = $payment->transfer_date;
+                $deposit->amount = $payment->final_payment;
+                $deposit->reciepts = [
+                    ['reciept_id' => (string)$payment->id]
+                ];
+               if(Auth::user()->user_role == 6 ){
+                    $deposit->adm_id = Auth::user()->id;
+                }
+                else {
+                    $customer = $payment->invoice->customer;
+
+                    $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                    $deposit->adm_id = $adm ? $adm->user_id : null; 
+                }
+                $deposit->status = 'pending';
+                $deposit->attachment_path = $payment->screenshot;
+                $deposit->save();
+            }
         }
         return response()->json([
             'status' => "success",
-            'message' => 'Payment Details Saved',
+            'message' => 'Collection Details Saved',
         ], 201);
         
     }
@@ -982,7 +1059,7 @@ public function resend_receipt($id)
             return response()->json('<tr><td colspan="3">No customers selected.</td></tr>');
         }
     
-        $invoices = Invoices::whereIn('customer_id', $selected_customers)->get();
+        $invoices = Invoices::whereIn('customer_id', $selected_customers)->whereColumn('amount', '>', 'paid_amount')->get();
 
         $invoice_data = '';
         foreach ($invoices as $invoice) {
@@ -1054,6 +1131,7 @@ public function resend_receipt($id)
         } else {
             $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
         }
+        $final_collection_total = 0;
         foreach ($request->payments as $payment) {
             $discount =  ($payment['amount'] * ($payment['discount'] ?? 0)) / 100;
             $final_payment = $payment['amount']-$discount;
@@ -1087,6 +1165,7 @@ public function resend_receipt($id)
             $invoice->paid_amount = $invoice->paid_amount + $payment['amount'];
             $invoice->update();
 
+            $final_collection_total =  $final_collection_total+$payment['amount'];
             // $invoice= Invoices::where('id', $payment_data->invoice_id)->first();
             // $customer= Customers::where('customer_id', $invoice->customer_id)->first();
             // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
@@ -1113,12 +1192,12 @@ public function resend_receipt($id)
 
             // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
 
-
+            ActivitLogService::log('collection', "Cash collection added. Invoice: {$payment['invoice_id']}, Amount: {$payment['amount']}");
         }
-
+     
         return response()->json([
             'status' => "success",
-            'message' => 'Payments added successfully',
+            'message' => "Cash collections added successfully, Amount: {$final_collection_total}",
             'payment_batch_id' => $payment_batch->id,
         ], 201);
         
@@ -1235,7 +1314,7 @@ public function add_bulk_fund_transfer(Request $request)
                 $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/adm/collections/fund_transfer_reciepts/'), $screenshot_name);
             }
-
+            $final_collection_total = 0;
             foreach ($payments as $data) {
                 $amount = $data['amount'];
                 $discountValue = $data['discount'] ?? 0;
@@ -1279,6 +1358,7 @@ public function add_bulk_fund_transfer(Request $request)
                 $invoice->paid_amount += $amount;
                 $invoice->save();
 
+                $final_collection_total = $final_collection_total + $amount;
                 // generate receipt + email
                 // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
@@ -1304,11 +1384,13 @@ public function add_bulk_fund_transfer(Request $request)
                 // $payment_data->save();
 
                 // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+
+                 ActivitLogService::log('collection', "Fund transfer collection added. Invoice: {$data['invoice_id']}, Amount: {$amount}");
             }
 
             return response()->json([
                 'status' => "success",
-                'message' => 'Payments added successfully',
+                'message' => "Fund transfer collections added successfully, Amount: {$final_collection_total}",
                 'payment_batch_id' => $payment_batch->id,
             ], 201);
 
@@ -1427,7 +1509,7 @@ public function add_bulk_cheque_payment(Request $request)
                 $image_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/adm/collections/cheque_images/'), $image_name);
             }
-
+            $final_collection_total = 0;
             foreach ($payments as $data) {
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
@@ -1467,7 +1549,7 @@ public function add_bulk_cheque_payment(Request $request)
 
                 $invoice->paid_amount += $data['amount'];
                 $invoice->save();
-
+                $final_collection_total = $final_collection_total + $data['amount'];
                 // Send receipt
                 // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
@@ -1494,11 +1576,14 @@ public function add_bulk_cheque_payment(Request $request)
                 // $payment_data->save();
 
                 // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+
+                ActivitLogService::log('collection', "Cheque collection added. Invoice: {$data['invoice_id']}, Cheque No: {$request->cheque_number}, Amount: {$request->cheque_amount}");
+
             }
 
             return response()->json([
                 'status' => "success",
-                'message' => 'Payments added successfully',
+                'message' => "Cheque collections added successfully, Amount: {$final_collection_total}",
                 'payment_batch_id' => $payment_batch->id,
             ], 201);
 
@@ -1543,7 +1628,7 @@ public function add_bulk_card_payment(Request $request)
                 $screenshot_name = time() . '-' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/adm/collections/card_screenshots/'), $screenshot_name);
             }
-
+            $final_collection_total = 0;
             foreach ($payments as $data) {
                 $discount = ($data['amount'] * ($data['discount'] ?? 0)) / 100;
                 $final_payment = $data['amount'] - $discount;
@@ -1578,7 +1663,7 @@ public function add_bulk_card_payment(Request $request)
 
                 $invoice->paid_amount += $data['amount'];
                 $invoice->save();
-
+                $final_collection_total = $final_collection_total + $data['amount'];
                 // Send receipt
                 // $customer = Customers::where('customer_id', $invoice->customer_id)->first();
                 // $adm= UserDetails::where('user_id', Auth::user()->id)->first();
@@ -1604,11 +1689,13 @@ public function add_bulk_card_payment(Request $request)
                 // $payment_data->save();
 
                 // Mail::to($customer->email)->send(new SendReceiptMail($payment_data, $filePath));
+
+                 ActivitLogService::log('collection', "Card collection added. Invoice: {$data['invoice_id']}, Amount: {$data['amount']}");
             }
 
             return response()->json([
                 'status' => "success",
-                'message' => 'Card Payments added successfully',
+                'message' => "Card collections added successfully, Amount: {$final_collection_total}",
                 'payment_batch_id' => $payment_batch->id,
             ], 201);
 
@@ -1763,10 +1850,37 @@ public function save_bulk_payment(Request $request)
                     . $payment->id . ': ' . $e->getMessage()
                 );
             }
+
+            if($payment->type == 'fund-transfer'){
+
+                
+                $deposit = new Deposits();
+                $deposit->type = 'fund-transfer';
+                $deposit->date_time = $payment->transfer_date;
+                $deposit->amount = $payment->final_payment;
+                $deposit->reciepts = [
+                    ['reciept_id' => (string)$payment->id]
+                ];
+               if(Auth::user()->user_role == 6 ){
+                    $deposit->adm_id = Auth::user()->id;
+                }
+                else {
+                    $customer = $payment->invoice->customer;
+
+                    $adm_number = !empty($customer->secondary_adm) ? $customer->secondary_adm : $customer->adm;
+
+                    $adm = UserDetails::where('adm_number', $adm_number)->first();
+
+                    $deposit->adm_id = $adm ? $adm->user_id : null; 
+                }
+                $deposit->status = 'pending';
+                $deposit->attachment_path = $payment->screenshot;
+                $deposit->save();
+            }
         }
         return response()->json([
             'status' => "success",
-            'message' => 'Payment Details Saved',
+            'message' => 'Collection Details Saved',
         ], 201);
         
     }
@@ -1881,7 +1995,7 @@ public function view_temp_receipt($id,Request $request)
 
                 $pdf->save($filePath);
 
-                $payment->original_pdf = 'uploads/adm/collections/receipts/originals/' . $pdfName;
+                $payment->pdf = 'uploads/adm/collections/receipts/originals/' . $pdfName;
                 $payment->save();
 
                 if (!empty($customer->email)) {

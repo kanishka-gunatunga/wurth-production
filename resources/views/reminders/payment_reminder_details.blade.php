@@ -131,4 +131,3 @@
 </script>
 
 </div>
-@include('finance::layouts.footer2')

@@ -97,7 +97,7 @@ use App\Models\Divisions;
                 <a class="nav-link" data-bs-toggle="tab" href="#payment-details" role="tab"
                     aria-controls="temporary" aria-selected="false">
                     Payment details
-                </a>
+                </a> 
             </li>
 
             <li class="nav-item mb-3" role="presentation">
@@ -188,11 +188,11 @@ use App\Models\Divisions;
                             return max($invoice->amount - $paid, 0); // Only positive outstanding
                         });
                     $extraPayment = $customer_details->extraPayment->sum(function ($payment) {
-                            $amount = $payment->updated_amount ?? 0; // Treat null as 0
+                            $amount = $payment->amount ?? 0; // Treat null as 0
                             return max($amount, 0); // Only positive outstanding
                         });
                     $creditNote = $customer_details->creditNote->sum(function ($note) {
-                            $amount = $note->updated_amount ?? 0; // Treat null as 0
+                            $amount = $note->amount ?? 0; // Treat null as 0
                             return max($amount, 0); // Only positive outstanding
                         });
                     $lastCredit = $customer_details->creditNote
@@ -629,11 +629,11 @@ use App\Models\Divisions;
                                             >
                                             Resend SMS
                                         </button>
-                                       <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}" >
+                                       <a href="{{ $payment->pdf_path ? asset($payment->pdf_path) : '#' }}" >
                                                 <button class="black-action-btn">Download</button>
                                             </a>
 
-                                        <a href="{{ url('finace/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a>
+                                        <!-- <a href="{{ url('finace/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a> -->
                                     </div>
                                 </td>
                                 </tr>
@@ -659,9 +659,10 @@ use App\Models\Divisions;
 </div>
 
 @include('layouts.footer2')
- <div id="resend-sms-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
+ <!-- Resend SMS Modal -->
+<div id="resend-sms-modal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3);">
     <div style="background:#fff; border-radius:12px; max-width:400px; margin:10% auto; padding:2rem; position:relative; box-shadow:0 2px 16px rgba(0,0,0,0.2);">
-        <form id="resend-sms-form" method="POST" action="{{ url('finance/resend-receipt') }}">
+        <form id="resend-sms-form" method="POST" action="{{ url('/resend-receipt') }}">
             @csrf
             <input type="hidden" name="receipt_id" id="sms-receipt-id">
 
@@ -686,6 +687,7 @@ use App\Models\Divisions;
         </form>
     </div>
 </div>
+
 <script>
     // Enable/Disable Optional Input
     document.getElementById("optional-checkbox").addEventListener("change", function() {
@@ -693,54 +695,52 @@ use App\Models\Divisions;
     });
 </script>
 
-
 <!-- pop-up resend SMS modal -->
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('resend-sms-modal');
+        const closeBtn = document.getElementById('resend-sms-close');
+        const mobileSelect = document.getElementById('mobile-number');
+        const optionalCheckbox = document.getElementById('optional-checkbox');
+        const optionalNumber = document.getElementById('optional-number');
+        const receiptInput = document.getElementById('sms-receipt-id');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('resend-sms-modal');
-    const closeBtn = document.getElementById('resend-sms-close');
-    const mobileSelect = document.getElementById('mobile-number');
-    const optionalCheckbox = document.getElementById('optional-checkbox');
-    const optionalNumber = document.getElementById('optional-number');
-    const receiptInput = document.getElementById('sms-receipt-id');
+        // Open modal when "Resend SMS" is clicked
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('resend-sms-btn')) {
+                e.preventDefault();
 
-    // Open modal when "Resend SMS" is clicked
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('resend-sms-btn')) {
-            e.preventDefault();
+                const primary = e.target.getAttribute('data-primary');
+                const secondary = e.target.getAttribute('data-secondary');
+                const receiptId = e.target.getAttribute('data-receipt-id');
+                console.log(primary);
+                // Reset modal fields
+                mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
+                if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
+                if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
+                optionalNumber.value = '';
+                optionalCheckbox.checked = false;
+                optionalNumber.disabled = true;
+                receiptInput.value = receiptId;
 
-            const primary = e.target.getAttribute('data-primary');
-            const secondary = e.target.getAttribute('data-secondary');
-            const receiptId = e.target.getAttribute('data-receipt-id');
-            console.log(primary);
-            // Reset modal fields
-            mobileSelect.innerHTML = '<option value="">-- Select Number --</option>';
-            if (primary) mobileSelect.innerHTML += `<option value="${primary}">${primary} - Primary</option>`;
-            if (secondary) mobileSelect.innerHTML += `<option value="${secondary}">${secondary} - Secondary</option>`;
-            optionalNumber.value = '';
-            optionalCheckbox.checked = false;
-            optionalNumber.disabled = true;
-            receiptInput.value = receiptId;
+                modal.style.display = 'block';
+            }
+        });
 
-            modal.style.display = 'block';
-        }
+        // Close modal
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Enable/disable optional number input
+        optionalCheckbox.addEventListener('change', function() {
+            optionalNumber.disabled = !this.checked;
+            if (!this.checked) optionalNumber.value = '';
+        });
+
+        // Close modal if clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        });
     });
-
-    // Close modal
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    // Enable/disable optional number input
-    optionalCheckbox.addEventListener('change', function() {
-        optionalNumber.disabled = !this.checked;
-        if (!this.checked) optionalNumber.value = '';
-    });
-
-    // Close modal if clicking outside
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-});
 </script>

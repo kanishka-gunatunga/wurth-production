@@ -163,6 +163,7 @@ $activeTab = request('active_tab', 'final');
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                         <form method="GET" action="{{ url('/all-receipts') }}">
+                              <input type="hidden" name="active_tab" value="final">
                             <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                                 <input type="text" name="final_search" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" value="{{ request('final_search') }}" />
@@ -219,11 +220,11 @@ $activeTab = request('active_tab', 'final');
                                     @if($payment->status == 'exported')
                                     <button class="yellow-status-btn"> Exported</button>
                                     @endif
-                                    @if($payment->status == 'accepted')
-                                    <button class="success-status-btn"> Accepted</button>
+                                    @if($payment->status == 'approved')
+                                    <button class="success-status-btn"> Approved</button>
                                     @endif
-                                    @if($payment->status == 'rejected')
-                                    <button class="danger-status-btn"> Rejected</button>
+                                    @if($payment->status == 'voided')
+                                    <button class="danger-status-btn"> Voided</button>
                                     @endif
 
                                 </td>
@@ -238,9 +239,9 @@ $activeTab = request('active_tab', 'final');
                                             data-secondary="{{ $payment->invoice->customer->secondary_mobile ?? '' }}">
                                             Resend SMS
                                         </button>
-                                        @endif
+                                        @endif 
                                         @if(in_array('all-receipts-final-download', session('permissions', [])))
-                                        <a href="{{ $payment->original_pdf ? asset($payment->original_pdf) : '#' }}">
+                                        <a href="{{ $payment->pdf_path ? asset($payment->pdf_path) : '#' }}">
                                             <button class="black-action-btn">Download</button>
                                         </a>
                                         @endif
@@ -270,6 +271,7 @@ $activeTab = request('active_tab', 'final');
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                         <form method="GET" action="{{ url('/all-receipts') }}">
+                             <input type="hidden" name="active_tab" value="temporary">
                             <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                                 <input type="text" name="temp_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('temp_search') }}" />
@@ -319,7 +321,7 @@ $activeTab = request('active_tab', 'final');
                                         </button>
                                         @endif
                                          @if(in_array('all-receipts-temporary-download', session('permissions', [])))
-                                        <a href="{{ $temp_receipt->original_pdf ? asset($temp_receipt->original_pdf) : '#' }}">
+                                        <a href="{{ $temp_receipt->pdf_path ? asset($temp_receipt->pdf_path) : '#' }}">
                                             <button class="black-action-btn">Download</button>
                                         </a>
                                         @endif
@@ -349,6 +351,7 @@ $activeTab = request('active_tab', 'final');
                 <div class="row mb-3">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                         <form method="GET" action="{{ url('/all-receipts') }}">
+                             <input type="hidden" name="active_tab" value="advance">
                             <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                                 <input type="text" name="advance_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('advance_search') }}" />
@@ -803,85 +806,47 @@ $activeTab = request('active_tab', 'final');
 
     // Clear Final Receipts Filters and Submit
     function clearFinalFiltersAndSubmit() {
-        // Clear Select2 dropdowns
+        // Clear all Select2 dropdowns
         $('#final-filter-adm-name').val(null).trigger('change');
         $('#final-filter-adm-id').val(null).trigger('change');
         $('#final-filter-customer').val(null).trigger('change');
 
-        // Clear date field
-        const finalDateInput = document.getElementById('final-filter-date');
-        if (finalDateInput) {
-            finalDateInput.value = '';
-        }
+        // Clear date range
+        document.getElementById('final-filter-date').value = '';
 
-        // Clear status dropdown and hidden input
-        const finalStatusBtn = document.getElementById('final-custom-status-btn');
-        const finalStatusInput = document.getElementById('final-status-value');
-        if (finalStatusBtn) {
-            finalStatusBtn.textContent = 'Choose Status';
-            finalStatusBtn.removeAttribute('data-value');
-        }
-        if (finalStatusInput) {
-            finalStatusInput.value = '';
-        }
+        // Clear status
+        document.getElementById('final-status-value').value = '';
+        document.getElementById('final-custom-status-btn').innerText = 'Choose Status';
 
-        // Hide status menu if open
-        const finalStatusMenu = document.getElementById('final-custom-status-menu');
-        if (finalStatusMenu) {
-            finalStatusMenu.style.display = 'none';
-        }
+        // Redirect to same page with only active_tab=final
+        const url = new URL(window.location.href);
+        url.search = ''; // remove all query params
+        url.searchParams.set('active_tab', 'final');
 
-        console.log('Final filters cleared');
-
-        // Submit the form to apply cleared filters
-        setTimeout(() => {
-            const form = document.querySelector('#finalFilter form');
-            if (form) {
-                form.submit();
-            }
-        }, 300);
+        window.location.href = url.toString();
     }
 
     // Clear Temporary Receipts Filters and Submit
     function clearTempFiltersAndSubmit() {
-        // Clear Select2 dropdowns
-        $('#temp-filter-adm-name').val(null).trigger('change');
-        $('#temp-filter-adm-id').val(null).trigger('change');
-        $('#temp-filter-customer').val(null).trigger('change');
+    // Clear Select2 dropdowns
+    $('#temp-filter-adm-name').val(null).trigger('change');
+    $('#temp-filter-adm-id').val(null).trigger('change');
+    $('#temp-filter-customer').val(null).trigger('change');
 
-        // Clear date field
-        const tempDateInput = document.getElementById('temp-filter-date');
-        if (tempDateInput) {
-            tempDateInput.value = '';
-        }
+    // Clear date
+    document.getElementById('temp-filter-date').value = '';
 
-        // Clear status dropdown and hidden input
-        const tempStatusBtn = document.getElementById('temp-custom-status-btn');
-        const tempStatusInput = document.getElementById('temp-status-value');
-        if (tempStatusBtn) {
-            tempStatusBtn.textContent = 'Choose Status';
-            tempStatusBtn.removeAttribute('data-value');
-        }
-        if (tempStatusInput) {
-            tempStatusInput.value = '';
-        }
+    // Clear status
+    document.getElementById('temp-status-value').value = '';
+    document.getElementById('temp-custom-status-btn').innerText = 'Choose Status';
 
-        // Hide status menu if open
-        const tempStatusMenu = document.getElementById('temp-custom-status-menu');
-        if (tempStatusMenu) {
-            tempStatusMenu.style.display = 'none';
-        }
+    // Redirect to same page with only active_tab=temporary
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('active_tab', 'temporary');
 
-        console.log('Temp filters cleared');
-
-        // Submit the form to apply cleared filters
-        setTimeout(() => {
-            const form = document.querySelector('#trFilter form');
-            if (form) {
-                form.submit();
-            }
-        }, 300);
-    }
+    window.location.href = url.toString();
+}
 
     // Clear Advance Payments Filters and Submit
     function clearAdvanceFiltersAndSubmit() {
@@ -1269,58 +1234,26 @@ $activeTab = request('active_tab', 'final');
     }
 
     // Clear Advance Payments Filters
-    function clearAdvanceFilters() {
-        // Clear Select2 dropdowns
-        $('#advance-filter-adm-name').val(null).trigger('change');
-        $('#advance-filter-adm-id').val(null).trigger('change');
-        $('#advance-filter-customer').val(null).trigger('change');
-
-        // Clear date field
-        const advanceDateInput = document.getElementById('advance-filter-date');
-        if (advanceDateInput) {
-            advanceDateInput.value = '';
-        }
-
-        // Clear status dropdown and hidden input
-        const advanceStatusBtn = document.getElementById('advance-custom-status-btn');
-        const advanceStatusInput = document.getElementById('advance-status-value');
-        if (advanceStatusBtn) {
-            advanceStatusBtn.textContent = 'Choose Status';
-            advanceStatusBtn.removeAttribute('data-value');
-        }
-        if (advanceStatusInput) {
-            advanceStatusInput.value = '';
-        }
-
-        // Hide status menu if open
-        const advanceStatusMenu = document.getElementById('advance-custom-status-menu');
-        if (advanceStatusMenu) {
-            advanceStatusMenu.style.display = 'none';
-        }
-
-        console.log('Advance filters cleared');
-    }
-
-    // Auto-submit version of clear filters
-    function clearFinalFiltersAndSubmit() {
-        clearFinalFilters();
-        // Submit the form after a short delay to ensure fields are cleared
-        setTimeout(() => {
-            document.querySelector('#finalFilter form').submit();
-        }, 100);
-    }
-
-    function clearTempFiltersAndSubmit() {
-        clearTempFilters();
-        setTimeout(() => {
-            document.querySelector('#trFilter form').submit();
-        }, 100);
-    }
-
     function clearAdvanceFiltersAndSubmit() {
-        clearAdvanceFilters();
-        setTimeout(() => {
-            document.querySelector('#receiptsFilter form').submit();
-        }, 100);
-    }
+    // Clear Select2 dropdowns
+    $('#advance-filter-adm-name').val(null).trigger('change');
+    $('#advance-filter-adm-id').val(null).trigger('change');
+    $('#advance-filter-customer').val(null).trigger('change');
+
+    // Clear date
+    document.getElementById('advance-filter-date').value = '';
+
+    // Clear status
+    document.getElementById('advance-status-value').value = '';
+    document.getElementById('advance-custom-status-btn').innerText = 'Choose Status';
+
+    // Redirect to same page with only active_tab=advance
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('active_tab', 'advance');
+
+    window.location.href = url.toString();
+}
+
+   
 </script>

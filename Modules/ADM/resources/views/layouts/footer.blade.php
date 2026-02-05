@@ -359,13 +359,13 @@ $other_details = UserDetails::where('user_id', Auth::user()->id)->first();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
-        button.addEventListener('click', function() {
-            const icon = this.querySelector('.collapse-icon');
-            icon.classList.toggle('bi-chevron-down');
-            icon.classList.toggle('bi-chevron-up');
-        });
-    });
+    // document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+    //     button.addEventListener('click', function() {
+    //         const icon = this.querySelector('.collapse-icon');
+    //         icon.classList.toggle('bi-chevron-down');
+    //         icon.classList.toggle('bi-chevron-up');
+    //     });
+    // });
 
     $(document).ready(function() {
         $('.select2-with-search').select2({
@@ -475,4 +475,26 @@ $other_details = UserDetails::where('user_id', Auth::user()->id)->first();
         const preloader = document.getElementById("wurth-preloader");
         preloader.style.display = "none";
     });
+</script>
+<script>
+document.addEventListener('input', function (e) {
+    if (e.target.matches('input[type="number"].format-preview')) {
+        let input = e.target;
+        let value = input.value;
+
+        // Find or create preview element
+        let preview = input.nextElementSibling;
+        if (!preview || !preview.classList.contains('formatted-preview')) {
+            preview = document.createElement('small');
+            preview.className = 'formatted-preview text-muted mt-1';
+            input.insertAdjacentElement('afterend', preview);
+        }
+
+        if (value) {
+            preview.innerText = 'LKR : ' + Number(value).toLocaleString('en-US');
+        } else {
+            preview.innerText = '';
+        }
+    }
+});
 </script>

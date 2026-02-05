@@ -116,11 +116,7 @@
                                 class="form-control position-absolute attachment-input" name="attachment"
                                 accept=".pdf,image/*" style="opacity: 0;" />
 
-                            @if ($errors->has('attachment'))
-                                <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('attachment') }}
-                                </div>
-                            @endif
+                         
 
 
                             <ul id="file-preview" class="mt-1 d-flex flex-column text-start ps-0 mb-0">
@@ -128,7 +124,11 @@
                         </div>
                     </div>
                 </div>
-
+                   @if ($errors->has('attachment'))
+                                <div class="alert alert-danger mt-2">
+                                    {{ $errors->first('attachment') }}
+                                </div>
+                            @endif                
                 <div class="d-flex w-100 justify-content-center align-items-center pt-3">
                     <button class="styled-button-normal w-100 px-5"
                         style="width: 100% !important; font-size: 14px !important; font-weight: 600; height: 40px !important; min-height: 40px !important"

@@ -73,7 +73,7 @@ Route::prefix('adm')->group(function () {
     Route::match(['get', 'post'], 'inquiries', [InquiryController::class, 'inquiries'])->middleware(['authADM', 'permission:inquiries']);
     Route::match(['get', 'post'], 'create-inquiry', [InquiryController::class, 'create_inquiry'])->middleware(['authADM']);
     Route::get('inquiry-details/{id}', [InquiryController::class, 'inquiry_details'])
-        ->middleware(ADMAuthenticated::class)
+        ->middleware(['authADM'])
         ->name('adm.inquiry.details');
     Route::get('/get-customer-invoices/{customerId}', [InquiryController::class, 'get_customer_invoices'])->middleware(['authADM']);
     Route::match(['get', 'post'], 'search-inquiries', [InquiryController::class, 'search_inquiries'])->middleware(['authADM']);
@@ -81,7 +81,7 @@ Route::prefix('adm')->group(function () {
         'inquiries/download/{id}',
         [InquiryController::class, 'downloadAttachment']
     )
-        ->middleware(ADMAuthenticated::class)
+        ->middleware(['authADM'])
         ->name('inquiries.download');
 
 

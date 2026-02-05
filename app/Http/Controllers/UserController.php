@@ -86,47 +86,7 @@ class UserController extends Controller
         }
     }
 
-    public function dashboard()
-    {
-        
-        // Get current month and year
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-
-        // Sum deposits for the current month with status 'accepted'
-        $currentMonthDeposits = Deposits::whereYear('date_time', $currentYear)
-            ->whereMonth('date_time', $currentMonth)
-            ->where('status', 'accepted')
-            ->sum('amount');
-
-        $onHandCollections = InvoicePayments::where('status', 'pending')
-            ->whereIn('type', ['cash', 'cheque'])
-            ->sum('final_payment');
-
-        $monthCollections = InvoicePayments::where('status', 'accepted')
-            ->sum('final_payment');
-
-        $monthChequeCollections = InvoicePayments::where('status', 'accepted')
-            ->where('type', 'cheque')
-            ->sum('final_payment');
-
-        $monthCashOnHand = InvoicePayments::where('status', 'pending')
-            ->where('type', 'cash')
-            ->sum('final_payment');
-
-        $locked_users = User::where('is_locked', 1)->with('userDetails')->take(10)->get();
-        $logs = ActivtiyLog::with('userData.userDetails')->orderBy('id', 'DESC')->take(10)->get();
-
-        return view('dashboard', compact(
-            'currentMonthDeposits',
-            'onHandCollections',
-            'monthCollections',
-            'monthChequeCollections',
-            'monthCashOnHand',
-            'locked_users',
-            'logs'
-        ));
-    }
+    
 
     function logout()
     {
@@ -517,25 +477,29 @@ public function getUserDetailsDivisonRole(Request $request)
     return response()->json($supervisors);
 }
 
-    public function locked_users(Request $request)
-    {
-        $query = User::where('is_locked', 1)->with('userDetails');
+ public function locked_users(Request $request)
+{
+    $query = User::where('is_locked', 1)->with('userDetails');
 
-        // Check if there's a search term
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
+    // Check if there's a search term
+    if ($request->has('search') && !empty($request->search)) {
+        $search = $request->search;
 
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('id', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $locked_users = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        return view('user.locked_users', compact('locked_users'));
+        $query->where(function ($q) use ($search) {
+            $q->where('email', 'like', "%{$search}%")
+              ->orWhere('id', 'like', "%{$search}%")
+              // search in related table
+              ->orWhereHas('userDetails', function ($q2) use ($search) {
+                  $q2->where('name', 'like', "%{$search}%");
+              });
+        });
     }
+
+    $locked_users = $query->orderBy('created_at', 'desc')->paginate(15);
+
+    return view('user.locked_users', compact('locked_users'));
+}
+
 
     public function unlock_user($id)
     {
@@ -546,6 +510,8 @@ public function getUserDetailsDivisonRole(Request $request)
 
 
         ActivitLogService::log('user management',  $user->userDetails->name . ' - user unblocked');
+
+        return back()->with('success', 'User Unlocked');
     }
 
     public function settings(Request $request)
@@ -682,6 +648,8 @@ public function getUserDetailsDivisonRole(Request $request)
         $userDetails->profile_picture = $filename;
         $userDetails->save();
 
+        ActivitLogService::log('user_settings', "Profile picture updated for user: " . Auth::user()->name);
+
         return back()->with('success', 'Profile picture updated');
     }
 
@@ -695,6 +663,8 @@ public function getUserDetailsDivisonRole(Request $request)
 
         $userDetails->profile_picture = null;
         $userDetails->save();
+
+        ActivitLogService::log('user_settings', "Profile picture deleted for user: " . Auth::user()->name);
 
         return response()->json(['success' => true]);
     }

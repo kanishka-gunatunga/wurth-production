@@ -2,7 +2,7 @@
 <div class="main-wrapper">
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
-        <h1 class="header-title">Card Payment No. - {{ $cardPayment->id }}</h1>
+        <h1 class="header-title">Card Payment No. - {{ $deposit->id }}</h1>
     </div>
 
     <div class="styled-tab-main">
@@ -10,43 +10,47 @@
         <div class="slip-details">
             <p>
                 <span class="bold-text">Date :</span>
-                <span class="slip-detail-text">&nbsp;{{ $cardPayment->card_transfer_date }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $depositDate }}</span>
             </p>
             <p>
                 <span class="bold-text">ADM No. :</span>
-                <span class="slip-detail-text">&nbsp;{{ $cardPayment->invoice->customer->adm ?? 'N/A' }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $admNumber }}</span>
             </p>
             <p>
                 <span class="bold-text">ADM Name :</span>
-                <span class="slip-detail-text">&nbsp;{{ $cardPayment->invoice->customer->userDetail->name ?? 'N/A' }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $admName }}</span>
             </p>
-            <p>
-                <span class="bold-text">Customer ID :</span>
-                <span class="slip-detail-text">&nbsp;{{ $cardPayment->invoice->customer->customer_id ?? 'N/A' }}</span>
-            </p>
-            <p>
-                <span class="bold-text">Customer Name :</span>
-                <span class="slip-detail-text">&nbsp;{{ $cardPayment->invoice->customer->name ?? 'N/A' }}</span>
-            </p>
+            @foreach($invoicePayments as $invoicePayment)
+            <div class="mb-2">
+                <p>
+                    <span class="bold-text">Customer ID :</span>
+                    <span class="slip-detail-text">&nbsp;{{ $invoicePayment->invoice?->customer?->customer_id ?? 'N/A' }}</span>
+                </p>
+                <p>
+                    <span class="bold-text">Customer Name :</span>
+                    <span class="slip-detail-text">&nbsp;{{ $invoicePayment->invoice?->customer?->name ?? 'N/A' }}</span>
+                </p>
+            </div>
+            @endforeach
             <p>
                 <span class="bold-text"> Total Amount :</span>
-                <span class="slip-detail-text">&nbsp;Rs. {{ number_format($cardPayment->final_payment, 2) }}</span>
+                <span class="slip-detail-text">&nbsp;Rs. {{ number_format($totalAmount, 2) }}</span>
             </p>
 
             <p>
                 <span class="bold-text">Status :</span>
                 @php
-                $status = strtolower($cardPayment->status ?? '');
+                $statusVal = strtolower($status ?? '');
 
-                $statusClass = match($status) {
-                'Accepted' => 'success-status-btn',
-                'Pending' => 'grey-status-btn',
-                'Rejected' => 'danger-status-btn',
-                'Declined' => 'danger-status-btn',
+                $statusClass = match($statusVal) {
+                'approved' => 'success-status-btn',
+                'pending' => 'grey-status-btn',
+                'voided' => 'danger-status-btn',
+                'rejected' => 'danger-status-btn',
                 default => 'grey-status-btn',
                 };
 
-                 $statusLabel = str_replace('_', ' ', $cardPayment->status);
+                 $statusLabel = str_replace('_', ' ', $status);
                     $statusLabel = ucfirst($statusLabel); // Capitalize first letter
                 @endphp
                 <span class="slip-detail-text">
@@ -56,8 +60,8 @@
 @if(in_array('deposits-card-payment-download', session('permissions', [])))
             <p>
                 <span class="bold-text">Attachment Download :</span>
-                @if($cardPayment->card_image)
-                <a href=" {{ asset('uploads/adm/collections/card_screenshots/' . $cardPayment->card_image) }}" download>
+                @if($deposit->attachment_path)
+                <a href="{{ url('card-payments/download', $deposit->id) }}">
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else
@@ -66,6 +70,44 @@
             </p>
 @endif
         </div>
+    </div>
+
+
+     <div class="header-and-content-gap-lg"></div>
+        <div class="table-responsive">
+            <table class="table unlock-column-table">
+                <thead>
+                    <tr>
+                        <th>Receipt Number</th>
+                        <th>Customer Name</th>
+                        <th>Customer ID</th>
+                        <th>Customer Paid Date</th>
+                        <th>Customer Paid Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  @forelse($invoicePayments as $invoicePayment)
+                        <tr>
+                            <td>{{ $invoicePayment->id }}</td>
+                            <td>{{ $invoicePayment->invoice?->customer?->name ?? 'N/A' }}</td>
+                            <td>{{ $invoicePayment->invoice?->customer?->customer_id ?? 'N/A' }}</td>
+                            <td>{{ $invoicePayment->created_at?->format('Y-m-d') ?? 'N/A' }}</td>
+                            <td>{{ $invoicePayment->final_payment ?? 'N/A' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No records found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+            </table>
+
+        </div>
+        <div class="d-flex justify-content-center mt-4">
+            {{ $invoicePayments->links() }}
+        </div>
+
     </div>
 </div>
 
@@ -99,7 +141,13 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+         <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <label style="font-weight:600;">Remark (required when declining)</label>
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark"></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -111,11 +159,11 @@
 
 <div class="action-button-lg-row">
     <a href="{{ url('card-payments') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-    @if(strtolower($status) !== 'accepted')
+    @if(strtolower($status) !== 'approved')
     <!-- Show buttons only if status is NOT Approved -->
       @if(in_array('deposits-card-payment-status', session('permissions', [])))
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $cardPayment->id }}" data-status="declined">Decline</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $cardPayment->id }}" data-status="accepted">Accept</button>
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
     @endif
     @endif
 </div>
@@ -167,6 +215,11 @@
 
             // Show confirmation modal
             document.getElementById('confirm-status-text').innerText = newStatus;
+            if (newStatus.toLowerCase() === 'rejected' || newStatus.toLowerCase() === 'voided') {
+                document.getElementById('remark-box').style.display = 'block';
+            } else {
+                document.getElementById('remark-box').style.display = 'none';
+            }
             const modal = document.getElementById('confirm-status-modal');
             modal.style.display = 'block';
 
@@ -182,7 +235,7 @@
 
             yesBtn.onclick = function() {
                 modal.style.display = 'none';
-
+                let remark = document.getElementById('decline-remark').value.trim();
                 // Send AJAX request to update status
                 fetch(`{{ url('/card-payments/update-status') }}/${depositId}`, {
                         method: 'POST',
@@ -191,7 +244,7 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            status: newStatus
+                            status: newStatus,remark: remark
                         })
                     })
                     .then(res => res.json())
@@ -200,10 +253,10 @@
                             // Update status button visually
                             const statusBtn = document.querySelector('.slip-detail-text button');
                             statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
+                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'accepted') {
+                            if (data.status.toLowerCase() === 'approved') {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
                             }
                         } else {

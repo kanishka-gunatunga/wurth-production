@@ -1,0 +1,28 @@
+	Returned Cheque Summary RCS							
+								
+								
+	Mandatory Data Fields							
+	Period	Division	Team	Sub team				
+ADM Number	ADM Name	Customer Name	Cheque Number	Bank	Returned on (Date (shown in ascending or descending order)	Cheque Amount	Reason for returned	Days arrears
+								
+								
+								
+								
+					Total			
+								
+	"The Report must be accessible Division-wise, Team-wise, Sub-Team-wise, and ADM-wise, with the ability to select a single ADM or multiple ADMs. It must also be available Customer-wise,  or multiple customers. the report must support period-based filtering,  date range, a selected month, or  year."							
+								
+								
+								
+								
+								
+								
+								
+	"The Returned Cheques Statement must display all cheques returned within the selected period, along with the respective return reasons. The report must also indicate the net returned cheques for the period by excluding any cheques that have subsequently been settled. For each settled cheque, the settlement status and settlement date must be clearly shown.”"							
+								
+								
+								
+								
+								
+								
+	"The above format   can be modified or changed, but all field details must remain mandatory.”"							

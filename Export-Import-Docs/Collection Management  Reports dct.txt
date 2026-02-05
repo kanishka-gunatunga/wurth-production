@@ -1,0 +1,25 @@
+	Daily  Collections Tracker- ADM															
+	Period											Date				
+1	ADM No	ADM Name	1st	2nd	3rd	4th	5th	6th	7th	8th	9th	10th	…			Total Days
+	855	Sanjeewa	?	?	?	?	?	?	?	?	?	?	…			4
+	250	Pradeep	?	?	?	?	?	?	?	?	?	?	…			3
+	650	Wasantha	?	?	?	?	?	?	?	?	?	?	…			1
+	250	Manoj	?	?	?	?	?	?	?	?	?	?	…			4
+																
+																
+																
+	Daily  Collections Tracker- DCT  ( ADM)															
+	Period											Date				
+	ADM No	ADM Name	1st	2nd	3rd	4th	5th	6th	7th	8th	9th	10th	…	Totla Days	Total Receipts	Total 
+	855	Sanjeewa	12000 (10 collections)	2500	25000	85000	35000	76500	2500	85000	35000	76500	2500			" 425,500.00 "
+	250	Pradeep		0									…			
+	650	Wasantha											…			
+	250	Manoj											…			
+																
+	Note:															
+1	"All collections including Post-Dated Cheques (PD), Fund Transfers, Cash, etc. are included."															
+2	"All collections include only realized amounts, including (fund transfers) "															
+																
+	Filters Available:															
+	ADM-wise / Multiple ADM / Sub-Team / Division															
+	Date-wise or for a Given Period															

@@ -140,7 +140,7 @@ use App\Models\Divisions;
         </div class="col-6">
 
         <div>
-            <a href="{{url('user-managment')}}"><button class="btn rounded-phill">Clear All</button></a>
+            <a href="{{url('activity-log')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
    <form action="{{ url('activity-log') }}" method="GET" id="filterForm">
@@ -175,6 +175,9 @@ use App\Models\Divisions;
             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(7, $selectedRoles ?? []) ? 'active' : '' }}" data-role="7">
                 <span>Finance Manager</span>
             </div>
+             <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(8, $selectedRoles ?? []) ? 'active' : '' }}" data-role="8">
+                    <span>Recovery Manager</span>
+                </div>
         </div>
 
        {{-- 🗓️ Date Filters --}}

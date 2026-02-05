@@ -25,6 +25,7 @@ use File;
 use Mail;
 use Image;
 use PDF;
+use App\Services\ActivitLogService;
 
 class InquiryController extends Controller
 {
@@ -37,7 +38,7 @@ class InquiryController extends Controller
         //    $inquiries = Inquiries::with(['invoice', 'customer', 'admin'])
         //     ->where('adm_id', Auth::id())
         //     ->paginate(15);
-        $inquiries = Inquiries::with(['customerDetails', 'invoice'])->paginate(15);
+        $inquiries = Inquiries::where('adm_id', Auth::id())->with(['customerDetails', 'invoice'])->paginate(15);
         return view('adm::inquiries.index', ['inquiries' => $inquiries]);
     }
 
@@ -58,7 +59,7 @@ class InquiryController extends Controller
                     'customer'     => 'required',
                     'invoice'      => 'required',
                     'reason'       => 'required',
-                    'attachment'   => 'nullable|file|mimes:pdf,png,jpg,jpeg,webp|max:5120',
+                    'attachment'   => 'required|file|mimes:pdf,png,jpg,jpeg,webp|max:5120',
                 ],
                 [
                     'attachment.max' => 'The attachment must not be greater than 5MB.',
@@ -83,6 +84,8 @@ class InquiryController extends Controller
             $inquiry->attachement = $attachment_name;
             $inquiry->status = 'pending';
             $inquiry->save();
+
+            ActivitLogService::log('inquiry', "New inquiry created: {$inquiry->type} for Invoice: {$inquiry->invoice_number}");
 
             return back()->with('success', 'Inquiry Successfully Added');
         }
@@ -114,7 +117,7 @@ class InquiryController extends Controller
         $customers = Customers::where('adm', $adm_no)
             ->pluck('customer_id');
 
-        $inquiries = Inquiries::with(['customerDetails', 'invoice'])
+        $inquiries = Inquiries::where('adm_id', Auth::id())->with(['customerDetails', 'invoice'])
             ->whereIn('customer', $customers)
             ->where(function ($q) use ($query) {
                 $q->where('invoice_number', 'LIKE', "%{$query}%")

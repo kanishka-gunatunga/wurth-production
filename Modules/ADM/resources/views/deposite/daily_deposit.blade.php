@@ -20,6 +20,7 @@
                     <label for="deposit_type">Deposit Type</label>
                     <select class="select2-no-search" name="deposit_type">
                         <option></option>
+                        <option value="card">Card</option>
                         <option value="cash">Cash</option>
                         <option value="cheque">Cheque</option>
                         <option value="finance-cash">Finance - Cash</option>
@@ -260,7 +261,7 @@ $(document).ready(function () {
 }) 
 $('form').on('submit', function (e) {
     e.preventDefault(); // always prevent default first
-
+    const depositType = $('select[name="deposit_type"]').val();
     // Check if any receipt is selected
     if (selectedReceipts.size === 0) {
         toastr.error('Please select at least one receipt.');
@@ -273,7 +274,22 @@ $('form').on('submit', function (e) {
         toastr.error('Please upload at least one transfer screenshot.');
         return false;
     }
+     if (depositType === 'cheque' || depositType === 'finance-cheque') {
+        const bank = $('#cheque_bank').val();
+        const branch = $('#cheque_branch').val();
 
+        if (!bank) {
+            toastr.error('Please select a bank.');
+            $('#cheque_bank').focus();
+            return false;
+        }
+
+        if (!branch) {
+            toastr.error('Please select a branch.');
+            $('#cheque_branch').focus();
+            return false;
+        }
+    }
     // Create hidden input for selected receipts
     $('<input>').attr({
         type: 'hidden',

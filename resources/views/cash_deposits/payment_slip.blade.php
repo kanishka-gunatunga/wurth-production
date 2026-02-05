@@ -30,22 +30,24 @@
                 <span class="bold-text">Status :</span>
                 <span class="slip-detail-text">
                     &nbsp;
-                    @php
-                    $status = $deposit->status; // or $inquiry->status if different
-                    <!-- if ($status === 'pending') {
-                    $status = 'Deposited';
-                    } else {
-                    $status = ucfirst($status);
-                    } -->
+                   @php
+    $status = $deposit->status; // or $inquiry->status if different
 
-                    $statusClass = match($status) {
-                    'accepted' => 'success-status-btn',
-                    'pending' => 'blue-status-btn',
-                    'rejected' => 'danger-status-btn',
-                    'declined' => 'danger-status-btn',
-                    default => 'grey-status-btn',
-                    };
-                    @endphp
+    // if ($status === 'pending') {
+    //     $status = 'Deposited';
+    // } else {
+    //     $status = ucfirst($status);
+    // }
+
+    $statusClass = match($status) {
+        'approved' => 'success-status-btn',
+        'pending' => 'blue-status-btn',
+        'voided' => 'danger-status-btn',
+        'rejected' => 'danger-status-btn',
+        default => 'grey-status-btn',
+    };
+@endphp
+
 
                     <button class="{{ $statusClass }}">{{ $status }}</button>
                 </span>
@@ -86,19 +88,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($receiptDetails as $detail)
+                    @forelse($invoicePayments as $invoicePayment)
                     <tr>
-                        <td>{{ $detail['receipt_number'] }}</td>
-                        <td>{{ $detail['customer_name'] }}</td>
-                        <td>{{ $detail['customer_id'] }}</td>
-                        <td>{{ $detail['paid_date'] }}</td>
-                        <td>Rs. {{ number_format($detail['paid_amount'], 2) }}</td>
+                        <td>{{ $invoicePayment->id }}</td>
+                        <td>{{ $invoicePayment->invoice->customer->name }}</td>
+                        <td>{{ $invoicePayment->invoice->customer->customer_id }}</td>
+                        <td>{{ $invoicePayment->created_at->format('Y-m-d') }}</td>
+                        <td>Rs. {{ number_format($invoicePayment->final_payment, 2) }}</td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No receipt data available</td>
-                    </tr>
+                 @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No records found</td>
+                        </tr>
                     @endforelse
+                   
                 </tbody>
 
             </table>
@@ -141,7 +144,13 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+         <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <label style="font-weight:600;">Remark (required when declining)</label>
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark"></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -157,8 +166,8 @@
     @if(strtolower($status) !== 'approved')
      @if(in_array('deposits-cash-status', session('permissions', [])))
     <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="accepted">Accept</button>
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
     @endif
     @endif
 </div>
@@ -213,6 +222,16 @@
 
             // Show confirmation modal
             document.getElementById('confirm-status-text').innerText = newStatus;
+
+            document.getElementById('decline-remark').value = "";
+
+            // show/hide remark box
+            if (newStatus.toLowerCase() === 'rejected' || newStatus.toLowerCase() === 'voided') {
+                document.getElementById('remark-box').style.display = 'block';
+            } else {
+                document.getElementById('remark-box').style.display = 'none';
+            }
+
             const modal = document.getElementById('confirm-status-modal');
             modal.style.display = 'block';
 
@@ -228,7 +247,7 @@
 
             yesBtn.onclick = function() {
                 modal.style.display = 'none';
-
+                let remark = document.getElementById('decline-remark').value.trim();
                 // Send AJAX request to update status
                 fetch(`{{ url('/cash-deposits/update-status') }}/${depositId}`, {
                         method: 'POST',
@@ -237,7 +256,7 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            status: newStatus
+                            status: newStatus,remark: remark
                         })
                     })
                     .then(res => res.json())
@@ -246,10 +265,10 @@
                             // Update status button visually
                             const statusBtn = document.querySelector('.slip-detail-text button');
                             statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
+                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'accepted') {
+                            if (data.status.toLowerCase() === 'approved') {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
                             }
                         } else {

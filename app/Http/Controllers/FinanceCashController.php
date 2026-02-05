@@ -14,9 +14,17 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArrayExport;
 use App\Services\ActivitLogService;
 use App\Services\SystemNotificationService;
-
+use App\Services\MobitelInstantSmsService;
+use Illuminate\Support\Facades\Log;
 class FinanceCashController extends Controller
 {
+    protected $smsService;
+
+    public function __construct(MobitelInstantSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
    public function index(Request $request)
 {
     $adms = User::where('user_role', 6)->with('userDetails')->get();
@@ -81,11 +89,22 @@ class FinanceCashController extends Controller
     }
 
     /* -------------------- CUSTOMER FILTER -------------------- */
-    if ($request->filled('customers')) {
-        $query->whereHas('reciepts.invoice.customer', function ($q) use ($request) {
-            $q->whereIn('customer_id', $request->customers);
-        });
-    }
+   if ($request->filled('customers')) {
+             $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = $deposit->reciepts ?? [];
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                    if ($customer && in_array($customer->name, $request->customers)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
 
     /* -------------------- PAGINATION -------------------- */
     $financeCashDeposits = $query
@@ -204,42 +223,92 @@ class FinanceCashController extends Controller
     return response()->download($zipPath)->deleteFileAfterSend(true);
 }
 
-    public function updateStatus(Request $request, $id)
-    {
+   public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:approved,rejected,over_to_finance',
+        'remark' => 'nullable|string|max:500'
+    ]);
 
+    // if declined → remark required
+    if ($request->status === 'rejected') {
         $request->validate([
-            'status' => 'required|in:accepted,declined,over_to_finance',
-        ]);
-
-        $deposit = Deposits::findOrFail($id);
-
-        $deposit->status = $request->status;
-        $deposit->save();
-
-        $receiptIds = collect($deposit->reciepts ?? [])
-            ->pluck('reciept_id')
-            ->toArray();
-
-        if (!empty($receiptIds)) {
-            if($request->status == 'declined'){
-                 InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => 'pending']);
-            }
-            else{
-                 InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => $request->status]);
-            }
-           
-        }
-
-        ActivitLogService::log('deposit', 'deposit ('.$id.') status has been changed to '.$request->status);
-        SystemNotificationService::log('deposit',$id , 'Your deposit('.$id.') status has been changed to '.$request->status, $deposit->adm_id);
-
-        return response()->json([
-            'success' => true,
-            'status' => $request->status,
+            'remark' => 'required|string|max:500'
         ]);
     }
+
+    $deposit = Deposits::with('adm.userDetails')->findOrFail($id);
+
+    $deposit->status = $request->status;
+
+    // Save remark on decline
+    if ($request->status === 'rejected') {
+        $deposit->remarks = $request->remark;
+        $deposit->declined_date = now();
+    }
+
+    // Finance first approve (over_to_finance)
+    if ($request->status === 'over_to_finance') {
+        $deposit->first_approve_date = now();
+    }
+
+    // Final accept
+    if ($request->status === 'approved') {
+        $deposit->final_approve_date = now();
+    }
+
+    $deposit->save();
+
+    $receiptIds = collect($deposit->reciepts ?? [])
+        ->pluck('reciept_id')
+        ->toArray();
+
+    if (!empty($receiptIds)) {
+        if ($request->status == 'rejected') {
+            InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => 'pending']);
+                $toNumber = preg_replace('/^0/','94',$deposit->adm->userDetails->phone_number ?? '');
+                if ($toNumber) {
+                    $smsMessage  = "Your deposit has been rejected.\n";
+                    $smsMessage .= "Deposit ID: {$deposit->id}.\n";
+                    $smsMessage .= "Deposit Type: {$deposit->type}.\n";
+                    $smsMessage .= "Deposit Amount: {$deposit->amount}.\n";
+                    $smsMessage .= "Reason: {$request->remark}.\n";
+                    
+                    try {
+                        $this->smsService->sendInstantSms(
+                            [(string) $toNumber],
+                            $smsMessage,
+                            "Deposit"
+                        );
+
+                        Log::info(
+                            'SMS sent to ' . $toNumber
+                            . ' (Deposit ID: ' . $deposit->id . ')'
+                        );
+
+                    } catch (\Exception $e) {
+                        Log::error(
+                            'SMS sending failed for Deposit ID '
+                            . $payment->id . ': ' . $e->getMessage()
+                        );
+                    }
+                }
+        } else {
+            InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => $request->status]);
+        }
+    }
+
+    ActivitLogService::log('deposit', 'deposit (' . $id . ') status has been changed to ' . $request->status);
+    SystemNotificationService::log('deposit', $id, 'Your deposit(' . $id . ') status has been changed to ' . $request->status, $deposit->adm_id);
+
+    return response()->json([
+        'success' => true,
+        'status' => $request->status,
+    ]);
+}
+
 
     public function search(Request $request)
     {

@@ -23,6 +23,7 @@ use File;
 use Mail;
 use Image;
 use PDF;
+use App\Services\ActivitLogService;
 class UserController extends Controller
 {
     /**
@@ -98,6 +99,10 @@ class UserController extends Controller
             $user->password = Hash::make($request->input('password'));
             $user->update();
 
+            $user->update();
+            
+            ActivitLogService::log('user_profile', "Profile updated (with password) for user: " . Auth::user()->name);
+
             return back()->with('success', 'Profile Updated');
         }
         else{
@@ -123,6 +128,9 @@ class UserController extends Controller
         $user = User::find(Auth::user()->id);
         $user->email = $email;
         $user->update();
+
+        ActivitLogService::log('user_profile', "Profile updated (without password) for user: " . Auth::user()->name);
+
         return back()->with('success', 'Profile Updated');
     }
 

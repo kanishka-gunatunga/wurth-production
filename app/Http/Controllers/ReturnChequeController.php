@@ -9,7 +9,7 @@ use App\Models\Invoices; // ✅ NEW (we now store in invoices table)
 use App\Models\Customers; // ✅ For fetching customer IDs
 use Carbon\Carbon;
 use App\Services\ActivitLogService;
-
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 class ReturnChequeController extends Controller
 {
     /**
@@ -67,7 +67,10 @@ class ReturnChequeController extends Controller
             'branch'            => $validated['branch_id'],
             'return_type'       => $validated['return_type'],
             'reason'            => $validated['reason'],
+            'reason'            => $validated['reason'],
         ]);
+
+        ActivitLogService::log('return_cheque', "Return Cheque created: {$validated['cheque_number']} - Amount: {$validated['cheque_amount']}");
 
         return redirect('return-cheques')
             ->with('success', 'Return cheque created successfully!');
@@ -123,7 +126,7 @@ class ReturnChequeController extends Controller
 
         if ($request->filled('date_range')) {
             $range = trim($request->date_range);
-
+           
             if (str_contains($range, 'to')) {
                 [$start, $end] = array_map('trim', explode('to', $range));
             } elseif (str_contains($range, '-')) {
@@ -131,7 +134,7 @@ class ReturnChequeController extends Controller
             } else {
                 $start = $end = $range;
             }
-
+            
             if (!empty($start) && !empty($end)) {
                 $query->whereBetween('returned_date', [
                     date('Y-m-d 00:00:00', strtotime($start)),
@@ -162,13 +165,13 @@ class ReturnChequeController extends Controller
         return view('return_cheques.return_cheque_details', compact('returnCheque'));
     }
 
-   public function importReturnCheques(Request $request)
+  public function importReturnCheques(Request $request)
 {
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls,csv|max:10240',
-    ]);
-
     try {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName();
         $spreadsheet = IOFactory::load($file->getPathname());
@@ -176,24 +179,23 @@ class ReturnChequeController extends Controller
         $rows = $sheet->toArray();
 
         if (count($rows) <= 1) {
-            return back()->with('fail', 'Excel file is empty!');
+            $msg = 'Excel file is empty!';
+            return $request->expectsJson()
+                ? response()->json(['status' => false, 'message' => $msg], 422)
+                : back()->with('fail', $msg);
         }
 
-        // Header row mapping
         $header = array_map('strtolower', $rows[0]);
         $requiredColumns = [
-            'date',
-            'amount',
-            'document number',
-            'reference',
-            'cx number', 
-            'cx name',
-            'adm code',
-            'remark',
+            'date', 'amount', 'document number', 'reference',
+            'cx number', 'cx name', 'adm code', 'remark',
         ];
 
         if (count(array_diff($requiredColumns, $header)) > 0) {
-            return back()->with('fail', 'Invalid Excel format. Missing required columns.');
+            $msg = 'Invalid Excel format. Missing required columns.';
+            return $request->expectsJson()
+                ? response()->json(['status' => false, 'message' => $msg], 422)
+                : back()->with('fail', $msg);
         }
 
         $successCount = 0;
@@ -204,42 +206,46 @@ class ReturnChequeController extends Controller
 
             if (empty($row['document number']) || empty($row['cx number'])) continue;
 
-            // Skip duplicate cheque numbers
             if (Invoices::where('invoice_or_cheque_no', $row['document number'])->exists()) {
                 $duplicateCheques[] = $row['document number'];
                 continue;
             }
 
-            // Find or create customer
             $customer = Customers::where('customer_id', $row['cx number'])->first();
 
             if (!$customer) {
-                $customer = new Customers();
-                $customer->customer_id = $row['cx number'];
-                $customer->name = $row['cx name'] ?? null;
-                $customer->adm = $row['adm code'] ?? null;
-                $customer->is_temp = 1; 
-                $customer->status = 'active';
-                $customer->save();
+                $customer = Customers::create([
+                    'customer_id' => $row['cx number'],
+                    'name' => $row['cx name'] ?? null,
+                    'adm' => $row['adm code'] ?? null,
+                    'is_temp' => 1,
+                    'status' => 'active',
+                ]);
             }
 
-            $amount = $row['amount'] ?? 0;
-            $amount = str_replace(',', '', $amount);
-            $amount = str_replace(['(', ')'], '', $amount);
-            $amount = floatval($amount);
-            $returnedDate = null;
+            $amount = floatval(str_replace([',', '(', ')'], '', $row['amount'] ?? 0));
+
+           $returnedDate = null;
             if (!empty($row['date'])) {
                 try {
-                    $returnedDate = Carbon::createFromFormat('d/m/y', $row['date'])->format('Y-m-d');
+                    if (is_numeric($row['date'])) {
+                        // Excel serial date
+                        $returnedDate = Carbon::instance(ExcelDate::excelToDateTimeObject($row['date']))
+                            ->format('Y-m-d');
+                    } else {
+                        // String date (e.g., 1/1/2026 or 01/01/26)
+                        $returnedDate = Carbon::parse($row['date'])->format('Y-m-d');
+                    }
                 } catch (\Exception $e) {
                     $returnedDate = null;
                 }
             }
+
             Invoices::create([
                 'type' => 'return_cheque',
                 'invoice_or_cheque_no' => $row['document number'],
                 'customer_id' => $customer->customer_id,
-                'amount' =>$amount,
+                'amount' => $amount,
                 'returned_date' => $returnedDate,
                 'bank' => $row['bank'] ?? null,
                 'branch' => $row['branch'] ?? null,
@@ -258,10 +264,21 @@ class ReturnChequeController extends Controller
 
         ActivitLogService::log('import', 'return cheques imported from file - ' . $fileName);
 
-        return back()->with('success', $msg);
+        return $request->expectsJson()
+            ? response()->json(['status' => true, 'message' => $msg], 200)
+            : back()->with('success', $msg);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return $request->expectsJson()
+            ? response()->json(['status' => false, 'message' => $e->getMessage(), 'errors' => $e->errors()], 422)
+            : back()->withErrors($e->errors())->withInput();
 
     } catch (\Exception $e) {
-        return back()->with('fail', 'Error during upload. Please try again! ' . $e->getMessage());
+        $msg = 'Error during upload. Please try again! ' . $e->getMessage();
+
+        return $request->expectsJson()
+            ? response()->json(['status' => false, 'message' => $msg], 500)
+            : back()->with('fail', $msg);
     }
 }
 

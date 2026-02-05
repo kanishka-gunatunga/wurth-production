@@ -1172,3 +1172,6 @@ button:focus:not(:focus-visible) {
     color: #000000;
     font-weight: 400;
 }
+.formatted-preview{
+    font-weight: 600;
+}

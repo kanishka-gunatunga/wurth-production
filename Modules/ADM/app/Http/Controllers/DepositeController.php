@@ -25,6 +25,7 @@ use App\Models\InvoicePaymentBatches;
 use App\Models\Bank;
 use App\Models\Branch;
 use App\Models\Deposits;
+use App\Services\ActivitLogService;
 use File;
 use Mail;
 use Image;
@@ -114,7 +115,28 @@ class DepositeController extends Controller
                 $deposit->type = $depositType;
                 $deposit->date_time = now();
                 $deposit->amount = $receipt->final_payment ?? 0; // Use individual receipt amount
-                $deposit->reciepts = json_encode([['reciept_id' => $receiptId]]);
+                $deposit->reciepts = [['reciept_id' => (string) $receiptId]];
+                $deposit->adm_id = $depositAdmId;
+                $deposit->status = 'pending';
+                $deposit->bank_name = $request->cheque_bank;
+                $deposit->branch_name = $request->cheque_branch;
+                $deposit->attachment_path = json_encode($attachmentPaths);
+                $deposit->save();
+
+                // Update receipt status
+                $receipt->update(['status' => 'deposited']);
+            }
+        }
+        elseif ($depositType === 'cheque') {
+            foreach ($receiptIds as $receiptId) {
+                $receipt = InvoicePayments::find($receiptId);
+                if (!$receipt) continue;
+
+                $deposit = new Deposits();
+                $deposit->type = $depositType;
+                $deposit->date_time = now();
+                $deposit->amount = $receipt->final_payment ?? 0; // Use individual receipt amount
+                $deposit->reciepts = [['reciept_id' => (string) $receiptId]];
                 $deposit->adm_id = $depositAdmId;
                 $deposit->status = 'pending';
                 $deposit->bank_name = $request->cheque_bank;
@@ -133,7 +155,7 @@ class DepositeController extends Controller
             $deposit->type = $depositType;
             $deposit->date_time = now();
             $deposit->amount = $request->deposit_total;
-            $deposit->reciepts = $receipts->toJson();
+            $deposit->reciepts = $receipts->toArray();
             $deposit->adm_id = $depositAdmId;
             $deposit->status = 'pending';
             $deposit->bank_name = $request->cheque_bank;
@@ -145,6 +167,8 @@ class DepositeController extends Controller
                 InvoicePayments::where('id', $receiptId)->update(['status' => 'deposited']);
             }
         }
+
+        ActivitLogService::log('deposit', "Daily deposit created. Amount: " . ($deposit->amount ?? 0));
 
         return redirect()->back()->with('success', 'Deposit submitted successfully!');
     }
@@ -174,6 +198,9 @@ public function get_receipts(Request $request)
             $paymentsQuery->where('type', 'cash');
         } elseif (in_array($depositType, ['cheque', 'finance-cheque'])) {
             $paymentsQuery->where('type', 'cheque');
+        }
+        elseif (in_array($depositType, ['card', 'finance-card'])) {
+            $paymentsQuery->where('type', 'card');
         }
     }
 

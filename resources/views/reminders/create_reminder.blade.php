@@ -2,7 +2,7 @@
 <div class="main-wrapper">
     <div class="p-4 pt-0">
         <div class="col-lg-6 col-12">
-            <h1 class="header-title">Create Notification</h1>
+            <h1 class="header-title">Create Reminder</h1>
         </div>
         <hr class="red-line">
 
@@ -22,7 +22,7 @@
                         <div class="alert alert-danger mt-2">{{ $errors->first('send_from') }}</div>
                         @endif
                     </div>
-
+                   
                     <!-- Send To (User Level) -->
                     <div class="mb-4">
                         <label for="user_level" class="form-label custom-input-label">Send to (User Level)</label>
@@ -50,7 +50,15 @@
                         <div class="alert alert-danger mt-2">{{ $errors->first('user_level') }}</div>
                         @endif
                     </div>
-
+                      <div class="mb-4" id="division-container" style="display: none;">
+                        <label for="division" class="form-label custom-input-label">Division</label>
+                        <select name="division" id="division" class="form-control custom-input" >
+                            <option value="">All Divisions</option>
+                            @foreach ($divisions as $division)
+                            <option value="{{ $division->id }}">{{ $division->division_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <!-- Send To (User) -->
                     <div class="mb-4">
                         <label for="send_to" class="form-label custom-input-label">Send to (User)</label>
@@ -64,18 +72,11 @@
                     </div>
 
                     <!-- Reminder Date -->
-                    <div class="mb-4">
-                        <label for="reminder_date" class="form-label custom-input-label">Trigger Date</label>
-                        <input type="date" class="form-control custom-input" id="reminder_date"
-                            name="reminder_date" value="{{ old('reminder_date') }}" required>
-                        @if($errors->has('reminder_date'))
-                        <div class="alert alert-danger mt-2">{{ $errors->first('reminder_date') }}</div>
-                        @endif
-                    </div>
+                   
                 </div>
 
                 <div class="col-12 col-md-6">
-
+                    
                     <!-- Title -->
                     <div class="mb-4">
                         <label for="reminder_title" class="form-label custom-input-label">Title</label>
@@ -85,7 +86,14 @@
                         <div class="alert alert-danger mt-2">{{ $errors->first('reminder_title') }}</div>
                         @endif
                     </div>
-
+                     <div class="mb-4">
+                        <label for="reminder_date" class="form-label custom-input-label">Trigger Date</label>
+                        <input type="date" class="form-control custom-input" id="reminder_date"
+                            name="reminder_date" value="{{ old('reminder_date') }}" required>
+                        @if($errors->has('reminder_date'))
+                        <div class="alert alert-danger mt-2">{{ $errors->first('reminder_date') }}</div>
+                        @endif
+                    </div>
                     <!-- Reason -->
                     <div class="mb-4">
                         <label for="reason" class="form-label custom-input-label">Message</label>
@@ -155,13 +163,26 @@
         @endif
     });
 </script>
-
-<!-- to get users based on selected user level -->
 <script>
-    document.getElementById('user_level').addEventListener('change', function() {
-        let selectedLevel = this.value;
-        let userDropdown = document.getElementById('send_to');
+document.addEventListener('DOMContentLoaded', function() {
+    let currentUserRole = {{ Auth::user()->user_role }}; // pass current role from backend
 
+    const divisionContainer = document.getElementById('division-container');
+    const divisionSelect = document.getElementById('divison');
+    const userDropdown = document.getElementById('send_to');
+    const userLevelSelect = document.getElementById('user_level');
+
+    // Initially show division only if logged-in user is Admin(1) or Finance(7)
+    if (currentUserRole === 1 || currentUserRole === 7) {
+        divisionContainer.style.display = 'block';
+    } else {
+        divisionContainer.style.display = 'none';
+    }
+
+    function loadUsers() {
+        let selectedLevel = parseInt(userLevelSelect.value);
+
+        // Reset users dropdown
         userDropdown.innerHTML = '<option value="">Select User</option>';
 
         if (!selectedLevel) {
@@ -169,7 +190,11 @@
             return;
         }
 
-        fetch(`{{ url('/get-users-by-level') }}/${selectedLevel}`)
+        // Determine if division filter should be sent
+        let divisionValue = (divisionContainer.style.display === 'block') ? divisionSelect.value : null;
+
+        // Fetch users
+        fetch(`{{ url('/get-users-by-level') }}/${selectedLevel}?division=${divisionValue}`)
             .then(response => response.json())
             .then(data => {
                 userDropdown.disabled = false;
@@ -181,5 +206,46 @@
                 });
             })
             .catch(error => console.error('Error:', error));
+    }
+
+    // When user level changes
+    userLevelSelect.addEventListener('change', function() {
+        let selectedLevel = parseInt(this.value);
+
+        // Show division only for Admin/Finance and if target level is NOT 1 or 7
+        if (currentUserRole === 1 || currentUserRole === 7) {
+            if (selectedLevel === 1 || selectedLevel === 7) {
+                divisionContainer.style.display = 'none';
+            } else {
+                divisionContainer.style.display = 'block';
+            }
+        } else {
+            divisionContainer.style.display = 'none';
+        }
+
+        loadUsers();
+    });
+
+    // When division changes (only for Admin/Finance)
+    if (currentUserRole === 1 || currentUserRole === 7) {
+        divisionSelect.addEventListener('change', function() {
+            loadUsers();
+        });
+    }
+});
+
+
+</script>
+
+
+   <script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
     });
 </script>

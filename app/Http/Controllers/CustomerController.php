@@ -124,7 +124,8 @@ class CustomerController extends Controller
             'customer_id'   => 'required|unique:customers',
             'name'   => 'required',
             'address'   => 'required',
-            'mobile_number'   => 'required',
+            'mobile_number' => 'required|digits:10',
+            'secondary_mobile_number' => 'nullable|digits:10',
             'email'   => 'required',
             'whatsapp_number'   => 'required',
             'adm'   => 'required',
@@ -159,6 +160,9 @@ class CustomerController extends Controller
         $customer = Customers::find($id);
         $customer->status = "inactive";
         $customer->update();
+
+        ActivitLogService::log('customer', "Customer deactivated: {$customer->name} ({$customer->customer_id})");
+
         return back()->with('success', 'Customer Deactivated');
 
     }
@@ -167,6 +171,9 @@ class CustomerController extends Controller
         $customer = Customers::find($id);
         $customer->status = "active";
         $customer->update();
+
+        ActivitLogService::log('customer', "Customer activated: {$customer->name} ({$customer->customer_id})");
+
         return back()->with('success', 'Customer Activated');
 
     }
@@ -184,7 +191,8 @@ class CustomerController extends Controller
             'customer_id'   => 'required',
             'name'   => 'required',
             'address'   => 'required',
-            'mobile_number'   => 'required',
+            'mobile_number' => 'required|digits:10',
+            'secondary_mobile_number' => 'nullable|digits:10',
             'email'   => 'required',
             'whatsapp_number'   => 'required',
             'adm'   => 'required',

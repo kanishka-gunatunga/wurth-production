@@ -31,9 +31,9 @@
                         <td>{{ ucfirst($payment['payment_method']) }}</td>
                         <td>
                             <button class="
-                                    @if(strtolower($payment['status']) === 'accepted') success-status-btn
+                                    @if(strtolower($payment['status']) === 'approved') success-status-btn
                                     @elseif(strtolower($payment['status']) === 'deposited') blue-status-btn
-                                    @elseif(strtolower($payment['status']) === 'rejected') danger-status-btn
+                                    @elseif(strtolower($payment['status']) === 'voided') danger-status-btn
                                     @else grey-status-btn @endif">
                                 {{ ucfirst($payment['status']) }}
                             </button>
@@ -136,8 +136,8 @@
                     case 'deposited':
                         statusClass = 'blue-status-btn';
                         break;
-                    case 'Rejected':
-                    case 'rejected':
+                    case 'Voided':
+                    case 'voided':
                         statusClass = 'danger-status-btn';
                         break;
                     default:

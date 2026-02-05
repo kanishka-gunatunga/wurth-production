@@ -1,0 +1,36 @@
+Turnover vs Collection – AR Exposure  ( TVC - ARX)							
+Date							
+Month	Turnover 2023	Collection 2023	Surplus/ (Deficit)	Outstanding			
+Jan-23	" 900,000.00 "	" 699,600.00 "	"(200,400.00)"	"15,000.00 "			
+Feb-23	" 830,000.00 "	" 691,990.00 "	"(138,010.00)"	"85,000.00 "			
+Mar-23	" 901,000.00 "	" 753,390.00 "	"(147,610.00)"	"95,000.00 "			
+Apr-23	" 672,000.00 "	" 513,100.00 "	"(158,900.00)"	"65,000.00 "			
+May-23	" 855,000.00 "	" 826,090.00 "	"(28,910.00)"	"100,000.00 "			
+Jun-23	" 834,900.00 "	" 827,900.00 "	"(7,000.00)"	"105,000.00 "			
+Jul-23	" 885,700.00 "	" 781,600.00 "	"(104,100.00)"	"92,000.00 "			
+Aug-23	" 1,077,600.00 "	" 781,800.00 "	"(295,800.00)"	"180,000.00 "			
+Sep-23	" 868,800.00 "	" 692,400.00 "	"(176,400.00)"	"450,000.00 "			
+Oct-23	" 894,000.00 "	" 917,540.00 "	"23,540.00 "	"560,000.00 "			
+Nov-23	" 1,006,000.00 "	" 904,000.00 "	"(102,000.00)"	"425,000.00 "			23075.14
+Dec 23	" 724,700.00 "	" 716,000.00 "	"(8,700.00)"	"550,000.00 "			16997.31
+Grand Total	" 10,449,700.00 "	" 9,105,410.00 "	" (1,344,290.00)"	" 2,722,000.00 "			40072.45
+							
+Average/ Month	" 870,808.33 "	" 758,784.17 "	" 112,024.17 "				
+							
+							
+							
+							
+"This report should be generated for any selected period and must be available in multiple views, including:"							
+ADM-wise							
+Division-wise							
+Team / Sub-team wise							
+Customer-wise							
+Multiple ADM wise]							
+Multiple custmers wise							
+							
+							
+Purpose:							
+To measure the gap between sales and collections.							
+To analyse monthly outstanding build-up.							
+To understand the movement of Accounts Receivable (AR).							
+To identify collection shortfalls early and take action							

@@ -35,12 +35,12 @@ use App\Models\UserDetails;
                             </div>
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Mobile Number</label>
-                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Mobile Number" name="mobile_number" value="{{$customer_details->mobile_number}}">
+                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Mobile Number" name="mobile_number" value="{{$customer_details->mobile_number}}" pattern="[0-9]{10}" maxlength="10">
                                 @if($errors->has("mobile_number")) <div class="alert alert-danger mt-2">{{ $errors->first('mobile_number') }}</div>@endif
                             </div>
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="division-input" class="form-label custom-input-label">Secondary Mobile Number</label>
-                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Secondary Mobile Number" name="secondary_mobile_number" value="{{$customer_details->secondary_mobile_number}}">
+                                <input type="tel" class="form-control custom-input" id="division-input" placeholder="Secondary Mobile Number" name="secondary_mobile_number" value="{{$customer_details->secondary_mobile_number}}" pattern="[0-9]{10}" maxlength="10">
                                 @if($errors->has("secondary_mobile_number")) <div class="alert alert-danger mt-2">{{ $errors->first('secondary_mobile_number') }}</div>@endif
                             </div>
                             <div class="mb-4 col-12 col-lg-6">

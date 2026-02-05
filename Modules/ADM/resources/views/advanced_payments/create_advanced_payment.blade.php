@@ -23,7 +23,7 @@
 
                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="adm_number">ADM Number</label>
-                    <input type="number" class="form-control" value="{{ $user->userDetails->adm_number }}" readonly
+                    <input type="number" class="form-control format-preview" value="{{ $user->userDetails->adm_number }}" readonly
                         name="adm_number" id="adm_number" required="">
 
                 </div>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="name">Payment Amount</label>
-                    <input type="number" class="form-control" name="payment_amount" required="">
+                    <input type="number" class="form-control format-preview" name="payment_amount" required="">
 
                 </div>
 
@@ -286,4 +286,30 @@
             preview.appendChild(li);
         });
     });
+</script>
+<script>
+document.getElementById('profileForm').addEventListener('submit', function (e) {
+    let attachmentInput = document.getElementById('attachment');
+    let signatureInput = document.getElementById('customer_signature_input');
+
+    let hasAttachment = attachmentInput.files && attachmentInput.files.length > 0;
+    let hasSignature = signatureInput.value && signatureInput.value.trim() !== '';
+
+    if (!hasAttachment) {
+        e.preventDefault();
+        toastr.error('Please upload at least one attachment before submitting.');
+        attachmentInput.focus();
+        return false;
+    }
+
+    if (!hasSignature) {
+        e.preventDefault();
+        toastr.error('Customer signature is required before submitting.');
+        document.getElementById('signature-pad-customer').scrollIntoView({ behavior: 'smooth' });
+        return false;
+    }
+
+    // Allow submission
+    return true;
+});
 </script>

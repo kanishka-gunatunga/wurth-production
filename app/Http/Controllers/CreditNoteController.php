@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Invoices; // ✅ NEW (we now store in invoices table)
 use App\Models\Customers; // ✅ For fetching customer IDs
 use Carbon\Carbon;
-use Carbon\CreditNote;
+use App\Models\CreditNote;
 use App\Services\ActivitLogService;
 class CreditNoteController extends Controller
 {

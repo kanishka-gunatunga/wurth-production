@@ -203,27 +203,27 @@
                         <td>GL1</td>
                         <td><input type="text" class="form-control gl-name" value="Re-classification" readonly>
                         </td>
-                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                        <td><input type="number" class="form-control gl-amount format-preview" min="0"></td>
                     </tr>
                     <tr data-gl="GL2">
                         <td>GL2</td>
                         <td><input type="text" class="form-control gl-name" value="Write-off" readonly></td>
-                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                        <td><input type="number" class="form-control gl-amount format-preview" min="0"></td>
                     </tr>
                     <tr data-gl="GL3">
                         <td>GL3</td>
                         <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
-                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                        <td><input type="number" class="form-control gl-amount format-preview" min="0"></td>
                     </tr>
                     <tr data-gl="GL4">
                         <td>GL4</td>
                         <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
-                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                        <td><input type="number" class="form-control gl-amount format-preview" min="0"></td>
                     </tr>
                     <tr data-gl="GL5">
                         <td>GL5</td>
                         <td><input type="text" class="form-control gl-name" placeholder="Enter name"></td>
-                        <td><input type="number" class="form-control gl-amount" min="0"></td>
+                        <td><input type="number" class="form-control gl-amount format-preview" min="0"></td>
                     </tr>
                 </tbody>
             </table>
@@ -720,7 +720,7 @@
             }
 
             // At least one GL row required
-            if (glFilledCount === 0) {
+            if (glFilledCount === 0) { 
                 alert('Please enter at least one GL value');
                 return;
             }

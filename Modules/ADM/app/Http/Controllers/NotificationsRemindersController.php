@@ -28,6 +28,7 @@ use File;
 use Mail;
 use Image;
 use PDF;
+use App\Services\ActivitLogService;
 
 class NotificationsRemindersController extends Controller
 {
@@ -46,9 +47,49 @@ class NotificationsRemindersController extends Controller
     {
         $currentUserId = Auth::id();
 
-        // Get all reminders sent to the logged-in user
-        $reminders = Reminders::where('send_to', $currentUserId)
-            ->orderBy('reminder_date', 'desc')
+        // Get reminders for today:
+        // 1. Directly sent to the user (send_to contains ID)
+        // 2. Sent to the user's level (user_level match) AND send_to is NULL (Broadcast), 
+        //    filtered by sender logic (Admin/Finance OR Same Division)
+        
+        $currentUser = Auth::user();
+        $currentUserRole = $currentUser->user_role;
+        $currentUserDivision = $currentUser->userDetails->division ?? null;
+
+        $reminders = Reminders::with(['user', 'user.userDetails'])
+            ->whereDate('reminder_date', \Carbon\Carbon::today())
+            ->where(function ($query) use ($currentUserId, $currentUserRole, $currentUserDivision) {
+                // Direct match
+                $query->whereJsonContains('send_to', (string) $currentUserId)
+                
+                // OR Broadcast to Role
+                ->orWhere(function ($q) use ($currentUserRole, $currentUserDivision) {
+                    $q->where('user_level', $currentUserRole)
+                      ->whereNull('send_to') // Assuming NULL means "All in this level"
+                      ->where(function ($subQ) use ($currentUserDivision) {
+                            // 1. Reminder has a specific target division
+                            $subQ->where(function ($divQ) use ($currentUserDivision) {
+                                $divQ->whereNotNull('division')
+                                     ->where('division', $currentUserDivision);
+                            })
+                            // 2. OR Reminder has NO division (Legacy/Implicit behavior)
+                            ->orWhere(function ($noDivQ) use ($currentUserDivision) {
+                                $noDivQ->whereNull('division')
+                                       ->where(function ($senderQuery) use ($currentUserDivision) {
+                                          // Allow if sender is Admin(1) or Finance(7)
+                                          $senderQuery->whereHas('user', function ($u) {
+                                              $u->whereIn('user_role', [1, 7]);
+                                          })
+                                          // OR if sender is in same division
+                                          ->orWhereHas('user.userDetails', function ($ud) use ($currentUserDivision) {
+                                              $ud->where('division', $currentUserDivision);
+                                          });
+                                       });
+                            });
+                      });
+                });
+            })
+            ->orderBy('id', 'desc')
             ->get();
         
         $notifications = Notifications::where('to_user', $currentUserId)
@@ -79,91 +120,105 @@ class NotificationsRemindersController extends Controller
             return view('adm::notifications_and_reminders.create_reminder', compact('roles', 'name'));
         }
 
-        if ($request->reminder_type === 'Self') {
-            $reminder = new Reminders();
-            $reminder->sent_user_id   = $currentUserId;
-            $reminder->send_from      = $request->send_from;
-            $reminder->reminder_title = $request->reminder_title;
-            $reminder->user_level     = $currentUserRole;
-            $reminder->send_to        = $currentUserId;
-            $reminder->reminder_type  = 'Self';
-            $reminder->reminder_date  = $request->reminder_date;
-            $reminder->reason         = $request->reason;
-            $reminder->is_direct      = 1;
-            $reminder->save();
-
-            return back()->with('success', 'Reminder Successfully Added');
-        }
+       
 
         if ($request->isMethod('post')) {
             $request->validate([
                 'send_from'      => 'required',
                 'reminder_title' => 'required',
-                'user_level'     => 'required|integer',
+                'user_level'     => 'nullable|integer|required_if:reminder_type,Other',
                 'reminder_type'  => 'required',
                 'reminder_date'  => 'required',
                 'reason'         => 'required',
-                'send_to'        => 'required|array',
+                'send_to'        => 'nullable|array',
                 'send_to.*'      => 'integer',
-            ]);
+            ]); 
 
-            $selectedLevel = (int)$request->user_level;
-            $selectedUserIds = array_map('intval', $request->send_to);
-
-            $usersQuery = User::query();
-
-            // Special Rules
-            if (($currentUserRole == 1 && $selectedLevel == 7) || ($currentUserRole == 7 && $selectedLevel == 1)) {
-                $usersQuery->where('user_role', $selectedLevel);
-            } elseif (($currentUserRole == 1 || $currentUserRole == 7) && $selectedLevel == 8) {
-                $usersQuery->whereIn('user_role', [2, 8]);
-            } else {
-                $minLevel = min($currentUserRole, $selectedLevel);
-                $maxLevel = max($currentUserRole, $selectedLevel);
-                $usersQuery->whereBetween('user_role', [$minLevel, $maxLevel])
-                    ->where('user_role', '!=', $currentUserRole);
-            }
-
-            $users = $usersQuery->get();
-
-            // Collect direct users phone numbers for SMS
-            $directUserNumbers = [];
-
-            foreach ($users as $user) {
+            if ($request->reminder_type === 'Self') {
                 $reminder = new Reminders();
                 $reminder->sent_user_id   = $currentUserId;
                 $reminder->send_from      = $request->send_from;
                 $reminder->reminder_title = $request->reminder_title;
-                $reminder->user_level     = $selectedLevel;
-                $reminder->send_to        = $user->id;
+                $reminder->user_level     = $currentUserRole;
+                $reminder->send_to        = [(string) $currentUserId];
+                $reminder->reminder_type  = 'Self';
+                $reminder->reminder_date  = $request->reminder_date;
+                $reminder->reason         = $request->reason;
+                $reminder->is_direct      = 1;
+                $reminder->save();
+
+                ActivitLogService::log('reminder', "Self-reminder created: {$request->reminder_title}");
+
+            } else {
+                $reminder = new Reminders();
+                $reminder->sent_user_id   = $currentUserId;
+                $reminder->send_from      = $request->send_from;
+                $reminder->reminder_title = $request->reminder_title;
+                $reminder->user_level     = $request->user_level;
+                $reminder->send_to        = $request->send_to;
                 $reminder->reminder_type  = $request->reminder_type;
                 $reminder->reminder_date  = $request->reminder_date;
                 $reminder->reason         = $request->reason;
-                $reminder->is_direct      = in_array($user->id, $selectedUserIds) ? 1 : 0;
+                $reminder->is_direct      = 0;
                 $reminder->save();
+                
+                ActivitLogService::log('reminder', "Reminder campaign created: {$request->reminder_title}");
+            }
 
-                // Collect phone numbers of direct users
-                if ($reminder->is_direct) {
-                    $phone = $user->userDetails?->phone_number ?? null; // Ensure phone exists
-                    if ($phone) {
-                        $directUserNumbers[] = preg_replace('/^0/', '94', $phone);
+            // Check if reminder date is today
+            if (\Carbon\Carbon::parse($request->reminder_date)->isToday()) {
+                $smsRecipients = collect();
+
+                // Case 1: Specific users (or Self)
+                if (!empty($reminder->send_to)) {
+                    $smsRecipients = User::with('userDetails')->whereIn('id', $reminder->send_to)->get();
+                }
+                // Case 2 & 3: Role-based (Select All)
+                elseif ($reminder->user_level) {
+                    $targetRole = $reminder->user_level;
+                    $query = User::with('userDetails')->where('user_role', $targetRole);
+
+                    // Exclude current user to match UI behavior
+                    $query->where('id', '!=', $currentUserId);
+
+                    if (in_array($targetRole, [1, 7])) {
+                        // Case 2: Admin/Finance - No division filter (Load all)
+                    } else {
+                        // Case 3: Other roles - Apply Division filter
+                        $currentUserData = User::with('userDetails')->find($currentUserId);
+                        $currentUserDivision = $currentUserData->userDetails->division ?? null;
+
+                        if ($currentUserDivision) {
+                            $query->whereHas('userDetails', function ($q) use ($currentUserDivision) {
+                                $q->where('division', $currentUserDivision);
+                            });
+                        }
+                    }
+                    $smsRecipients = $query->get();
+                }
+
+                // Send SMS
+                if ($smsRecipients->isNotEmpty()) {
+                    $phoneNumbers = $smsRecipients->pluck('userDetails.phone_number')
+                        ->filter()
+                        ->map(function ($phone) {
+                            // Format number: replace leading 0 with 94
+                            return preg_replace('/^0/', '94', $phone);
+                        })->unique()->values()->toArray();
+
+                    if (!empty($phoneNumbers)) {
+                        $senderName = $name ?? 'System';
+                        $message = "From: $senderName\nReminder: {$reminder->reminder_title}\n{$reminder->reason}";
+
+                        try {
+                            $this->smsService->sendInstantSms($phoneNumbers, $message, "ReminderCampaign");
+                            Log::info("SMS sent to users: " . implode(',', $phoneNumbers));
+                        } catch (\Exception $e) {
+                            Log::error("SMS sending failed: " . $e->getMessage());
+                        }
                     }
                 }
             }
-
-            // Send SMS to direct users
-            if (!empty($directUserNumbers)) {
-                $senderName = $name ?? 'System';
-                $message = "From: $senderName\nReminder: {$request->reminder_title}\n{$request->reason}";
-
-                try {
-                    $this->smsService->sendInstantSms($directUserNumbers, $message, "ReminderCampaign");
-                    Log::info("SMS sent to direct users: " . implode(',', $directUserNumbers));
-                } catch (\Exception $e) {
-                    Log::error("SMS sending failed: " . $e->getMessage());
-                }
-            }
-
 
             return back()->with('success', 'Reminder Successfully Added');
         }
@@ -172,7 +227,9 @@ class NotificationsRemindersController extends Controller
     // method to fetch users by level
     public function getUsersByLevel($level)
     {
-        $currentUserRole = Auth::user()->user_role;
+        $currentUser = Auth::user();
+        $currentUserRole = $currentUser->user_role;
+        $currentUserDivision = $currentUser->userDetails->division ?? null;
 
         // Check if selected role has notifications permission
         $hasPermission = RolePermissions::where('user_role', $level)
@@ -183,21 +240,28 @@ class NotificationsRemindersController extends Controller
             return response()->json([]); // no permission → return empty
         }
 
-        $users = User::with('userDetails')
+        $usersQuery = User::with('userDetails')
             ->where('user_role', $level)
-            ->where('user_role', '!=', $currentUserRole)
-            ->get();
+            ->where('user_role', '!=', $currentUserRole);
+
+        // Filter by division if user has one AND the target level is NOT Admin (1) or Finance (7)
+        // Admin and Finance users are global and should be visible to everyone regardless of division
+        if ($currentUserDivision && !in_array($level, [1, 7])) {
+            $usersQuery->whereHas('userDetails', function ($query) use ($currentUserDivision) {
+                $query->where('division', $currentUserDivision);
+            });
+        }
+
+        $users = $usersQuery->get();
 
         return response()->json($users);
     }
 
     public function reminder_details($id)
     {
-        $currentUserId = Auth::id();
-
+  
         // Fetch the reminder only if it belongs to the logged user
         $reminder = Reminders::where('id', $id)
-            ->where('send_to', $currentUserId)
             ->firstOrFail();
 
         // Mark as read if not already

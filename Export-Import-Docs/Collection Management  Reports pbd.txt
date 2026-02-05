@@ -1,0 +1,16 @@
+Pending Bank Deposit (PBD)											
+Date											
+ADM No	ADM Name	Customer No	Customer Name	Receipt Type (Cash/Cheque)	Cheque No (if applicable)	Cheque Date	Amount (Rs.)	Expected Deposit Date	Actual Deposit Date	Days Delayed	Remarks
+400	Kasun	19000001	Auto Tech Ltd	Cheque	452367	12/11/2025	"45,000.00"	12/11/2025	—	5 Days	Not deposited
+452	Amila	19000005	Sun Lanka Motors	Cash	—	—	"12,500.00"	10/11/2025	—	7 Days	Pending deposit
+488	Sahan	190000670	Deluxe Auto Care	Cheque	998745	11/11/2025	"32,750.00"	11/11/2025	—	6 Days	ADM reminder sent
+											
+											
+											
+"The Un-Deposited Collections Monitoring Report identifies all cash and cheque collections uploaded by ADMs to the app but not yet deposited into the company’s bank accounts. The report highlights delayed, overdue, and missing deposits, enabling us to take timely follow-up actions.  "											
+											
+											
+											
+											
+											
+"The above format   can be modified or changed, but all field details must remain mandatory.”"											

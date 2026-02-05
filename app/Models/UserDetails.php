@@ -28,11 +28,20 @@ class UserDetails extends Model
         return $this->belongsTo(User::class, 'supervisor', 'id');
     }
 
+    public function supervisorDetails()
+{
+    return $this->belongsTo(UserDetails::class, 'supervisor', 'user_id');
+}
     /**
      * The division this user belongs to.
      */
     public function divisionData()
     {
         return $this->belongsTo(Divisions::class, 'division', 'id');
+    }
+
+    public function admTargets()
+    {
+        return $this->hasMany(ADMTargets::class, 'adm_no', 'adm_number');
     }
 }

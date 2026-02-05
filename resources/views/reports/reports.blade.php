@@ -225,6 +225,20 @@ $years = range($currentYear, $currentYear - 10);
         cursor: pointer;
         transition: all 0.2s;
     }
+    .select2-container--default .select2-selection--single {
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    height:unset!important;
+}
+.select2-container .select2-selection--single .select2-selection__rendered{
+    padding: 14px 16px !important;
+    padding-right: 45px  !important;
+    font-size: 14px !important;
+    color: #333 !important;
+    outline: none !important;
+    line-height:unset!important;
+}
 </style>
 
 <div class="main-wrapper">
@@ -305,8 +319,14 @@ $years = range($currentYear, $currentYear - 10);
                                 Tracker</a></li>
                         <li><a class="dropdown-item" href="#" data-report="RCS">RCS - Returned Cheque Summary</a>
                         </li>
+                         <li class="dropdown-item fw-bold text-dark">
+                            Other Reports
+                        </li>
                         <li><a class="dropdown-item" href="#" data-report="WO">Write-off</a></li>
                         <li><a class="dropdown-item" href="#" data-report="SO">Set-off</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="AR">AR Report</a></li>
+                        <li><a class="dropdown-item" href="#" data-report="CRC">Collection Report for Commission</a></li>
+    
                     </ul>
                 </div>
             </div>
@@ -370,8 +390,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php foreach($customers as $customer){ ?>
@@ -392,7 +412,7 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
@@ -427,8 +447,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    @foreach($years as $index => $year)
@@ -475,8 +495,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php foreach($divisions as $division){ ?>
@@ -508,8 +528,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    <?php 
@@ -546,8 +566,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -584,8 +604,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -622,8 +642,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                      <?php 
@@ -648,7 +668,7 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
@@ -683,8 +703,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    @foreach($years as $index => $year)
@@ -731,8 +751,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php foreach($divisions as $division){ ?>
@@ -764,8 +784,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    <?php 
@@ -802,8 +822,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -840,8 +860,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -878,8 +898,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                      <?php 
@@ -904,7 +924,7 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
@@ -943,8 +963,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php foreach($divisions as $division){ ?>
@@ -976,8 +996,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    <?php 
@@ -1014,8 +1034,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -1052,8 +1072,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                     <?php 
@@ -1090,8 +1110,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                      <?php 
@@ -1141,8 +1161,8 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
                                    <?php foreach($customers as $customer){ ?>
@@ -1162,7 +1182,7 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
@@ -1214,48 +1234,31 @@ $years = range($currentYear, $currentYear - 10);
 
                 <div class="row">
                     <div class="col-12 col-lg-6 mb-3">
-                        <label class="custom-input-label">Customers</label>
-                        <div class="multiselect-wrapper" data-name="customer">
-                            <div class="multiselect-trigger">
-                                <div class="multiselect-content">
-                                    <span class="multiselect-placeholder">Select customers...</span>
-                                </div>
-                                <span class="multiselect-arrow"></span>
-                            </div>
-                            <div class="multiselect-dropdown">
-                                <div class="multiselect-search">
-                                    <input type="text" placeholder="Search...">
-                                </div>
-                                <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
-                                </div>
-                                <div class="multiselect-options">
-                                   <?php foreach($customers as $customer){ ?>
-                                        <div class="multiselect-option">
-                                            <input type="checkbox" id="odbcust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
-                                        <label for="odbcust{{$customer->id}}">{{$customer->name}}</label>
-                                    </div>
-                                    <?php } ?>
-                                </div>
-                                <div class="multiselect-footer">
-                                    <span class="count-text">0 of {{count($customers)}} selected</span>
-                                </div>
-                            </div>
-                        </div>
+                        <label class="custom-input-label">Customer</label>
+                        <select id="filter-adm-id" name="customers[]" class="form-control select2-filter" >
+                           <?php foreach($customers as $customer){ ?>
+                                    <option value="{{$customer->customer_id}}" >
+                                       {{$customer->name}}
+                                    </option>
+                            <?php } ?>
+                        </select>
+                       
                     </div>
                 </div>
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+</form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="CCD" style="border-radius: 8px;">
+              <form action="{{url('download-report/ccd')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -1269,23 +1272,16 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
+          
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
+  
                         </div>
                     </div>
                 </div>
@@ -1302,40 +1298,38 @@ $years = range($currentYear, $currentYear - 10);
                 </div>
 
                 <div class="row">
-                    <!-- ADM -->
-                    <div class="col-12 col-lg-6 mb-3">
+                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">ADM</label>
-                        <div class="dropdown w-100">
-                            <button class="btn custom-dropdown w-100 text-start" type="button"
-                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                Select ADM
-                                <span class="custom-arrow"></span>
-                            </button>
-                            <ul class="dropdown-menu custom-dropdown-menu w-100"
-                                aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 1</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 2</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 3</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#" data-value="return_cheque">ADM 4</a>
-                                </li>
-                            </ul>
-                        </div>
+                        <select id="filter-adm-id" name="adm" class="form-control select2-filter" >
+                           
+                            <?php foreach($users as $user){ 
+                            if($user->user_role == 6){
+                            ?>
+                                <option value="{{$user->id}}" >
+                                    {{$user->userDetails->name}}
+                                </option>
+                               
+                            <?php }} ?>
+                        </select>
+                       
                     </div>
+                    <!-- ADM -->
+                   
                 </div>
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+        </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="TVC" style="border-radius: 8px;">
+             <form action="{{url('download-report/tvc')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -1349,23 +1343,16 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2025-12-28" name="from">
+                         
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2026-01-10" name="to">
+                           
                         </div>
                     </div>
                 </div>
@@ -1383,7 +1370,7 @@ $years = range($currentYear, $currentYear - 10);
 
                 <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
 
-                <div class="row">
+                 <div class="row">
                     <!-- Division -->
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">Division</label>
@@ -1399,33 +1386,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcdiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="tvcdiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1446,33 +1419,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="tvcrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1493,33 +1457,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="tvcasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1540,33 +1495,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvctl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="tvctl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1587,33 +1533,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="tvcadm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1647,33 +1584,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="cust1" value="ABC Corporation">
-                                        <label for="cust1">ABC Corporation</label>
+                                      <?php foreach($customers as $customer){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvccust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
+                                        <label for="tvccust{{$customer->id}}">{{$customer->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="cust2" value="XYZ Industries">
-                                        <label for="cust2">XYZ Industries</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="cust3" value="Global Trading Co">
-                                        <label for="cust3">Global Trading Co</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="cust4" value="Tech Solutions Ltd">
-                                        <label for="cust4">Tech Solutions Ltd</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="cust5" value="Prime Enterprises">
-                                        <label for="cust5">Prime Enterprises</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($customers)}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1682,14 +1605,17 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+            </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="DCT" style="border-radius: 8px;">
+             <form action="{{url('download-report/dct')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -1703,23 +1629,16 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
+                          
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
+                           
                         </div>
                     </div>
                 </div>
@@ -1737,7 +1656,7 @@ $years = range($currentYear, $currentYear - 10);
 
                 <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
 
-                <div class="row">
+               <div class="row">
                     <!-- Division -->
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">Division</label>
@@ -1753,33 +1672,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcdiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="tvcdiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1800,33 +1705,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="tvcrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1847,33 +1743,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="tvcasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1894,33 +1781,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvctl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="tvctl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1941,33 +1819,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="tvcadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="tvcadm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -1976,14 +1845,17 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+            </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="PBD" style="border-radius: 8px;">
+             <form action="{{url('download-report/pbd')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -1997,23 +1869,16 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
+                         
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
+                           
                         </div>
                     </div>
                 </div>
@@ -2047,33 +1912,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbddiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="pbddiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2094,33 +1945,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="pbdrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2141,33 +1983,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="pbdasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2188,33 +2021,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdtl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="pbdtl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2235,33 +2059,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="pbdadm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2270,14 +2085,17 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+            </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="DMDR" style="border-radius: 8px;">
+              <form action="{{url('download-report/dmdr')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -2291,23 +2109,14 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
                         </div>
                     </div>
                 </div>
@@ -2341,33 +2150,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbddiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="pbddiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2388,33 +2183,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="pbdrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2435,33 +2221,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="pbdasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2482,33 +2259,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdtl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="pbdtl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2529,33 +2297,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pbdadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="pbdadm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2564,14 +2323,17 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+            </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="PDCT" style="border-radius: 8px;">
+              <form action="{{url('download-report/pdct')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -2585,23 +2347,16 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2025-12-28" name="from">
+                          
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2026-01-10" name="to">
+                           
                         </div>
                     </div>
                 </div>
@@ -2619,7 +2374,7 @@ $years = range($currentYear, $currentYear - 10);
 
                 <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
 
-                <div class="row">
+               <div class="row">
                     <!-- Division -->
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">Division</label>
@@ -2635,33 +2390,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pdctdiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="pdctdiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2682,33 +2423,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pdctrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="pdctrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2729,33 +2461,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pdctasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="pdctasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2776,33 +2499,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pdcttl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="pdcttl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2823,33 +2537,68 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="pdctadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="pdctadm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php foreach($customers as $customer){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="odbcust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
+                                        <label for="odbcust{{$customer->id}}">{{$customer->name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($customers)}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2858,14 +2607,17 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+            </form>
         </div>
 
         <div class="styled-tab-sub p-4 report-filters d-none" data-report="RCS" style="border-radius: 8px;">
+           <form action="{{url('download-report/rcs')}}" method="POST">
+            @csrf
             <!-- Section 1: Date Range -->
             <div class="filter-section">
                 <div class="section-header">
@@ -2879,28 +2631,673 @@ $years = range($currentYear, $currentYear - 10);
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">From Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2025-12-28">
-                            <!-- <svg class="calendar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M12.75 10.5C12.9489 10.5 13.1397 10.421 13.2803 10.2803C13.421 10.1397 13.5 9.94891 13.5 9.75C13.5 9.55109 13.421 9.36032 13.2803 9.21967C13.1397 9.07902 12.9489 9 12.75 9C12.5511 9 12.3603 9.07902 12.2197 9.21967C12.079 9.36032 12 9.55109 12 9.75C12 9.94891 12.079 10.1397 12.2197 10.2803C12.3603 10.421 12.5511 10.5 12.75 10.5ZM12.75 13.5C12.9489 13.5 13.1397 13.421 13.2803 13.2803C13.421 13.1397 13.5 12.9489 13.5 12.75C13.5 12.5511 13.421 12.3603 13.2803 12.2197C13.1397 12.079 12.9489 12 12.75 12C12.5511 12 12.3603 12.079 12.2197 12.2197C12.079 12.3603 12 12.5511 12 12.75C12 12.9489 12.079 13.1397 12.2197 13.2803C12.3603 13.421 12.5511 13.5 12.75 13.5ZM9.75 9.75C9.75 9.94891 9.67098 10.1397 9.53033 10.2803C9.38968 10.421 9.19891 10.5 9 10.5C8.80109 10.5 8.61032 10.421 8.46967 10.2803C8.32902 10.1397 8.25 9.94891 8.25 9.75C8.25 9.55109 8.32902 9.36032 8.46967 9.21967C8.61032 9.07902 8.80109 9 9 9C9.19891 9 9.38968 9.07902 9.53033 9.21967C9.67098 9.36032 9.75 9.55109 9.75 9.75ZM9.75 12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75C8.25 12.5511 8.32902 12.3603 8.46967 12.2197C8.61032 12.079 8.80109 12 9 12C9.19891 12 9.38968 12.079 9.53033 12.2197C9.67098 12.3603 9.75 12.5511 9.75 12.75ZM5.25 10.5C5.44891 10.5 5.63968 10.421 5.78033 10.2803C5.92098 10.1397 6 9.94891 6 9.75C6 9.55109 5.92098 9.36032 5.78033 9.21967C5.63968 9.07902 5.44891 9 5.25 9C5.05109 9 4.86032 9.07902 4.71967 9.21967C4.57902 9.36032 4.5 9.55109 4.5 9.75C4.5 9.94891 4.57902 10.1397 4.71967 10.2803C4.86032 10.421 5.05109 10.5 5.25 10.5ZM5.25 13.5C5.44891 13.5 5.63968 13.421 5.78033 13.2803C5.92098 13.1397 6 12.9489 6 12.75C6 12.5511 5.92098 12.3603 5.78033 12.2197C5.63968 12.079 5.44891 12 5.25 12C5.05109 12 4.86032 12.079 4.71967 12.2197C4.57902 12.3603 4.5 12.5511 4.5 12.75C4.5 12.9489 4.57902 13.1397 4.71967 13.2803C4.86032 13.421 5.05109 13.5 5.25 13.5Z" fill="#353535" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.24925 1.3125C5.39843 1.3125 5.54151 1.37176 5.647 1.47725C5.75249 1.58274 5.81175 1.72582 5.81175 1.875V2.44725C6.30825 2.4375 6.855 2.4375 7.4565 2.4375H10.5412C11.1435 2.4375 11.6902 2.4375 12.1867 2.44725V1.875C12.1867 1.72582 12.246 1.58274 12.3515 1.47725C12.457 1.37176 12.6001 1.3125 12.7492 1.3125C12.8984 1.3125 13.0415 1.37176 13.147 1.47725C13.2525 1.58274 13.3117 1.72582 13.3117 1.875V2.49525C13.5067 2.51025 13.6915 2.52925 13.866 2.55225C14.745 2.67075 15.4567 2.91975 16.0185 3.48075C16.5795 4.0425 16.8285 4.75425 16.947 5.63325C17.0617 6.48825 17.0617 7.5795 17.0617 8.958V10.542C17.0617 11.9205 17.0617 13.0125 16.947 13.8668C16.8285 14.7458 16.5795 15.4575 16.0185 16.0192C15.4567 16.5802 14.745 16.8293 13.866 16.9478C13.011 17.0625 11.9197 17.0625 10.5412 17.0625H7.458C6.0795 17.0625 4.9875 17.0625 4.13325 16.9478C3.25425 16.8293 2.5425 16.5802 1.98075 16.0192C1.41975 15.4575 1.17075 14.7458 1.05225 13.8668C0.9375 13.0118 0.9375 11.9205 0.9375 10.542V8.958C0.9375 7.5795 0.9375 6.4875 1.05225 5.63325C1.17075 4.75425 1.41975 4.0425 1.98075 3.48075C2.5425 2.91975 3.25425 2.67075 4.13325 2.55225C4.30825 2.52925 4.493 2.51025 4.6875 2.49525V1.875C4.6875 1.72595 4.74666 1.58299 4.85199 1.47752C4.95731 1.37205 5.1002 1.3127 5.24925 1.3125ZM4.28175 3.6675C3.528 3.76875 3.093 3.95925 2.77575 4.2765C2.4585 4.59375 2.268 5.02875 2.16675 5.7825C2.14975 5.91 2.13525 6.04475 2.12325 6.18675H15.8752C15.8632 6.04475 15.8488 5.90975 15.8317 5.78175C15.7305 5.028 15.54 4.593 15.2227 4.27575C14.9055 3.9585 14.4705 3.768 13.716 3.66675C12.9457 3.56325 11.9295 3.56175 10.4992 3.56175H7.49925C6.069 3.56175 5.0535 3.564 4.28175 3.6675ZM2.06175 9C2.06175 8.3595 2.06175 7.80225 2.0715 7.3125H15.927C15.9367 7.80225 15.9367 8.3595 15.9367 9V10.5C15.9367 11.9303 15.9352 12.9465 15.8317 13.7175C15.7305 14.4713 15.54 14.9062 15.2227 15.2235C14.9055 15.5408 14.4705 15.7313 13.716 15.8325C12.9457 15.936 11.9295 15.9375 10.4992 15.9375H7.49925C6.069 15.9375 5.0535 15.936 4.28175 15.8325C3.528 15.7313 3.093 15.5408 2.77575 15.2235C2.4585 14.9062 2.268 14.4712 2.16675 13.7167C2.06325 12.9465 2.06175 11.9303 2.06175 10.5V9Z" fill="#353535" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2025-12-28" name="from">
+                          
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-6 mb-3">
                         <label class="custom-input-label">To Date</label>
                         <div class="date-input-wrapper">
-                            <input type="date" class="date-input" value="2026-01-10">
-                            <!-- <svg class="calendar-icon " width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" stroke-width="2" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="2" />
-                                <path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg> -->
+                            <input type="month" class="date-input" value="2026-01-10" name="to">
+                           
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Section 2: Hierarchy Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+               <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcsdiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="rcsdiv{{$division->id}}">{{$division->division_name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcsrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="rcsrsm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcsasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="rcsasm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcstl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="rcstl{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcsadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="rcsadm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php foreach($customers as $customer){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="rcscust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
+                                        <label for="rcscust{{$customer->id}}">{{$customer->name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($customers)}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+            </form>
+        </div>
+
+  
+            <div class="styled-tab-sub p-4 report-filters d-none" data-report="WO" style="border-radius: 8px;">
+                      <form method="POST" action="{{ route('reports.download') }}">
+            @csrf
+            <input type="hidden" name="type" value="WO">
+                <!-- Section 1: Date Range -->
+                <div class="filter-section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <div class="section-number">1</div>
+                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">From Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="from_date" class="date-input" >
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">To Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="to_date" class="date-input" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-button-lg-row">
+                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
+                        Filters</button>
+                    <button type="submit" class="red-action-btn-lg">
+                        Generate Report
+                    </button>
+                </div>
+                 </form>
+            </div>
+       
+
+
+            <div class="styled-tab-sub p-4 report-filters d-none" data-report="SO" style="border-radius: 8px;">
+                        <form method="POST" action="{{ route('reports.download') }}">
+            @csrf
+            <input type="hidden" name="type" value="SO">
+                <!-- Section 1: Date Range -->
+                <div class="filter-section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <div class="section-number">1</div>
+                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">From Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="from_date" class="date-input" >
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mb-3">
+                            <label class="custom-input-label">To Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="date" name="to_date" class="date-input" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-button-lg-row">
+                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
+                        Filters</button>
+                    <button type="submit" class="red-action-btn-lg">
+                        Generate Report
+                    </button>
+                </div>
+                 </form>
+            </div>
+       
+
+             <div class="styled-tab-sub p-4 report-filters d-none" data-report="CRC" style="border-radius: 8px;">
+             <form action="{{url('download-report/crc')}}" method="POST">
+            @csrf
+            <!-- Section 2: Hierarchy Wise Filtering -->
+
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
+                 
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Hierarchy Wise Filtering</h2>
+                    </div>
+                    <!-- <span class="disabled-badge">Disabled</span> -->
+                </div>
+
+                <p class="section-subtitle">Select one or more hierarchy levels to filter the report</p>
+
+                <div class="row">
+                    <!-- Division -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Division</label>
+                        <div class="multiselect-wrapper" data-name="division">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select divisions...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crcdiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="crcdiv{{$division->id}}">{{$division->division_name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Regional Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="rsm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select RSMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crcrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="crcrsm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Sales Manager -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Area Sales Manager</label>
+                        <div class="multiselect-wrapper" data-name="asm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ASMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crcasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="crcasm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Team Leader</label>
+                        <div class="multiselect-wrapper" data-name="teamleader">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select team leaders...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crctl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="crctl{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADM -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">ADM</label>
+                        <div class="multiselect-wrapper" data-name="adm">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select ADMs...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crcadm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="crcadm{{$user->id}}">{{$user->userDetails->name}}</label>
+                                    </div>
+                                    <?php }} ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php foreach($customers as $customer){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="crccust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
+                                        <label for="crccust{{$customer->id}}">{{$customer->name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($customers)}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-button-lg-row">
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="red-action-btn-lg submit">
+                    Generate Report
+                </button>
+            </div>
+                                    </form>
+        </div>
+
+         <div class="styled-tab-sub p-4 report-filters d-none" data-report="AR" style="border-radius: 8px;">
+             <form action="{{url('download-report/ar')}}" method="POST">
+            @csrf
+
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">From Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2025-12-28" name="from">
+                 
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">To Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" class="date-input" value="2026-01-10" name="to">
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Section 2: Hierarchy Wise Filtering -->
             <div class="filter-section">
                 <div class="section-header">
@@ -2929,33 +3326,19 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div1" value="Automotive Division">
-                                        <label for="div1">Automotive Division</label>
+                                    <?php foreach($divisions as $division){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="ardiv{{$division->id}}" value="{{$division->id}}" name="divisions[]">
+                                        <label for="ardiv{{$division->id}}">{{$division->division_name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div2" value="Construction Division">
-                                        <label for="div2">Construction Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div3" value="Industrial Division">
-                                        <label for="div3">Industrial Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div4" value="Marine Division">
-                                        <label for="div4">Marine Division</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="div5" value="Power Division">
-                                        <label for="div5">Power Division</label>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{count($divisions )}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -2976,33 +3359,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm1" value="John Anderson">
-                                        <label for="rsm1">John Anderson</label>
+                                   <?php 
+                                    $rsmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 3){
+                                        $rsmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="arrsm{{$user->id}}" value="{{$user->id}}" name="rsms[]">
+                                        <label for="arrsm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm2" value="Sarah Mitchell">
-                                        <label for="rsm2">Sarah Mitchell</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm3" value="Michael Chen">
-                                        <label for="rsm3">Michael Chen</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm4" value="Emily Davis">
-                                        <label for="rsm4">Emily Davis</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="rsm5" value="Robert Wilson">
-                                        <label for="rsm5">Robert Wilson</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$rsmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -3023,33 +3397,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm1" value="David Brown">
-                                        <label for="asm1">David Brown</label>
+                                    <?php 
+                                    $asmsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 4){
+                                        $asmsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="arasm{{$user->id}}" value="{{$user->id}}" name="asms[]">
+                                        <label for="arasm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm2" value="Lisa Garcia">
-                                        <label for="asm2">Lisa Garcia</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm3" value="James Taylor">
-                                        <label for="asm3">James Taylor</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm4" value="Jennifer Lee">
-                                        <label for="asm4">Jennifer Lee</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="asm5" value="William Martinez">
-                                        <label for="asm5">William Martinez</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$asmsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -3070,33 +3435,24 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl1" value="Daniel Rodriguez">
-                                        <label for="tl1">Daniel Rodriguez</label>
+                                    <?php 
+                                    $tlsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 5){
+                                        $tlsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="artl{{$user->id}}" value="{{$user->id}}" name="tls[]">
+                                        <label for="artl{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl2" value="Patricia White">
-                                        <label for="tl2">Patricia White</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl3" value="Christopher Hall">
-                                        <label for="tl3">Christopher Hall</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl4" value="Amanda Clark">
-                                        <label for="tl4">Amanda Clark</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="tl5" value="Matthew Lewis">
-                                        <label for="tl5">Matthew Lewis</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$tlsCount}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -3117,33 +3473,70 @@ $years = range($currentYear, $currentYear - 10);
                                     <input type="text" placeholder="Search...">
                                 </div>
                                 <div class="multiselect-actions">
-                                    <button class="select-all">Select All</button>
-                                    <button class="clear-all">Clear All</button>
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
                                 </div>
                                 <div class="multiselect-options">
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm1" value="Kevin Walker">
-                                        <label for="adm1">Kevin Walker</label>
+                                     <?php 
+                                    $admsCount = 0;
+                                    foreach($users as $user){ 
+                                    if($user->user_role == 6){
+                                        $admsCount++;
+                                    ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="aradm{{$user->id}}" value="{{$user->id}}" name="adms[]">
+                                        <label for="aradm{{$user->id}}">{{$user->userDetails->name}}</label>
                                     </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm2" value="Sandra Young">
-                                        <label for="adm2">Sandra Young</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm3" value="Brian King">
-                                        <label for="adm3">Brian King</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm4" value="Michelle Wright">
-                                        <label for="adm4">Michelle Wright</label>
-                                    </div>
-                                    <div class="multiselect-option">
-                                        <input type="checkbox" id="adm5" value="Steven Green">
-                                        <label for="adm5">Steven Green</label>
-                                    </div>
+                                    <?php }} ?>
                                 </div>
                                 <div class="multiselect-footer">
-                                    <span class="count-text">0 of 5 selected</span>
+                                    <span class="count-text">0 of {{$admsCount}} selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Customer Wise Filtering -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">Customer Wise Filtering</h2>
+                    </div>
+                </div>
+
+                <p class="section-subtitle">Select one or more customers directly</p>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <label class="custom-input-label">Customers</label>
+                        <div class="multiselect-wrapper" data-name="customer">
+                            <div class="multiselect-trigger">
+                                <div class="multiselect-content">
+                                    <span class="multiselect-placeholder">Select customers...</span>
+                                </div>
+                                <span class="multiselect-arrow"></span>
+                            </div>
+                            <div class="multiselect-dropdown">
+                                <div class="multiselect-search">
+                                    <input type="text" placeholder="Search...">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button class="select-all" type="button">Select All</button>
+                                    <button class="clear-all" type="button">Clear All</button>
+                                </div>
+                                <div class="multiselect-options">
+                                   <?php foreach($customers as $customer){ ?>
+                                        <div class="multiselect-option">
+                                            <input type="checkbox" id="arcust{{$customer->id}}" value="{{$customer->customer_id}}" name="customers[]">
+                                        <label for="arcust{{$customer->id}}">{{$customer->name}}</label>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="multiselect-footer">
+                                    <span class="count-text">0 of {{count($customers)}} selected</span>
                                 </div>
                             </div>
                         </div>
@@ -3152,92 +3545,15 @@ $years = range($currentYear, $currentYear - 10);
             </div>
 
             <div class="action-button-lg-row">
-                <button class="btn-reset" onclick="resetAllFilters()">Reset All Filters</button>
+                <button class="btn-reset" type="button" onclick="resetAllFilters()">Reset All Filters</button>
                 <button class="red-action-btn-lg submit">
                     Generate Report
                 </button>
             </div>
+                                    </form>
         </div>
 
-        <form method="POST" action="{{ route('reports.download') }}">
-            @csrf
-            <input type="hidden" name="type" value="WO">
-            <div class="styled-tab-sub p-4 report-filters d-none" data-report="WO" style="border-radius: 8px;">
-                <!-- Section 1: Date Range -->
-                <div class="filter-section">
-                    <div class="section-header">
-                        <div class="section-title-wrapper">
-                            <div class="section-number">1</div>
-                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-12 col-lg-6 mb-3">
-                            <label class="custom-input-label">From Date</label>
-                            <div class="date-input-wrapper">
-                                <input type="date" name="from_date" class="date-input" >
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6 mb-3">
-                            <label class="custom-input-label">To Date</label>
-                            <div class="date-input-wrapper">
-                                <input type="date" name="to_date" class="date-input" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="action-button-lg-row">
-                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
-                        Filters</button>
-                    <button type="submit" class="red-action-btn-lg">
-                        Generate Report
-                    </button>
-                </div>
-            </div>
-        </form>
-
-        <form method="POST" action="{{ route('reports.download') }}">
-            @csrf
-            <input type="hidden" name="type" value="SO">
-            <div class="styled-tab-sub p-4 report-filters d-none" data-report="SO" style="border-radius: 8px;">
-                <!-- Section 1: Date Range -->
-                <div class="filter-section">
-                    <div class="section-header">
-                        <div class="section-title-wrapper">
-                            <div class="section-number">1</div>
-                            <h2 class="section-title">Date Range<span class="required-asterisk">*</span></h2>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12 col-lg-6 mb-3">
-                            <label class="custom-input-label">From Date</label>
-                            <div class="date-input-wrapper">
-                                <input type="date" name="from_date" class="date-input" >
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6 mb-3">
-                            <label class="custom-input-label">To Date</label>
-                            <div class="date-input-wrapper">
-                                <input type="date" name="to_date" class="date-input" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="action-button-lg-row">
-                    <button type="reset" class="btn-reset" onclick="resetAllFilters()">Reset All
-                        Filters</button>
-                    <button type="submit" class="red-action-btn-lg">
-                        Generate Report
-                    </button>
-                </div>
-            </div>
-        </form>
 
     </div>
 </div>
@@ -3506,4 +3822,12 @@ $years = range($currentYear, $currentYear - 10);
         console.log('Generating report with filters:', filters);
         alert('Report generation started! Check console for filter details.');
     }
+</script>
+
+<script>
+$(document).ready(function () {
+    $('.select2-filter').select2({
+        width: '100%',
+    });
+});
 </script>

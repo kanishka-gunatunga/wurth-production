@@ -102,7 +102,8 @@
 
                     </tr>
                 </thead>
-                <tbody >
+                <tbody > 
+                        @if($invoices->count() > 0)
                            @foreach($invoices as $invoice)
                                 <tr>
                                     <td>{{ $invoice->invoice_or_cheque_no ?? 'N/A' }}</td>
@@ -150,7 +151,13 @@
                                     </td>
                                 </tr>
                                 @endforeach
-
+                                 @else
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                No invoices available.
+                                            </td>
+                                        </tr>
+                                    @endif
                         </tbody>
             </table>
 

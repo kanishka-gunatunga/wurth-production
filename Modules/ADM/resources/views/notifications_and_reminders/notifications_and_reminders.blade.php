@@ -9,7 +9,7 @@ use App\Models\Customers;
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" style="width: 50vw;" id="pills-payment-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment"
-                    aria-selected="true">Payment Notifications</button>
+                    aria-selected="true">Reminders</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" style="width: 50vw;" id="pills-system-tab" data-bs-toggle="pill"

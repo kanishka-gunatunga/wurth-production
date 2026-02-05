@@ -46,14 +46,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
 
                     @php
                     $roleNames = [
-                    1 => 'System Administrator',
-                    2 => 'Head of Division',
-                    3 => 'Regional Sales Manager',
-                    4 => 'Area Sales Manager',
-                    5 => 'Team Leader',
-                    6 => 'ADM (Sales Rep)',
-                    7 => 'Finance Manager',
-                    8 => 'Recovery Manager',
+                    
                     ];
                     @endphp
 
@@ -106,7 +99,7 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
 <script>
     $(document).ready(function() {
         @if(Session::has('success'))
-        toastr.success("{{ Session::get('success') }}");
+        toastr.success("{{ Session::get('success') }}"); 
         @endif
 
         @if(Session::has('fail'))

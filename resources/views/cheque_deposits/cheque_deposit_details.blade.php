@@ -4,14 +4,32 @@
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
         <h1 class="header-title">Cheque No. - {{ $deposit['id'] }}</h1>
-        <button class="black-action-btn-lg submit">
+          @if(in_array('deposits-cheque-download', session('permissions', [])))  
+  
+                @if($deposit['attachment_path'])
+                <a href="{{ url('cheque-deposits/download', $deposit['id']) }}"  style="text-decoration: none;" >
+                           <button class="black-action-btn-lg ">
+                        <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
+                                fill="white" />
+                        </svg>
+                        Download
+                    </button>
+                </a>
+                @else
+                        <button class="black-action-btn-lg ">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
                     fill="white" />
             </svg>
-            Download
+            No File
         </button>
+                @endif
+
+                @endif
+
     </div>
 
 
@@ -45,10 +63,10 @@
                 <span class="slip-detail-text">
                     @php
                     $statusClass = match($deposit['status']) {
-                    'accepted' => 'success-status-btn',
+                    'approved' => 'success-status-btn',
                     'pending' => 'blue-status-btn',
+                    'voided' => 'danger-status-btn',
                     'rejected' => 'danger-status-btn',
-                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
                     @endphp
@@ -95,8 +113,8 @@
                     @endphp
                     <tr>
                         <td>{{ $payment->id }}</td>
-                        <td>{{ $customer?->name ?? 'N/A' }}</td>
-                        <td>{{ $invoice?->customer_id ?? 'N/A' }}</td>
+                        <td>{{ $payment->invoice?->customer?->name ?? 'N/A' }}</td>
+                        <td>{{ $payment->invoice?->customer?->customer_id ?? 'N/A' }}</td>
                         <td>{{ $payment->bank_name ?? 'N/A' }}</td>
                         <td>{{ $payment->branch_name ?? 'N/A' }}</td>
                         <td>
@@ -149,7 +167,13 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+         <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <label style="font-weight:600;">Remark (required when declining)</label>
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark"></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -167,16 +191,16 @@
     $currentStatus = strtolower($deposit['status']);
     @endphp
      @if(in_array('deposits-cheque-status', session('permissions', [])))                            
-    @if ($currentStatus !== 'accepted')
+    @if ($currentStatus !== 'approved')
     <button class="red-action-btn-lg update-status-btn"
         data-id="{{ $deposit['id'] }}"
-        data-status="declined">
-        Declined
+        data-status="rejected">
+        Reject
     </button>
     <button class="success-action-btn-lg update-status-btn"
         data-id="{{ $deposit['id'] }}"
-        data-status="accepted">
-        Accept
+        data-status="approved">
+        Approve
     </button>
     @endif
      @endif
@@ -418,75 +442,125 @@
         }
     });
 </script>
-
-<!-- for approve/reject buttons -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const approveBtn = document.querySelector('.success-action-btn-lg');
-        const rejectBtn = document.querySelector('.red-action-btn-lg');
-        const confirmModal = document.getElementById('confirm-status-modal');
-        const confirmText = document.getElementById('confirm-status-text');
-        const closeBtn = document.getElementById('confirm-modal-close');
-        const noBtn = document.getElementById('confirm-no-btn');
-        const yesBtn = document.getElementById('confirm-yes-btn');
-        const depositId = "{{ $deposit['id'] }}";
-        const statusButton = document.querySelector('.slip-detail-text button');
+document.addEventListener('DOMContentLoaded', function () {
 
-        let selectedStatus = '';
+    const approveBtn = document.querySelector('.success-action-btn-lg');
+    const rejectBtn  = document.querySelector('.red-action-btn-lg');
 
-        // ✅ Open modal when clicking approve/reject
-        [approveBtn, rejectBtn].forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                selectedStatus = this.dataset.status;
-                confirmText.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
-                confirmModal.style.display = 'block';
-            });
+    const confirmModal = document.getElementById('confirm-status-modal');
+    const confirmText  = document.getElementById('confirm-status-text');
+    const closeBtn     = document.getElementById('confirm-modal-close');
+    const noBtn        = document.getElementById('confirm-no-btn');
+    const yesBtn       = document.getElementById('confirm-yes-btn');
+
+    const remarkBox    = document.getElementById('remark-box');
+    const remarkInput  = document.getElementById('decline-remark');
+
+    const depositId    = "{{ $deposit['id'] }}";
+    const statusButton = document.querySelector('.slip-detail-text button');
+
+    let selectedStatus = '';
+
+    function openModal(status) {
+
+        selectedStatus = status;
+
+        // title text
+        confirmText.textContent =
+            status.charAt(0).toUpperCase() + status.slice(1);
+
+        // reset remark each time
+        remarkInput.value = '';
+
+        // show remark ONLY for declined
+        if (status === 'rejected' || status === 'voided') {
+            remarkBox.style.display = 'block';
+        } else {
+            remarkBox.style.display = 'none';
+        }
+
+        confirmModal.style.display = 'block';
+    }
+
+    // Open modal events (guard in case buttons are hidden by permissions)
+    if (approveBtn) {
+        approveBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openModal('approved');
         });
+    }
 
-        // ✅ Close modal
-        [closeBtn, noBtn].forEach(btn => {
-            btn.addEventListener('click', function() {
-                confirmModal.style.display = 'none';
-            });
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openModal('rejected');
         });
+    }
 
-        // ✅ Confirm (Yes) button
-        yesBtn.addEventListener('click', async function() {
+    // Close modal
+    [closeBtn, noBtn].forEach(btn => {
+        btn.addEventListener('click', function () {
             confirmModal.style.display = 'none';
+        });
+    });
 
-            try {
-                const response = await fetch(`{{ url('/cheque-deposits/update-status') }}/${depositId}`, {
+    // Confirm YES
+    yesBtn.addEventListener('click', async function () {
+
+        // validate remark when declining
+        let remark = remarkInput.value.trim();
+
+        if ((selectedStatus === 'rejected' || selectedStatus === 'voided') && remark === '') {
+            alert('Remark is required when declining.');
+            return;
+        }
+
+        confirmModal.style.display = 'none';
+
+        try {
+            const response = await fetch(
+                `{{ url('/cheque-deposits/update-status') }}/${depositId}`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
-                        status: selectedStatus
+                        status: selectedStatus,
+                        remark: remark
                     })
-                });
-
-                if (response.ok) {
-                    // Update visual status instantly
-                    statusButton.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
-
-                    if (selectedStatus === 'accepted') {
-                        statusButton.className = 'success-status-btn';
-                        approveBtn.style.display = 'none';
-                        rejectBtn.style.display = 'none';
-                    } else if (selectedStatus === 'declined') {
-                        statusButton.className = 'danger-status-btn';
-                        approveBtn.style.display = 'inline-block';
-                        rejectBtn.style.display = 'inline-block';
-                    }
-                } else {
-                    alert('Failed to update status. Please try again.');
                 }
-            } catch (error) {
-                console.error(error);
-                alert('Error occurred while updating status.');
+            );
+
+            if (!response.ok) {
+                alert('Failed to update status. Please try again.');
+                return;
             }
-        });
+
+            const data = await response.json();
+
+            // update UI status text
+            statusButton.textContent =
+                selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+
+            // update color class
+            if (selectedStatus === 'approved') {
+                statusButton.className = 'success-status-btn';
+            } else {
+                statusButton.className = 'danger-status-btn';
+            }
+
+            // hide buttons after final decision
+            if (approveBtn) approveBtn.style.display = 'none';
+            if (rejectBtn) rejectBtn.style.display = 'none';
+
+        } catch (err) {
+            console.error(err);
+            alert('Error occurred while updating status.');
+        }
     });
+
+});
 </script>

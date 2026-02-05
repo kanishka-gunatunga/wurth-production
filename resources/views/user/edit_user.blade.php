@@ -56,14 +56,14 @@ use App\Models\UserDetails;
                                      } 
                                     ?>
                                     <option selected hidden value="{{$login_details->user_role}}">{{$role}}</option>
-                                    <option value="1">System Administrator</option>
+                                    <!-- <option value="1">System Administrator</option>
                                     <option value="2">Head of Division</option>
                                     <option value="3">Regional Sales Manager</option>
                                     <option value="4">Area Sales Manager</option>
                                     <option value="5">Team Leader</option>
                                     <option value="6">ADM (Sales Rep)</option>
                                     <option value="7">Finance Manager</option>
-                                     <option value="8">Recovery Manager</option>
+                                     <option value="8">Recovery Manager</option> -->
                                 </select>
                                 @if($errors->has("user_role")) <div class="alert alert-danger mt-2">{{ $errors->first('user_role') }}</div>@endif
                             </div>
@@ -72,9 +72,9 @@ use App\Models\UserDetails;
                                 <select class="form-select custom-input" aria-label="Default select example"
                                     id="head-of-division-select" name="division">
                                     <option selected hidden value="{{$other_details->division}}">{{Divisions::where('id', $other_details->division)->value('division_name')}}</option>
-                                    <?php foreach($divisions as $division){  ?> 
+                                    <!-- <?php foreach($divisions as $division){  ?> 
                                         <option value="{{$division->id}}">{{$division->division_name}}</option>
-                                    <?php } ?>
+                                    <?php } ?> -->
                                 </select>
                                 @if($errors->has("division")) <div class="alert alert-danger mt-2">{{ $errors->first('division') }}</div>@endif
                             </div>
@@ -136,6 +136,8 @@ use App\Models\UserDetails;
 
                         </div>
 
+                        <input type="hidden" id="current_supervisor" value="{{ $other_details->supervisor }}">
+                        <input type="hidden" id="current_second_supervisor" value="{{ $other_details->second_supervisor }}">
 
                         <div class="col-12 d-flex justify-content-end division-action-btn gap-3">
                             <a href="{{url('user-managment')}}"><button type="button" class="btn btn-dark cancel">Cancel</button></a>
@@ -172,7 +174,7 @@ use App\Models\UserDetails;
         const divisionField = document.querySelector('select[name="division"]').parentElement;
         const admField = document.querySelector('input[name="adm_number"]').parentElement;
 
-         const rolesToHide = ["1", "2"];
+         const rolesToHide = ["1", "2", "7"];
 
         function toggleFields() {
             const selectedRole = userRoleSelect.value;
@@ -188,7 +190,9 @@ use App\Models\UserDetails;
             if(selectedRole == '2'){
                 divisionField.style.display = 'block';
             }
-            
+            if(selectedRole == '7'){
+                divisionField.style.display = 'block';
+            }
             if(selectedRole == '6'){
                 admField.style.display = 'block';
             }
@@ -206,42 +210,114 @@ use App\Models\UserDetails;
         });
     });
 
-    $(document).ready(function () {
-    $('select[name="user_role"]').on('change', function () {
-        var user_role = $(this).val();
-        var supervisor = $('select[name="supervisor"]');
-        var second_supervisor = $('select[name="second_supervisor"]');
+//     $(document).ready(function () {
+//     $('select[name="user_role"]').on('change', function () {
+//         var user_role = $(this).val();
+//         var supervisor = $('select[name="supervisor"]');
+//         var second_supervisor = $('select[name="second_supervisor"]');
 
-        // Clear existing leave types
-        supervisor.empty();
-        second_supervisor.empty();
+//         // Clear existing leave types
+//         supervisor.empty();
+//         second_supervisor.empty();
 
-        if (user_role) {
-            $.ajax({
-                url: '/get-supervisors/' + user_role,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    console.log(data);
-                    supervisor.append('<option value="">Select Supervisor</option>');
+//         if (user_role) {
+//             $.ajax({
+//                 url: '/get-supervisors/' + user_role,
+//                 type: 'GET',
+//                 dataType: 'json',
+//                 success: function (data) {
+//                     console.log(data);
+//                     supervisor.append('<option value="">Select Supervisor</option>');
 
-                    $.each(data, function (key, value) {
-                        supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
-                    });
+//                     $.each(data, function (key, value) {
+//                         supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
+//                     });
 
-                    second_supervisor.append('<option value="">Select Supervisor</option>');
+//                     second_supervisor.append('<option value="">Select Supervisor</option>');
 
-                    $.each(data, function (key, value) {
-                        second_supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching leave types:', error);
-                }
-            });
-        } else {
-            supervisor.append('<option value="">No Supervisor Available</option>');
-        }
+//                     $.each(data, function (key, value) {
+//                         second_supervisor.append('<option value="' + value.id + '">' + value.user_details.name + '</option>');
+//                     });
+//                 },
+//                 error: function (xhr, status, error) {
+//                     console.error('Error fetching leave types:', error);
+//                 }
+//             });
+//         } else {
+//             supervisor.append('<option value="">No Supervisor Available</option>');
+//         }
+//     });
+// });
+ function getSupervisors() {
+
+    var user_role = $('select[name="user_role"]').val();
+    var division  = $('select[name="division"]').val();
+
+    var supervisor = $('select[name="supervisor"]');
+    var second_supervisor = $('select[name="second_supervisor"]');
+
+    var currentSupervisor = $('#current_supervisor').val();
+    var currentSecondSupervisor = $('#current_second_supervisor').val();
+
+    supervisor.empty();
+    second_supervisor.empty();
+
+    if (user_role == '1' || user_role == '7') {
+        supervisor.append('<option value="">No Supervisor Required</option>');
+        second_supervisor.append('<option value="">No Supervisor Required</option>');
+        return;
+    }
+
+    if (!division) {
+        supervisor.append('<option value="">Select Division First</option>');
+        second_supervisor.append('<option value="">Select Division First</option>');
+        return;
+    }
+
+    if (user_role) {
+        $.ajax({
+            url: '{{ url('get-supervisors') }}',
+            type: 'GET',
+            data: {
+                role: user_role,
+                division: division
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                supervisor.append('<option value="">Select Supervisor</option>');
+                second_supervisor.append('<option value="">Select Supervisor</option>');
+
+                $.each(data, function (key, value) {
+                    let selectedSupervisor = (value.id == currentSupervisor) ? 'selected' : '';
+                    let selectedSecondSupervisor = (value.id == currentSecondSupervisor) ? 'selected' : '';
+
+                    supervisor.append(
+                        '<option value="' + value.id + '" ' + selectedSupervisor + '>' +
+                        value.user_details.name +
+                        '</option>'
+                    );
+
+                    second_supervisor.append(
+                        '<option value="' + value.id + '" ' + selectedSecondSupervisor + '>' +
+                        value.user_details.name +
+                        '</option>'
+                    );
+                });
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+}
+$(document).ready(function () {
+    // Load supervisors on page load
+    getSupervisors();
+
+    // Reload when role or division changes
+    $('select[name="user_role"], select[name="division"]').on('change', function () {
+        getSupervisors();
     });
 });
 </script>

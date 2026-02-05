@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Upload;
-use App\Http\Controllers\ReturnChequeController;
+use App\Http\Controllers\ReturnChequeController; 
 use App\Http\Controllers\CreditNoteController;
+use App\Http\Controllers\ExtraPaymentController;
+use App\Http\Controllers\AdmTargetsController;
 class UploadController extends Controller
 {
     public function index()
@@ -37,7 +39,18 @@ class UploadController extends Controller
     }elseif ($request->file_type === 'credit-note') {
         $creditNoteController = new \App\Http\Controllers\CreditNoteController();
         $response = $creditNoteController->importCreditNotes($request);
-    } else {
+    }
+    elseif ($request->file_type === 'extra-payment') {
+        $extraPaymentController = new \App\Http\Controllers\ExtraPaymentController();
+        $response = $extraPaymentController->importExtraPayments($request);
+        return back()->with('success', 'File Uploaded Successfully');
+    }
+     elseif ($request->file_type === 'adm-targets') {
+        $admTargetsController = new \App\Http\Controllers\AdmTargetsController();
+        $response = $admTargetsController->importAdmTargets($request);
+        return back()->with('success', 'File Uploaded Successfully');
+    }
+     else {
         $response = back()->with('success', 'File uploaded successfully');
     }
 

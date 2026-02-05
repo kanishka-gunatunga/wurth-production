@@ -12,6 +12,7 @@ use App\Models\WriteOffs;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Services\ActivitLogService;
 
 
 class WriteOffController extends Controller
@@ -131,7 +132,7 @@ class WriteOffController extends Controller
                     $creditNoteJson[] = [
                         'id' => $itemId,
                         'write_off_amount' => $writeOffAmount,
-                        'type' => 'credit_note', // ✅ Add this
+                        'type' => 'credit_note', // ✅ Add this 
                     ];
                     continue;
                 }
@@ -170,13 +171,23 @@ class WriteOffController extends Controller
             }
 
             // ✅ Save Write-Off Record (final_amount only from invoices)
-            WriteOffs::create([
+            $writeOff = WriteOffs::create([
                 'invoice_or_cheque_no' => $invoiceJson,
                 'extraPayment_or_creditNote_no' => $creditNoteJson,
                 'final_amount' => $finalAmount,
                 'reason' => $reason,
                 'gl_breakdown' => $request->gl_breakdown, // ✅ NEW
             ]);
+            $customerIdsInvolved = Invoices::whereIn('invoice_or_cheque_no', array_keys($writeOffInvoices))->pluck('customer_id')->toArray();
+            $uniqueCustomerIds = array_unique($customerIdsInvolved);
+            $customerNames = Customers::whereIn('customer_id', $uniqueCustomerIds)->pluck('name', 'customer_id')->toArray();
+            $customerInfo = [];
+            foreach ($uniqueCustomerIds as $id) {
+                $customerInfo[] = (isset($customerNames[$id]) ? $customerNames[$id] : 'Unknown') . " ($id)";
+            }
+            $customerString = implode(', ', $customerInfo);
+
+            ActivitLogService::log('write_off', "Write-off created for Customer(s): $customerString - Amount: $finalAmount");
 
             DB::commit();
 

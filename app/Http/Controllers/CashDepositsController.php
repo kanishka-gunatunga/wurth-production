@@ -15,9 +15,18 @@ use App\Exports\ArrayExport;
 use App\Services\ActivitLogService;
 use App\Services\SystemNotificationService;
 use Illuminate\Support\Facades\Response;
-
+use App\Services\MobitelInstantSmsService;
+use Illuminate\Support\Facades\Log;
 class CashDepositsController extends Controller
 {
+
+     protected $smsService;
+
+    public function __construct(MobitelInstantSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
  public function index(Request $request)
 {
     $adms = User::where('user_role', 6)->with('userDetails')->get();
@@ -77,11 +86,22 @@ class CashDepositsController extends Controller
 }
 
     // Apply Customer filter
-    if ($request->filled('customers')) {
-        $query->whereHas('reciepts.invoice.customer', function ($q) use ($request) {
-            $q->whereIn('customer_id', $request->customers);
-        });
-    }
+   if ($request->filled('customers')) {
+             $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = $deposit->reciepts ?? [];
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                    if ($customer && in_array($customer->name, $request->customers)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
 
     // Paginate results
     $cashDeposits = $query->orderByDesc('created_at')->paginate(10);
@@ -115,29 +135,15 @@ class CashDepositsController extends Controller
         $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
 
         // Decode receipts JSON properly
-        $decodedReceipts = $deposit->reciepts ?? [];
+        $decodedReceipts = $deposit->reciepts;
 
         // Extract receipt IDs safely
-        $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+       $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
 
         // Fetch all matching invoice payments
-        $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->paginate(10);
+        $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->with('invoice.customer')->paginate(10);
 
-        // Prepare detailed receipt data
-        $receiptDetails = $invoicePayments->map(function ($payment) {
-            $invoice = Invoices::find($payment->invoice_id);
-            $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-
-            return [
-                'receipt_number' => $payment->id,
-                'customer_name' => $customer->name ?? 'N/A',
-                'customer_id' => $invoice->customer_id ?? 'N/A',
-                'paid_date' => $payment->created_at
-                    ? date('Y-m-d', strtotime($payment->created_at))
-                    : 'N/A',
-                'paid_amount' => $payment->final_payment ?? 0,
-            ];
-        });
+       
 
         // Define display info
         $admName = $admDetails->name ?? 'N/A';
@@ -158,7 +164,6 @@ class CashDepositsController extends Controller
             'admNumber',
             'depositDate',
             'totalAmount',
-            'receiptDetails',
             'invoicePayments',
             'status' // ✅ pass status to view
         ));
@@ -203,48 +208,84 @@ class CashDepositsController extends Controller
     // Return ZIP as download and delete after sending
     return response()->download($zipPath)->deleteFileAfterSend(true);
 }
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:approved,rejected',
+        'remark' => 'nullable|string|max:500'
+    ]);
 
-    public function updateStatus(Request $request, $id)
-    {
-  
-        $request->validate([
-            'status' => 'required|in:accepted,declined',
-        ]);
+    $deposit = Deposits::with('adm.userDetails')->findOrFail($id);
 
+    $deposit->status = $request->status;
 
-        $deposit = Deposits::findOrFail($id);
-
-        // Update deposit status
-        $deposit->status = $request->status;
-        $deposit->save();
-
-        // Update related receipts status
-        $receiptIds = collect($deposit->reciepts)
-            ->pluck('reciept_id')
-            ->toArray();
-
-        if (!empty($receiptIds)) {
-           
-            if($request->status == 'declined'){
-                InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => 'pending']);
-            }
-            else{
-                 InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => $request->status]);
-            }
-        }
-
-        ActivitLogService::log('deposit', 'deposit ('.$id.') status has been changed to '.$request->status);
-        SystemNotificationService::log('deposit',$id , 'Your deposit('.$id.') status has been changed to '.$request->status, $deposit->adm_id);
-
-        return response()->json([
-            'success' => true,
-            'status' => $request->status,
-        ]);
-
-
+    if ($request->status === 'rejected') {
+        $deposit->remarks = $request->remark;
+        $deposit->declined_date = now();
     }
+
+    if ($request->status === 'approved') {
+        $deposit->final_approve_date = now();
+    }
+
+    $deposit->save();
+
+    // Update related receipts
+    $receiptIds = collect($deposit->reciepts ?? [])
+        ->pluck('reciept_id')
+        ->toArray();
+
+    if (!empty($receiptIds)) {
+        if ($request->status === 'rejected') {
+            InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => 'pending']);
+                $toNumber = preg_replace('/^0/','94',$deposit->adm->userDetails->phone_number ?? '');
+                if ($toNumber) {
+                    $smsMessage  = "Your deposit has been rejected.\n";
+                    $smsMessage .= "Deposit ID: {$deposit->id}.\n";
+                    $smsMessage .= "Deposit Type: {$deposit->type}.\n";
+                    $smsMessage .= "Deposit Amount: {$deposit->amount}.\n";
+                    $smsMessage .= "Reason: {$request->remark}.\n";
+                    
+                    try {
+                        $this->smsService->sendInstantSms(
+                            [(string) $toNumber],
+                            $smsMessage,
+                            "Deposit"
+                        );
+
+                        Log::info(
+                            'SMS sent to ' . $toNumber
+                            . ' (Deposit ID: ' . $deposit->id . ')'
+                        );
+
+                    } catch (\Exception $e) {
+                        Log::error(
+                            'SMS sending failed for Deposit ID '
+                            . $payment->id . ': ' . $e->getMessage()
+                        );
+                    }
+                }
+        } else {
+            InvoicePayments::whereIn('id', $receiptIds)
+                ->update(['status' => 'approved']);
+        }
+    }
+
+    ActivitLogService::log('deposit', "Deposit ($id) status changed to {$request->status}");
+    SystemNotificationService::log(
+        'deposit',
+        $id,
+        "Your deposit($id) status changed to {$request->status}",
+        $deposit->adm_id
+    );
+
+    return response()->json([
+        'success' => true,
+        'status' => $request->status
+    ]);
+}
+
 
     public function search(Request $request)
     {

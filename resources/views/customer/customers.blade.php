@@ -183,10 +183,8 @@ use App\Models\UserDetails;
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            foreach ($customers as $customer) {
-
-                            ?>
+                            @if($customers->count() > 0)
+                            @foreach ($customers as $customer)
 
                                 <tr>
                                     <td>{{$customer->customer_id ?? '-'}}</th>
@@ -216,7 +214,14 @@ use App\Models\UserDetails;
                                         @endif
                                     </td>
                                 </tr>
-                            <?php } ?>
+                             @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="12" class="text-center text-muted py-4">
+                                        No customers available.
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -263,10 +268,8 @@ use App\Models\UserDetails;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    foreach ($temp_customers as $temp_customer) {
-
-                                    ?>
+                                    @if($temp_customers->count() > 0)
+                                    @foreach ($temp_customers as $temp_customer)
                                         <tr>
                                             <td>{{$temp_customer->admDetails->name ?? '-'}}</td>
                                             <td>{{$temp_customer->adm}}</th>
@@ -277,7 +280,14 @@ use App\Models\UserDetails;
                                                  @endif
                                             </td>
                                         </tr>
-                                    <?php } ?>
+                                     @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">
+                                                No temporary customers available.
+                                            </td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

@@ -1,0 +1,27 @@
+	PDCT - Post-Dated Cheques Tracker						
+							
+							
+	Mandatory Data Fields						
+	Period	Division		Team	Sub team		
+ADM Number	ADM Name	Customer Name	Receipt Date	Cheque Number	Bank	Deposit Date (shown in ascending or descending order)	Cheque Amount
+							
+							
+							
+							
+						Total	
+							
+	"The Report must be accessible Division-wise, Team-wise, Sub-Team-wise, and ADM-wise, with the ability to select a single ADM or multiple ADMs. It must also be available Customer-wise,  or multiple customers. the report must support period-based filtering,  date range, a selected month, or  year."						
+							
+							
+							
+							
+							
+							
+							
+							
+	"The above format   can be modified or changed, but all field details must remain mandatory.”"						
+							
+							
+							
+							
+							

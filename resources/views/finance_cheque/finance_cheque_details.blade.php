@@ -42,10 +42,10 @@
                 <span class="slip-detail-text">
                     @php
                     $statusClass = match($deposit['status']) {
-                    'accepted' => 'success-status-btn',
+                    'approved' => 'success-status-btn',
                     'pending' => 'blue-status-btn',
+                    'voided' => 'danger-status-btn',
                     'rejected' => 'danger-status-btn',
-                    'declined' => 'danger-status-btn',
                     'over_to_finance' => 'dark-status-btn',
                     default => 'grey-status-btn',
                     };
@@ -160,7 +160,12 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+  <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark..."></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -178,12 +183,12 @@
     $currentStatus =$deposit['status'];
     @endphp
 
-    @if ($currentStatus === 'pending' || $currentStatus === 'declined')
-    <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+    @if ($currentStatus === 'pending' || $currentStatus === 'rejected')
+    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
     <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recived by finance</button>
     @elseif ($currentStatus === 'over_to_finance')
-    <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
-    <button class="success-action-btn-lg update-status-btn" data-status="accepted">Accept</button>
+    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
     @endif
     @endif
 </div>
@@ -247,6 +252,14 @@
 
                 confirmText.textContent = selectedStatus.replace('_', ' ').toUpperCase();
                 confirmModal.style.display = 'block';
+
+                const remarkBox = document.getElementById('remark-box');
+                if(selectedStatus === 'rejected'){
+                    remarkBox.style.display = 'block';
+                } else {
+                    remarkBox.style.display = 'none';
+                    document.getElementById('decline-remark').value = '';
+                }
             });
         });
 
@@ -268,7 +281,8 @@
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
                     body: JSON.stringify({
-                        status: selectedStatus
+                        status: selectedStatus,
+                        remark: document.getElementById('decline-remark').value || null
                     })
                 });
 
@@ -293,9 +307,9 @@
                 statusButton.textContent = formatted;
 
                 // Update badge color
-                if (selectedStatus === "accepted") {
+                if (selectedStatus === "approved") {
                     statusButton.className = "success-status-btn";
-                } else if (selectedStatus === "rejected") {
+                } else if (selectedStatus === "voided") {
                     statusButton.className = "danger-status-btn";
                 } else {
                     statusButton.className = "blue-status-btn";
@@ -317,19 +331,19 @@
             // Remove old buttons except Back
             footer.innerHTML = `<a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>`;
 
-            if (status === "accepted") return;
+            if (status === "approved") return;
 
-            if (status === "pending" || status === "declined") {
+            if (status === "pending" || status === "rejected") {
                 footer.innerHTML += `
-            <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
+            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
             <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recieved by finance</button>
         `;
             }
 
             if (status === "over_to_finance") {
                 footer.innerHTML += `
-            <button class="red-action-btn-lg update-status-btn" data-status="declined">Decline</button>
-            <button class="success-action-btn-lg update-status-btn" data-status="accepted">Accept</button>
+            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
         `;
             }
 

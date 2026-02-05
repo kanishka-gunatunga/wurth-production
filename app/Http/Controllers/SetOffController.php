@@ -11,6 +11,7 @@ use App\Models\SetOffs;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Services\ActivitLogService;
 
 class SetOffController extends Controller
 {
@@ -168,13 +169,15 @@ class SetOffController extends Controller
             }
 
             // ✅ Save Set-Off Record (final_amount only from invoices)
-            SetOffs::create([
+            $setOffRecord = SetOffs::create([
                 'invoice_or_cheque_no' => $invoiceJson,
                 'extraPayment_or_creditNote_no' => $creditNoteJson,
                 'final_amount' => $finalAmount,
                 'reason' => $reason,
                 'gl_breakdown' => $request->gl_breakdown, // ✅ add
             ]);
+
+            ActivitLogService::log('set_off', "Set-off ID: {$setOffRecord->id} created with total amount: {$setOffRecord->final_amount}");
 
             DB::commit();
 

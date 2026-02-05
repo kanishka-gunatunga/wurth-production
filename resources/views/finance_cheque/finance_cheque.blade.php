@@ -91,6 +91,7 @@
         <div class="header-and-content-gap-lg"></div>
         @if(!empty($filters))
         <form method="POST" action="{{ url('finance-cheque/export') }}">
+            @csrf
             @foreach($filters as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)
@@ -147,10 +148,10 @@
                         <td>
                             @php
                             $statusClass = match(strtolower($item['status'])) {
-                            'accepted' => 'success-status-btn',
+                            'approved' => 'success-status-btn',
                             'pending' => 'blue-status-btn',
+                            'voided' => 'danger-status-btn',
                             'rejected' => 'danger-status-btn',
-                            'declined' => 'danger-status-btn',
                             'over_to_finance' => 'dark-status-btn',
                             default => 'grey-status-btn'
                             };
@@ -172,18 +173,18 @@
 
                             <button class="red-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="declined">Decline</button>
+                                data-status="rejected">Reject</button>
                             @endif
 
                             {{-- Over to finance → Show Approve 2 + Reject --}}
                             @if ($status === 'over_to_finance')
                             <button class="success-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="accepted">Accept</button>
+                                data-status="approved">Approve</button>
 
                             <button class="red-action-btn update-status"
                                 data-id="{{ $item['id'] }}"
-                                data-status="declined">Decline</button>
+                                data-status="rejected">Reject</button>
                             @endif
                             @endif
 
@@ -370,7 +371,9 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+        <textarea id="decline-remark" 
+          placeholder="Enter decline remark..."
+          style="display:none;width:100%;margin-top:10px;border-radius:8px;padding:8px;border:1px solid #ccc;"></textarea>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -526,7 +529,13 @@
             // Set text in modal
             document.getElementById("confirm-status-text").innerText =
                 selectedStatus.replaceAll('_', ' ').toUpperCase();
-
+            const remarkBox = document.getElementById("decline-remark");
+            if (selectedStatus === 'rejected') {
+                remarkBox.style.display = "block";
+            } else {
+                remarkBox.style.display = "none";
+                remarkBox.value = "";
+            }    
             // Show modal
             document.getElementById("confirm-status-modal").style.display = "block";
         }
@@ -544,7 +553,7 @@
 
             const row = currentButton.closest("tr");
             const depositId = row.getAttribute("data-href").split("/").pop();
-
+            const remark = document.getElementById("decline-remark").value;
             // Send request
             fetch("{{ url('finance-cheque/update-status', '') }}/" + depositId, {
                     method: "POST",
@@ -553,7 +562,8 @@
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
                     body: JSON.stringify({
-                        status: selectedStatus
+                        status: selectedStatus,
+                        remark: remark
                     })
                 })
                 .then(res => res.json())
@@ -566,9 +576,9 @@
 
                     statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
 
-                    if (selectedStatus === "accepted") {
+                    if (selectedStatus === "approved") {
                         statusBtn.className = "success-status-btn";
-                    } else if (selectedStatus === "declined") {
+                    } else if (selectedStatus === "rejected") {
                         statusBtn.className = "danger-status-btn";
                     } else {
                         statusBtn.className = "blue-status-btn";
@@ -583,11 +593,11 @@
                         row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
                         <button class="success-action-btn update-status"
                             data-id="${depositId}"
-                            data-status="accepted">Accept</button>
+                            data-status="approved">Approve</button>
 
                         <button class="red-action-btn update-status"
                             data-id="${depositId}"
-                            data-status="declined">Decline</button>
+                            data-status="rejected">Reject</button>
                     `);
                     }
 

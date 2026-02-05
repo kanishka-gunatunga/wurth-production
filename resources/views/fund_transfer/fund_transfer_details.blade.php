@@ -3,7 +3,7 @@
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
         <h1 class="header-title">
-            Fund Transfer No. - {{ $deposit->transfer_reference_number }}
+            Fund Transfer No. - {{ $payment->transfer_reference_number ?? 'N/A' }}
         </h1>
     </div>
 
@@ -12,41 +12,41 @@
         <div class="slip-details">
             <p>
                 <span class="bold-text">Date :</span>
-                <span class="slip-detail-text">&nbsp;{{ $deposit->transfer_date }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : '-' }}</span>
             </p>
             <p>
                 <span class="bold-text">ADM No. :</span>
                 <span class="slip-detail-text">
-                    &nbsp;{{ $deposit->invoice->customer->adm ?? '-' }}
+                    &nbsp;{{ $payment->invoice->customer->adm ?? '-' }}
                 </span>
             </p>
             <p>
                 <span class="bold-text">ADM Name :</span>
                 <span class="slip-detail-text">
-                    &nbsp;{{ $deposit->invoice->customer->admDetails->name ?? '-' }}
+                    &nbsp;{{ $payment->invoice->customer->admDetails->name ?? '-' }}
                 </span>
             </p>
 
             <p>
                 <span class="bold-text">Customer ID :</span>
                 <span class="slip-detail-text">
-                    &nbsp;{{ $deposit->invoice->customer->customer_id ?? '-' }}
+                    &nbsp;{{ $payment->invoice->customer->customer_id ?? '-' }}
                 </span>
             </p>
             <p>
                 <span class="bold-text">Customer Name :</span>
                 <span class="slip-detail-text">
-                    &nbsp;{{ $deposit->invoice->customer->name ?? '-' }}
+                    &nbsp;{{ $payment->invoice->customer->name ?? '-' }}
                 </span>
             </p>
             <p>
                 <span class="bold-text">Transfer Reference Number :</span>
-                <span class="slip-detail-text">&nbsp;{{ $deposit->transfer_reference_number }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $payment->transfer_reference_number ?? '-' }}</span>
             </p>
 
             <p>
                 <span class="bold-text">Total Amount :</span>
-                <span class="slip-detail-text">&nbsp;Rs. {{ number_format($deposit->final_payment, 2) }}</span>
+                <span class="slip-detail-text">&nbsp;Rs. {{ number_format($deposit->amount, 2) }}</span>
             </p>
 
             <p>
@@ -56,10 +56,10 @@
                     $status = strtolower($deposit->status ?? '');
 
                     $statusClass = match($status) {
-                    'accepted' => 'success-status-btn',
+                    'approved' => 'success-status-btn',
                     'pending' => 'grey-status-btn',
+                    'voided' => 'danger-status-btn',
                     'rejected' => 'danger-status-btn',
-                    'declined' => 'danger-status-btn',
                     default => 'grey-status-btn',
                     };
 
@@ -73,8 +73,12 @@
             @if(in_array('deposits-fund-transfer-download', session('permissions', [])))        
             <p>
                 <span class="bold-text">Attachment Download :</span>
-                @if($deposit->screenshot)
-                <a href="{{ asset('uploads/adm/collections/fund_transfer_reciepts/' . $deposit->screenshot) }}" download>
+                @if($deposit->attachment_path)
+                <a href="{{ asset($deposit->attachment_path) }}" download>
+                    <button class="black-action-btn">Download</button>
+                </a>
+                @elseif($payment && $payment->screenshot)
+                 <a href="{{ asset('uploads/adm/collections/fund_transfer_reciepts/' . $payment->screenshot) }}" download>
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else
@@ -116,7 +120,13 @@
         <h4 style="margin:1rem 0; font-weight:600; color:#000;">Are you sure?</h4>
 
         <p style="margin:1rem 0; color:#6c757d;">Do you want to change the status to <span id="confirm-status-text" style="font-weight:600;"></span>?</p>
-
+        <div id="remark-box" style="display:none; margin-top:1rem; text-align:left;">
+    <label style="font-weight:600;">Remark (required when declining)</label>
+    <textarea id="decline-remark"
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"
+        rows="3"
+        placeholder="Enter decline remark"></textarea>
+</div>
         <!-- Action buttons -->
         <div style="display:flex; justify-content:center; gap:1rem; margin-top:2rem;">
             <button id="confirm-no-btn" style="padding:0.5rem 1rem; border-radius:12px; border:1px solid #ccc; background:#fff; cursor:pointer;">No</button>
@@ -131,8 +141,8 @@
     @if(strtolower($status) !== 'approved')
      @if(in_array('deposits-fund-transfer-status', session('permissions', [])))  
     <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="declined">Decline</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="accepted">Accept</button>
+    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
     @endif
     @endif
 </div>
@@ -185,6 +195,11 @@
 
             // Show confirmation modal
             document.getElementById('confirm-status-text').innerText = newStatus;
+             if (newStatus.toLowerCase() === 'rejected' || newStatus.toLowerCase() === 'voided') {
+                document.getElementById('remark-box').style.display = 'block';
+            } else {
+                document.getElementById('remark-box').style.display = 'none';
+            }
             const modal = document.getElementById('confirm-status-modal');
             modal.style.display = 'block';
 
@@ -200,7 +215,7 @@
 
             yesBtn.onclick = function() {
                 modal.style.display = 'none';
-
+                 let remark = document.getElementById('decline-remark').value.trim();
                 // Send AJAX request to update status
                 fetch(`{{ url('/fund-transfers/update-status') }}/${depositId}`, {
                         method: 'POST',
@@ -209,7 +224,7 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            status: newStatus
+                            status: newStatus,remark: remark
                         })
                     })
                     .then(res => res.json())
@@ -218,10 +233,10 @@
                             // Update status button visually
                             const statusBtn = document.querySelector('.slip-detail-text button');
                             statusBtn.innerText = data.status;
-                            statusBtn.className = data.status.toLowerCase() === 'accepted' ? 'success-status-btn' : 'danger-status-btn';
+                            statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'accepted') {
+                            if (data.status.toLowerCase() === 'approved') {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
                             }
                         } else {

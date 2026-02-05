@@ -404,7 +404,7 @@
                     return `
                 <div class="mb-3">
                     <label for="amountInput_${uniqueId}" class="form-label form-label-md">Amount</label>
-                    <input type="text" class="form-control form-input-md" id="amountInput_${uniqueId}" placeholder="Enter Amount">
+                    <input type="number" class="form-control form-input-md format-preview" id="amountInput_${uniqueId}" placeholder="Enter Amount">
                 </div>
                 <div class="mb-3">
                     <label for="discountInput_${uniqueId}" class="form-label form-label-md">Discount</label>
@@ -484,7 +484,7 @@
                             </div>
                             <div class="input-group-collection-inner d-flex flex-column mb-3">
                                 <label class="form-label form-label-md" for="cheque_amount_${uniqueId}">Cheque Amount</label>
-                                <input type="number" class="form-control form-input-md" id="cheque_amount_${uniqueId}"
+                                <input type="number" class="form-control form-input-md format-preview" id="cheque_amount_${uniqueId}"
                                     placeholder="Enter Cheque Amount" name="cheque_amount" required />
                                 <div class="invalid-feedback">Cheque Amount is required</div>
                             </div>
@@ -556,7 +556,7 @@
                         <form id="CardPaymentForm_${uniqueId}" class="content needs-validation p-0 border-0 px-1" novalidate>
                             <div class="input-group-collection-inner d-flex flex-column mb-3">
                                 <label for="card_amount_${uniqueId}" class="form-label-md">Amount</label>
-                                <input type="number" class="form-control form-input-md" id="card_amount_${uniqueId}"
+                                <input type="number" class="form-control form-input-md format-preview" id="card_amount_${uniqueId}"
                                     placeholder="Enter Amount" name="card_amount" required />
                                 <div class="invalid-feedback">Amount is required</div>
                             </div>

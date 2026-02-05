@@ -20,7 +20,7 @@
                             <option value="1">System Administrator</option> 
                             <option value="2">Head of Division</option>
                             <option value="3">Regional Sales Manager</option>
-                            <option value="4">Area Sales Manager</option>
+                            <option value="4">Area Sales Manager</option> 
                             <option value="5">Team Leader</option>
                             <option value="6">ADM (Sales Rep)</option>
                             <option value="7">Finance Manager</option>

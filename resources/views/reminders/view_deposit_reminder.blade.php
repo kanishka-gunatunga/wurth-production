@@ -83,4 +83,4 @@
 </div>
 
 </div>
-@include('finance::layouts.footer2')
+@include('layouts.footer2')

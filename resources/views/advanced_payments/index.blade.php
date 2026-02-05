@@ -112,7 +112,7 @@
                     @endphp
                     <tr class="clickable-row" data-href="{{ url('advance-payments-details/'.$payment->id) }}">
                         <td>{{ $payment->date }}</td>
-                        <td>{{ $payment->adm_id }}</td>
+                        <td>{{ $payment->admDetails?->adm_number ?? 'N/A' }}</td>
                         <td>{{ $payment->admDetails?->name ?? 'N/A' }}</td>
                         <td>{{ $payment->customerData?->name ?? 'N/A' }}</td>
                         <td>{{ number_format($payment->payment_amount, 2) }}</td>

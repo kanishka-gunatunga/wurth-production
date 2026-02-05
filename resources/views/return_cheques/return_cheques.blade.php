@@ -147,7 +147,7 @@
                             <td>Rs. {{ number_format($cheque->amount, 2) }}</td>
 
                             {{-- Returned Date --}}
-                            <td>{{ \Carbon\Carbon::parse($cheque->returned_date)->format('Y-m-d') }}</td>
+                            <td>{{ $cheque->returned_date ?? 'N/A' }}</td>
 
                             {{-- Bank --}}
                             <td>{{ $cheque->bank }}</td>
@@ -439,38 +439,46 @@
 
 
         uploadBtn.addEventListener("click", () => {
-            if (!fileInput.files.length) {
-                alert("Please select a file first!"); 
-                return;
-            }
+    if (!fileInput.files.length) {
+        alert("Please select a file first!");
+        return;
+    }
 
-            const formData = new FormData();
-            formData.append("file", fileInput.files[0]);
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
 
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = "Uploading...";
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "Uploading...";
 
-            fetch("{{ url('return-cheques/import') }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    },
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    uploadBtn.disabled = false;
-                    uploadBtn.textContent = "Submit";
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Error during upload. Please try again!");
-                    uploadBtn.disabled = false;
-                    uploadBtn.textContent = "Submit";
-                });
-        });
+    fetch("{{ url('return-cheques/import') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json" // IMPORTANT
+        },
+        body: formData,
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) {
+            throw data;
+        }
+        return data;
+    })
+    .then(data => {
+
+        toastr.success(data.message);
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Submit";
+        // location.reload();
+    })
+    .catch(error => {
+        toastr.error(error.message || "Server error occurred!");
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Submit";
+    });
+});
+
 
 
     });
@@ -514,5 +522,16 @@
             // Submit the form to reload page without filters
             document.getElementById('filterForm').submit();
         });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
     });
 </script>
