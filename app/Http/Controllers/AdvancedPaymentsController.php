@@ -76,17 +76,17 @@ class AdvancedPaymentsController extends Controller
 
         // 🔎 Search keyword
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('adm_id', 'like', "%{$search}%")
-                    ->orWhereHas('admDetails', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('customerData', function ($q3) use ($search) {
-                        $q3->where('name', 'like', "%{$search}%");
-                    });
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->whereHas('admDetails', function ($q2) use ($search) {
+                $q2->where('adm_number', 'like', "%{$search}%")
+                   ->orWhere('name', 'like', "%{$search}%");
+            })
+            ->orWhereHas('customerData', function ($q3) use ($search) {
+                $q3->where('name', 'like', "%{$search}%");
             });
-        }
+        });
+    }
 
         // 🎯 ADM Name filter
         if ($request->filled('adm_names')) {
@@ -95,9 +95,11 @@ class AdvancedPaymentsController extends Controller
             });
         }
 
-        // 🎯 ADM ID filter
-        if ($request->filled('adm_ids')) {
-            $query->whereIn('adm_id', $request->adm_ids);
+        // 🎯 ADM Number filter
+        if ($request->filled('adm_numbers')) {
+            $query->whereHas('admDetails', function ($q) use ($request) {
+                $q->whereIn('adm_number', $request->adm_numbers);
+            });
         }
 
         // 🎯 Customer filter

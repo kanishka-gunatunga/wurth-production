@@ -688,27 +688,45 @@ public function switch_user(Request $request)
     try {
 
         // ========================================
-        // 1️⃣ SWITCH CUSTOMERS (ONLY IF BOTH ROLE 6)
+        // 1️⃣ SWITCH RESPONSIBILITIES (CUSTOMERS OR SUBORDINATES)
         // ========================================
         if ($userA->user_role == 6 && $userB->user_role == 6) {
-
+            // ADMs (Sales Reps) swap customers
             $admA = $aDetails->adm_number;
             $admB = $bDetails->adm_number;
 
             if ($admA && $admB) {
+                // Using a temporary placeholder to avoid sequential update bug
+                $tempAdm = 'TEMP_ADM_SWAP_' . time();
 
                 // Swap primary ADM
-                Customers::where('adm', $admA)->update(['adm' => $admB]);
+                Customers::where('adm', $admA)->update(['adm' => $tempAdm]);
                 Customers::where('adm', $admB)->update(['adm' => $admA]);
+                Customers::where('adm', $tempAdm)->update(['adm' => $admB]);
 
                 // Swap secondary ADM
-                Customers::where('secondary_adm', $admA)->update(['secondary_adm' => $admB]);
+                Customers::where('secondary_adm', $admA)->update(['secondary_adm' => $tempAdm]);
                 Customers::where('secondary_adm', $admB)->update(['secondary_adm' => $admA]);
+                Customers::where('secondary_adm', $tempAdm)->update(['secondary_adm' => $admB]);
             }
+        } else {
+            // Other roles swap their subordinates
+            // Using a temporary placeholder ID to avoid sequential update bug
+            $tempId = -999999;
+
+            // Swap supervisor
+            UserDetails::where('supervisor', $userA->id)->update(['supervisor' => $tempId]);
+            UserDetails::where('supervisor', $userB->id)->update(['supervisor' => $userA->id]);
+            UserDetails::where('supervisor', $tempId)->update(['supervisor' => $userB->id]);
+
+            // Swap secondary supervisor
+            UserDetails::where('second_supervisor', $userA->id)->update(['second_supervisor' => $tempId]);
+            UserDetails::where('second_supervisor', $userB->id)->update(['second_supervisor' => $userA->id]);
+            UserDetails::where('second_supervisor', $tempId)->update(['second_supervisor' => $userB->id]);
         }
 
         // ========================================
-        // 2️⃣ SWAP SUPERVISORS BETWEEN USERS
+        // 2️⃣ SWAP SUPERVISORS OF THE USERS THEMSELVES
         // ========================================
 
         $tempSupervisor = $aDetails->supervisor;
@@ -723,18 +741,6 @@ public function switch_user(Request $request)
         $aDetails->save();
         $bDetails->save();
 
-        // ========================================
-        // 3️⃣ UPDATE SUBORDINATES OF BOTH USERS
-        // ========================================
-
-        // Supervisor swap
-        UserDetails::where('supervisor', $userA->id)->update(['supervisor' => $userB->id]);
-        UserDetails::where('supervisor', $userB->id)->update(['supervisor' => $userA->id]);
-
-        // Secondary supervisor swap
-        UserDetails::where('second_supervisor', $userA->id)->update(['second_supervisor' => $userB->id]);
-        UserDetails::where('second_supervisor', $userB->id)->update(['second_supervisor' => $userA->id]);
-
         DB::commit();
 
        ActivitLogService::log('user management',$userA->userDetails->name . ' and ' . $userB->userDetails->name . ' were switched');
@@ -748,6 +754,86 @@ public function switch_user(Request $request)
         return back()->with('fail', $e->getMessage());
     }
 }
+// public function switch_user(Request $request)
+// {
+//     $userId = $request->user_id;
+//     $switchUserId = $request->switch_user_id;
+
+//     $userA = User::with('userDetails')->find($userId);
+//     $userB = User::with('userDetails')->find($switchUserId);
+
+//     if (!$userA || !$userB) {
+//         return back()->with('fail', 'Users not found');
+//     }
+
+//     $aDetails = $userA->userDetails;
+//     $bDetails = $userB->userDetails;
+
+//     DB::beginTransaction();
+
+//     try {
+
+//         // ========================================
+//         // 1️⃣ SWITCH CUSTOMERS (ONLY IF BOTH ROLE 6)
+//         // ========================================
+//         if ($userA->user_role == 6 && $userB->user_role == 6) {
+
+//             $admA = $aDetails->adm_number;
+//             $admB = $bDetails->adm_number;
+
+//             if ($admA && $admB) {
+
+//                 // Swap primary ADM
+//                 Customers::where('adm', $admA)->update(['adm' => $admB]);
+//                 Customers::where('adm', $admB)->update(['adm' => $admA]);
+
+//                 // Swap secondary ADM
+//                 Customers::where('secondary_adm', $admA)->update(['secondary_adm' => $admB]);
+//                 Customers::where('secondary_adm', $admB)->update(['secondary_adm' => $admA]);
+//             }
+//         }
+
+//         // ========================================
+//         // 2️⃣ SWAP SUPERVISORS BETWEEN USERS
+//         // ========================================
+
+//         $tempSupervisor = $aDetails->supervisor;
+//         $tempSecondary = $aDetails->second_supervisor;
+
+//         $aDetails->supervisor = $bDetails->supervisor;
+//         $aDetails->second_supervisor = $bDetails->second_supervisor;
+
+//         $bDetails->supervisor = $tempSupervisor;
+//         $bDetails->second_supervisor = $tempSecondary;
+
+//         $aDetails->save();
+//         $bDetails->save();
+
+//         // ========================================
+//         // 3️⃣ UPDATE SUBORDINATES OF BOTH USERS
+//         // ========================================
+
+//         // Supervisor swap
+//         UserDetails::where('supervisor', $userA->id)->update(['supervisor' => $userB->id]);
+//         UserDetails::where('supervisor', $userB->id)->update(['supervisor' => $userA->id]);
+
+//         // Secondary supervisor swap
+//         UserDetails::where('second_supervisor', $userA->id)->update(['second_supervisor' => $userB->id]);
+//         UserDetails::where('second_supervisor', $userB->id)->update(['second_supervisor' => $userA->id]);
+
+//         DB::commit();
+
+//        ActivitLogService::log('user management',$userA->userDetails->name . ' and ' . $userB->userDetails->name . ' were switched');
+
+
+//         return back()->with('success', 'Users switched successfully');
+
+//     } catch (\Exception $e) {
+
+//         DB::rollBack();
+//         return back()->with('fail', $e->getMessage());
+//     }
+// }
 public function replace_user(Request $request)
 {
     $userId = $request->repalce_user_id;           // User A (the one being replaced)

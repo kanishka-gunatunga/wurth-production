@@ -35,6 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if($writeOff->gl_breakdown)
                     @forelse ($writeOff->gl_breakdown as $glCode => $gl)
                         <tr>
                             <td>{{ $glCode }}</td>
@@ -46,6 +47,7 @@
                             <td colspan="3" class="text-center">No GL data available</td>
                         </tr>
                     @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>

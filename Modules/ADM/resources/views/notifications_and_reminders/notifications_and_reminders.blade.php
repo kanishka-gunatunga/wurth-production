@@ -6,13 +6,13 @@ use App\Models\Customers;
 <div class="content px-0">
     <div class="px-0 mb-3">
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" style="width: 50vw;" id="pills-payment-tab" data-bs-toggle="pill"
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link active" style="width: 100%;" id="pills-payment-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment"
                     aria-selected="true">Reminders</button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" style="width: 50vw;" id="pills-system-tab" data-bs-toggle="pill"
+            <li class="nav-item w-100" role="presentation">
+                <button class="nav-link" style="width: 100%;" id="pills-system-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-system" type="button" role="tab" aria-controls="pills-system"
                     aria-selected="false">System Notifications</button>
             </li>

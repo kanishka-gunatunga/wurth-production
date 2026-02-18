@@ -166,7 +166,7 @@ $activeTab = request('active_tab', 'final');
                               <input type="hidden" name="active_tab" value="final">
                             <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <input type="text" name="final_search" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" value="{{ request('final_search') }}" />
+                                <input type="text" name="final_search" class="search-input" placeholder="Search by Receipt No, ADM No and Customer No" value="{{ request('final_search') }}" />
                             </div>
                         </form>
                         <button class="header-btn" id="final-search-toggle-button">
@@ -240,11 +240,18 @@ $activeTab = request('active_tab', 'final');
                                             Resend SMS
                                         </button>
                                         @endif 
-                                        @if(in_array('all-receipts-final-download', session('permissions', [])))
-                                        <a href="{{ $payment->pdf_path ? asset($payment->pdf_path) : '#' }}">
-                                            <button class="black-action-btn">Download</button>
-                                        </a>
+                                       @if(in_array('all-receipts-final-download', session('permissions', [])))
+                                            @if(!empty($payment->pdf_path) && file_exists(public_path($payment->pdf_path)))
+                                                <a href="{{ asset($payment->pdf_path) }}">
+                                                    <button class="black-action-btn">Download</button>
+                                                </a>
+                                            @else
+                                                <button class="black-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                                    No File
+                                                </button>
+                                            @endif
                                         @endif
+
                                         @if(in_array('all-receipts-final-edit', session('permissions', [])))
                                         <!-- <a href="{{ url('/edit-receipt/'.$payment->id) }}"><button class="success-action-btn">Edit</button></a> -->
                                         @endif
@@ -274,7 +281,7 @@ $activeTab = request('active_tab', 'final');
                              <input type="hidden" name="active_tab" value="temporary">
                             <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <input type="text" name="temp_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('temp_search') }}" />
+                                <input type="text" name="temp_search" class="search-input" placeholder="Search by Receipt No, ADM No and Customer No" value="{{ request('temp_search') }}" />
                             </div>
                         </form>
                         <button class="header-btn" id="tr-search-toggle-button">
@@ -302,12 +309,12 @@ $activeTab = request('active_tab', 'final');
                             @forelse($temp_receipts as $temp_receipt)
                             <tr>
                                 <td>{{ $temp_receipt->invoice->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $temp_receipt->invoice->customer->admDetails->name ?? 'N/A' }}</td>
-                                <td>{{ $temp_receipt->invoice->customer->adm ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->id ?? 'N/A' }}</td>
                                 <td>{{ $temp_receipt->created_at ?? 'N/A' }}</td>
                                 <td>{{ number_format($temp_receipt->amount, 2) ?? '0.00' }}</td>
-
+                                <td>{{ $temp_receipt->invoice->customer->admDetails->name ?? 'N/A' }}</td>
+                                <td>{{ $temp_receipt->invoice->customer->adm ?? 'N/A' }}</td>
+    
 
                                 <!-- Actions -->
                                 <td class="sticky-column">
@@ -321,9 +328,16 @@ $activeTab = request('active_tab', 'final');
                                         </button>
                                         @endif
                                          @if(in_array('all-receipts-temporary-download', session('permissions', [])))
-                                        <a href="{{ $temp_receipt->pdf_path ? asset($temp_receipt->pdf_path) : '#' }}">
-                                            <button class="black-action-btn">Download</button>
-                                        </a>
+                              
+                                         @if(!empty($temp_receipt->pdf_path) && file_exists(public_path($temp_receipt->pdf_path)))
+                                                <a href="{{ asset($temp_receipt->pdf_path) }}">
+                                                    <button class="black-action-btn">Download</button>
+                                                </a>
+                                            @else
+                                                <button class="black-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                                    No File
+                                                </button>
+                                            @endif
                                         @endif
                                          @if(in_array('all-receipts-temporary-edit', session('permissions', [])))
                                         <!-- <a href="{{ url('/edit-receipt/'.$temp_receipt->id) }}"><button class="success-action-btn">Edit</button></a> -->
@@ -354,7 +368,7 @@ $activeTab = request('active_tab', 'final');
                              <input type="hidden" name="active_tab" value="advance">
                             <div id="receipts-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <input type="text" name="advance_search" class="search-input" placeholder="Search Receipt, ADM or Customer" value="{{ request('advance_search') }}" />
+                                <input type="text" name="advance_search" class="search-input" placeholder="Search by Receipt No, ADM No and Customer No" value="{{ request('advance_search') }}" />
                             </div>
                         </form>
                         <button class="header-btn" id="receipts-search-toggle-button">
@@ -411,9 +425,20 @@ $activeTab = request('active_tab', 'final');
                                         </button>
                                         @endif
                                          @if(in_array('all-receipts-advanced-download', session('permissions', [])))
-                                        <a href="{{asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment.'')}}" download>
-                                            <button class="black-action-btn">Download</button>
-                                        </a>
+                          
+                                       @if(
+                                            !empty($advanced_payment->attachment) &&
+                                            file_exists(public_path('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment))
+                                        )
+                                            <a href="{{ asset('uploads/adm/advanced_payments/attachments/'.$advanced_payment->attachment) }}" download>
+                                                <button class="black-action-btn">Download</button>
+                                            </a>
+                                        @else
+                                            <button class="black-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                                No File
+                                            </button>
+                                        @endif
+
                                         @endif
                                          @if(in_array('all-receipts-advanced-edit', session('permissions', [])))
                                         <!-- <a href="{{ url('/edit-advanced-payment/'.$advanced_payment->id) }}"><button class="success-action-btn">Edit</button></a> -->
@@ -1256,4 +1281,15 @@ $activeTab = request('active_tab', 'final');
 }
 
    
+</script>
+   <script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
 </script>

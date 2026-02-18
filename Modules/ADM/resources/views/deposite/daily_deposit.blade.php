@@ -274,7 +274,7 @@ $('form').on('submit', function (e) {
         toastr.error('Please upload at least one transfer screenshot.');
         return false;
     }
-     if (depositType === 'cheque' || depositType === 'finance-cheque') {
+     if (depositType === 'cheque') {
         const bank = $('#cheque_bank').val();
         const branch = $('#cheque_branch').val();
 

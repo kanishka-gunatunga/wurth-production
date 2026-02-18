@@ -270,112 +270,26 @@ public function getUsersByLevel(Request $request, $level)
                 // Hierarchy Rank: 1=SysAdmin, 7=Finance, 2=HOD, 3=RSM, 4=ASM, 5=TL, 6=ADM, 8=Recovery
                 $fieldList = "1,7,2,3,4,5,6,8";
                 
-                // --- RANK CHECK (Grouped) ---
-                $flowQ->where(function($rankGrp) use ($currentUserRole, $fieldList) {
-                    $rankGrp->where(function($rankCheck) use ($currentUserRole, $fieldList) {
-                        $rankCheck->whereRaw("FIELD(?, $fieldList) > FIELD(sender.user_role, $fieldList)", [$currentUserRole])
-                                  ->whereRaw("FIELD(?, $fieldList) < IFNULL(FIELD(reminders.user_level, $fieldList), 9)", [$currentUserRole]);
-                    })
-                    ->orWhere(function($rankCheckRev) use ($currentUserRole, $fieldList) {
-                        $rankCheckRev->whereRaw("FIELD(?, $fieldList) < FIELD(sender.user_role, $fieldList)", [$currentUserRole])
-                                     ->whereRaw("FIELD(?, $fieldList) > IFNULL(FIELD(reminders.user_level, $fieldList), 0)", [$currentUserRole]);
-                    });
+                // Rank comparison: We want ONLY users BETWEEN sender and target
+                $flowQ->where(function($rankCheck) use ($currentUserRole, $fieldList) {
+                    $rankCheck->whereRaw("FIELD(?, $fieldList) > FIELD(sender.user_role, $fieldList)", [$currentUserRole])
+                              ->whereRaw("FIELD(?, $fieldList) < IFNULL(FIELD(reminders.user_level, $fieldList), 9)", [$currentUserRole]);
+                })
+                ->orWhere(function($rankCheckRev) use ($currentUserRole, $fieldList) {
+                    $rankCheckRev->whereRaw("FIELD(?, $fieldList) < FIELD(sender.user_role, $fieldList)", [$currentUserRole])
+                                 ->whereRaw("FIELD(?, $fieldList) > IFNULL(FIELD(reminders.user_level, $fieldList), 0)", [$currentUserRole]);
                 });
 
-                // --- CONNECTION CHECK (Strict Path vs Division Match) ---
-                $flowQ->where(function ($connQ) use ($currentUserId, $currentUserDivision, $isGlobalUser) {
-                    // Global users (1 and 7) see all flow between sender and target
-                    if ($isGlobalUser) {
-                        $connQ->whereRaw('1=1');
-                        return;
-                    }
-
-                    // Case A: Role Broadcast (send_to is empty)
-                    // Match current user division with either reminder division or sender division
-                    $connQ->where(function($roleProc) use ($currentUserDivision) {
-                        $roleProc->whereNull('reminders.send_to')
-                                 ->where(function($divCheck) use ($currentUserDivision) {
-                                     $divCheck->where('reminders.division', $currentUserDivision)
-                                              ->orWhere('sender_details.division', $currentUserDivision);
-                                 });
-                    })
-                    // Case B: Specific Recipient (send_to has IDs)
-                    // Strict supervisor check: User must be in the direct supervisor chain of lower-ranked party
-                    ->orWhere(function($specProc) use ($currentUserId) {
-                        $specProc->whereNotNull('reminders.send_to')
-                        ->where(function($strictQ) use ($currentUserId) {
-                             // --- SENDER SIDE HIERARCHY ---
-                             $strictQ->where(function($sChain) use ($currentUserId) {
-                                 // L1: Direct supervisor
-                                 $sChain->where('sender_details.supervisor', $currentUserId)
-                                        ->orWhere('sender_details.second_supervisor', $currentUserId)
-                                        // L2: Supervisor of supervisor
-                                        ->orWhereExists(function($l2) use ($currentUserId) {
-                                            $l2->from('user_details as u2')
-                                               ->whereColumn('u2.user_id', 'sender_details.supervisor')
-                                               ->where(fn($q) => $q->where('u2.supervisor', $currentUserId)->orWhere('u2.second_supervisor', $currentUserId));
-                                        })
-                                        // L3: Supervisor of Level 2 supervisor
-                                        ->orWhereExists(function($l3) use ($currentUserId) {
-                                            $l3->from('user_details as u2_3')
-                                               ->whereColumn('u2_3.user_id', 'sender_details.supervisor')
-                                               ->whereExists(function($l2_3) use ($currentUserId) {
-                                                   $l2_3->from('user_details as u3')
-                                                        ->whereColumn('u3.user_id', 'u2_3.supervisor')
-                                                        ->where(fn($q) => $q->where('u3.supervisor', $currentUserId)->orWhere('u3.second_supervisor', $currentUserId));
-                                               });
-                                        })
-                                        // L4: Supervisor of Level 3 supervisor
-                                        ->orWhereExists(function($l4) use ($currentUserId) {
-                                            $l4->from('user_details as u2_4')
-                                               ->whereColumn('u2_4.user_id', 'sender_details.supervisor')
-                                               ->whereExists(function($l3_4) use ($currentUserId) {
-                                                   $l3_4->from('user_details as u3_4')
-                                                        ->whereColumn('u3_4.user_id', 'u2_4.supervisor')
-                                                        ->whereExists(function($l2_4) use ($currentUserId) {
-                                                            $l2_4->from('user_details as u4')
-                                                                 ->whereColumn('u4.user_id', 'u3_4.supervisor')
-                                                                 ->where(fn($q) => $q->where('u4.supervisor', $currentUserId)->orWhere('u4.second_supervisor', $currentUserId));
-                                                        });
-                                               });
-                                        });
-                             })
-                             // --- RECIPIENT SIDE HIERARCHY ---
-                             ->orWhereExists(function ($sub) use ($currentUserId) {
-                                 $sub->from('user_details as rd')
-                                     ->whereRaw("JSON_CONTAINS(reminders.send_to, JSON_QUOTE(CAST(rd.user_id AS CHAR)))")
-                                     ->where(function($rChain) use ($currentUserId) {
-                                         // L1: Direct supervisor
-                                         $rChain->where('rd.supervisor', $currentUserId)
-                                                ->orWhere('rd.second_supervisor', $currentUserId)
-                                                // L2
-                                                ->orWhereExists(function($rl2) use ($currentUserId) {
-                                                    $rl2->from('user_details as rd2')->whereColumn('rd2.user_id', 'rd.supervisor')
-                                                        ->where(fn($q) => $q->where('rd2.supervisor', $currentUserId)->orWhere('rd2.second_supervisor', $currentUserId));
-                                                })
-                                                // L3
-                                                ->orWhereExists(function($rl3) use ($currentUserId) {
-                                                    $rl3->from('user_details as rd2_3')->whereColumn('rd2_3.user_id', 'rd.supervisor')
-                                                         ->whereExists(function($rl3_in) use ($currentUserId) {
-                                                             $rl3_in->from('user_details as rd3')->whereColumn('rd3.user_id', 'rd2_3.supervisor')
-                                                                    ->where(fn($q) => $q->where('rd3.supervisor', $currentUserId)->orWhere('rd3.second_supervisor', $currentUserId));
-                                                         });
-                                                })
-                                                // L4
-                                                ->orWhereExists(function($rl4) use ($currentUserId) {
-                                                    $rl4->from('user_details as rd2_4')->whereColumn('rd2_4.user_id', 'rd.supervisor')
-                                                        ->whereExists(function($rl3_4) use ($currentUserId) {
-                                                            $rl3_4->from('user_details as rd3_4')->whereColumn('rd3_4.user_id', 'rd2_4.supervisor')
-                                                                ->whereExists(function($rl2_4) use ($currentUserId) {
-                                                                    $rl2_4->from('user_details as rd4')->whereColumn('rd4.user_id', 'rd3_4.supervisor')
-                                                                        ->where(fn($q) => $q->where('rd4.supervisor', $currentUserId)->orWhere('rd4.second_supervisor', $currentUserId));
-                                                                });
-                                                        });
-                                                });
-                                     });
-                             });
-                        });
-                    });
+                // Division Connection
+                $flowQ->where(function ($connQ) use ($currentUserDivision, $isGlobalUser) {
+                     if (!$isGlobalUser) {
+                          $connQ->where(function($divCheck) use ($currentUserDivision) {
+                               $divCheck->where('sender_details.division', $currentUserDivision)
+                                        ->orWhere('reminders.division', $currentUserDivision);
+                          });
+                     } else {
+                         $connQ->whereRaw('1=1');
+                     }
                 });
             });
         });

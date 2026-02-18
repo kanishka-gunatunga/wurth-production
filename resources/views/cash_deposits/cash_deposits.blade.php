@@ -162,7 +162,7 @@
                                 style="text-decoration: none;"
                                 onclick="event.stopPropagation()">Download</a>
                             @else
-                            <button class="black-action-btn" disabled>No File</button>
+                            <button class="black-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;">No File</button>
                             @endif
                             @endif
                         </td>

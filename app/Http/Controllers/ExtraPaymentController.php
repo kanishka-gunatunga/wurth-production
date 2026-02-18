@@ -35,7 +35,7 @@ class ExtraPaymentController extends Controller
         $requiredColumns = [
             'customer',
             'customer name',
-            'sales territory',
+            'adm id',
             '(a-cu) date last invoice',
             'billing document',
             'order number customer',
@@ -67,7 +67,7 @@ class ExtraPaymentController extends Controller
                 $customer = new Customers();
                 $customer->customer_id = $row['customer'];
                 $customer->name = $row['customer name'] ?? null;
-                $customer->adm = $row['sales territory'] ?? null;
+                $customer->adm = $row['adm id'] ?? null;
                 $customer->is_temp = 1; 
                 $customer->status = 'active';
                 $customer->save();
@@ -94,7 +94,7 @@ class ExtraPaymentController extends Controller
                 'extra_payment_id' => $row['billing document'],
                 'customer_id' => $customer->customer_id,
                 'amount' =>$amount,
-                'adm_id' =>$row['sales territory'] ?? null,
+                'adm_id' =>$row['adm id'] ?? null,
             ]);
 
             $successCount++;

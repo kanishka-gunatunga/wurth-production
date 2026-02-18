@@ -273,7 +273,7 @@
 /* Medium screens: 978px – 1150px */
 @media (min-width: 978px) and (max-width: 1150px) {
   .division-table-sub .table {
-    min-width: 50vw;
+    min-width: 100%;
     font-size: 15px;
   }
 }

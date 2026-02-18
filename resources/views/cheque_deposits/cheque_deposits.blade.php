@@ -66,7 +66,7 @@
 
     <div class="row d-flex justify-content-between">
         <div class="col-lg-6 col-12">
-            <h1 class="header-title">Cheque Deposites</h1>
+            <h1 class="header-title">Cheque Deposits</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <form id="searchForm" method="get" action="{{ url('cheque-deposits') }}">

@@ -241,17 +241,29 @@ class CardPaymentController extends Controller
 
         if (!empty($receiptIds)) {
             if ($request->status === 'rejected') {
-                InvoicePayments::whereIn('id', $receiptIds)
-                    ->update(['status' => 'pending']);
-                
-                $toNumber = preg_replace('/^0/','94',$deposit->adm->userDetails->phone_number ?? '');
+                DB::transaction(function () use ($receiptIds, $deposit, $request) {
+                    $payments = InvoicePayments::whereIn('id', $receiptIds)->get();
+                    foreach ($payments as $payment) {
+                        if ($payment->status !== 'rejected') {
+                            $invoice = Invoices::find($payment->invoice_id);
+                            if ($invoice) {
+                                $invoice->paid_amount -= $payment->amount;
+                                $invoice->save();
+                            }
+                        }
+                        $payment->status = 'pending';
+                        $payment->save();
+                    }
+                });
+
+                $toNumber = preg_replace('/^0/', '94', $deposit->adm->userDetails->phone_number ?? '');
                 if ($toNumber) {
                     $smsMessage  = "Your deposit has been rejected.\n";
                     $smsMessage .= "Deposit ID: {$deposit->id}.\n";
                     $smsMessage .= "Deposit Type: {$deposit->type}.\n";
                     $smsMessage .= "Deposit Amount: {$deposit->amount}.\n";
                     $smsMessage .= "Reason: {$request->remark}";
-                    
+
                     try {
                         $this->smsService->sendInstantSms(
                             [(string) $toNumber],
@@ -261,19 +273,17 @@ class CardPaymentController extends Controller
 
                         Log::info(
                             'SMS sent to ' . $toNumber
-                            . ' (Deposit ID: ' . $deposit->id . ')'
+                                . ' (Deposit ID: ' . $deposit->id . ')'
                         );
-
                     } catch (\Exception $e) {
                         Log::error(
                             'SMS sending failed for Deposit ID '
-                            . $payment->id . ': ' . $e->getMessage()
+                                . $deposit->id . ': ' . $e->getMessage()
                         );
                     }
                 }
-            
             } else {
-                InvoicePayments::whereIn('id', $receiptIds)
+               InvoicePayments::whereIn('id', $receiptIds)
                     ->update(['status' => 'approved']);
             }
         }

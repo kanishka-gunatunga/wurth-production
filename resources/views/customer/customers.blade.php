@@ -138,8 +138,13 @@ use App\Models\UserDetails;
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                         <div id="tr-search-box-wrapper" class="search-box-wrapper collapsed">
                             <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                            <form method="GET" action="{{ url('customers') }}" id="mainSearchForm">
+                            <form method="GET" action="{{ url('customers') }}" id="mainSearchForm" class="w-100">
                                 <input type="hidden" name="active_tab" value="customer-list">
+                                @if(!empty($selectedAdms))
+                                    @foreach($selectedAdms as $a)
+                                        <input type="hidden" name="adm[]" value="{{ $a }}">
+                                    @endforeach
+                                @endif
                                 <input
                                     type="text"
                                     class="search-input"
@@ -238,6 +243,11 @@ use App\Models\UserDetails;
                             <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                             <form method="GET" action="{{ url('customers') }}" id="mainSearchForm2">
                                 <input type="hidden" name="active_tab" value="temporary">
+                                @if(!empty($tempSelectedAdms))
+                                    @foreach($tempSelectedAdms as $ta)
+                                        <input type="hidden" name="temp_adm[]" value="{{ $ta }}">
+                                    @endforeach
+                                @endif
                                 <input
                                     type="text"
                                     class="search-input"
@@ -332,6 +342,7 @@ use App\Models\UserDetails;
     </div>
     <form method="GET" action="{{ url('customers') }}" id="filterForm">
         <input type="hidden" name="active_tab" value="customer-list">
+        <input type="hidden" name="search" value="{{ $search }}">
         <div class="offcanvas-body">
 
 
@@ -344,12 +355,12 @@ use App\Models\UserDetails;
                             <input
                                 class="form-check-input"
                                 type="checkbox"
-                                id="adm{{ $adm->id }}"
-                                name="temp_adm[]"
+                                id="main_adm{{ $adm->id }}"
+                                name="adm[]"
                                 value="{{ $adm->userDetails->adm_number }}"
-                                {{ in_array($adm->userDetails->adm_number, $tempSelectedAdms ?? []) ? 'checked' : '' }}>
+                                {{ in_array($adm->userDetails->adm_number, $selectedAdms ?? []) ? 'checked' : '' }}>
                             
-                            <label class="form-check-label" for="adm{{ $adm->id }}">
+                            <label class="form-check-label" for="main_adm{{ $adm->id }}">
                                 {{ $adm->userDetails->adm_number }}
                             </label>
                         </div>
@@ -383,6 +394,7 @@ use App\Models\UserDetails;
     </div>
     <form method="GET" action="{{ url('customers') }}" id="tempFilterForm">
         <input type="hidden" name="active_tab" value="temporary">
+        <input type="hidden" name="temp_search" value="{{ $tempSearch }}">
         <div class="offcanvas-body">
 
 
@@ -395,12 +407,12 @@ use App\Models\UserDetails;
                             <input
                                 class="form-check-input"
                                 type="checkbox"
-                                id="adm{{ $adm->id }}"
+                                id="temp_adm{{ $adm->id }}"
                                 name="temp_adm[]"
                                 value="{{ $adm->userDetails->adm_number }}"
                                 {{ in_array($adm->userDetails->adm_number, $tempSelectedAdms ?? []) ? 'checked' : '' }}>
                             
-                            <label class="form-check-label" for="adm{{ $adm->id }}">
+                            <label class="form-check-label" for="temp_adm{{ $adm->id }}">
                                 {{ $adm->userDetails->adm_number }}
                             </label>
                         </div>

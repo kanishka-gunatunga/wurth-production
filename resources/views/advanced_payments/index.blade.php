@@ -127,15 +127,17 @@
                                 data-id="{{ $payment['id'] }}"
                                 data-status="rejected">Reject</button>
                             @endif
-                            @if($payment->attachment)
-                            <a href="{{ route('advanced_payments.download', $payment->id) }}"
-                                class="black-action-btn submit"
-                                onclick="showDownloadToast(event)"
-                                style="text-decoration:none;">
-                                Download
-                            </a>
+                            @if(
+                                !empty($payment->attachment) &&
+                                file_exists(public_path('uploads/adm/advanced_payments/attachments/'.$payment->attachment))
+                            )
+                                <a href="{{ asset('uploads/adm/advanced_payments/attachments/'.$payment->attachment) }}" download>
+                                    <button class="black-action-btn">Download</button>
+                                </a>
                             @else
-                            <button class="black-action-btn" disabled>No File</button>
+                                <button class="black-action-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                    No File
+                                </button>
                             @endif
                         </td>
                     </tr>
@@ -194,15 +196,17 @@
                 </select>
             </div>
 
-            <!-- ADM ID -->
+            <!-- ADM Number -->
             <div class="mt-5 filter-categories">
-                <p class="filter-title">ADM ID</p>
-                <select id="filter-adm-id" name="adm_ids[]" class="form-control select2" multiple>
-                    @foreach ($payments->pluck('adm_id')->unique() as $admId)
-                    <option value="{{ $admId }}"
-                        {{ !empty($filters['adm_ids']) && in_array($admId, $filters['adm_ids']) ? 'selected' : '' }}>
-                        {{ $admId }}
+                <p class="filter-title">ADM Number</p>
+                <select id="filter-adm-number" name="adm_numbers[]" class="form-control select2" multiple>
+                    @foreach ($payments->pluck('admDetails.adm_number')->unique() as $admNumber)
+                    @if($admNumber)
+                    <option value="{{ $admNumber }}"
+                        {{ !empty($filters['adm_numbers']) && in_array($admNumber, $filters['adm_numbers']) ? 'selected' : '' }}>
+                        {{ $admNumber }}
                     </option>
+                    @endif
                     @endforeach
                 </select>
             </div>
@@ -387,7 +391,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const clearBtn = document.getElementById('clear-filters');
         clearBtn.addEventListener('click', function() {
-            $('#filter-adm-name, #filter-adm-id, #filter-customer').val(null).trigger('change');
+            $('#filter-adm-name, #filter-adm-number, #filter-customer').val(null).trigger('change');
             document.getElementById('filter-date').value = '';
             setTimeout(() => document.getElementById('filterForm').submit(), 200);
         });

@@ -65,12 +65,12 @@
             <a href="/sales/reminders.html" class="card-link">View all</a>
         </div>
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
+            <li class="nav-item w-100" role="presentation">
                 <button class="nav-link active" id="pills-payment-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment"
                     aria-selected="true">Payment Reminders</button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item w-100" role="presentation">
                 <button class="nav-link" id="pills-system-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-system" type="button" role="tab" aria-controls="pills-system"
                     aria-selected="false">System Reminders</button>

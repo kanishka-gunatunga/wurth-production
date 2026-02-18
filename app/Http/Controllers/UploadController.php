@@ -43,16 +43,14 @@ class UploadController extends Controller
     elseif ($request->file_type === 'extra-payment') {
         $extraPaymentController = new \App\Http\Controllers\ExtraPaymentController();
         $response = $extraPaymentController->importExtraPayments($request);
-        return back()->with('success', 'File Uploaded Successfully');
+       
     }
      elseif ($request->file_type === 'adm-targets') {
         $admTargetsController = new \App\Http\Controllers\AdmTargetsController();
         $response = $admTargetsController->importAdmTargets($request);
-        return back()->with('success', 'File Uploaded Successfully');
+       
     }
-     else {
-        $response = back()->with('success', 'File uploaded successfully');
-    }
+     
 
     $file->move(public_path('imports'), $fileName);
 

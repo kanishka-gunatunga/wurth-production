@@ -236,26 +236,26 @@ class WriteOffController extends Controller
         // Prepare Extra Payment / Credit Note data
         $creditNotesData = collect($writeOff->extraPayment_or_creditNote_no)->map(function ($item) {
 
-            $credit = CreditNote::where('credit_note_id', $item['id'])->first();
+            $credit = CreditNote::where('credit_note_id', $item['id'])->with(['admDetails', 'customer'])->first();
             if ($credit) {
                 return [
                     'type' => 'Credit Note',
                     'id' => $item['id'],
-                    'customerName' => $credit->customer_name ?? '-',
-                    'customerId' => $credit->customer_id ?? '-',
-                    'admNo' => $credit->adm_id ?? '-',
+                    'customerName' => $credit->customer->name ?? '-',
+                    'customerId' => $credit->customer->customer_id ?? '-',
+                    'admNo' =>  $credit->admDetails->adm_number ?? '-',
                     'writeOffAmount' => $item['write_off_amount'],
                 ];
             }
 
-            $extra = ExtraPayment::where('extra_payment_id', $item['id'])->first();
+            $extra = ExtraPayment::where('extra_payment_id', $item['id'])->with(['admDetails', 'customer'])->first();
             if ($extra) {
                 return [
                     'type' => 'Extra Payment',
                     'id' => $item['id'],
-                    'customerName' => $extra->customer_name ?? '-',
-                    'customerId' => $extra->customer_id ?? '-',
-                    'admNo' => $extra->adm_id ?? '-',
+                    'customerName' => $extra->customer->name ?? '-',
+                    'customerId' => $extra->customer->customer_id ?? '-',
+                    'admNo' => $extra->admDetails->adm_number ?? '-',
                     'writeOffAmount' => $item['write_off_amount'],
                 ];
             }

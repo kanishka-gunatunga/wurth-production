@@ -29,4 +29,9 @@ class ExtraPayment extends Model
     {
         return $this->belongsTo(Customers::class, 'customer_id', 'customer_id');
     }
+
+    public function admDetails()
+    {
+        return $this->belongsTo(UserDetails::class, 'adm_id', 'adm_number');
+    }
 }

@@ -68,7 +68,7 @@
                 <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 ">
                     <div id="search-box-wrapper" class="collapsed">
                         <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                        <input type="text" class="search-input" id="backendSearchInput" value="{{ request('search') }}" placeholder="Search ADM No. or Name, Return Cheque Number">
+                        <input type="text" class="search-input" id="backendSearchInput" value="{{ request('search') }}" placeholder="Search ADM No. or Name, Return Cheque Number, Customer ID">
                     </div>
                     <button class="header-btn" id="search-toggle-button"><i
                             class="fa-solid fa-magnifying-glass fa-xl"></i></button>

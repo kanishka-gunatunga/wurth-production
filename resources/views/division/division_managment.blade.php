@@ -69,7 +69,7 @@ use App\Models\UserDetails;
             <h1 class="header-title">Division Management</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3">
-            <form method="GET" action="{{ url('division-managment') }}" id="mainSearchForm">
+            <form method="GET" action="{{ url('division-managment') }}" id="mainSearchForm" class="w-100">
                 <div id="search-box-wrapper" class="collapsed">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
                     <input
@@ -122,34 +122,37 @@ use App\Models\UserDetails;
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($divisions as $division) {
-
-                    ?>
+               <tbody>
+                @if($divisions->count() > 0)
+                    @foreach ($divisions as $division)
                         <tr>
                             <td>{{ $division->division_name ?? '-' }}</td>
-                           <td>{{ $division->head()?->name ?? '-' }}</td>
-
-
-                            <td>{{$division->registered_date}}</td>
+                            <td>{{ $division->head()?->name ?? '-' }}</td>
+                            <td>{{ $division->registered_date }}</td>
                             <td>{{ $division->userDetails->count() }}</td>
                             <td>
                                 @if(in_array('edit-division', session('permissions', [])))
-                                <a href="{{url('edit-division/'.$division->id.'')}}"><button class="action-btn">View more</button></a>
+                                    <a href="{{ url('edit-division/'.$division->id) }}"><button class="action-btn">View more</button></a>
                                 @endif
                                 @if(in_array('status-change-division', session('permissions', [])))
-                                <a href="{{url('activate-division/'.$division->id.'')}}"><button class="action-btn">Activate</button></a>
-                                @endif
-                                @if(in_array('status-change-division', session('permissions', [])))
-                                <a href="{{url('deactivate-division/'.$division->id.'')}}"><button class="action-btn">Deactivate</button></a>
+                                    <a href="{{ url('activate-division/'.$division->id) }}"><button class="action-btn">Activate</button></a>
+                                    <a href="{{ url('deactivate-division/'.$division->id) }}"><button class="action-btn">Deactivate</button></a>
                                 @endif
                                 @if(in_array('delete-division', session('permissions', [])))
-                                <a href="{{url('delete-division/'.$division->id.'')}}"><button class="action-btn">Delete</button></a>
+                                    <a href="{{ url('delete-division/'.$division->id) }}"><button class="action-btn">Delete</button></a>
                                 @endif
                             </td>
                         </tr>
-                    <?php } ?>
-                </tbody>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-3">
+                            No divisions found
+                        </td>
+                    </tr>
+                @endif
+            </tbody>
+
             </table>
         </div>
 

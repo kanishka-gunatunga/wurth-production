@@ -794,6 +794,7 @@ foreach($grouped_data as $group){
                                 <p class="gray-small-title mb-1" style="color: #595959; font-weight: 500;">Payment
                                     Amount</p>
                                 <p class="black-large-text mb-1" style="color:#CC0000" id="final_payment_amount"></p>
+                                <input type="hidden" id="hidden_total_accumulated_amount" value="0">
                             </div>
                         </div>
                     </div>
@@ -1397,16 +1398,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 let finalPaymentEl = document.getElementById('final_payment_amount');
+                let hiddenTotalEl = document.getElementById('hidden_total_accumulated_amount');
+                
                 let previousAmount = 0;
-                if(finalPaymentEl && finalPaymentEl.innerText) {
-                    previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+                if(hiddenTotalEl) {
+                    previousAmount = parseFloat(hiddenTotalEl.value) || 0;
                 }
 
-                let newFinalAmount = previousAmount + currentPaymentAmount;
+                // precision fix: keep everything as numbers until display
+                let newFinalAmount = previousAmount + currentPaymentAmount; 
+
+                if(hiddenTotalEl) {
+                    hiddenTotalEl.value = newFinalAmount; 
+                }
 
                 if(finalPaymentEl) {
-                    finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+                    finalPaymentEl.innerText = "Rs. " + Number(newFinalAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
+
 
                 // ====== Build Summary Data ======
                 let selectedCustomers = [];
@@ -1633,13 +1642,22 @@ document.addEventListener('DOMContentLoaded', function () {
             updateTotalFund();
 
             let finalPaymentEl = document.getElementById('final_payment_amount');
+            let hiddenTotalEl = document.getElementById('hidden_total_accumulated_amount');
+            
             let previousAmount = 0;
-            if (finalPaymentEl && finalPaymentEl.innerText) {
-                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            if(hiddenTotalEl) {
+                previousAmount = parseFloat(hiddenTotalEl.value) || 0;
             }
-            let newFinalAmount = previousAmount + currentPaymentAmount;
-            if (finalPaymentEl) {
-                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+
+            // precision fix: keep everything as numbers until display
+            let newFinalAmount = previousAmount + currentPaymentAmount; 
+
+            if(hiddenTotalEl) {
+                hiddenTotalEl.value = newFinalAmount; 
+            }
+
+            if(finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + Number(newFinalAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
 
             // ===== Build Summary Data (like cash summary) =====
@@ -1867,14 +1885,23 @@ $(document).on("submit", ".ChequePaymentForm", function (e) {
             form.trigger('reset');
             $('#payment_batch_id').val(response.payment_batch_id);
             updateTotalCheque();
-            let finalPaymentEl = document.getElementById('final_payment_amount');
+             let finalPaymentEl = document.getElementById('final_payment_amount');
+            let hiddenTotalEl = document.getElementById('hidden_total_accumulated_amount');
+            
             let previousAmount = 0;
-            if (finalPaymentEl && finalPaymentEl.innerText) {
-                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            if(hiddenTotalEl) {
+                previousAmount = parseFloat(hiddenTotalEl.value) || 0;
             }
-            let newFinalAmount = previousAmount + currentPaymentAmount;
-            if (finalPaymentEl) {
-                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+
+            // precision fix: keep everything as numbers until display
+            let newFinalAmount = previousAmount + currentPaymentAmount; 
+
+            if(hiddenTotalEl) {
+                hiddenTotalEl.value = newFinalAmount; 
+            }
+
+            if(finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + Number(newFinalAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
             // ===== Build Cheque Payment Summary =====
             let selectedCustomers = [];
@@ -2112,13 +2139,22 @@ $(document).on('submit', '.CardPaymentForm', function (e) {
             $('#payment_batch_id').val(response.payment_batch_id);
               updateTotalCard();
             let finalPaymentEl = document.getElementById('final_payment_amount');
+            let hiddenTotalEl = document.getElementById('hidden_total_accumulated_amount');
+            
             let previousAmount = 0;
-            if (finalPaymentEl && finalPaymentEl.innerText) {
-                previousAmount = parseFloat(finalPaymentEl.innerText.replace(/[^0-9.]/g, '')) || 0;
+            if(hiddenTotalEl) {
+                previousAmount = parseFloat(hiddenTotalEl.value) || 0;
             }
-            let newFinalAmount = previousAmount + currentPaymentAmount;
-            if (finalPaymentEl) {
-                finalPaymentEl.innerText = "Rs. " + newFinalAmount.toLocaleString();
+
+            // precision fix: keep everything as numbers until display
+            let newFinalAmount = previousAmount + currentPaymentAmount; 
+
+            if(hiddenTotalEl) {
+                hiddenTotalEl.value = newFinalAmount; 
+            }
+
+            if(finalPaymentEl) {
+                finalPaymentEl.innerText = "Rs. " + Number(newFinalAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
 
             

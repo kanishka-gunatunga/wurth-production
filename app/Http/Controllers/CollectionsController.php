@@ -678,6 +678,7 @@ class CollectionsController extends Controller
 
     public function search_collections(Request $request)
     {
+        $divisions = Divisions::where('status', 'active')->get();
         $search = $request->input('search');
 
         // Load all collections
@@ -755,7 +756,7 @@ class CollectionsController extends Controller
         // Keep search value for Blade
         $filters = ['search' => $search];
 
-        return view('collections.all_collections', compact('collections', 'filters'));
+        return view('collections.all_collections', compact('collections', 'filters', 'divisions'));
     }
 
     public function filter_collections(Request $request)
@@ -835,7 +836,7 @@ class CollectionsController extends Controller
         // Pass back filters to preserve in Blade
         $filters = $request->only(['adm_names', 'adm_ids', 'customers', 'divisions', 'date_range']);
 
-        return view('collections.all_collections', compact('collections', 'filters', 'divisons'));
+        return view('collections.all_collections', compact('collections', 'filters', 'divisions'));
     }
 
     public function export_collections(Request $request)
@@ -1019,70 +1020,85 @@ public function viewReceiptPdf($type,$uniqid)
 
     return response()->file($pdfPath);
 }
-public function reject_receipt(Request $request, $id)
-{
-    try {
-        $payment = InvoicePayments::with([
-            'invoice.customer',
-            'adm.userDetails'
-        ])->findOrFail($id);
-        $payment->status = 'voided';
-        $payment->save();
+    public function reject_receipt(Request $request, $id)
+    {
+        try {
+            $payment = InvoicePayments::with([
+                'invoice.customer',
+                'adm.userDetails'
+            ])->findOrFail($id);
 
-        ActivitLogService::log(
-            'receipt',
-            'receipt (' . $payment->id . ') status has been changed to voided'
-        );
-
-        SystemNotificationService::log(
-            'receipt',
-            $payment->id,
-            'Your receipt (' . $payment->id . ') status has been voided',
-            $payment->adm_id
-        );
-
-        $toNumber = preg_replace(
-            '/^0/',
-            '94',
-            $payment->invoice->customer->mobile_number ?? ''
-        );
-
-        if (!empty($toNumber)) {
-
-            $smsMessage  = "IMPORTANT NOTICE\n";
-            $smsMessage .= "Receipt No: " . $payment->id . "\n";
-            $smsMessage .= "This receipt has been CANCELLED and VOIDED.\n";
-            $smsMessage .= "Please IGNORE this receipt.\n\n";
-            $smsMessage .= "If you have already received this receipt, ";
-            $smsMessage .= "it is no longer valid.\n\n";
-            $smsMessage .= "For clarification, please contact the office.";
-
-            try {
-                $this->smsService->sendInstantSms(
-                    [(string) $toNumber],
-                    $smsMessage,
-                    "Receipt"
-                );
-
-                Log::info(
-                    'Cancellation SMS sent to ' . $toNumber .
-                    ' (Payment ID: ' . $payment->id . ')'
-                );
-
-            } catch (\Exception $e) {
-                Log::error(
-                    'Cancellation SMS failed for Payment ID '
-                    . $payment->id . ': ' . $e->getMessage()
-                );
+            if ($payment->status === 'voided') {
+                return back()->with('fail', 'Receipt is already voided.');
             }
-        }
-        return back()->with('success', 'Receipt Voided.');
+
+            DB::beginTransaction();
+
+            $payment->status = 'voided';
+            $payment->save();
+
+            // Revert the invoice paid amount
+            if ($payment->invoice) {
+                $payment->invoice->paid_amount = $payment->invoice->paid_amount - $payment->amount;
+                $payment->invoice->save();
+            }
+
+            DB::commit();
+
+            ActivitLogService::log(
+                'receipt',
+                'receipt (' . $payment->id . ') status has been changed to voided'
+            );
+
+            SystemNotificationService::log(
+                'receipt',
+                $payment->id,
+                'Your receipt (' . $payment->id . ') status has been voided',
+                $payment->adm_id
+            );
+
+            $toNumber = preg_replace(
+                '/^0/',
+                '94',
+                $payment->invoice->customer->mobile_number ?? ''
+            );
+
+            if (!empty($toNumber)) {
+
+                $smsMessage  = "IMPORTANT NOTICE\n";
+                $smsMessage .= "Receipt No: " . $payment->id . "\n";
+                $smsMessage .= "This receipt has been CANCELLED and VOIDED.\n";
+                $smsMessage .= "Please IGNORE this receipt.\n\n";
+                $smsMessage .= "If you have already received this receipt, ";
+                $smsMessage .= "it is no longer valid.\n\n";
+                $smsMessage .= "For clarification, please contact the office.";
+
+                try {
+                    $this->smsService->sendInstantSms(
+                        [(string) $toNumber],
+                        $smsMessage,
+                        "Receipt"
+                    );
+
+                    Log::info(
+                        'Cancellation SMS sent to ' . $toNumber .
+                        ' (Payment ID: ' . $payment->id . ')'
+                    );
+
+                } catch (\Exception $e) {
+                    Log::error(
+                        'Cancellation SMS failed for Payment ID '
+                        . $payment->id . ': ' . $e->getMessage()
+                    );
+                }
+            }
+            return back()->with('success', 'Receipt Voided.');
        
 
-    } catch (\Exception $e) {
-
-        return back()->with('fail', $e->getMessage());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('fail', $e->getMessage());
+        }
     }
-}
 
 }

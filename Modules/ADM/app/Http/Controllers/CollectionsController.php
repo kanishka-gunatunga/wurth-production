@@ -68,7 +68,7 @@ class CollectionsController extends Controller
             $query->where('adm', $adm_no)
                   ->orWhere('secondary_adm', $adm_no);
         })
-       ->where(function ($q) {
+       ->where(function ($q) { 
             $q->whereColumn('amount', '>', 'paid_amount')
             ->orWhereNull('paid_amount');
         })
@@ -1059,7 +1059,11 @@ public function resend_receipt($id)
             return response()->json('<tr><td colspan="3">No customers selected.</td></tr>');
         }
     
-        $invoices = Invoices::whereIn('customer_id', $selected_customers)->whereColumn('amount', '>', 'paid_amount')->get();
+        $invoices = Invoices::whereIn('customer_id', $selected_customers)->where(function ($q) {
+            $q->whereColumn('amount', '>', 'paid_amount')
+            ->orWhereNull('paid_amount');
+        })
+        ->get();
 
         $invoice_data = '';
         foreach ($invoices as $invoice) {

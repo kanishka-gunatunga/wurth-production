@@ -217,7 +217,7 @@ td {
 /* Tables for smaller screens ≤920px */
 @media (max-width: 920px) {
     .table-responsive {
-        max-width: 50vw; /* narrower for small screens */
+        max-width: 100%; /* narrower for small screens */
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }

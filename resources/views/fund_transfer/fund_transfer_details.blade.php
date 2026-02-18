@@ -73,16 +73,13 @@
             @if(in_array('deposits-fund-transfer-download', session('permissions', [])))        
             <p>
                 <span class="bold-text">Attachment Download :</span>
+                    
                 @if($deposit->attachment_path)
-                <a href="{{ asset($deposit->attachment_path) }}" download>
-                    <button class="black-action-btn">Download</button>
-                </a>
-                @elseif($payment && $payment->screenshot)
-                 <a href="{{ asset('uploads/adm/collections/fund_transfer_reciepts/' . $payment->screenshot) }}" download>
+                 <a href="{{ asset('uploads/adm/collections/fund_transfer_reciepts/' . $deposit->attachment_path) }}" download>
                     <button class="black-action-btn">Download</button>
                 </a>
                 @else
-                <button class="black-action-btn" disabled>No File</button>
+                <button class="black-action-btn" disabled style="cursor: not-allowed;opacity: 0.5;">No File</button>
                 @endif
             </p>
              @endif       

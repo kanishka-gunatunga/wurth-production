@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentUserRole = {{ Auth::user()->user_role }}; // pass current role from backend
 
     const divisionContainer = document.getElementById('division-container');
-    const divisionSelect = document.getElementById('divison');
+    const divisionSelect = document.getElementById('division');
     const userDropdown = document.getElementById('send_to');
     const userLevelSelect = document.getElementById('user_level');
 

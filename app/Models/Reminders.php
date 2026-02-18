@@ -22,5 +22,10 @@ class Reminders extends Model
         return $this->belongsTo(User::class, 'sent_user_id', 'id');
     }
 
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sent_user_id', 'id');
+    }
+
    
 }

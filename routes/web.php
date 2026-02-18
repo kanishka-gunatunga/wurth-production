@@ -61,7 +61,7 @@ Route::match(['get', 'post'], '/delete-division/{id}', [DivisionController::clas
 Route::match(['get', 'post'], '/access-control', [AccessController::class, 'access_control'])->middleware(['authAdmin', 'permission:access-control']);
 Route::match(['get', 'post'], '/get-role-permissions', [AccessController::class, 'get_role_permissions'])->middleware(['authAdmin']);
 
-Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers'])->middleware(['authAdmin', 'permission:access-control']);
+Route::match(['get', 'post'], '/customers', [CustomerController::class, 'customers'])->middleware(['authAdmin', 'permission:customers']);
 Route::match(['get', 'post'], '/add-new-customer', [CustomerController::class, 'add_new_customer'])->middleware(['authAdmin', 'permission:add-customer']);
 Route::match(['get', 'post'], '/activate-customer/{id}', [CustomerController::class, 'activate_customer'])->middleware(['authAdmin']);
 Route::match(['get', 'post'], '/deactivate-customer/{id}', [CustomerController::class, 'deactivate_customer'])->middleware(['authAdmin']);

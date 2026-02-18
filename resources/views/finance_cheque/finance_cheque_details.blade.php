@@ -4,7 +4,10 @@
 
     <div class="d-flex justify-content-between align-items-center header-with-button">
         <h1 class="header-title">Finance - Cheque No. - {{ $deposit['id'] }}</h1>
-        <button class="black-action-btn-lg submit">
+        
+        @if($deposit['attachment_path'])
+        <a href="{{ url('finance-cheque/download/' . $deposit['id']) }}"download>
+           <button class="black-action-btn-lg ">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
@@ -12,6 +15,17 @@
             </svg>
             Download
         </button>
+        </a>
+        @else
+         <button class="black-action-btn-lg " disabled style="cursor: not-allowed;opacity: 0.5;">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12.0938 16L7.09375 11L8.49375 9.55L11.0938 12.15V4H13.0938V12.15L15.6938 9.55L17.0938 11L12.0938 16ZM6.09375 20C5.54375 20 5.07308 19.8043 4.68175 19.413C4.29042 19.0217 4.09442 18.5507 4.09375 18V15H6.09375V18H18.0938V15H20.0938V18C20.0938 18.55 19.8981 19.021 19.5068 19.413C19.1154 19.805 18.6444 20.0007 18.0938 20H6.09375Z"
+                    fill="white" />
+            </svg>
+            No File
+        </button>
+        @endif
     </div>
 
     <div class="styled-tab-main">
@@ -73,7 +87,7 @@
                     Download
                 </a>
                 @else
-                <button class="black-action-btn" disabled>No File</button>
+                <button class="black-action-btn" disabled style="cursor: not-allowed;opacity: 0.5;">No File</button>
                 @endif
 
 

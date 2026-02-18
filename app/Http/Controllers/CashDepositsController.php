@@ -237,35 +237,47 @@ public function updateStatus(Request $request, $id)
 
     if (!empty($receiptIds)) {
         if ($request->status === 'rejected') {
-            InvoicePayments::whereIn('id', $receiptIds)
-                ->update(['status' => 'pending']);
-                $toNumber = preg_replace('/^0/','94',$deposit->adm->userDetails->phone_number ?? '');
-                if ($toNumber) {
-                    $smsMessage  = "Your deposit has been rejected.\n";
-                    $smsMessage .= "Deposit ID: {$deposit->id}.\n";
-                    $smsMessage .= "Deposit Type: {$deposit->type}.\n";
-                    $smsMessage .= "Deposit Amount: {$deposit->amount}.\n";
-                    $smsMessage .= "Reason: {$request->remark}.\n";
-                    
-                    try {
-                        $this->smsService->sendInstantSms(
-                            [(string) $toNumber],
-                            $smsMessage,
-                            "Deposit"
-                        );
-
-                        Log::info(
-                            'SMS sent to ' . $toNumber
-                            . ' (Deposit ID: ' . $deposit->id . ')'
-                        );
-
-                    } catch (\Exception $e) {
-                        Log::error(
-                            'SMS sending failed for Deposit ID '
-                            . $payment->id . ': ' . $e->getMessage()
-                        );
+            DB::transaction(function () use ($receiptIds, $deposit, $request) {
+                $payments = InvoicePayments::whereIn('id', $receiptIds)->get();
+                foreach ($payments as $payment) {
+                    if ($payment->status !== 'rejected') { // Don't subtract twice
+                        $invoice = Invoices::find($payment->invoice_id);
+                        if ($invoice) {
+                            $invoice->paid_amount -= $payment->amount;
+                            $invoice->save();
+                        }
                     }
+                    $payment->status = 'pending';
+                    $payment->save();
                 }
+            });
+
+            $toNumber = preg_replace('/^0/', '94', $deposit->adm->userDetails->phone_number ?? '');
+            if ($toNumber) {
+                $smsMessage  = "Your deposit has been rejected.\n";
+                $smsMessage .= "Deposit ID: {$deposit->id}.\n";
+                $smsMessage .= "Deposit Type: {$deposit->type}.\n";
+                $smsMessage .= "Deposit Amount: {$deposit->amount}.\n";
+                $smsMessage .= "Reason: {$request->remark}.\n";
+
+                try {
+                    $this->smsService->sendInstantSms(
+                        [(string) $toNumber],
+                        $smsMessage,
+                        "Deposit"
+                    );
+
+                    Log::info(
+                        'SMS sent to ' . $toNumber
+                            . ' (Deposit ID: ' . $deposit->id . ')'
+                    );
+                } catch (\Exception $e) {
+                    Log::error(
+                        'SMS sending failed for Deposit ID '
+                            . $deposit->id . ': ' . $e->getMessage()
+                    );
+                }
+            }
         } else {
             InvoicePayments::whereIn('id', $receiptIds)
                 ->update(['status' => 'approved']);

@@ -122,7 +122,7 @@ use App\Models\Divisions;
                                 <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 ">
                                     <div id="search-box-wrapper" class="collapsed">
                                         <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                    <form method="GET" action="{{ url('user-managment') }}" id="mainSearchForm">
+                                    <form method="GET" action="{{ url('user-managment') }}" id="mainSearchForm" class="w-100">
                                             <input 
                                                 type="text" 
                                                 class="search-input" 
@@ -167,54 +167,47 @@ use App\Models\Divisions;
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <?php foreach($users as $user){ 
-                                 if($user->user_role == '1'){
-                                    $role = 'System Administrator';
-                                 }   
-                                 if($user->user_role == '2'){
-                                    $role = 'Head of Division';
-                                 } 
-                                 if($user->user_role == '3'){
-                                    $role = 'Regional Sales Manager';
-                                 } 
-                                 if($user->user_role == '4'){
-                                    $role = 'Area Sales Manager';
-                                 } 
-                                 if($user->user_role == '5'){
-                                    $role = 'Team Leader';
-                                 } 
-                                 if($user->user_role == '6'){
-                                    $role = 'ADM (Sales Rep)';
-                                 } 
-                                 if($user->user_role == '7'){
-                                    $role = 'Finance Manager';
-                                 } 
-                                 if($user->user_role == '8'){
-                                    $role = 'Recovery Manager';
-                                 } 
-                                 $division = Divisions::where('id', $user->userDetails->division)->value('division_name');
-                                ?> 
-                                <tr>
-                                    <td>{{ $user->userDetails->name ?? '-' }}</td>
-                                    <td>{{ $user->id ?? '-' }}</td>
-                                    <td>{{$role}}</td>
-                                    <td>{{ $division ?? '-' }}</td>
-                                    <td>{{ $user->userDetails->phone_number ?? '-' }}</td>
-                                     <td>{{ $user->email ?? '-' }}</td>
-                                    <td class="sticky-column">
-                                        @if(in_array('edit-user', session('permissions', [])))
-                                        <a href="{{url('edit-user/'.$user->id.'')}}"><button class="action-btn">View more</button></a>
-                                        @endif
-                                        @if(in_array('status-change-user', session('permissions', [])))
-                                        <a href="{{url('activate-user/'.$user->id.'')}}"><button class="action-btn">Activate</button></a>
-                                        @endif
-                                        @if(in_array('status-change-user', session('permissions', [])))
-                                        <a href="{{url('deactivate-user/'.$user->id.'')}}"><button class="action-btn">Deactivate</button></a>
-                                        @endif
-                                    </td>
-                                </tr>
-                                <?php } ?>
-                            </tbody>
+                                    @if($users->count() > 0)
+                                        @foreach($users as $user)
+                                            <?php
+                                                if($user->user_role == '1'){ $role = 'System Administrator'; }
+                                                if($user->user_role == '2'){ $role = 'Head of Division'; }
+                                                if($user->user_role == '3'){ $role = 'Regional Sales Manager'; }
+                                                if($user->user_role == '4'){ $role = 'Area Sales Manager'; }
+                                                if($user->user_role == '5'){ $role = 'Team Leader'; }
+                                                if($user->user_role == '6'){ $role = 'ADM (Sales Rep)'; }
+                                                if($user->user_role == '7'){ $role = 'Finance Manager'; }
+                                                if($user->user_role == '8'){ $role = 'Recovery Manager'; }
+
+                                                $division = Divisions::where('id', $user->userDetails->division)->value('division_name');
+                                            ?>
+                                            <tr>
+                                                <td>{{ $user->userDetails->name ?? '-' }}</td>
+                                                <td>{{ $user->id ?? '-' }}</td>
+                                                <td>{{ $role }}</td>
+                                                <td>{{ $division ?? '-' }}</td>
+                                                <td>{{ $user->userDetails->phone_number ?? '-' }}</td>
+                                                <td>{{ $user->email ?? '-' }}</td>
+                                                <td class="sticky-column">
+                                                    @if(in_array('edit-user', session('permissions', [])))
+                                                        <a href="{{ url('edit-user/'.$user->id) }}"><button class="action-btn">View more</button></a>
+                                                    @endif
+                                                    @if(in_array('status-change-user', session('permissions', [])))
+                                                        <a href="{{ url('activate-user/'.$user->id) }}"><button class="action-btn">Activate</button></a>
+                                                        <a href="{{ url('deactivate-user/'.$user->id) }}"><button class="action-btn">Deactivate</button></a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-3">
+                                                No results found
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+
                             </table>
                         </div>
 

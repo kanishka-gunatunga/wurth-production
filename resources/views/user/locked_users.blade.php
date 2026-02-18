@@ -70,7 +70,7 @@ use App\Models\Divisions;
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                <form method="GET" action="{{ url('locked-users') }}" id="mainSearchForm">
+                <form method="GET" action="{{ url('locked-users') }}" id="mainSearchForm" class="w-100">
                 <input 
                     type="text" 
                     class="search-input" 

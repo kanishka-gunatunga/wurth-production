@@ -66,7 +66,7 @@
 
     <div class="row d-flex justify-content-between">
         <div class="col-lg-6 col-12">
-            <h1 class="header-title">Finance - Cheque Deposites</h1>
+            <h1 class="header-title">Finance - Cheque Deposits</h1>
         </div>
         <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 pe-5">
             <form id="searchForm" method="get" action="{{ url('finance-cheque') }}">
@@ -192,10 +192,10 @@
                             {{-- Always show Download --}}
                             @if ($item['attachment_path'])
                             <a href="{{ url('finance-cheque/download/' . $item['id']) }}"
-                                class="black-action-btn submit"
+                                class="black-action-btn "
                                 style="text-decoration: none;">Download</a>
                             @else
-                            <button class="black-action-btn" disabled>No File</button>
+                            <button class="black-action-btn" disabled style="cursor: not-allowed;opacity: 0.5;">No File</button>
                             @endif
                             @endif
                         </td>

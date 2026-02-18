@@ -69,7 +69,7 @@
             <div id="search-box-wrapper" class="collapsed">
                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
 
-                <form method="GET" action="{{ url('all-outstanding') }}" id="mainSearchForm">
+                <form method="GET" action="{{ url('all-outstanding') }}" id="mainSearchForm" class="w-100">
                                 <input 
                                     type="text" 
                                     class="search-input" 
@@ -189,7 +189,7 @@
         </div class="col-6">
 
         <div>
-          <a href="{{url('customers')}}"><button class="btn rounded-phill">Clear All</button></a>
+          <a href="{{url('all-outstanding')}}"><button class="btn rounded-phill">Clear All</button></a>
         </div>
     </div>
     <form method="GET" action="{{ url('all-outstanding') }}" id="tempFilterForm">
