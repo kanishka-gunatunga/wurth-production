@@ -17,7 +17,16 @@
     <link rel="stylesheet" href="{{ asset('adm_assets/css/calander.css') }}">
     <link rel="stylesheet" href="{{ asset('adm_assets/css/custom.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+<style>
+    .select2-container--default .select2-selection--multiple .select2-selection__choice{
+            background-color: var(--color-primary) !important;
+            border: 1px solid var(--color-primary) !important;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+        color: #fff !important;
+    }
 
+</style>
 </head>
 
 <body>

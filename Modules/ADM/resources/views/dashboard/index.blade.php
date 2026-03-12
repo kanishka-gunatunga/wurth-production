@@ -79,7 +79,8 @@
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-payment" role="tabpanel"
                 aria-labelledby="pills-payment-tab">
-                <!-- 1 -->
+                {{-- Payment Reminders Loop --}}
+                @forelse($reminders as $reminder)
                 <div class="d-flex flex-row px-2 mb-3">
                     <div class="col-1">
                         <span>
@@ -87,61 +88,26 @@
                         </span>
                     </div>
                     <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
+                        <p class="reminder-title mb-1">{{ $reminder->reminder_title }}</p>
+                        <p class="reminder-desc mb-0">{{ Str::limit($reminder->reason, 50) }}</p>
                     </div>
                     <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                         {{-- Display time, e.g., created_at or reminder_date if it has time --}}
+                        <span class="reminder-time">{{ $reminder->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
-                <!-- 2 -->
+                @empty
                 <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                    <div class="col-12 text-center">
+                        <p class="reminder-desc mb-0">No payment reminders for today.</p>
                     </div>
                 </div>
-                <!-- 3 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
+                @endforelse
             </div>
+            
             <div class="tab-pane fade" id="pills-system" role="tabpanel" aria-labelledby="pills-system-tab">
-                <!-- 1 -->
+                {{-- System Reminders (Notifications) Loop --}}
+                @forelse($notifications as $notification)
                 <div class="d-flex flex-row px-2 mb-3">
                     <div class="col-1">
                         <span>
@@ -149,58 +115,27 @@
                         </span>
                     </div>
                     <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
+                        <?php if($notification->notification_type == "inquiry"){ 
+                        $title ="Inquiry Notification";
+                    } 
+                    else{
+                        $title ="Deposit Notification";
+                    }
+                    ?>
+                        <p class="reminder-title mb-1">{{ $title }}</p>
+                        <p class="reminder-desc mb-0">{{ Str::limit($notification->notification, 50) }}</p>
                     </div>
                     <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                        <span class="reminder-time">{{ $notification->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
-                <!-- 2 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                @empty
+                 <div class="d-flex flex-row px-2 mb-3">
+                    <div class="col-12 text-center">
+                        <p class="reminder-desc mb-0">No system reminders found.</p>
                     </div>
                 </div>
-                <!-- 3 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo" class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </div>

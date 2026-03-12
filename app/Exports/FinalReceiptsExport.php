@@ -34,6 +34,24 @@ class FinalReceiptsExport implements FromCollection, WithHeadings
             });
         }
 
+        if ($this->request->filled('final_adm_names')) {
+            $query->whereHas('invoice.customer.admDetails', function ($q) {
+                $q->whereIn('name', $this->request->final_adm_names);
+            });
+        }
+
+        if ($this->request->filled('final_adm_ids')) {
+            $query->whereHas('invoice.customer.admDetails', function ($q) {
+                $q->whereIn('adm_number', $this->request->final_adm_ids);
+            });
+        }
+
+        if ($this->request->filled('final_customers')) {
+            $query->whereHas('invoice.customer', function ($q) {
+                $q->whereIn('name', $this->request->final_customers);
+            });
+        }
+
         if ($this->request->filled('final_status')) {
             $query->where('status', $this->request->final_status);
         }
@@ -43,14 +61,18 @@ class FinalReceiptsExport implements FromCollection, WithHeadings
 
             if (str_contains($range, 'to')) {
                 [$start, $end] = array_map('trim', explode('to', $range));
-            } else {
+            } elseif (str_contains($range, '-')) {
                 [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
             }
 
-            $query->whereBetween('created_at', [
-                date('Y-m-d 00:00:00', strtotime($start)),
-                date('Y-m-d 23:59:59', strtotime($end)),
-            ]);
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('created_at', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
         return $query->get()->map(function ($p) {

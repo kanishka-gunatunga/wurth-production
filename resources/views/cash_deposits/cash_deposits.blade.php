@@ -92,6 +92,7 @@
         <div class="header-and-content-gap-lg"></div>
         @if(!empty($filters))
         <form method="POST" action="{{ url('cash-deposits/export') }}">
+            @csrf
             @foreach($filters as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)

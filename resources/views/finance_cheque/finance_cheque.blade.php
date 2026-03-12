@@ -116,8 +116,8 @@
                         <th>Date</th>
                         <th>ADM Number</th>
                         <th>ADM Name</th>
-                        <th>Bank Name</th>
-                        <th>Branch Name</th>
+                        <!-- <th>Bank Name</th>
+                        <th>Branch Name</th> -->
                         <th>Cheque no.</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -141,11 +141,11 @@
                         <td>{{ \Carbon\Carbon::parse($item['date'])->format('Y-m-d') }}</td>
                         <td>{{ $item['adm_number'] }}</td>
                         <td>{{ $item['adm_name'] }}</td>
-                        <td>{{ $item['bank_name'] }}</td>
-                        <td>{{ $item['branch_name'] }}</td>
+                        <!-- <td>{{ $item['bank_name'] }}</td>
+                        <td>{{ $item['branch_name'] }}</td> -->
                         <td>{{ $item['id'] }}</td>
                         <td>{{ number_format($item['amount'], 2) }}</td>
-                        <td>
+                        <td class="status-cell">
                             @php
                             $statusClass = match(strtolower($item['status'])) {
                             'approved' => 'success-status-btn',
@@ -342,18 +342,18 @@
 
 
 <!-- Toast message -->
-<div id="user-toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-4"
+<div id="user-toast" class="toast align-items-center text-white border-0 position-fixed top-0 end-0 m-4"
     role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none; min-width: 320px;">
     <div class="d-flex align-items-center">
-        <span class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+        <span id="toast-icon-circle" class="toast-icon-circle d-flex align-items-center justify-content-center me-3">
+            <svg id="toast-icon-svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="12" fill="#fff" />
-                <path d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
+                <path id="toast-icon-path" d="M7 12.5l3 3 7-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round"
                     stroke-linejoin="round" />
             </svg>
         </span>
-        <div class="toast-body flex-grow-1">
-            Downloaded successfully
+        <div id="toast-body" class="toast-body flex-grow-1">
+            Done
         </div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"
             onclick="document.getElementById('user-toast').style.display='none';"></button>
@@ -424,6 +424,28 @@
 
 <!-- for toast message -->
 <script>
+    function showToast(message, isSuccess) {
+        const toast = document.getElementById('user-toast');
+        const toastBody = document.getElementById('toast-body');
+        const toastPath = document.getElementById('toast-icon-path');
+
+        toastBody.textContent = message;
+
+        if (isSuccess) {
+            toast.style.backgroundColor = '#28a745';
+            toastPath.setAttribute('d', 'M7 12.5l3 3 7-7');
+            toastPath.setAttribute('stroke', '#28a745');
+        } else {
+            toast.style.backgroundColor = '#dc3545';
+            toastPath.setAttribute('d', 'M7 7l10 10M17 7l-10 10');
+            toastPath.setAttribute('stroke', '#dc3545');
+        }
+
+        toast.style.display = 'block';
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => toast.style.display = 'none', 3500);
+    }
+
     document.addEventListener('click', function(e) {
         const downloadLink = e.target.closest('.submit');
         if (downloadLink) {
@@ -439,11 +461,7 @@
             document.body.removeChild(tempLink);
 
             // toast
-            setTimeout(() => {
-                const toast = document.getElementById('user-toast');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
-            }, 1000);
+            setTimeout(() => showToast('Downloaded successfully', true), 1000);
         }
     });
 </script>
@@ -568,10 +586,13 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.success) return;
+                    if (!data.success) {
+                        showToast('Failed to update status. Please try again.', false);
+                        return;
+                    }
 
                     // Update status badge in UI
-                    const statusBtn = row.querySelector("td:nth-child(8) button");
+                    const statusBtn = row.querySelector(".status-cell button");
                     let label = selectedStatus.replaceAll('_', ' ');
 
                     statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
@@ -580,6 +601,8 @@
                         statusBtn.className = "success-status-btn";
                     } else if (selectedStatus === "rejected") {
                         statusBtn.className = "danger-status-btn";
+                    } else if (selectedStatus === "over_to_finance") {
+                        statusBtn.className = "dark-status-btn";
                     } else {
                         statusBtn.className = "blue-status-btn";
                     }
@@ -594,16 +617,22 @@
                         <button class="success-action-btn update-status"
                             data-id="${depositId}"
                             data-status="approved">Approve</button>
-
+ 
                         <button class="red-action-btn update-status"
-                            data-id="${depositId}"
+                            data-id="${depositId}" 
                             data-status="rejected">Reject</button>
                     `);
                     }
 
                     // AFTER APPROVE 2 or REJECT → show only Download (already exists)
+                    let friendlyStatus = selectedStatus.replaceAll('_', ' ');
+                    friendlyStatus = friendlyStatus.charAt(0).toUpperCase() + friendlyStatus.slice(1);
+                    showToast('Status updated to: ' + friendlyStatus, true);
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    showToast('An error occurred. Please try again.', false);
+                });
         }
     });
 </script>

@@ -78,40 +78,31 @@ class FundTransferController extends Controller
                 ->pluck('user_id')
                 ->toArray();
             
-            $query->where(function($q) use ($admIds, $search) {
-                $q->whereIn('adm_id', $admIds);
-                 // Check Customer (through receipts → invoice_payments → invoices → customers)
-                 // This part is complex for a direct query, so we might need to filter after fetch if we want to search customer names thoroughly via relation, 
-                 // OR we can use whereHas if we set up the relationships correctly in the model. 
-                 // Since Deposits has 'reciepts' as JSON, we can't easily SQL join. 
-                 // CashDepositsController does this by filtering the collection.
-                 // However, for the initial query, we can't easily do it. 
-                 // Let's stick to CashDepositsController approach: fetch then filter OR simple ADM search first.
-                 // CashDepositsController actually does filtering on the COLLECTION in 'search' method but on QUERY in 'index' for ADM only.
-                 // Let's follow CashDepositsController's 'index' which only filters ADM by default on search? 
-                 // Actually CashDepositsController 'index' handles 'search' by just ADM IDs.
-            });
-             if(!empty($admIds)){
-                 $query->orWhereIn('adm_id', $admIds);
-             }
+            $query->whereIn('adm_id', $admIds);
         }
         
-         // Apply Customer filter
-       if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
+        // Apply Customer filter
+        if ($request->filled('customers')) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
+                // $deposit->reciepts is already cast to array in the model, but we handle it just in case
+                if (is_string($decodedReceipts)) $decodedReceipts = json_decode($decodedReceipts, true);
+                
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                if (empty($receiptIds)) return false;
+
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($invoice && in_array((string)$invoice->customer_id, array_map('strval', $request->customers))) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
         
         // Let's structure it like CashDepositsController's `index`.
@@ -279,6 +270,29 @@ class FundTransferController extends Controller
                     date('Y-m-d 23:59:59', strtotime($end)),
                 ]);
             }
+        }
+
+        // Apply Customer filter
+        if ($request->filled('customers')) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = $deposit->reciepts ?? [];
+                if (is_string($decodedReceipts)) $decodedReceipts = json_decode($decodedReceipts, true);
+                
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                if (empty($receiptIds)) return false;
+
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    if ($invoice && in_array((string)$invoice->customer_id, array_map('strval', $request->customers))) {
+                        return true;
+                    }
+                }
+                return false;
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         $data = $query->get()->map(function ($deposit) {

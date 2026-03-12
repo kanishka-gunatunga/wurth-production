@@ -17,6 +17,7 @@ use App\Services\SystemNotificationService;
 use Illuminate\Support\Facades\Response;
 use App\Services\MobitelInstantSmsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class CashDepositsController extends Controller
 {
 
@@ -86,22 +87,24 @@ class CashDepositsController extends Controller
 }
 
     // Apply Customer filter
-   if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+    if ($request->filled('customers')) {
+        $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+            $decodedReceipts = $deposit->reciepts ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
+            foreach ($invoicePayments as $payment) {
+                $invoice = Invoices::find($payment->invoice_id);
+                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
+                    return true;
                 }
-                return false;
-            });
-        }
+            }
+            return false;
+        })->pluck('id')->toArray();
+
+        $query->whereIn('id', $depositIds);
+    }
 
     // Paginate results
     $cashDeposits = $query->orderByDesc('created_at')->paginate(10);
@@ -379,10 +382,7 @@ public function updateStatus(Request $request, $id)
 
         // Apply filters one by one if they are set
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -394,7 +394,7 @@ public function updateStatus(Request $request, $id)
 
         if ($request->filled('customers')) {
             // Filter through receipts → invoice_payments → invoices → customers
-            $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -403,12 +403,14 @@ public function updateStatus(Request $request, $id)
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
 
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -467,10 +469,7 @@ public function updateStatus(Request $request, $id)
         $query = Deposits::where('type', 'cash');
 
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -481,7 +480,7 @@ public function updateStatus(Request $request, $id)
         }
 
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -489,12 +488,14 @@ public function updateStatus(Request $request, $id)
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {

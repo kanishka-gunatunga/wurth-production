@@ -52,9 +52,21 @@ $name = UserDetails::where('user_id', Auth::user()->id)->value('name');
 
                     <select class="form-control" id="user_level" name="user_level">
                         <option value="">Select User Level</option>
-                        @foreach($roles as $role)
-                        <option value="{{ $role }}">{{ $roleNames[$role] ?? $role }}</option>
-                        @endforeach
+                           @foreach ($roles as $role)
+                            <option value="{{ $role }}" {{ old('user_level') == $role ? 'selected' : '' }}>
+                                @switch($role)
+                                @case(1) System Administrator @break
+                                @case(2) Head of Division @break
+                                @case(3) Regional Sales Manager @break
+                                @case(4) Area Sales Manager @break
+                                @case(5) Team Leader @break
+                                @case(6) ADM (Sales Rep) @break
+                                @case(7) Finance Manager @break
+                                @case(8) Recovery Manager @break
+                                @default Unknown
+                                @endswitch
+                            </option>
+                            @endforeach
                     </select>
                 </div>
 

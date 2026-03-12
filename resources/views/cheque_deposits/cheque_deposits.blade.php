@@ -91,6 +91,7 @@
         <div class="header-and-content-gap-lg"></div>
         @if(!empty($filters))
         <form method="POST" action="{{ url('cheque-deposits/export') }}">
+            @csrf
             @foreach($filters as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)
@@ -149,11 +150,11 @@
                             'approved' => 'success-status-btn',
                             'pending' => 'blue-status-btn',
                             'voided' => 'danger-status-btn',
-                            'declirejectedned' => 'danger-status-btn',
+                            'rejected' => 'danger-status-btn',
                             default => 'grey-status-btn'
                             };
                             @endphp
-                            <button class="{{ $statusClass }}">{{ $item['status'] }}</button>
+                            <button class="{{ $statusClass }}">{{ ucfirst($item['status']) }}</button>
                         </td>
                         <td class="sticky-column">
                             @if (strtolower($item['status']) === 'pending')

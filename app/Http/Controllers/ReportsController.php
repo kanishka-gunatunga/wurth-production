@@ -625,7 +625,7 @@ public function downloadODBReport(Request $request)
     $divisions  = $request->divisions ?? [];
     $rsms       = $request->rsms ?? [];
     $asms       = $request->asms ?? [];
-    $tls        = $request->teamleaders ?? [];
+    $tls        = $request->tls ?? [];
     $adms       = $request->adms ?? [];
     $customers  = $request->customers ?? [];
 
@@ -680,7 +680,7 @@ public function downloadODBReport(Request $request)
     }
 
     $admNumbers = $admQuery->pluck('adm_number')->filter()->toArray();
-
+    // dd($admNumbers);
     // ------------------ Fetch customers ------------------
     if (!empty($customers)) {
         $customerQuery = Customers::whereIn('customer_id', $customers);
@@ -2385,7 +2385,15 @@ public function downloadARReport(Request $request)
         $row[] = $invoice->reason ?? '';
         while (count($row) < 19) $row[] = '';
         // Format numbers only when pushing to Excel
-        $row = array_map(fn($v) => is_numeric($v) ? number_format($v, 2) : $v, $row);
+        // Format only amount-related columns
+        $row[8]  = number_format($row[8]);
+        $row[9]  = number_format($row[9], 2);   // Local Crcy Doc Amount
+        $row[10] = number_format($row[10], 2);  // Total of Intervals
+
+        // Aging buckets (index 11 to 17)
+        for ($i = 11; $i <= 17; $i++) {
+    $row[$i] = $row[$i] > 0 ? number_format($row[$i], 2) : '';
+}
         $data[] = $row;
 
         // Update totals

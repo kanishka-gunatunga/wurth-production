@@ -74,7 +74,7 @@ use App\Models\Customers;
                         $title ="Inquiry Notification";
                     } 
                     else{
-                        $title ="Deposit Notification";
+                        $title ="Deposit Notification"; 
                     }
                     ?>
                         <p class="reminder-title mb-1">{{$title}}</p>

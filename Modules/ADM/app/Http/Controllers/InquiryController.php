@@ -54,7 +54,7 @@ class InquiryController extends Controller
             $request->validate(
                 [
                     'inquiry_type' => 'required',
-                    'adm_number'   => 'required',
+                    // 'adm_number'   => 'required',
                     'name'         => 'required',
                     'customer'     => 'required',
                     'invoice'      => 'required',

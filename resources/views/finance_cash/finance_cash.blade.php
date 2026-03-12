@@ -88,10 +88,10 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-        @if(!empty($filters))
         <form method="POST" action="{{ url('/finance-cash/export') }}">
             @csrf
             <!-- Pass all filter inputs as hidden fields -->
+            @php $filters = $filters ?? []; @endphp
             @foreach($filters as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)
@@ -111,7 +111,6 @@
                 </a>
             </div>
         </form>
-        @endif
 
         <div class="table-responsive">
             <table class="table custom-table-locked">
@@ -156,7 +155,7 @@
                         <td>{{ $deposit['adm_number'] }}</td>
                         <td>{{ $deposit['adm_name'] }}</td>
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
-                        <td>
+                        <td class="status-cell">
                             <button class="{{ $statusClass }}">
                                 {{ $statusLabel }}
                             </button>
@@ -539,7 +538,7 @@
                 if (!data.success) return;
 
                 // UPDATE STATUS BUTTON TEXT
-                const statusBtn = row.querySelector("td:nth-child(5) button");
+                const statusBtn = row.querySelector(".status-cell button");
                 let label = selectedStatus.replaceAll('_', ' ');
                 statusBtn.innerText = label.charAt(0).toUpperCase() + label.slice(1);
 
@@ -566,7 +565,7 @@
                             data-status="approved"
                             onclick="event.stopPropagation()">Approve</button>
 
-                        <button class="red-action-btn update-status"
+                        <button class="red-action-btn update-status" 
                             data-id="${depositId}"
                             data-status="rejected"
                             onclick="event.stopPropagation()">Reject</button>

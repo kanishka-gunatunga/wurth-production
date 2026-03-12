@@ -24,6 +24,8 @@ use Mail;
 use Image;
 use PDF;
 use App\Services\ActivitLogService;
+use App\Models\Reminders;
+use App\Models\Notifications;
 class UserController extends Controller
 {
     /**
@@ -32,7 +34,53 @@ class UserController extends Controller
     
     public function dashboard()
     {
-        return view('adm::dashboard.index');
+        $currentUserId = Auth::id();
+        $currentUser = Auth::user();
+        $currentUserRole = $currentUser->user_role;
+        $currentUserDivision = $currentUser->userDetails->division ?? null;
+
+        $reminders = Reminders::with(['user', 'user.userDetails'])
+            ->whereDate('reminder_date', \Carbon\Carbon::today())
+            ->where(function ($query) use ($currentUserId, $currentUserRole, $currentUserDivision) {
+                // Direct match
+                $query->whereJsonContains('send_to', (string) $currentUserId)
+                
+                // OR Broadcast to Role
+                ->orWhere(function ($q) use ($currentUserRole, $currentUserDivision) {
+                    $q->where('user_level', $currentUserRole)
+                      ->whereNull('send_to') // Assuming NULL means "All in this level"
+                      ->where(function ($subQ) use ($currentUserDivision) {
+                            // 1. Reminder has a specific target division
+                            $subQ->where(function ($divQ) use ($currentUserDivision) {
+                                $divQ->whereNotNull('division')
+                                     ->where('division', $currentUserDivision);
+                            })
+                            // 2. OR Reminder has NO division (Legacy/Implicit behavior)
+                            ->orWhere(function ($noDivQ) use ($currentUserDivision) {
+                                $noDivQ->whereNull('division')
+                                       ->where(function ($senderQuery) use ($currentUserDivision) {
+                                          // Allow if sender is Admin(1) or Finance(7)
+                                          $senderQuery->whereHas('user', function ($u) {
+                                              $u->whereIn('user_role', [1, 7]);
+                                          })
+                                          // OR if sender is in same division
+                                          ->orWhereHas('user.userDetails', function ($ud) use ($currentUserDivision) {
+                                              $ud->where('division', $currentUserDivision);
+                                          });
+                                       });
+                            });
+                      });
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+        
+        $notifications = Notifications::where('to_user', $currentUserId)
+            ->orderBy('id', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('adm::dashboard.index', compact('reminders', 'notifications'));
     }
     
     public function my_profile(Request $request)

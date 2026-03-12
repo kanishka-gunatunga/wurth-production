@@ -86,8 +86,8 @@ class CardPaymentController extends Controller
         }
 
         // Apply Customer filter
-       if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
+        if ($request->filled('customers')) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -95,12 +95,14 @@ class CardPaymentController extends Controller
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         // Paginate results
@@ -363,6 +365,8 @@ class CardPaymentController extends Controller
         });
 
         $filters = ['search' => $search];
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
 
         return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
     }
@@ -386,7 +390,7 @@ class CardPaymentController extends Controller
         }
 
         if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -395,12 +399,14 @@ class CardPaymentController extends Controller
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
 
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -441,6 +447,8 @@ class CardPaymentController extends Controller
         });
 
         $filters = $request->all();
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
 
         return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
     }
@@ -464,7 +472,7 @@ class CardPaymentController extends Controller
         }
 
         if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -472,12 +480,14 @@ class CardPaymentController extends Controller
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {

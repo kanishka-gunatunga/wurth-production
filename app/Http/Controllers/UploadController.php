@@ -51,13 +51,27 @@ class UploadController extends Controller
        
     }
      
+    $isSuccess = false;
 
-    $file->move(public_path('imports'), $fileName);
+    if ($response instanceof \Illuminate\Http\JsonResponse) {
+        $data = $response->getData();
+        if (isset($data->status) && $data->status === true) {
+            $isSuccess = true;
+        }
+    } elseif ($response instanceof \Illuminate\Http\RedirectResponse) {
+        if (session()->has('success') || $response->getSession()->has('success')) {
+            $isSuccess = true;
+        }
+    }
 
-    Upload::create([
-        'file_type' => $request->file_type,
-        'file_name' => $fileName,
-    ]);
+    if ($isSuccess) {
+        $file->move(public_path('imports'), $fileName);
+
+        Upload::create([
+            'file_type' => $request->file_type,
+            'file_name' => $fileName,
+        ]);
+    }
 
     return $response;
 }

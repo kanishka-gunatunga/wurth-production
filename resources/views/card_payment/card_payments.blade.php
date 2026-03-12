@@ -127,6 +127,7 @@
                     $statusClass = match (strtolower($payment['status'])) {
                     'approved' => 'success-status-btn',
                     'deposited' => 'blue-status-btn',
+                    'pending' => 'blue-status-btn',
                     'voided' => 'danger-status-btn',
                     'rejected' => 'danger-status-btn',
                     default => 'grey-status-btn'

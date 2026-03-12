@@ -271,12 +271,12 @@
                                     <label class="form-check-label" for="collectionadvanced_permission">All Advanced Payments</label>
                                 </div>
                                 </div>
-                                <div class="row access-control-checks mx-2">
+                                <!-- <div class="row access-control-checks mx-2">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="permissions[]" id="collectionaddnew_permission" value="all-collections-add">
                                         <label class="form-check-label" for="collectionaddnew_permission">Add New Collection</label>
                                     </div>
-                                    </div>    
+                                    </div>     -->
                                 
                         </div>
 
@@ -716,19 +716,72 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
+
 <script>
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const userRoleSelect = document.getElementById('head-of-division-select');
-        if (userRoleSelect) {
-            userRoleSelect.addEventListener('change', fetchPermissions);
-        }
+    $(document).ready(function() {
+        const userRoleSelect = $('#head-of-division-select');
         
-        fetchPermissions();
+        function getPermissionLevel($element) {
+            const parentRow = $element.closest('.row.access-control-checks');
+            let level = 0;
+            if (parentRow.hasClass('mx-2')) {
+                level = 1;
+            } else if (parentRow.hasClass('mx-4')) {
+                level = 2;
+            } else if (parentRow.hasClass('mx-5')) {
+                level = 3; 
+            }
+            return level;
+        }
 
+        function updateParentCheckbox($childCheckbox) {
+            let $currentChild = $childCheckbox.closest('.row.access-control-checks');
+            let childLevel = getPermissionLevel($childCheckbox);
+            
+            while (childLevel > 0) {
+                let $parentCheckbox = null;
+                let $prevRow = $currentChild.prev('.row.access-control-checks');
+                
+                while ($prevRow.length) {
+                    const prevLevel = getPermissionLevel($prevRow.find('input[type="checkbox"]'));
+                    
+                    if (prevLevel === childLevel - 1) {
+                        $parentCheckbox = $prevRow.find('input[type="checkbox"]');
+                        break;
+                    } else if (prevLevel < childLevel - 1) {
+                        break;
+                    }
+                    $prevRow = $prevRow.prev('.row.access-control-checks');
+                }
+                
+                if ($parentCheckbox && $parentCheckbox.length) {
+                    const parentLevel = getPermissionLevel($parentCheckbox);
+                    const $siblingCheckboxes = [];
+                    let $checkRow = $parentCheckbox.closest('.row.access-control-checks').next('.row.access-control-checks');
+
+                    while ($checkRow.length) {
+                        const currentLvl = getPermissionLevel($checkRow.find('input[type="checkbox"]'));
+                        if (currentLvl <= parentLevel) break;
+                        
+                        if (currentLvl === childLevel) {
+                            $siblingCheckboxes.push($checkRow.find('input[type="checkbox"]'));
+                        }
+                        $checkRow = $checkRow.next('.row.access-control-checks');
+                    }
+
+                    const anyChildChecked = $siblingCheckboxes.some(chk => $(chk).prop('checked'));
+                    $parentCheckbox.prop('checked', anyChildChecked);
+
+                    $currentChild = $parentCheckbox.closest('.row.access-control-checks');
+                    childLevel = getPermissionLevel($parentCheckbox);
+                } else {
+                    break;
+                }
+            }
+        }
 
         function fetchPermissions() {
-            const userRole = document.getElementById('head-of-division-select').value;
+            const userRole = $('#head-of-division-select').val();
             let $permissionContainer;
 
             if (userRole === "6" || userRole === "8") {
@@ -750,194 +803,68 @@
                 },
                 success: function(permissions) {
                     if (Array.isArray(permissions)) {
-    
                         permissions.forEach(function(permissionValue) {
-                            $permissionContainer.find('input[type="checkbox"][value="' + permissionValue + '"]').prop('checked', true);
-                        });
-
-                        $permissionContainer.find('input[type="checkbox"]:checked').each(function() {
-                            $(this).trigger('change');
+                            const $chk = $permissionContainer.find('input[type="checkbox"][value="' + permissionValue + '"]');
+                            $chk.prop('checked', true);
+                            // Trigger change but with skipCascade: true to only update parents, not children
+                            $chk.trigger('change', { skipCascade: true });
                         });
                     }
                 },
                 error: function(xhr) {
                     console.error('Error fetching permissions:', xhr.responseText);
-
                 }
             });
         }
-        
 
-    });
-</script>
-
-<script>
-
-    $(document).ready(function() {
-
-        function getPermissionLevel($element) {
-            const parentRow = $element.closest('.row.access-control-checks');
-            let level = 0;
-            if (parentRow.hasClass('mx-2')) {
-                level = 1;
-            } else if (parentRow.hasClass('mx-4')) {
-                level = 2;
-            } else if (parentRow.hasClass('mx-5')) {
-                level = 3; 
-            }
-            return level;
-        }
-        
-
-
-        $('#role_permissions_admin').on('change', 'input[type="checkbox"]', function() {
-            const $this = $(this);
-            const isChecked = $this.prop('checked');
-            const currentLevel = getPermissionLevel($this);
-            const parentRow = $this.closest('.row.access-control-checks');
+        function togglePermissionSections() {
+            const selectedRole = $('#head-of-division-select').val();
             
-            let $nextRow = parentRow.next('.row.access-control-checks');
-            
-            while ($nextRow.length && getPermissionLevel($nextRow.find('input[type="checkbox"]')) > currentLevel) {
-                $nextRow.find('input[type="checkbox"]').prop('checked', isChecked);
-                
-                $nextRow = $nextRow.next('.row.access-control-checks');
-            }
-            
-            if (isChecked) {
-                updateParentCheckbox($this);
-            }
-        });
-
-        $('#role_permissions_adm').on('change', 'input[type="checkbox"]', function() {
-            const $this = $(this);
-            const isChecked = $this.prop('checked');
-            const currentLevel = getPermissionLevel($this);
-            const parentRow = $this.closest('.row.access-control-checks');
-            
-            let $nextRow = parentRow.next('.row.access-control-checks');
-            
-            while ($nextRow.length && getPermissionLevel($nextRow.find('input[type="checkbox"]')) > currentLevel) {
-                $nextRow.find('input[type="checkbox"]').prop('checked', isChecked);
-                
-                $nextRow = $nextRow.next('.row.access-control-checks');
-            }
-            
-            if (isChecked) {
-                updateParentCheckbox($this);
-            }
-        });
-
-        function updateParentCheckbox($childCheckbox) {
-            let $currentChild = $childCheckbox.closest('.row.access-control-checks');
-            let childLevel = getPermissionLevel($childCheckbox);
-            
-            while (childLevel > 0) {
-                let $parentCheckbox = null;
-                let $prevRow = $currentChild.prev('.row.access-control-checks');
-                
-                while ($prevRow.length) {
-                    const prevLevel = getPermissionLevel($prevRow.find('input[type="checkbox"]'));
-                    
-                    if (prevLevel === childLevel - 1) {
-                        $parentCheckbox = $prevRow.find('input[type="checkbox"]');
-                        break;
-                    } else if (prevLevel < childLevel - 1) {
-                     
-                        break;
-                    }
-                    $prevRow = $prevRow.prev('.row.access-control-checks');
-                }
-                
-                if ($parentCheckbox && $parentCheckbox.length) {
-                    const $siblingCheckboxes = [];
-                    let $checkRow = $parentCheckbox.closest('.row.access-control-checks').next('.row.access-control-checks');
-
-                    while ($checkRow.length && getPermissionLevel($checkRow.find('input[type="checkbox"]')) > getPermissionLevel($parentCheckbox)) {
-                        if (getPermissionLevel($checkRow.find('input[type="checkbox"]')) === childLevel) {
-                            $siblingCheckboxes.push($checkRow.find('input[type="checkbox"]'));
-                        }
-                        $checkRow = $checkRow.next('.row.access-control-checks');
-                    }
-
-                    const anyChildChecked = $siblingCheckboxes.some(chk => $(chk).prop('checked'));
-
-                    $parentCheckbox.prop('checked', anyChildChecked);
-
-                    $currentChild = $parentCheckbox.closest('.row.access-control-checks');
-                    childLevel = getPermissionLevel($parentCheckbox);
-                } else {
-           
-                    break;
-                }
+            if (selectedRole === '6' || selectedRole === '8') {
+                $('#role_permissions_adm').show();
+                $('#role_permissions_admin').hide();
+            } else {
+                $('#role_permissions_admin').show();
+                $('#role_permissions_adm').hide();
             }
         }
-        
 
-        $('#role_permissions_admin').on('change', 'input[type="checkbox"]', function() {
-            const $this = $(this);
-            const isChecked = $this.prop('checked');
-
-            updateParentCheckbox($this);
-        });
-        
-
-        $('#role_permissions_admin').on('change', 'input[type="checkbox"]', function() {
+        // Consolidated change listener for both permission containers
+        $('#role_permissions_admin, #role_permissions_adm').on('change', 'input[type="checkbox"]', function(event, data) {
             const $this = $(this);
             const isChecked = $this.prop('checked');
             const currentLevel = getPermissionLevel($this);
             const parentRow = $this.closest('.row.access-control-checks');
             
-
-            let $nextRow = parentRow.next('.row.access-control-checks');
-            
-
-            while ($nextRow.length && getPermissionLevel($nextRow.find('input[type="checkbox"]')) > currentLevel) {
-                $nextRow.find('input[type="checkbox"]').prop('checked', isChecked);
-                $nextRow = $nextRow.next('.row.access-control-checks');
+            // Cascade to children ONLY if skipCascade is not present
+            if (!data || !data.skipCascade) {
+                let $nextRow = parentRow.next('.row.access-control-checks');
+                while ($nextRow.length && getPermissionLevel($nextRow.find('input[type="checkbox"]')) > currentLevel) {
+                    $nextRow.find('input[type="checkbox"]').prop('checked', isChecked);
+                    $nextRow = $nextRow.next('.row.access-control-checks');
+                }
             }
-
-
+            
+            // Update parent state
             updateParentCheckbox($this);
         });
 
-        $('#role_permissions_admin').find('input[type="checkbox"]:checked').each(function() {
-            updateParentCheckbox($(this));
-        });
-        
-    });
-
-    $(document).ready(function () {
-
-    function togglePermissionSections() {
-        const selectedRole = $('#head-of-division-select').val();
-        
-        if (selectedRole === '6' || selectedRole === '8') {
-            $('#role_permissions_adm').show();
-            $('#role_permissions_admin').hide();
-        } else {
-
-            $('#role_permissions_admin').show();
-            $('#role_permissions_adm').hide();
-        }
-    }
-
-    togglePermissionSections();
-
-    $('#head-of-division-select').on('change', function () {
+        // Initialize view
         togglePermissionSections();
-    });
+        fetchPermissions();
 
-});
-</script>
-<script>
-    $(document).ready(function() {
+        // Handle role change
+        userRoleSelect.on('change', function () {
+            togglePermissionSections();
+            fetchPermissions();
+        });
+
+        // Notifications
         @if(Session::has('success'))
-        toastr.success("{{ Session::get('success') }}");
+            toastr.success("{{ Session::get('success') }}");
         @endif
-
         @if(Session::has('fail'))
-        toastr.error("{{ Session::get('fail') }}");
+            toastr.error("{{ Session::get('fail') }}");
         @endif
     });
 </script>

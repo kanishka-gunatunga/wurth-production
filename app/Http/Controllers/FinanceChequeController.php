@@ -17,6 +17,7 @@ use App\Services\ActivitLogService;
 use App\Services\SystemNotificationService;
 use App\Services\MobitelInstantSmsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class FinanceChequeController extends Controller
 {
      protected $smsService;
@@ -50,14 +51,29 @@ class FinanceChequeController extends Controller
               ->orWhere('customer_id', 'LIKE', "%$search%");
         })->pluck('customer_id');
 
-        $query->where(function ($q) use ($admUserIds, $customerIds) {
-            // match ADM
-            $q->whereIn('adm_id', $admUserIds)
+        // Find deposit IDs that contain receipts linking to matching customers
+        $matchingDepositIds = [];
+        if (!empty($customerIds->toArray())) {
+            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+            $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
 
-            // OR match customer through receipts → invoice payments
-            ->orWhereHas('reciepts.invoice.customer', function ($c) use ($customerIds) {
-                $c->whereIn('customer_id', $customerIds);
-            });
+            if (!empty($receiptIds)) {
+                $matchingDepositIds = Deposits::where('type', 'finance-cheque')
+                    ->get()
+                    ->filter(function ($d) use ($receiptIds) {
+                        $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
+                        return !empty(array_intersect($ids, $receiptIds));
+                    })
+                    ->pluck('id')
+                    ->toArray();
+            }
+        }
+
+        $query->where(function ($q) use ($admUserIds, $matchingDepositIds) {
+            $q->whereIn('adm_id', $admUserIds);
+            if (!empty($matchingDepositIds)) {
+                $q->orWhereIn('id', $matchingDepositIds);
+            }
         });
     }
 
@@ -396,8 +412,8 @@ class FinanceChequeController extends Controller
         $query = Deposits::where('type', 'finance-cheque');
 
         if ($request->filled('adm_names')) {
-            $admIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id');
-            $query->whereIn('adm_id', $admIds);
+            // adm_names[] values are user IDs (from $adm->id in blade)
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -406,21 +422,22 @@ class FinanceChequeController extends Controller
         }
 
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
-                $decoded = $deposit->reciepts ?? [];
-                $receiptIds = collect($decoded)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+            // Find invoices for the selected customers
+            $customerIds = Customers::whereIn('customer_id', $request->customers)->pluck('customer_id');
+            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+            $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
 
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+            // Find deposit IDs that contain any of those receipt IDs
+            $matchingDepositIds = Deposits::where('type', 'finance-cheque')
+                ->get()
+                ->filter(function ($d) use ($receiptIds) {
+                    $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
+                    return !empty(array_intersect($ids, $receiptIds));
+                })
+                ->pluck('id')
+                ->toArray();
 
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            $query->whereIn('id', $matchingDepositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -442,7 +459,7 @@ class FinanceChequeController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', ucfirst(strtolower($request->status)));
+            $query->where('status', $request->status);
         }
 
         $deposits = $query->orderByDesc('created_at')->paginate(10);
@@ -477,10 +494,48 @@ class FinanceChequeController extends Controller
     {
         $query = Deposits::where('type', 'finance-cheque');
 
-        // Apply the same filters as in filter() method
+        // Apply the same filters as in index() method
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $admUserIds = UserDetails::where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%")
+                  ->orWhere('adm_number', 'LIKE', "%$search%");
+            })->pluck('user_id');
+
+            $customerIds = Customers::where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%")
+                  ->orWhere('customer_id', 'LIKE', "%$search%");
+            })->pluck('customer_id');
+
+            $matchingDepositIds = [];
+            if (!empty($customerIds->toArray())) {
+                $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+                $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
+
+                if (!empty($receiptIds)) {
+                    $matchingDepositIds = Deposits::where('type', 'finance-cheque')
+                        ->get()
+                        ->filter(function ($d) use ($receiptIds) {
+                            $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
+                            return !empty(array_intersect($ids, $receiptIds));
+                        })
+                        ->pluck('id')
+                        ->toArray();
+                }
+            }
+
+            $query->where(function ($q) use ($admUserIds, $matchingDepositIds) {
+                $q->whereIn('adm_id', $admUserIds);
+                if (!empty($matchingDepositIds)) {
+                    $q->orWhereIn('id', $matchingDepositIds);
+                }
+            });
+        }
+
         if ($request->filled('adm_names')) {
-            $admIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id');
-            $query->whereIn('adm_id', $admIds);
+            // adm_names[] values are user IDs (from $adm->id in blade)
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -489,21 +544,22 @@ class FinanceChequeController extends Controller
         }
 
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
-                $decoded = $deposit->reciepts ?? [];
-                $receiptIds = collect($decoded)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+            // Find invoices for the selected customers
+            $customerIds = Customers::whereIn('customer_id', $request->customers)->pluck('customer_id');
+            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+            $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
 
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+            // Find deposit IDs that contain any of those receipt IDs
+            $matchingDepositIds = Deposits::where('type', 'finance-cheque')
+                ->get()
+                ->filter(function ($d) use ($receiptIds) {
+                    $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
+                    return !empty(array_intersect($ids, $receiptIds));
+                })
+                ->pluck('id')
+                ->toArray();
 
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            $query->whereIn('id', $matchingDepositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -525,7 +581,7 @@ class FinanceChequeController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', ucfirst(strtolower($request->status)));
+            $query->where('status', $request->status);
         }
 
         $deposits = $query->get();

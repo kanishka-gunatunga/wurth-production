@@ -63,7 +63,7 @@
 @endphp
 
 
-                    <button class="{{ $statusClass }}">{{ $status }}</button>
+                    <button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button>
                 </span>
             </p>
 
@@ -105,8 +105,8 @@
                     @forelse($invoicePayments as $invoicePayment)
                     <tr>
                         <td>{{ $invoicePayment->id }}</td>
-                        <td>{{ $invoicePayment->invoice->customer->name }}</td>
-                        <td>{{ $invoicePayment->invoice->customer->customer_id }}</td>
+                        <td>{{ $invoicePayment->invoice?->customer?->name ?? 'N/A' }}</td>
+                        <td>{{ $invoicePayment->invoice?->customer?->customer_id ?? 'N/A' }}</td>
                         <td>{{ $invoicePayment->created_at->format('Y-m-d') }}</td>
                         <td>Rs. {{ number_format($invoicePayment->final_payment, 2) }}</td>
                     </tr>

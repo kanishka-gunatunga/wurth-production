@@ -41,12 +41,12 @@
                 <span class="slip-detail-text">&nbsp;{{ $deposit['date'] }}</span>
 
             </p>
-            <p><span class="bold-text">Bank Name :</span>
+            <!-- <p><span class="bold-text">Bank Name :</span>
                 <span class="slip-detail-text">&nbsp;{{ $deposit['bank_name'] }}</span>
             </p>
             <p><span class="bold-text">Branch Name :</span>
                 <span class="slip-detail-text">&nbsp;{{ $deposit['branch_name'] }}</span>
-            </p>
+            </p> -->
             <p><span class="bold-text">Total Amount :</span>
                 <span class="slip-detail-text">&nbsp;Rs. {{ number_format($deposit['amount'], 2) }}</span>
             </p>

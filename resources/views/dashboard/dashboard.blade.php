@@ -99,7 +99,7 @@ use App\Models\UserDetails;
                       <span class="highlight-red">{{ $log->userData->userDetails->name ?? '-' }}</span>
                       - {{ $log->changes }}
                     </div>
-                    <div class="activity-time">30 min ago</div>
+                    <div class="activity-time">{{ $log->created_at->diffForHumans() }}</div>
                   </div>
                  @endforeach  
                 </div>

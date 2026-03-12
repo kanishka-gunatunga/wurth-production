@@ -18,6 +18,7 @@ use App\Models\Customers;
 use Illuminate\Support\Facades\Response;
 use App\Services\MobitelInstantSmsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class ChequeDepositsController extends Controller
 {
     protected $smsService;
@@ -61,22 +62,24 @@ class ChequeDepositsController extends Controller
         $query->whereIn('adm_id', $admUserIds);
     }
 
-   if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+    if ($request->filled('customers')) {
+        $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+            $decodedReceipts = $deposit->reciepts ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
+            foreach ($invoicePayments as $payment) {
+                $invoice = Invoices::find($payment->invoice_id);
+                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
+                    return true;
                 }
-                return false;
-            });
-        }
+            }
+            return false;
+        })->pluck('id')->toArray();
+
+        $query->whereIn('id', $depositIds);
+    }
 
     if ($request->filled('date_range')) {
 
@@ -405,9 +408,8 @@ class ChequeDepositsController extends Controller
             $query->whereIn('adm_id', $admUserIds);
         }
 
-        // Customers
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -417,13 +419,15 @@ class ChequeDepositsController extends Controller
                     if (!$invoice) $invoice = \App\Models\Invoices::find($payment->invoice_id);
                     $customer = $invoice ? $invoice->customer ?? \App\Models\Customers::where('customer_id', $invoice->customer_id)->first() : null;
 
-                    if ($customer && in_array($customer->name, $request->customers)) {
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
                         return true;
                     }
                 }
 
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         // Date range
@@ -490,6 +494,25 @@ class ChequeDepositsController extends Controller
         if ($request->filled('adm_ids')) {
             $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id')->toArray();
             $query->whereIn('adm_id', $admUserIds);
+        }
+
+        if ($request->filled('customers')) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+                $decodedReceipts = $deposit->reciepts ?? [];
+                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                foreach ($invoicePayments as $payment) {
+                    $invoice = Invoices::find($payment->invoice_id);
+                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
+                        return true;
+                    }
+                }
+                return false;
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('status')) {

@@ -38,7 +38,7 @@ class Deposits extends Model
      */
     public function getInvoicePaymentsAttribute()
     {
-        $receipts = $this->receipts ?? [];
+        $receipts = $this->reciepts ?? [];
         $ids = collect($receipts)->pluck('reciept_id')->toArray();
 
         return InvoicePayments::whereIn('id', $ids)->get();

@@ -106,7 +106,7 @@
                         <form method="GET" action="{{ url('/pending-receipts') }}">
                             <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
                                 <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
-                                <input type="text" name="final_search" class="search-input" placeholder="Search Receipt, Invoice, ADM or Customer" value="{{ request('final_search') }}" />
+                                <input type="text" name="final_search" class="search-input" placeholder="ADM no, Receipt No, Customer name" value="{{ request('final_search') }}" />
                             </div>
                         </form>
                         <button class="header-btn" id="final-search-toggle-button">

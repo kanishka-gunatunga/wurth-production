@@ -16,6 +16,7 @@ use App\Services\ActivitLogService;
 use App\Services\SystemNotificationService;
 use App\Services\MobitelInstantSmsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class FinanceCashController extends Controller
 {
     protected $smsService;
@@ -90,21 +91,23 @@ class FinanceCashController extends Controller
 
     /* -------------------- CUSTOMER FILTER -------------------- */
    if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+        $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+            $decodedReceipts = $deposit->reciepts ?? [];
+            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
 
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
+            foreach ($invoicePayments as $payment) {
+                $invoice = Invoices::find($payment->invoice_id);
+                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
+                if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
+                    return true;
                 }
-                return false;
-            });
-        }
+            }
+            return false;
+        })->pluck('id')->toArray();
+
+        $query->whereIn('id', $depositIds);
+    }
 
     /* -------------------- PAGINATION -------------------- */
     $financeCashDeposits = $query
@@ -394,9 +397,7 @@ class FinanceCashController extends Controller
         $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -406,7 +407,7 @@ class FinanceCashController extends Controller
         }
 
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [] ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -414,10 +415,12 @@ class FinanceCashController extends Controller
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) return true;
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) return true;
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -439,7 +442,7 @@ class FinanceCashController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', ucfirst(strtolower($request->status)));
+            $query->where('status', $request->status);
         }
 
         $financeCashDeposits = $query->orderByDesc('created_at')->paginate(10);
@@ -470,8 +473,7 @@ class FinanceCashController extends Controller
         $query = Deposits::where('type', 'finance-cash');
 
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id')->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
@@ -480,7 +482,7 @@ class FinanceCashController extends Controller
         }
 
         if ($request->filled('customers')) {
-            $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -488,10 +490,12 @@ class FinanceCashController extends Controller
                 foreach ($invoicePayments as $payment) {
                     $invoice = Invoices::find($payment->invoice_id);
                     $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) return true;
+                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) return true;
                 }
                 return false;
-            });
+            })->pluck('id')->toArray();
+
+            $query->whereIn('id', $depositIds);
         }
 
         if ($request->filled('date_range')) {
@@ -513,7 +517,7 @@ class FinanceCashController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', ucfirst(strtolower($request->status)));
+            $query->where('status', $request->status);
         }
 
         $deposits = $query->get();

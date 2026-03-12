@@ -774,24 +774,7 @@
 
             <!-- Payment Notifications -->
             <div class="notification-list" data-content="payment">
-                <div class="notification-item">
-                    <div class="notification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <g clip-path="url(#clip0_4749_15306)">
-                                <path d="M14.5341 6.66764C14.8385 8.16184 14.6215 9.71525 13.9193 11.0688C13.2171 12.4224 12.072 13.4943 10.6751 14.1058C9.27816 14.7174 7.71382 14.8315 6.24293 14.4292C4.77205 14.0269 3.48353 13.1326 2.59225 11.8953C1.70097 10.6579 1.26081 9.15246 1.34518 7.62989C1.42954 6.10733 2.03332 4.6597 3.05583 3.52842C4.07835 2.39714 5.45779 1.65059 6.96411 1.41327C8.47043 1.17595 10.0126 1.46221 11.3334 2.2243" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6 7.33268L8 9.33268L14.6667 2.66602" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4749_15306">
-                                    <rect width="16" height="16" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg></div>
-                    <div class="notification-content">
-                        <p>Payment received from John Mitchell - LKR 25,000</p>
-                        <span>18 mins ago</span>
-                    </div>
-                </div>
-
+                @forelse($reminders as $reminder)
                 <div class="notification-item">
                     <div class="notification-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -807,55 +790,23 @@
                         </svg>
                     </div>
                     <div class="notification-content">
-                        <p>Payment received from Sarah Williams - LKR 18,500</p>
-                        <span>25 mins ago</span>
+                        <a href="{{ url('reminders/'.$reminder->id) }}" style="text-decoration: none; color: inherit;">
+                            <p>{{ $reminder->reminder_title }}</p>
+                            <span class="d-block text-muted small">{{ $reminder->reason }}</span>
+                            <span>{{ \Carbon\Carbon::parse($reminder->reminder_date)->diffForHumans() }}</span>
+                        </a>
                     </div>
                 </div>
-
-                <div class="notification-item">
-                    <div class="notification-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <g clip-path="url(#clip0_4749_15306)">
-                                <path d="M14.5341 6.66764C14.8385 8.16184 14.6215 9.71525 13.9193 11.0688C13.2171 12.4224 12.072 13.4943 10.6751 14.1058C9.27816 14.7174 7.71382 14.8315 6.24293 14.4292C4.77205 14.0269 3.48353 13.1326 2.59225 11.8953C1.70097 10.6579 1.26081 9.15246 1.34518 7.62989C1.42954 6.10733 2.03332 4.6597 3.05583 3.52842C4.07835 2.39714 5.45779 1.65059 6.96411 1.41327C8.47043 1.17595 10.0126 1.46221 11.3334 2.2243" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6 7.33268L8 9.33268L14.6667 2.66602" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4749_15306">
-                                    <rect width="16" height="16" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
-                    </div>
-                    <div class="notification-content">
-                        <p>Payment received from David Thompson - LKR 32,000</p>
-                        <span>1 hour ago</span>
-                    </div>
+                @empty
+                <div class="notification-item justify-content-center">
+                    <p class="mb-0 text-muted">No Payment Notifications</p>
                 </div>
-
-                <div class="notification-item">
-                    <div class="notification-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <g clip-path="url(#clip0_4749_15306)">
-                                <path d="M14.5341 6.66764C14.8385 8.16184 14.6215 9.71525 13.9193 11.0688C13.2171 12.4224 12.072 13.4943 10.6751 14.1058C9.27816 14.7174 7.71382 14.8315 6.24293 14.4292C4.77205 14.0269 3.48353 13.1326 2.59225 11.8953C1.70097 10.6579 1.26081 9.15246 1.34518 7.62989C1.42954 6.10733 2.03332 4.6597 3.05583 3.52842C4.07835 2.39714 5.45779 1.65059 6.96411 1.41327C8.47043 1.17595 10.0126 1.46221 11.3334 2.2243" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6 7.33268L8 9.33268L14.6667 2.66602" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_4749_15306">
-                                    <rect width="16" height="16" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
-                    </div>
-                    <div class="notification-content">
-                        <p>Payment received from Emily Davis - LKR 15,750</p>
-                        <span>2 hours ago</span>
-                    </div>
-                </div>
+                @endforelse
             </div>
 
             <!-- System Notifications -->
             <div class="notification-list d-none" data-content="system">
-                <div class="notification-item">
+                <!-- <div class="notification-item">
                     <div class="notification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <g clip-path="url(#clip0_4749_15306)">
                                 <path d="M14.5341 6.66764C14.8385 8.16184 14.6215 9.71525 13.9193 11.0688C13.2171 12.4224 12.072 13.4943 10.6751 14.1058C9.27816 14.7174 7.71382 14.8315 6.24293 14.4292C4.77205 14.0269 3.48353 13.1326 2.59225 11.8953C1.70097 10.6579 1.26081 9.15246 1.34518 7.62989C1.42954 6.10733 2.03332 4.6597 3.05583 3.52842C4.07835 2.39714 5.45779 1.65059 6.96411 1.41327C8.47043 1.17595 10.0126 1.46221 11.3334 2.2243" stroke="#4CAF50" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
@@ -871,7 +822,7 @@
                         <p>System maintenance scheduled at 10:00 PM</p>
                         <span>1 hour ago</span>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
