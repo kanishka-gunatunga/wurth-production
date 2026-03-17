@@ -129,6 +129,7 @@ class CollectionsController extends Controller
                         fn($q2) =>
                         $q2->where('name', 'like', "%{$search}%")
                             ->orWhere('adm', 'like', "%{$search}%")
+                            ->orWhere('customer_id', 'like', "%{$search}%")
                     );
             });
         }
@@ -192,6 +193,7 @@ class CollectionsController extends Controller
                         fn($q2) =>
                         $q2->where('name', 'like', "%{$search}%")
                             ->orWhere('adm', 'like', "%{$search}%")
+                            ->orWhere('customer_id', 'like', "%{$search}%")
                     );
             });
         }
@@ -252,6 +254,7 @@ class CollectionsController extends Controller
                         'customerData',
                         fn($q2) =>
                         $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('customer_id', 'like', "%{$search}%")
                     )
                     ->orWhereHas(
                         'adm.userDetails',
@@ -405,8 +408,15 @@ class CollectionsController extends Controller
     {
  
         // Final Receipts Search
-        $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch'])->where('status', 'pending')
-            ->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
+        $status = $request->input('final_status', 'pending');
+        
+        $regularQuery = InvoicePayments::with(['invoice.customer.admDetails', 'batch']);
+        
+        if ($status !== 'all') {
+            $regularQuery->where('status', $status);
+        }
+
+        $regularQuery->whereHas('batch', fn($q) => $q->where('temp_receipt', 0));
 
         if ($request->filled('final_search')) {
             $search = $request->final_search;
@@ -417,6 +427,7 @@ class CollectionsController extends Controller
                         fn($q2) =>
                         $q2->where('name', 'like', "%{$search}%")
                             ->orWhere('adm', 'like', "%{$search}%")
+                            ->orWhere('customer_id', 'like', "%{$search}%")
                     );
             });
         }
@@ -492,11 +503,17 @@ class CollectionsController extends Controller
             ->unique()
             ->values();
 
+        $allStatuses = InvoicePayments::whereHas('batch', fn($q) => $q->where('temp_receipt', 0))
+            ->distinct()
+            ->pluck('status')
+            ->toArray();
+
         return view('collections.pending_receipts', compact(
             'regular_receipts', 
             'finalAdmNames',
             'finalAdmIds',
             'finalCustomers',
+            'allStatuses'
         ));
     }
 

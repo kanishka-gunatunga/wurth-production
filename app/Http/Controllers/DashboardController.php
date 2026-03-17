@@ -41,14 +41,16 @@ class DashboardController extends Controller
             $currentMonth = Carbon::now()->month;
             $currentYear = Carbon::now()->year;
             $formattedMonth = str_pad($currentMonth, 2, '0', STR_PAD_LEFT);
-            $adms = UserDetails::where('supervisor', Auth::user()->id)
+            $adms = UserDetails::where(function($q) {
+                $q->where('supervisor', Auth::user()->id)
+                  ->orWhere('second_supervisor', Auth::user()->id);
+            })
             ->whereHas('user', function($q){
                 $q->where('status', 'active');
             })
             ->with('admTargets', function($query) use ($formattedMonth, $currentYear) {
                 $query->where('year_and_month', $currentYear . '-' . $formattedMonth);
             })
-            ->orWhere('second_supervisor', Auth::user()->id)
             ->get(); // Fetch both columns
            
             $totalTarget = $adms->sum(fn($adm) => $adm->admTargets->sum('target'));
@@ -104,26 +106,30 @@ class DashboardController extends Controller
             $currentYear = Carbon::now()->year;
 
             // 1. Get Team Leaders under the ASM
-            $teamLeadersDetails = UserDetails::where('supervisor', Auth::user()->id)
-                ->whereHas('user', function($q){
-                    $q->where('status', 'active');
-                })
-                ->orWhere('second_supervisor', Auth::user()->id)
-                ->get();
+            $teamLeadersDetails = UserDetails::where(function($q) {
+                $q->where('supervisor', Auth::user()->id)
+                  ->orWhere('second_supervisor', Auth::user()->id);
+            })
+            ->whereHas('user', function($q){
+                $q->where('status', 'active');
+            })
+            ->get();
             
             $tlIds = $teamLeadersDetails->pluck('user_id');
             $tlCount = $tlIds->count();
             $formattedMonth = str_pad($currentMonth, 2, '0', STR_PAD_LEFT);
             // 2. Get ADMs under those Team Leaders
-            $adms = UserDetails::whereIn('supervisor', $tlIds)
+            $adms = UserDetails::where(function($q) use ($tlIds) {
+                $q->whereIn('supervisor', $tlIds)
+                  ->orWhereIn('second_supervisor', $tlIds);
+            })
             ->whereHas('user', function($q){
                 $q->where('status', 'active');
             })
             ->with('admTargets', function($query) use ($formattedMonth, $currentYear) {
                 $query->where('year_and_month', $currentYear . '-' . $formattedMonth);
             })
-                ->orWhereIn('second_supervisor', $tlIds)
-                ->get();
+            ->get();
             $totalTarget = $adms->sum(fn($adm) => $adm->admTargets->sum('target'));
             $admIds = $adms->pluck('user_id');      // Collection of user_ids
             $admnos = $adms->pluck('adm_number'); 
@@ -180,37 +186,43 @@ class DashboardController extends Controller
             $currentYear = Carbon::now()->year;
             $formattedMonth = str_pad($currentMonth, 2, '0', STR_PAD_LEFT);
             // 1. Get ASMs under the RSM
-            $asmDetails = UserDetails::where('supervisor', Auth::user()->id)
-                ->whereHas('user', function($q){
-                    $q->where('status', 'active');
-                })
-                ->orWhere('second_supervisor', Auth::user()->id)
-                ->get();
+            $asmDetails = UserDetails::where(function($q) {
+                $q->where('supervisor', Auth::user()->id)
+                  ->orWhere('second_supervisor', Auth::user()->id);
+            })
+            ->whereHas('user', function($q){
+                $q->where('status', 'active');
+            })
+            ->get();
             
             $asmIds = $asmDetails->pluck('user_id');
             $asmCount = $asmIds->count();
 
             // 2. Get Team Leaders under those ASMs
-            $teamLeadersDetails = UserDetails::whereIn('supervisor', $asmIds)
-                ->whereHas('user', function($q){
-                    $q->where('status', 'active');
-                })
-                ->orWhereIn('second_supervisor', $asmIds)
-                ->get();
+            $teamLeadersDetails = UserDetails::where(function($q) use ($asmIds) {
+                $q->whereIn('supervisor', $asmIds)
+                  ->orWhereIn('second_supervisor', $asmIds);
+            })
+            ->whereHas('user', function($q){
+                $q->where('status', 'active');
+            })
+            ->get();
             
             $tlIds = $teamLeadersDetails->pluck('user_id');
             $tlCount = $tlIds->count();
 
             // 3. Get ADMs under those Team Leaders
-            $adms = UserDetails::whereIn('supervisor', $tlIds)
+            $adms = UserDetails::where(function($q) use ($tlIds) {
+                $q->whereIn('supervisor', $tlIds)
+                  ->orWhereIn('second_supervisor', $tlIds);
+            })
             ->whereHas('user', function($q){
                 $q->where('status', 'active');
             })
             ->with('admTargets', function($query) use ($formattedMonth, $currentYear) {
                 $query->where('year_and_month', $currentYear . '-' . $formattedMonth);
             })
-                ->orWhereIn('second_supervisor', $tlIds)
-                ->get();
+            ->get();
             $totalTarget = $adms->sum(fn($adm) => $adm->admTargets->sum('target'));
             $admIds = $adms->pluck('user_id');      // Collection of user_ids
             $admnos = $adms->pluck('adm_number'); 
@@ -280,35 +292,41 @@ class DashboardController extends Controller
             $rsmCount = $rsmIds->count();
 
             // 2. Get ASMs under those RSMs
-            $asmDetails = UserDetails::whereIn('supervisor', $rsmIds)
-                ->whereHas('user', function($q){
-                    $q->where('status', 'active');
-                })
-                ->orWhereIn('second_supervisor', $rsmIds)
-                ->get();
+            $asmDetails = UserDetails::where(function($q) use ($rsmIds) {
+                $q->whereIn('supervisor', $rsmIds)
+                  ->orWhereIn('second_supervisor', $rsmIds);
+            })
+            ->whereHas('user', function($q){
+                $q->where('status', 'active');
+            })
+            ->get();
             $asmIds = $asmDetails->pluck('user_id');
             $asmCount = $asmIds->count();
 
             // 3. Get Team Leaders under those ASMs
-            $teamLeadersDetails = UserDetails::whereIn('supervisor', $asmIds)
-                ->whereHas('user', function($q){
-                    $q->where('status', 'active');
-                })
-                ->orWhereIn('second_supervisor', $asmIds)
-                ->get();
+            $teamLeadersDetails = UserDetails::where(function($q) use ($asmIds) {
+                $q->whereIn('supervisor', $asmIds)
+                  ->orWhereIn('second_supervisor', $asmIds);
+            })
+            ->whereHas('user', function($q){
+                $q->where('status', 'active');
+            })
+            ->get();
             $tlIds = $teamLeadersDetails->pluck('user_id');
             $tlCount = $tlIds->count();
 
             // 4. Get ADMs under those Team Leaders
-            $adms = UserDetails::whereIn('supervisor', $tlIds)
+            $adms = UserDetails::where(function($q) use ($tlIds) {
+                $q->whereIn('supervisor', $tlIds)
+                  ->orWhereIn('second_supervisor', $tlIds);
+            })
             ->whereHas('user', function($q){
                 $q->where('status', 'active');
             })
             ->with('admTargets', function($query) use ($formattedMonth, $currentYear) {
                 $query->where('year_and_month', $currentYear . '-' . $formattedMonth);
             })
-                ->orWhereIn('second_supervisor', $tlIds)    
-                ->get();
+            ->get();
             $totalTarget = $adms->sum(fn($adm) => $adm->admTargets->sum('target'));
             $admIds = $adms->pluck('user_id');      // Collection of user_ids
             $admnos = $adms->pluck('adm_number'); 

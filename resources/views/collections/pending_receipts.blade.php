@@ -172,6 +172,7 @@
 <!-- Final reciepts Filter Offcanvas -->
 <form method="GET" action="{{ url('/pending-receipts') }}">
     @csrf
+    <input type="hidden" name="final_status" id="final-status-value" value="{{ request('final_status', 'pending') }}">
 
     <div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="finalFilter" aria-labelledby="finalFilterLabel">
         <div class="row d-flex justify-content-end">
@@ -225,19 +226,17 @@
                 </select>
             </div>
 
-            <!-- Styled Status Dropdown -->
+            <!-- Status Dropdown -->
             <div class="mt-5 filter-categories">
                 <p class="filter-title">Status</p>
-                <div class="custom-dropdown-container" style="position: relative; min-width: 200px;">
-                    <button type="button" id="final-custom-status-btn" class="btn custom-dropdown text-start" style="width:100%;">
-                        {{ request('final_status') ? ucfirst(request('final_status')) : 'Choose Status' }}
-                    </button>
-                    <ul id="final-custom-status-menu" class="custom-dropdown-menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #ddd; width:100%; z-index:999;">
-                        @foreach ($regular_receipts->pluck('status')->unique() as $status)
-                        <li><a href="#" class="dropdown-item" data-value="{{ $status }}">{{ ucfirst($status) }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                <select id="final-filter-status" class="form-control select2">
+                    <option value="all" {{ request('final_status') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                    @foreach ($allStatuses as $status)
+                    <option value="{{ $status }}" {{ request('final_status', 'pending') == $status ? 'selected' : '' }}>
+                        {{ ucfirst($status) }}
+                    </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="mt-5 filter-categories">
@@ -269,10 +268,10 @@
             allowClear: true
         });
 
-        // Initialize status dropdowns with current values
-        initializeStatusDropdownWithCurrentValue('final-custom-status-btn', 'final-custom-status-menu', 'final-status-value', "{{ request('final_status') }}");
-        initializeStatusDropdownWithCurrentValue('temp-custom-status-btn', 'temp-custom-status-menu', 'temp-status-value', "{{ request('temp_status') }}");
-        initializeStatusDropdownWithCurrentValue('advance-custom-status-btn', 'advance-custom-status-menu', 'advance-status-value', "{{ request('advance_status') }}");
+        // Update hidden status input when Select2 changes
+        $('#final-filter-status').on('change', function() {
+            $('#final-status-value').val($(this).val());
+        });
     });
 
     // Enhanced status dropdown initialization with current values
@@ -337,20 +336,9 @@
         }
 
         // Clear status dropdown and hidden input
-        const finalStatusBtn = document.getElementById('final-custom-status-btn');
-        const finalStatusInput = document.getElementById('final-status-value');
-        if (finalStatusBtn) {
-            finalStatusBtn.textContent = 'Choose Status';
-            finalStatusBtn.removeAttribute('data-value');
-        }
+        $('#final-filter-status').val('pending').trigger('change');
         if (finalStatusInput) {
-            finalStatusInput.value = '';
-        }
-
-        // Hide status menu if open
-        const finalStatusMenu = document.getElementById('final-custom-status-menu');
-        if (finalStatusMenu) {
-            finalStatusMenu.style.display = 'none';
+            finalStatusInput.value = 'pending';
         }
 
         console.log('Final filters cleared');

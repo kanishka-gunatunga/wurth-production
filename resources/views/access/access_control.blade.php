@@ -786,8 +786,12 @@
 
             if (userRole === "6" || userRole === "8") {
                 $permissionContainer = $('#role_permissions_adm');
+                $('#role_permissions_admin').find('input[type="checkbox"]').prop('disabled', true);
+                $('#role_permissions_adm').find('input[type="checkbox"]').prop('disabled', false);
             } else {
                 $permissionContainer = $('#role_permissions_admin');
+                $('#role_permissions_adm').find('input[type="checkbox"]').prop('disabled', true);
+                $('#role_permissions_admin').find('input[type="checkbox"]').prop('disabled', false);
             }
 
             // Clear all checkboxes
@@ -823,9 +827,13 @@
             if (selectedRole === '6' || selectedRole === '8') {
                 $('#role_permissions_adm').show();
                 $('#role_permissions_admin').hide();
+                $('#role_permissions_admin').find('input[type="checkbox"]').prop('disabled', true);
+                $('#role_permissions_adm').find('input[type="checkbox"]').prop('disabled', false);
             } else {
                 $('#role_permissions_admin').show();
                 $('#role_permissions_adm').hide();
+                $('#role_permissions_adm').find('input[type="checkbox"]').prop('disabled', true);
+                $('#role_permissions_admin').find('input[type="checkbox"]').prop('disabled', false);
             }
         }
 

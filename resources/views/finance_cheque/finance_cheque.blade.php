@@ -89,23 +89,26 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-        @if(!empty($filters))
+        @if(!empty($data))
         <form method="POST" action="{{ url('finance-cheque/export') }}">
             @csrf
-            @foreach($filters as $key => $value)
-            @if(is_array($value))
-            @foreach($value as $v)
-            <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
-            @endforeach
-            @else
-            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @if(request()->filled('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
+            @foreach($filters as $key => $value)
+                @if($key !== 'search')
+                    @if(is_array($value))
+                        @foreach($value as $v)
+                            <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
+                        @endforeach
+                    @else
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
+                @endif
             @endforeach
 
             <div class="col-12 d-flex justify-content-end pe-5 mb-3 gap-3">
-                <a>
-                    <button class="add-new-division-btn">Export</button>
-                </a>
+                <button type="submit" class="add-new-division-btn">Export</button>
             </div>
         </form>
         @endif

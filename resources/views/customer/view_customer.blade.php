@@ -357,12 +357,12 @@ use App\Models\Divisions;
                                                 <th>Outstanding Days</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="invoicesTableBody">
                                             <?php
                                             if($customer_details->invoices){
                                                 foreach($customer_details->invoices as $invoice){
                                                 if($invoice->type == 'invoice'){ ?> 
-                                            <tr>
+                                            <tr data-date="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}">
                                                 <td>{{$invoice->invoice_or_cheque_no}}</td>
                                                 <td>{{$invoice->invoice_date}}</td>
                                                 <td>Rs.{{number_format($invoice->amount ?? 0, 2)}}</td>
@@ -425,12 +425,12 @@ use App\Models\Divisions;
                                                 <th>Outstanding Days</th>
                                             </tr>
                                         </thead>
-                                        <tbody >
+                                        <tbody id="returnChequeTableBody">
                                             <?php
                                             if($customer_details->invoices){
                                                 foreach($customer_details->invoices as $invoice){
                                                 if($invoice->type == 'return_cheque'){ ?> 
-                                            <tr>
+                                            <tr data-date="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}">
                                                 <td>{{$invoice->invoice_or_cheque_no}}</td>
                                                 <td>{{$invoice->invoice_date}}</td>
                                                 <td>Rs.{{number_format($invoice->amount ?? 0, 2)}}</td>
@@ -492,12 +492,12 @@ use App\Models\Divisions;
                                                 <th>Total Amount</th>
                                             </tr>
                                         </thead>
-                                        <tbody >
+                                        <tbody id="extraPaymentTableBody">
                                             <?php
                                             if($customer_details->extraPayment){
                                                 foreach($customer_details->extraPayment as $extraPayment){
                                                 ?> 
-                                            <tr>
+                                            <tr data-date="{{ \Carbon\Carbon::parse($extraPayment->created_at)->format('Y-m-d') }}">
                                                 <td>{{$extraPayment->extra_payment_id}}</td>
                                                 <td>{{$extraPayment->created_at}}</td>
                                                 <td>Rs.{{number_format($extraPayment->amount ?? 0, 2)}}</td>
@@ -548,12 +548,12 @@ use App\Models\Divisions;
                                                 <th>Total Amount</th>
                                             </tr>
                                         </thead>
-                                        <tbody >
+                                        <tbody id="creditNoteTableBody">
                                              <?php
                                             if($customer_details->creditNote){
                                                 foreach($customer_details->creditNote as $creditNote){
                                                 ?> 
-                                            <tr>
+                                            <tr data-date="{{ \Carbon\Carbon::parse($creditNote->created_at)->format('Y-m-d') }}">
                                                 <td>{{$creditNote->credit_note_id}}</td>
                                                 <td>{{$creditNote->created_at}}</td>
                                                 <td>Rs.{{number_format($creditNote->amount ?? 0, 2)}}</td>
@@ -614,7 +614,7 @@ use App\Models\Divisions;
                             </thead>
                             <tbody id="paymentHistoryTableBody">
                             @forelse($customer_details->invoicePayments as $payment)
-                                <tr>
+                                <tr data-date="{{ $payment->created_at ? \Carbon\Carbon::parse($payment->created_at)->format('Y-m-d') : '' }}">
                                     <td>{{ $payment->id }}</td>
                                     <td>{{ $payment->invoice->invoice_or_cheque_no ?? 'N/A' }}</td>
                                     <td>{{ ucfirst($payment->type ?? 'N/A') }}</td>
@@ -657,6 +657,45 @@ use App\Models\Divisions;
         </div>
     </div>
 </div>
+
+<!-- Offcanvas Filters Start -->
+@foreach([
+    'invoices' => 'Invoices',
+    'returnCheque' => 'Return Cheque',
+    'extraPayment' => 'Extra Payment',
+    'creditNote' => 'Credit Note',
+    'history' => 'Payment History'
+] as $id => $title)
+<div class="offcanvas offcanvas-end offcanvas-filter" tabindex="-1" id="filter-{{ $id }}" aria-labelledby="offcanvasRightLabel">
+    <div class="row d-flex justify-content-end">
+        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-header d-flex justify-content-between">
+        <div class="col-8">
+            <span class="offcanvas-title" id="offcanvasRightLabel">Filter {{ $title }}</span> 
+        </div>
+        <div>
+            <button type="button" class="btn rounded-phill clear-filter-btn" data-target="{{ $id }}">Clear All</button>
+        </div>
+    </div>
+    <div class="offcanvas-body">
+        <div class="mt-5 filter-categories">
+            <p class="filter-title">Date Range</p>
+            <div class="mb-3">
+                <label>From Date</label>
+                <input type="date" class="form-control" id="{{ $id }}-from-date">
+            </div>
+            <div class="mb-3">
+                <label>To Date</label>
+                <input type="date" class="form-control" id="{{ $id }}-to-date">
+            </div>
+            <button type="button" class="red-action-btn-lg mt-4 apply-filter-btn" data-target="{{ $id }}" data-bs-dismiss="offcanvas">Apply Filter</button>
+        </div>
+    </div>
+</div>
+@endforeach
+<!-- Offcanvas Filters End -->
 
 @include('layouts.footer2')
  <!-- Resend SMS Modal -->
@@ -741,6 +780,200 @@ use App\Models\Divisions;
         // Close modal if clicking outside
         window.addEventListener('click', function(e) {
             if (e.target === modal) modal.style.display = 'none';
+        });
+    });
+</script>
+
+<script>
+    class TableManager {
+        constructor(tbodyId, paginationId, itemsPerPage = 10) {
+            this.tbody = document.getElementById(tbodyId);
+            if (!this.tbody) return;
+            this.pagination = document.getElementById(paginationId);
+            this.itemsPerPage = itemsPerPage;
+            this.rows = Array.from(this.tbody.querySelectorAll('tr'));
+            this.filteredRows = [...this.rows];
+            this.currentPage = 1;
+            this.currentQuery = "";
+            this.fromDate = null;
+            this.toDate = null;
+            this.render();
+        }
+
+        search(query) {
+            this.currentQuery = query.toLowerCase();
+            this.applyFilters();
+        }
+
+        filterDates(from, to) {
+            this.fromDate = from ? new Date(from) : null;
+            this.toDate = to ? new Date(to) : null;
+            this.applyFilters();
+        }
+
+        applyFilters() {
+            this.filteredRows = this.rows.filter(row => {
+                let textMatch = true;
+                if (this.currentQuery) {
+                    textMatch = row.innerText.toLowerCase().includes(this.currentQuery);
+                }
+                
+                let dateMatch = true;
+                const rowDateStr = row.getAttribute('data-date');
+                if ((this.fromDate || this.toDate) && rowDateStr) {
+                    const rowDate = new Date(rowDateStr);
+                    // To include elements on the same day, set hours to 0
+                    rowDate.setHours(0,0,0,0);
+                    
+                    if (this.fromDate) {
+                        const f = new Date(this.fromDate);
+                        f.setHours(0,0,0,0);
+                        if (rowDate < f) dateMatch = false;
+                    }
+                    if (this.toDate) {
+                        const t = new Date(this.toDate);
+                        t.setHours(0,0,0,0);
+                        if (rowDate > t) dateMatch = false;
+                    }
+                } else if ((this.fromDate || this.toDate) && !rowDateStr) {
+                    dateMatch = false; // No date attribute but filters are active
+                }
+
+                return textMatch && dateMatch;
+            });
+            this.currentPage = 1;
+            this.render();
+        }
+
+        render() {
+            const totalPages = Math.ceil(this.filteredRows.length / this.itemsPerPage);
+            if (this.currentPage > totalPages && totalPages > 0) this.currentPage = totalPages;
+            
+            this.rows.forEach(row => row.style.display = 'none');
+            
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            this.filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+            this.renderPagination(totalPages);
+        }
+
+        renderPagination(totalPages) {
+            if (!this.pagination) return;
+            this.pagination.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const createItem = (text, page, disabled = false, active = false) => {
+                const li = document.createElement('li');
+                li.className = `page-item ${disabled ? 'disabled' : ''} ${active ? 'active' : ''}`;
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = 'javascript:void(0);';
+                a.innerHTML = text;
+                if (!disabled && !active) {
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        this.currentPage = page;
+                        this.render();
+                    };
+                }
+                li.appendChild(a);
+                return li;
+            };
+
+            this.pagination.appendChild(createItem('&laquo;', this.currentPage - 1, this.currentPage === 1));
+            
+            for (let i = 1; i <= totalPages; i++) {
+                this.pagination.appendChild(createItem(i, i, false, i === this.currentPage));
+            }
+
+            this.pagination.appendChild(createItem('&raquo;', this.currentPage + 1, this.currentPage === totalPages));
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const managers = {
+            invoices: new TableManager('invoicesTableBody', 'paymentInvoicesPagination', 10),
+            returnCheque: new TableManager('returnChequeTableBody', 'paymentReturnChequePagination', 10),
+            extraPayment: new TableManager('extraPaymentTableBody', 'extraPaymentPagination', 10),
+            creditNote: new TableManager('creditNoteTableBody', 'paymentCreditNotePagination', 10),
+            history: new TableManager('paymentHistoryTableBody', 'paymentHistoryPagination', 10)
+        };
+
+        function setupSearch(wrapperId, toggleId, managerKey) {
+            const searchWrapper = document.getElementById(wrapperId);
+            const searchToggleButton = document.getElementById(toggleId);
+            if (!searchWrapper || !searchToggleButton) return;
+            const searchInput = searchWrapper.querySelector(".search-input");
+
+            let idleTimeout;
+            const idleTime = 5000;
+
+            function collapseSearch() {
+                if (searchInput.value.trim() !== "") return;
+                searchWrapper.classList.remove("expanded");
+                searchWrapper.classList.add("collapsed");
+                searchToggleButton.classList.remove("d-none");
+                clearTimeout(idleTimeout);
+            }
+
+            searchToggleButton.addEventListener("click", function() {
+                if (searchWrapper.classList.contains("collapsed")) {
+                    searchWrapper.classList.remove("collapsed");
+                    searchWrapper.classList.add("expanded");
+                    searchToggleButton.classList.add("d-none");
+                    searchInput.focus();
+                    clearTimeout(idleTimeout);
+                    idleTimeout = setTimeout(() => {
+                        if (!searchInput.value) collapseSearch();
+                    }, idleTime);
+                } else {
+                    collapseSearch();
+                }
+            });
+
+            searchInput.addEventListener("input", function() {
+                clearTimeout(idleTimeout);
+                managers[managerKey].search(this.value);
+            });
+
+            searchInput.addEventListener("blur", function() {
+                idleTimeout = setTimeout(() => {
+                    collapseSearch();
+                }, idleTime);
+            });
+            
+            searchInput.addEventListener("keydown", function() {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    if (!searchInput.value) collapseSearch();
+                }, idleTime);
+            });
+        }
+
+        setupSearch("search-box-wrapper-invoices", "search-toggle-button-invoices", "invoices");
+        setupSearch("search-box-wrapper-returnCheque", "search-toggle-button-returnCheque", "returnCheque");
+        setupSearch("search-box-wrapper-extraPayment", "search-toggle-button-extraPayment", "extraPayment");
+        setupSearch("search-box-wrapper-creditNote", "search-toggle-button-creditNote", "creditNote");
+        setupSearch("search-box-wrapper-history", "search-toggle-button-history", "history");
+
+        // Set up Offcanvas Filter Buttons
+        document.querySelectorAll('.apply-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                const fromDate = document.getElementById(`${target}-from-date`).value;
+                const toDate = document.getElementById(`${target}-to-date`).value;
+                if (managers[target]) {managers[target].filterDates(fromDate, toDate);}
+            });
+        });
+
+        document.querySelectorAll('.clear-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                document.getElementById(`${target}-from-date`).value = '';
+                document.getElementById(`${target}-to-date`).value = '';
+                if (managers[target]) {managers[target].filterDates(null, null);}
+            });
         });
     });
 </script>

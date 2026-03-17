@@ -479,7 +479,7 @@
                 </div>
                 <div class="stat-content">
                     <p class="stat-label">Collection Target</p>
-                    <h3 class="stat-number">LKR 0</h3>
+                    <h3 class="stat-number">LKR {{ number_format($totalTarget) }}</h3>
                 </div>
 
             </div>

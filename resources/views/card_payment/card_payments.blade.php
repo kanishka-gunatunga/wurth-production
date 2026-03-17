@@ -89,7 +89,7 @@
 
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
-        @if(!empty($filters))
+        @if($cardPayments->total() > 0)
         <form method="POST" action="{{ url('card-payments/export') }}">
             @csrf
 
@@ -99,7 +99,9 @@
             <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
             @endforeach
             @else
+            @if(!is_null($value))
             <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
             @endif
             @endforeach
 

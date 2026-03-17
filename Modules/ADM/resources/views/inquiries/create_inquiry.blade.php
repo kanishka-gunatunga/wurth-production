@@ -24,10 +24,11 @@
                     @endif
                 </div>
 
-
-                <div class="input-group-profile d-flex flex-column mb-3">
+                <?php
+                 if(Auth::user()->user_role == 6 ){ ?> 
+                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="adm_number">ADM Number</label>
-                    <input type="number" class="form-control" value="{{ $user->userDetails->adm_number }}" readonly
+                    <input type="number" class="form-control" value="{{ $user->userDetails->adm_number}}" readonly
                         name="adm_number" id="adm_number" required="">
 
                 </div>
@@ -38,6 +39,22 @@
                         required="" readonly>
 
                 </div>
+                 <?php } else{ ?> 
+                    <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="adm_number">Recovery Manger ID</label>
+                    <input type="number" class="form-control" value="{{ $user->id }}" readonly
+                        name="adm_number" id="adm_number" required="">
+
+                </div>
+
+                <div class="input-group-profile d-flex flex-column mb-3">
+                    <label for="name">Recovery Manger Name</label>
+                    <input type="text" class="form-control" value="{{ $user->userDetails->name }}" name="name"
+                        required="" readonly>
+
+                </div>
+                 <?php } ?>
+                
 
                 <div class="input-group-profile d-flex flex-column mb-3">
                     <label for="reminder_date">Select Customer Name</label>

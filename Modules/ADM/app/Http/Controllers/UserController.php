@@ -26,6 +26,9 @@ use PDF;
 use App\Services\ActivitLogService;
 use App\Models\Reminders;
 use App\Models\Notifications;
+use App\Models\InvoicePayments;
+use App\Models\Deposits;
+use Carbon\Carbon;
 class UserController extends Controller
 {
     /**
@@ -80,7 +83,19 @@ class UserController extends Controller
             ->take(10)
             ->get();
 
-        return view('adm::dashboard.index', compact('reminders', 'notifications'));
+        $today = Carbon::today();
+
+        $daily_cash = InvoicePayments::where('adm_id', $currentUserId)
+            ->where('type', 'cash')
+            ->whereDate('created_at', $today)
+            ->sum('final_payment');
+
+        $today_cheque = Deposits::where('adm_id', $currentUserId)
+            ->where('type', 'cheque')
+            ->whereDate('date_time', $today)
+            ->sum('amount');
+
+        return view('adm::dashboard.index', compact('reminders', 'notifications', 'daily_cash', 'today_cheque'));
     }
     
     public function my_profile(Request $request)

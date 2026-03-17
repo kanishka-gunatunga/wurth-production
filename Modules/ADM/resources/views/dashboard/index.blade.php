@@ -47,14 +47,14 @@
             <div
                 class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3">
                 <p class="gray-text mb-1">Daily Cash collected</p>
-                <p class="red-title mb-0">Rs. 93,500.00</p>
+                <p class="red-title mb-0">Rs. {{ number_format($daily_cash, 2) }}</p>
             </div>
         </div>
         <div class="col-6  ps-2">
             <div
                 class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3">
                 <p class="gray-text mb-1">Today’s Cheque Deposit</p>
-                <p class="red-title mb-0">Rs. 120,000.00 </p>
+                <p class="red-title mb-0">Rs. {{ number_format($today_cheque, 2) }}</p>
             </div>
         </div>
     </div>

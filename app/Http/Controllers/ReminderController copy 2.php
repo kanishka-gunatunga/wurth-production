@@ -263,13 +263,6 @@ public function getUsersByLevel(Request $request, $level)
             // 3. Hierarchy / In-Between Visibility
             // Logic: A user sees a reminder if they are in the hierarchy path between Sender and Target
             ->orWhere(function ($flowQ) use ($currentUserId, $currentUserRole, $currentUserDivision, $isGlobalUser) {
-                // Restricted users (e.g. Finance 7) should NOT see notifications through hierarchy flow
-                // They only see direct notifications or role-based broadcasts.
-                if ($currentUserRole == 7) {
-                    $flowQ->whereRaw('0=1');
-                    return;
-                }
-
                 // Recovery Manager (8) Exception: If sender or target is role 8, skip hierarchy flow
                 $flowQ->where('sender.user_role', '!=', 8)
                       ->where('reminders.user_level', '!=', 8);

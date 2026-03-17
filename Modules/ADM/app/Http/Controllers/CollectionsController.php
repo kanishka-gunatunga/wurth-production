@@ -1116,6 +1116,7 @@ public function resend_receipt($id)
     if($request->isMethod('post')){
         
         try {
+            $payments = $request->payments;
         
         if ($request->payment_batch_id == '') {
             $payment_batch = new InvoicePaymentBatches();
@@ -1123,7 +1124,7 @@ public function resend_receipt($id)
                 $payment_batch->adm_id = Auth::user()->id;
             }
             else {
-                $last_payment = end($request->payments);
+                $last_payment = end($payments);
                 $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
                 $last_customer = $last_invoice->customer;
                 $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
@@ -1136,7 +1137,7 @@ public function resend_receipt($id)
             $payment_batch = InvoicePaymentBatches::find($request->payment_batch_id);
         }
         $final_collection_total = 0;
-        foreach ($request->payments as $payment) {
+        foreach ($payments as $payment) {
             $discount =  ($payment['amount'] * ($payment['discount'] ?? 0)) / 100;
             $final_payment = $payment['amount']-$discount;
             $invoice = Invoices::with('customer')->where('id', $payment['invoice_id'])->first();
@@ -1299,7 +1300,7 @@ public function add_bulk_fund_transfer(Request $request)
                 $payment_batch->adm_id = Auth::user()->id;
             }
             else {
-                $last_payment = end($request->payments);
+                $last_payment = end($payments);
                 $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
                 $last_customer = $last_invoice->customer;
                 $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
@@ -1494,7 +1495,7 @@ public function add_bulk_cheque_payment(Request $request)
                     $payment_batch->adm_id = Auth::user()->id;
                 }
                 else {
-                    $last_payment = end($request->payments);
+                    $last_payment = end($payments);
                     $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
                     $last_customer = $last_invoice->customer;
                     $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;
@@ -1612,7 +1613,7 @@ public function add_bulk_card_payment(Request $request)
                     $payment_batch->adm_id = Auth::user()->id;
                 }
                 else {
-                    $last_payment = end($request->payments);
+                    $last_payment = end($payments);
                     $last_invoice = Invoices::with('customer')->find($last_payment['invoice_id']);
                     $last_customer = $last_invoice->customer;
                     $adm_number = !empty($last_customer->secondary_adm) ? $last_customer->secondary_adm : $last_customer->adm;

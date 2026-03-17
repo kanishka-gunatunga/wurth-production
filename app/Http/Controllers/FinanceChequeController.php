@@ -27,34 +27,98 @@ class FinanceChequeController extends Controller
         $this->smsService = $smsService;
     }
 
-  public function index(Request $request)
-{
-    $adms = User::where('user_role', 6)->with('userDetails')->get();
-    $customers = Customers::where('is_temp', 0)->get();
+    public function index(Request $request)
+    {
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
 
-    // base query
-    $query = Deposits::where('type', 'finance-cheque');
+        $query = $this->_getFilteredQuery($request);
 
-    /* -------------------- SEARCH BOX -------------------- */
-    if ($request->filled('search')) {
-        $search = trim($request->search);
+        /* -------------------- RESULT + TRANSFORM -------------------- */
+        $deposits = $query->orderByDesc('created_at')->paginate(10);
 
-        // ADM user IDs by name or adm_number
-        $admUserIds = UserDetails::where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', "%$search%")
-              ->orWhere('adm_number', 'LIKE', "%$search%");
-        })->pluck('user_id');
+        $deposits->getCollection()->transform(function ($deposit) {
+            $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
 
-        // customer IDs by name or id
-        $customerIds = Customers::where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', "%$search%")
-              ->orWhere('customer_id', 'LIKE', "%$search%");
-        })->pluck('customer_id');
+            return [
+                'id'        => $deposit->id,
+                'date'      => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'adm_number'=> $userDetail?->adm_number ?? 'N/A',
+                'adm_name'  => $userDetail?->name ?? 'N/A',
+                'bank_name' => $deposit->bank_name ?? 'N/A',
+                'branch_name'=> $deposit->branch_name ?? 'N/A',
+                'amount'    => $deposit->amount ?? 0,
+                'status'    => $deposit->status,
+                'attachment_path' => $deposit->attachment_path ?? null,
+            ];
+        });
 
-        // Find deposit IDs that contain receipts linking to matching customers
-        $matchingDepositIds = [];
-        if (!empty($customerIds->toArray())) {
-            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+        return view('finance_cheque.finance_cheque', [
+            'data' => $deposits,
+            'adms' => $adms,
+            'customers' => $customers,
+            'filters' => $request->all(),
+        ]);
+    }
+
+    private function _getFilteredQuery(Request $request)
+    {
+        $query = Deposits::where('type', 'finance-cheque');
+
+        /* -------------------- SEARCH BOX -------------------- */
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $admUserIds = UserDetails::where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%")
+                  ->orWhere('adm_number', 'LIKE', "%$search%");
+            })->pluck('user_id');
+
+            $customerIds = Customers::where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%")
+                  ->orWhere('customer_id', 'LIKE', "%$search%");
+            })->pluck('customer_id');
+
+            $matchingDepositIds = [];
+            if ($customerIds->isNotEmpty()) {
+                $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
+                $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
+
+                if (!empty($receiptIds)) {
+                    $matchingDepositIds = Deposits::where('type', 'finance-cheque')
+                        ->get()
+                        ->filter(function ($d) use ($receiptIds) {
+                            $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
+                            return !empty(array_intersect($ids, $receiptIds));
+                        })
+                        ->pluck('id')
+                        ->toArray();
+                }
+            }
+
+            $query->where(function ($q) use ($admUserIds, $matchingDepositIds) {
+                $q->whereIn('adm_id', $admUserIds);
+                if (!empty($matchingDepositIds)) {
+                    $q->orWhereIn('id', $matchingDepositIds);
+                }
+            });
+        }
+
+        /* -------------------- ADM NAME FILTER -------------------- */
+        if ($request->filled('adm_names')) {
+            $query->whereIn('adm_id', (array) $request->adm_names);
+        }
+
+        /* -------------------- ADM NUMBER FILTER -------------------- */
+        if ($request->filled('adm_ids')) {
+            $admUserIds = UserDetails::whereIn('adm_number', (array) $request->adm_ids)
+                ->pluck('user_id');
+            $query->whereIn('adm_id', $admUserIds);
+        }
+
+        /* -------------------- CUSTOMER FILTER -------------------- */
+        if ($request->filled('customers')) {
+            $invoiceIds = Invoices::whereIn('customer_id', (array) $request->customers)->pluck('id');
             $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
 
             if (!empty($receiptIds)) {
@@ -66,100 +130,41 @@ class FinanceChequeController extends Controller
                     })
                     ->pluck('id')
                     ->toArray();
+
+                $query->whereIn('id', $matchingDepositIds);
+            } else {
+                // If no receipts found for these customers, return no results
+                $query->whereRaw('1 = 0');
             }
         }
 
-        $query->where(function ($q) use ($admUserIds, $matchingDepositIds) {
-            $q->whereIn('adm_id', $admUserIds);
-            if (!empty($matchingDepositIds)) {
-                $q->orWhereIn('id', $matchingDepositIds);
+        /* -------------------- DATE RANGE FILTER -------------------- */
+        if ($request->filled('date_range')) {
+            $range = trim($request->date_range);
+
+            if (str_contains($range, 'to')) {
+                [$start, $end] = array_map('trim', explode('to', $range));
+            } elseif (str_contains($range, '-')) {
+                [$start, $end] = array_map('trim', explode('-', $range));
+            } else {
+                $start = $end = $range;
             }
-        });
-    }
 
-    /* -------------------- ADM NAME FILTER -------------------- */
-    if ($request->filled('adm_names')) {
-        $query->whereIn('adm_id', $request->adm_names);
-    }
-
-    /* -------------------- ADM NUMBER FILTER -------------------- */
-    if ($request->filled('adm_ids')) {
-        $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
-            ->pluck('user_id');
-
-        $query->whereIn('adm_id', $admUserIds);
-    }
-
-    /* -------------------- CUSTOMER FILTER -------------------- */
-   if ($request->filled('customers')) {
-             $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
-
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array($customer->name, $request->customers)) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            if (!empty($start) && !empty($end)) {
+                $query->whereBetween('date_time', [
+                    date('Y-m-d 00:00:00', strtotime($start)),
+                    date('Y-m-d 23:59:59', strtotime($end)),
+                ]);
+            }
         }
 
-    /* -------------------- DATE RANGE FILTER -------------------- */
-    if ($request->filled('date_range')) {
-
-        $range = trim($request->date_range);
-
-        if (str_contains($range, 'to')) {
-            [$start, $end] = array_map('trim', explode('to', $range));
-        } elseif (str_contains($range, '-')) {
-            [$start, $end] = array_map('trim', explode('-', $range));
-        } else {
-            $start = $end = $range;
+        /* -------------------- STATUS FILTER -------------------- */
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        if (!empty($start) && !empty($end)) {
-            $query->whereBetween('date_time', [
-                date('Y-m-d 00:00:00', strtotime($start)),
-                date('Y-m-d 23:59:59', strtotime($end)),
-            ]);
-        }
+        return $query;
     }
-
-    /* -------------------- STATUS FILTER -------------------- */
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-    /* -------------------- RESULT + TRANSFORM -------------------- */
-    $deposits = $query->orderByDesc('created_at')->paginate(10);
-
-    $deposits->getCollection()->transform(function ($deposit) {
-        $userDetail = UserDetails::where('user_id', $deposit->adm_id)->first();
-
-        return [
-            'id'        => $deposit->id,
-            'date'      => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-            'adm_number'=> $userDetail?->adm_number ?? 'N/A',
-            'adm_name'  => $userDetail?->name ?? 'N/A',
-            'bank_name' => $deposit->bank_name ?? 'N/A',
-            'branch_name'=> $deposit->branch_name ?? 'N/A',
-            'amount'    => $deposit->amount ?? 0,
-            'status'    => $deposit->status,
-            'attachment_path' => $deposit->attachment_path ?? null,
-        ];
-    });
-
-    return view('finance_cheque.finance_cheque', [
-        'data' => $deposits,
-        'adms' => $adms,
-        'customers' => $customers,
-        'filters' => $request->all(),
-    ]);
-}
 
 
     public function show($id)
@@ -335,57 +340,11 @@ class FinanceChequeController extends Controller
 
     public function search(Request $request)
     {
-        $search = $request->input('search');
+        $query = $this->_getFilteredQuery($request);
+        $deposits = $query->orderByDesc('created_at')->paginate(10);
 
-        $deposits = Deposits::where('type', 'finance-cheque')
-            ->orderByDesc('created_at')
-            ->get();
-
-        $filtered = $deposits->filter(function ($deposit) use ($search) {
+        $deposits->getCollection()->transform(function ($deposit) {
             $adm = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $admMatch = false;
-
-            if ($adm) {
-                $admMatch = str_contains(strtolower($adm->name), strtolower($search)) ||
-                    str_contains(strtolower($adm->adm_number), strtolower($search));
-            }
-
-            $decodedReceipts = $deposit->reciepts ?? [];
-            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
-
-            $customerMatch = false;
-            foreach ($invoicePayments as $payment) {
-                $invoice = Invoices::find($payment->invoice_id);
-                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-
-                if ($customer && (
-                    str_contains(strtolower($customer->name), strtolower($search)) ||
-                    str_contains(strtolower($customer->customer_id), strtolower($search))
-                )) {
-                    $customerMatch = true;
-                    break;
-                }
-            }
-
-            return $admMatch || $customerMatch;
-        });
-
-        $page = request('page', 1);
-        $perPage = 10;
-        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
-            $filtered->forPage($page, $perPage),
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $paginated->getCollection()->transform(function ($deposit) {
-            $adm = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = $deposit->status;
-            // if ($status === 'pending') $status = 'deposited';
-
             return [
                 'id' => $deposit->id,
                 'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
@@ -394,81 +353,29 @@ class FinanceChequeController extends Controller
                 'bank_name' => $deposit->bank_name,
                 'branch_name' => $deposit->branch_name,
                 'amount' => $deposit->amount ?? 0,
-                'status' => $status,
+                'status' => $deposit->status,
                 'attachment_path' => $deposit->attachment_path ?? null,
             ];
         });
 
-        $filters = ['search' => $search];
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
 
         return view('finance_cheque.finance_cheque', [
-            'data' => $paginated,
-            'filters' => $filters,
+            'data' => $deposits,
+            'adms' => $adms,
+            'customers' => $customers,
+            'filters' => $request->all(),
         ]);
     }
 
     public function filter(Request $request)
     {
-        $query = Deposits::where('type', 'finance-cheque');
-
-        if ($request->filled('adm_names')) {
-            // adm_names[] values are user IDs (from $adm->id in blade)
-            $query->whereIn('adm_id', $request->adm_names);
-        }
-
-        if ($request->filled('adm_ids')) {
-            $admIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id');
-            $query->whereIn('adm_id', $admIds);
-        }
-
-        if ($request->filled('customers')) {
-            // Find invoices for the selected customers
-            $customerIds = Customers::whereIn('customer_id', $request->customers)->pluck('customer_id');
-            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
-            $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
-
-            // Find deposit IDs that contain any of those receipt IDs
-            $matchingDepositIds = Deposits::where('type', 'finance-cheque')
-                ->get()
-                ->filter(function ($d) use ($receiptIds) {
-                    $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
-                    return !empty(array_intersect($ids, $receiptIds));
-                })
-                ->pluck('id')
-                ->toArray();
-
-            $query->whereIn('id', $matchingDepositIds);
-        }
-
-        if ($request->filled('date_range')) {
-            $range = trim($request->date_range);
-            if (str_contains($range, 'to')) {
-                [$start, $end] = array_map('trim', explode('to', $range));
-            } elseif (str_contains($range, '-')) {
-                [$start, $end] = array_map('trim', explode('-', $range));
-            } else {
-                $start = $end = $range;
-            }
-
-            if (!empty($start) && !empty($end)) {
-                $query->whereBetween('date_time', [
-                    date('Y-m-d 00:00:00', strtotime($start)),
-                    date('Y-m-d 23:59:59', strtotime($end)),
-                ]);
-            }
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
+        $query = $this->_getFilteredQuery($request);
         $deposits = $query->orderByDesc('created_at')->paginate(10);
 
         $deposits->getCollection()->transform(function ($deposit) {
             $adm = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = $deposit->status;
-            // if ($status === 'pending') $status = 'deposited';
-
             return [
                 'id' => $deposit->id,
                 'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
@@ -477,134 +384,41 @@ class FinanceChequeController extends Controller
                 'bank_name' => $deposit->bank_name,
                 'branch_name' => $deposit->branch_name,
                 'amount' => $deposit->amount ?? 0,
-                'status' => $status,
+                'status' => $deposit->status,
                 'attachment_path' => $deposit->attachment_path ?? null,
             ];
         });
 
-        $filters = $request->all();
+        $adms = User::where('user_role', 6)->with('userDetails')->get();
+        $customers = Customers::where('is_temp', 0)->get();
 
         return view('finance_cheque.finance_cheque', [
             'data' => $deposits,
-            'filters' => $filters,
+            'adms' => $adms,
+            'customers' => $customers,
+            'filters' => $request->all(),
         ]);
     }
 
     public function export(Request $request)
     {
-        $query = Deposits::where('type', 'finance-cheque');
-
-        // Apply the same filters as in index() method
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-
-            $admUserIds = UserDetails::where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%$search%")
-                  ->orWhere('adm_number', 'LIKE', "%$search%");
-            })->pluck('user_id');
-
-            $customerIds = Customers::where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%$search%")
-                  ->orWhere('customer_id', 'LIKE', "%$search%");
-            })->pluck('customer_id');
-
-            $matchingDepositIds = [];
-            if (!empty($customerIds->toArray())) {
-                $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
-                $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
-
-                if (!empty($receiptIds)) {
-                    $matchingDepositIds = Deposits::where('type', 'finance-cheque')
-                        ->get()
-                        ->filter(function ($d) use ($receiptIds) {
-                            $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
-                            return !empty(array_intersect($ids, $receiptIds));
-                        })
-                        ->pluck('id')
-                        ->toArray();
-                }
-            }
-
-            $query->where(function ($q) use ($admUserIds, $matchingDepositIds) {
-                $q->whereIn('adm_id', $admUserIds);
-                if (!empty($matchingDepositIds)) {
-                    $q->orWhereIn('id', $matchingDepositIds);
-                }
-            });
-        }
-
-        if ($request->filled('adm_names')) {
-            // adm_names[] values are user IDs (from $adm->id in blade)
-            $query->whereIn('adm_id', $request->adm_names);
-        }
-
-        if ($request->filled('adm_ids')) {
-            $admIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id');
-            $query->whereIn('adm_id', $admIds);
-        }
-
-        if ($request->filled('customers')) {
-            // Find invoices for the selected customers
-            $customerIds = Customers::whereIn('customer_id', $request->customers)->pluck('customer_id');
-            $invoiceIds = Invoices::whereIn('customer_id', $customerIds)->pluck('id');
-            $receiptIds = InvoicePayments::whereIn('invoice_id', $invoiceIds)->pluck('id')->toArray();
-
-            // Find deposit IDs that contain any of those receipt IDs
-            $matchingDepositIds = Deposits::where('type', 'finance-cheque')
-                ->get()
-                ->filter(function ($d) use ($receiptIds) {
-                    $ids = collect($d->reciepts ?? [])->pluck('reciept_id')->toArray();
-                    return !empty(array_intersect($ids, $receiptIds));
-                })
-                ->pluck('id')
-                ->toArray();
-
-            $query->whereIn('id', $matchingDepositIds);
-        }
-
-        if ($request->filled('date_range')) {
-            $range = trim($request->date_range);
-            if (str_contains($range, 'to')) {
-                [$start, $end] = array_map('trim', explode('to', $range));
-            } elseif (str_contains($range, '-')) {
-                [$start, $end] = array_map('trim', explode('-', $range));
-            } else {
-                $start = $end = $range;
-            }
-
-            if (!empty($start) && !empty($end)) {
-                $query->whereBetween('date_time', [
-                    date('Y-m-d 00:00:00', strtotime($start)),
-                    date('Y-m-d 23:59:59', strtotime($end)),
-                ]);
-            }
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $deposits = $query->get();
+        $query = $this->_getFilteredQuery($request);
+        $deposits = $query->orderByDesc('created_at')->get();
 
         // Transform data
         $dataArray = $deposits->map(function ($deposit) {
             $adm = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $status = $deposit->status;
-            // if ($status === 'pending') $status = 'deposited';
-
             return [
                 'Date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
                 'ADM Number' => $adm?->adm_number ?? 'N/A',
                 'ADM Name' => $adm?->name ?? 'N/A',
-                'Bank Name' => $deposit->bank_name,
-                'Branch Name' => $deposit->branch_name,
                 'Cheque No' => $deposit->id,
                 'Amount' => $deposit->amount ?? 0,
-                'Status' => $status,
+                'Status' => ucfirst(str_replace('_', ' ', $deposit->status)),
             ];
         })->toArray();
 
-        $headers = ['Date', 'ADM Number', 'ADM Name', 'Bank Name', 'Branch Name', 'Cheque No', 'Amount', 'Status'];
+        $headers = ['Date', 'ADM Number', 'ADM Name', 'Cheque No', 'Amount', 'Status'];
 
         return Excel::download(new ArrayExport($dataArray, $headers), 'finance_cheque.xlsx');
     }

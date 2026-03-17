@@ -33,14 +33,40 @@ class CardPaymentController extends Controller
         $customers = Customers::where('is_temp', 0)->get();
         $query = Deposits::where('type', 'card');
 
-        // Apply ADM Name filter
+        $query = $this->applyFilters($query, $request);
+
+        // Paginate results
+        $cardPayments = $query->orderByDesc('created_at')->paginate(10);
+
+        // Transform for view
+        $cardPayments->getCollection()->transform(function ($deposit) {
+            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
+
+            return [
+                'id' => $deposit->id,
+                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
+                'adm_number' => $admDetails->adm_number ?? 'N/A',
+                'adm_name' => $admDetails->name ?? 'N/A',
+                'amount' => $deposit->amount ?? 0,
+                'status' => $deposit->status,
+                'attachment_path' => $deposit->attachment_path ?? null,
+            ];
+        });
+
+        $filters = $request->all();
+
+        return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
+    }
+
+    private function applyFilters($query, Request $request)
+    {
+        // Apply ADM Name filter (Selected from dropdown)
         if ($request->filled('adm_names')) {
             $query->whereIn('adm_id', $request->adm_names);
         }
 
-        // Apply ADM Number filter
+        // Apply ADM Number filter (Selected from dropdown)
         if ($request->filled('adm_ids')) {
-            // Convert adm_number → user_id
             $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
                 ->pluck('user_id')
                 ->toArray();
@@ -73,21 +99,46 @@ class CardPaymentController extends Controller
             }
         }
 
+        // Apply Search filter (Text search)
         if ($request->filled('search')) {
             $search = $request->search;
 
-            // Find matching ADM IDs
-            $admIds = UserDetails::where('name', 'like', "%$search%")
-                ->orWhere('adm_number', 'like', "%$search%")
-                ->pluck('user_id')
-                ->toArray();
+            $query->where(function ($q) use ($search) {
+                // Find matching ADM IDs
+                $admIds = UserDetails::where('name', 'like', "%$search%")
+                    ->orWhere('adm_number', 'like', "%$search%")
+                    ->pluck('user_id')
+                    ->toArray();
 
-            $query->whereIn('adm_id', $admIds);
+                $q->whereIn('adm_id', $admIds);
+
+                // Also check customer match logic
+                $allMatchingDeposits = Deposits::where('type', 'card')->get()->filter(function ($deposit) use ($search) {
+                    $decodedReceipts = $deposit->reciepts ?? [];
+                    $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
+                    $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
+
+                    foreach ($invoicePayments as $payment) {
+                        $invoice = Invoices::with('customer')->find($payment->invoice_id);
+                        if ($invoice && $invoice->customer) {
+                            if (
+                                str_contains(strtolower($invoice->customer->name), strtolower($search)) ||
+                                str_contains(strtolower($invoice->customer->customer_id), strtolower($search))
+                            ) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                })->pluck('id')->toArray();
+
+                $q->orWhereIn('id', $allMatchingDeposits);
+            });
         }
 
         // Apply Customer filter
         if ($request->filled('customers')) {
-            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
+            $depositIds = Deposits::where('type', 'card')->get()->filter(function ($deposit) use ($request) {
                 $decodedReceipts = $deposit->reciepts ?? [];
                 $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
                 $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
@@ -105,27 +156,7 @@ class CardPaymentController extends Controller
             $query->whereIn('id', $depositIds);
         }
 
-        // Paginate results
-        $cardPayments = $query->orderByDesc('created_at')->paginate(10);
-
-        // Transform for view
-        $cardPayments->getCollection()->transform(function ($deposit) {
-            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-
-            return [
-                'id' => $deposit->id,
-                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-                'adm_number' => $admDetails->adm_number ?? 'N/A',
-                'adm_name' => $admDetails->name ?? 'N/A',
-                'amount' => $deposit->amount ?? 0,
-                'status' => $deposit->status,
-                'attachment_path' => $deposit->attachment_path ?? null,
-            ];
-        });
-
-        $filters = $request->all();
-
-        return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
+        return $query;
     }
 
     public function show($id)
@@ -306,211 +337,19 @@ class CardPaymentController extends Controller
 
     public function search(Request $request)
     {
-        $search = $request->input('search');
-
-        $cashDeposits = Deposits::where('type', 'card')
-            ->orderByDesc('created_at')
-            ->get();
-
-        $filtered = $cashDeposits->filter(function ($deposit) use ($search) {
-            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            $admMatch = false;
-            if ($admDetails) {
-                $admMatch = str_contains(strtolower($admDetails->name), strtolower($search)) ||
-                    str_contains(strtolower($admDetails->adm_number), strtolower($search));
-            }
-
-            $decodedReceipts = $deposit->reciepts ?? [];
-            $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-            $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
-
-            $customerMatch = false;
-            foreach ($invoicePayments as $payment) {
-                $invoice = Invoices::find($payment->invoice_id);
-                $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-
-                if ($customer && (
-                    str_contains(strtolower($customer->name), strtolower($search)) ||
-                    str_contains(strtolower($customer->customer_id), strtolower($search))
-                )) {
-                    $customerMatch = true;
-                    break;
-                }
-            }
-
-            return $admMatch || $customerMatch;
-        });
-
-        $page = request('page', 1);
-        $perPage = 10;
-        $cardPayments = new \Illuminate\Pagination\LengthAwarePaginator(
-            $filtered->forPage($page, $perPage),
-            $filtered->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $cardPayments->getCollection()->transform(function ($deposit) {
-            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            return [
-                'id' => $deposit->id,
-                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-                'adm_number' => $admDetails->adm_number ?? 'N/A',
-                'adm_name' => $admDetails->name ?? 'N/A',
-                'amount' => $deposit->amount ?? 0,
-                'status' =>  $deposit->status,
-                'attachment_path' => $deposit->attachment_path ?? null,
-            ];
-        });
-
-        $filters = ['search' => $search];
-        $adms = User::where('user_role', 6)->with('userDetails')->get();
-        $customers = Customers::where('is_temp', 0)->get();
-
-        return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
+        return $this->index($request);
     }
 
-     public function filter(Request $request)
+    public function filter(Request $request)
     {
-        $query = Deposits::where('type', 'card');
-
-        if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
-        }
-
-        if ($request->filled('adm_ids')) {
-            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
-        }
-
-        if ($request->filled('customers')) {
-            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
-
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-
-                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
-                        return true;
-                    }
-                }
-                return false;
-            })->pluck('id')->toArray();
-
-            $query->whereIn('id', $depositIds);
-        }
-
-        if ($request->filled('date_range')) {
-            $range = trim($request->date_range);
-            if (str_contains($range, 'to')) {
-                [$start, $end] = array_map('trim', explode('to', $range));
-            } elseif (str_contains($range, '-')) {
-                [$start, $end] = array_map('trim', explode('-', $range));
-            } else {
-                $start = $end = $range;
-            }
-
-            if (!empty($start) && !empty($end)) {
-                $query->whereBetween('date_time', [
-                    date('Y-m-d 00:00:00', strtotime($start)),
-                    date('Y-m-d 23:59:59', strtotime($end)),
-                ]);
-            }
-        }
-
-       if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $cardPayments = $query->orderByDesc('created_at')->paginate(10);
-
-        $cardPayments->getCollection()->transform(function ($deposit) {
-            $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();
-            return [
-                'id' => $deposit->id,
-                'date' => $deposit->date_time ? date('Y-m-d', strtotime($deposit->date_time)) : 'N/A',
-                'adm_number' => $admDetails->adm_number ?? 'N/A',
-                'adm_name' => $admDetails->name ?? 'N/A',
-                'amount' => $deposit->amount ?? 0,
-                'status' => $deposit->status,
-                'attachment_path' => $deposit->attachment_path ?? null,
-            ];
-        });
-
-        $filters = $request->all();
-        $adms = User::where('user_role', 6)->with('userDetails')->get();
-        $customers = Customers::where('is_temp', 0)->get();
-
-        return view('card_payment.card_payments', compact('cardPayments', 'filters', 'adms', 'customers'));
+        return $this->index($request);
     }
 
     public function export(Request $request)
     {
         $query = Deposits::where('type', 'card');
 
-        if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
-        }
-
-        if ($request->filled('adm_ids')) {
-            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
-        }
-
-        if ($request->filled('customers')) {
-            $depositIds = $query->get()->filter(function ($deposit) use ($request) {
-                $decodedReceipts = $deposit->reciepts ?? [];
-                $receiptIds = collect($decodedReceipts)->pluck('reciept_id')->toArray();
-                $invoicePayments = InvoicePayments::whereIn('id', $receiptIds)->get();
-
-                foreach ($invoicePayments as $payment) {
-                    $invoice = Invoices::find($payment->invoice_id);
-                    $customer = $invoice ? Customers::where('customer_id', $invoice->customer_id)->first() : null;
-                    if ($customer && in_array((string)$customer->customer_id, $request->customers)) {
-                        return true;
-                    }
-                }
-                return false;
-            })->pluck('id')->toArray();
-
-            $query->whereIn('id', $depositIds);
-        }
-
-        if ($request->filled('date_range')) {
-            $range = trim($request->date_range);
-            if (str_contains($range, 'to')) {
-                [$start, $end] = array_map('trim', explode('to', $range));
-            } elseif (str_contains($range, '-')) {
-                [$start, $end] = array_map('trim', explode('-', $range));
-            } else {
-                $start = $end = $range;
-            }
-
-            if (!empty($start) && !empty($end)) {
-                $query->whereBetween('date_time', [
-                    date('Y-m-d 00:00:00', strtotime($start)),
-                    date('Y-m-d 23:59:59', strtotime($end)),
-                ]);
-            }
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', ucfirst(strtolower($request->status)));
-        }
+        $query = $this->applyFilters($query, $request);
 
         $data = $query->get()->map(function ($deposit) {
             $admDetails = UserDetails::where('user_id', $deposit->adm_id)->first();

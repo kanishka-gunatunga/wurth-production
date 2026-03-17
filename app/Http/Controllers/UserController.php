@@ -883,12 +883,9 @@ public function replace_user(Request $request)
 
         /* ======================================================
          * 3️⃣ UPDATE User A’s own supervisor info
-         *     A should now report to whoever B reports to
+         *     Removed as per requirement: supervisors should not be updated
          * ====================================================== */
 
-        $aDetails->supervisor = $bDetails->supervisor;
-        $aDetails->second_supervisor = $bDetails->second_supervisor;
-        $aDetails->save();
 
 
         DB::commit();
