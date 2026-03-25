@@ -240,6 +240,16 @@ class FundTransferController extends Controller
     {
         $query = Deposits::where('type', 'fund-transfer');
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $admIds = UserDetails::where('name', 'like', "%$search%")
+                ->orWhere('adm_number', 'like', "%$search%")
+                ->pluck('user_id')
+                ->toArray();
+            
+            $query->whereIn('adm_id', $admIds);
+        }
+
         // Apply filters (SAME AS INDEX)
          if ($request->filled('adm_names')) {
             $query->whereIn('adm_id', $request->adm_names);

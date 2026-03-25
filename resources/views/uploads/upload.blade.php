@@ -251,9 +251,20 @@ document.getElementById('uploadForm').addEventListener('submit', function (e) {
     const errorMsg = document.getElementById('fileTypeError');
 
     errorMsg.style.display = 'none';
+    let hasError = false;
+
     if (!fileType) {
-        e.preventDefault(); // block submit
         errorMsg.style.display = 'block';
+        hasError = true;
+    }
+
+    if (fileInput.files.length === 0) {
+        toastr.error("Please select a file to upload");
+        hasError = true;
+    }
+
+    if (hasError) {
+        e.preventDefault(); // block submit
     }
 });
 

@@ -468,6 +468,17 @@ public function updateStatus(Request $request, $id)
         // Build query similar to filter method
         $query = Deposits::where('type', 'cash');
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $admIds = UserDetails::where('name', 'like', "%$search%")
+                ->orWhere('adm_number', 'like', "%$search%")
+                ->pluck('user_id')
+                ->toArray();
+
+            $query->whereIn('adm_id', $admIds);
+        }
+
         if ($request->filled('adm_names')) {
             $query->whereIn('adm_id', $request->adm_names);
         }

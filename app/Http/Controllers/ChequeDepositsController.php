@@ -394,17 +394,13 @@ class ChequeDepositsController extends Controller
 
         // ADM Names
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)
-                ->pluck('user_id')
-                ->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         // ADM Numbers
         if ($request->filled('adm_ids')) {
             $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)
-                ->pluck('user_id')
-                ->toArray();
+                ->pluck('user_id');
             $query->whereIn('adm_id', $admUserIds);
         }
 
@@ -485,14 +481,23 @@ class ChequeDepositsController extends Controller
     {
         $query = Deposits::where('type', 'cheque');
 
-        // Apply filters same as in filter() method
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $admIds = UserDetails::where('name', 'like', "%$search%")
+                ->orWhere('adm_number', 'like', "%$search%")
+                ->pluck('user_id')
+                ->toArray();
+
+            $query->whereIn('adm_id', $admIds);
+        }
+
         if ($request->filled('adm_names')) {
-            $admUserIds = UserDetails::whereIn('name', $request->adm_names)->pluck('user_id')->toArray();
-            $query->whereIn('adm_id', $admUserIds);
+            $query->whereIn('adm_id', $request->adm_names);
         }
 
         if ($request->filled('adm_ids')) {
-            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id')->toArray();
+            $admUserIds = UserDetails::whereIn('adm_number', $request->adm_ids)->pluck('user_id');
             $query->whereIn('adm_id', $admUserIds);
         }
 
@@ -516,7 +521,7 @@ class ChequeDepositsController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', strtolower($request->status));
+            $query->where('status', $request->status);
         }
 
         if ($request->filled('date_range')) {
@@ -545,12 +550,13 @@ class ChequeDepositsController extends Controller
                 'ADM Name' => $userDetail?->name ?? 'N/A',
                 'Bank Name' => $deposit->bank_name,
                 'Branch Name' => $deposit->branch_name,
+                'Cheque no.' => $deposit->id,
                 'Amount' => $deposit->amount ?? 0,
                 'Status' => $status,
             ];
         })->toArray();
 
-        $headers = ['Date', 'ADM Number', 'ADM Name', 'Bank Name', 'Branch Name', 'Amount', 'Status'];
+        $headers = ['Date', 'ADM Number', 'ADM Name', 'Bank Name', 'Branch Name', 'Cheque no.', 'Amount', 'Status'];
 
         return Excel::download(new ArrayExport($data, $headers), 'cheque_deposits.xlsx');
     }

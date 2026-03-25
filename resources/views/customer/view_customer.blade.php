@@ -432,7 +432,7 @@ use App\Models\Divisions;
                                                 if($invoice->type == 'return_cheque'){ ?> 
                                             <tr data-date="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}">
                                                 <td>{{$invoice->invoice_or_cheque_no}}</td>
-                                                <td>{{$invoice->invoice_date}}</td>
+                                                <td>{{$invoice->returned_date}}</td>
                                                 <td>Rs.{{number_format($invoice->amount ?? 0, 2)}}</td>
                                                 <td>Rs.{{ number_format($invoice->amount - ($invoice->paid_amount ?? 0), 2) }}</td>
                                                 <td> @php
