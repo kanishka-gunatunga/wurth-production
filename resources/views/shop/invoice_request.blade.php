@@ -162,30 +162,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $dummyData = [
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Approved'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-05', 'amount' => 'Rs.120,000.00', 'status' => 'Pending'],
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-12', 'amount' => 'Rs.120,000.00', 'status' => 'Approved'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-08', 'amount' => 'Rs.120,000.00', 'status' => 'Rejected'],
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-15', 'amount' => 'Rs.120,000.00', 'status' => 'Approved'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-01', 'amount' => 'Rs.20,000.00', 'status' => 'Approved'],
-                        ];
-                    @endphp
-
-                    @foreach ($dummyData as $data)
+                    @foreach ($invoiceRequests as $data)
                         <tr>
-                            <td>{{ $data['no'] }}</td>
-                            <td>{{ $data['name'] }}</td>
-                            <td>{{ $data['mobile'] }}</td>
-                            <td>{{ $data['address'] }}</td>
-                            <td>{{ $data['date'] }}</td>
-                            <td>{{ $data['amount'] }}</td>
+                            <td>{{ $data->invoice_no }}</td>
+                            <td>{{ $data->name }}</td>
+                            <td>{{ $data->mobile_number }}</td>
+                            <td>{{ $data->address }}</td>
+                            <td>{{ $data->invoice_date }}</td>
+                            <td>Rs. {{ number_format($data->total_amount, 2) }}</td>
                             <td class="sticky-column">
                                 @php
-                                    $statusClass = 'status-' . strtolower($data['status']);
+                                    $statusClass = 'status-' . strtolower($data->status);
                                 @endphp
-                                <span class="{{ $statusClass }}">{{ $data['status'] }}</span>
+                                <span class="{{ $statusClass }}">{{ ucfirst($data->status) }}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -194,17 +183,7 @@
         </div>
 
         <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#" style="color: #888;">Prev</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                    <li class="page-item"><a class="page-link" href="#">10</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+            {{ $invoiceRequests->links('pagination::bootstrap-4') }}
         </div>
 
     </div>

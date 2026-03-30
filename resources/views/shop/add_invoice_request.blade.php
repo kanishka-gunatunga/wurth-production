@@ -65,16 +65,17 @@
     <div class="styled-tab-main">
         <div class="header-and-content-gap-lg"></div>
 
-        <form id="invoiceRequestForm">
+        <form id="invoiceRequestForm" action="{{ route('store_invoice_request') }}" method="POST">
+            @csrf
             <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                     <label for="name" class="form-label">Name</label>
-                    <input type="text" id="name" name="name" class="form-control" placeholder="Name">
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" value="{{ old('name') }}">
                     <div id="nameError" class="error-text">Please enter a valid name.</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="mobile_number" class="form-label">Mobile Number</label>
-                    <input type="text" id="mobile_number" name="mobile_number" class="form-control" placeholder="Mobile Number">
+                    <input type="text" id="mobile_number" name="mobile_number" class="form-control" placeholder="Mobile Number" value="{{ old('mobile_number') }}">
                     <div id="mobileError" class="error-text">Please enter a valid mobile number.</div>
                 </div>
             </div>
@@ -82,12 +83,12 @@
             <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                     <label for="address" class="form-label">Address</label>
-                    <input type="text" id="address" name="address" class="form-control" placeholder="Address">
+                    <input type="text" id="address" name="address" class="form-control" placeholder="Address" value="{{ old('address') }}">
                     <div id="addressError" class="error-text">Please enter a valid address.</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="invoice_no" class="form-label">Invoice No</label>
-                    <input type="text" id="invoice_no" name="invoice_no" class="form-control" placeholder="Invoice No">
+                    <input type="text" id="invoice_no" name="invoice_no" class="form-control" placeholder="Invoice No" value="{{ old('invoice_no') }}">
                     <div id="invoiceNoError" class="error-text">Please enter a valid invoice number.</div>
                 </div>
             </div>
@@ -96,13 +97,13 @@
                 <div class="col-md-6 mb-3">
                     <label for="invoice_date" class="form-label">Invoice Date</label>
                     <div class="position-relative">
-                        <input type="date" id="invoice_date" name="invoice_date" class="form-control" placeholder="Invoice Date">
+                        <input type="date" id="invoice_date" name="invoice_date" class="form-control" placeholder="Invoice Date" value="{{ old('invoice_date') }}">
                     </div>
                     <div id="dateError" class="error-text">Please select a valid date.</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="total_amount" class="form-label">Total Invoice Amount</label>
-                    <input type="text" id="total_amount" name="total_amount" class="form-control" placeholder="Total Invoice Amount">
+                    <input type="text" id="total_amount" name="total_amount" class="form-control" placeholder="Total Invoice Amount" value="{{ old('total_amount') }}">
                     <div id="amountError" class="error-text">Please enter a valid amount.</div>
                 </div>
             </div>
@@ -118,8 +119,6 @@
 
 <script>
     document.getElementById('invoiceRequestForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
         let isValid = true;
 
         const name = document.getElementById('name');
@@ -169,11 +168,23 @@
             isValid = false;
         }
 
-        if (isValid) {
-            alert('Invoice Request Submitted Successfully!');
-            window.location.href = "{{ route('invoice_request') }}";
+        if (!isValid) {
+            e.preventDefault();
         }
     });
+
+    
 </script>
 
 @include('layouts.footer2')
+   <script>
+    $(document).ready(function() {
+        @if(Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+        @endif
+
+        @if(Session::has('fail'))
+        toastr.error("{{ Session::get('fail') }}");
+        @endif
+    });
+</script>

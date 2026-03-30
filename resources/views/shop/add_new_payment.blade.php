@@ -172,10 +172,10 @@
                     <i class="fa-solid fa-magnifying-glass select2-search-icon-overlay"></i>
                     <select id="customerSelect" class="form-control select2" placeholder="Customer Name or Mobile No">
                         <option value="">Customer Name or Mobile No</option>
-                        <option value="1" data-name="Ranuka Danushaka" data-mobile="0754265235"
-                            data-address="No.321, Colombo 07">Ranuka Danushaka</option>
-                        <option value="2" data-name="H.K Perera" data-mobile="0712345678" data-address="No.45, Kandy">
-                            H.K Perera</option>
+                        @foreach($customers as $customer)
+                            <option value="{{ $customer->mobile_number }}" data-name="{{ $customer->name }}" data-mobile="{{ $customer->mobile_number }}"
+                                data-address="{{ $customer->address }}">{{ $customer->name }} - {{ $customer->mobile_number }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -224,36 +224,18 @@
                                 </tr>
                             </thead>
                             <tbody id="invoiceList">
-                                <tr class="invoice-row" data-name="Ranuka Danushaka" data-no="INV-001">
+                                @foreach($invoiceRequests as $request)
+                                <tr class="invoice-row" data-name="{{ $request->name }}" data-no="{{ $request->invoice_no }}">
                                     <td>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="inv1">
-                                            <label class="form-check-label" for="inv1">Ranuka Danushaka</label>
+                                            <input class="form-check-input" type="checkbox" id="inv{{ $request->id }}" value="{{ $request->id }}">
+                                            <label class="form-check-label" for="inv{{ $request->id }}">{{ $request->name }}</label>
                                         </div>
                                     </td>
-                                    <td>INV-001</td>
-                                    <td>Rs.120,000.00</td>
+                                    <td>{{ $request->invoice_no }}</td>
+                                    <td>Rs. {{ number_format($request->total_amount, 2) }}</td>
                                 </tr>
-                                <tr class="invoice-row" data-name="Ranuka Danushaka" data-no="INV-002">
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="inv2">
-                                            <label class="form-check-label" for="inv2">Ranuka Danushaka</label>
-                                        </div>
-                                    </td>
-                                    <td>INV-002</td>
-                                    <td>Rs.450,000.00</td>
-                                </tr>
-                                <tr class="invoice-row" data-name="H.K Perera" data-no="INV-003">
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="inv3">
-                                            <label class="form-check-label" for="inv3">H.K Perera</label>
-                                        </div>
-                                    </td>
-                                    <td>INV-003</td>
-                                    <td>Rs.20,000.00</td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -318,12 +300,37 @@
     }
 
     function submitRequest() {
-        const checked = $('.form-check-input:checked').length;
-        if (checked === 0) {
+        const selectedIds = [];
+        $('.form-check-input:checked').each(function() {
+            selectedIds.push($(this).val());
+        });
+
+        if (selectedIds.length === 0) {
             alert('Please select at least one invoice.');
             return;
         }
-        window.location.href = "{{ route('payment_details') }}";
+
+        // Create a hidden form to submit via POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ route('process_payment_selection') }}";
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = "{{ csrf_token() }}";
+        form.appendChild(csrfToken);
+
+        selectedIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'invoice_ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
     }
 
 </script>

@@ -8,6 +8,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CommonController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReturnChequeController;
@@ -270,25 +271,21 @@ Route::get('/head-of-division-dashboard', function () {
 
 Route::get('/receipt/view/{type}/{uniqid}', [CollectionsController::class, 'viewReceiptPdf']);
 
-Route::get('/invoice-request', function () {
-    return view('shop.invoice_request');
-})->middleware(['authAdmin'])->name('invoice_request');
+Route::get('/invoice-request', [ShopController::class, 'invoice_request'])->middleware(['authAdmin'])->name('invoice_request');
 
-Route::get('/add-invoice-request', function () {
-    return view('shop.add_invoice_request');
-})->middleware(['authAdmin'])->name('add_invoice_request');
+Route::get('/add-invoice-request', [ShopController::class, 'add_invoice_request'])->middleware(['authAdmin'])->name('add_invoice_request');
 
-Route::get('/collections', function () {
-    return view('shop.collection');
-})->middleware(['authAdmin'])->name('collections');
+Route::post('/store-invoice-request', [ShopController::class, 'store_invoice_request'])->middleware(['authAdmin'])->name('store_invoice_request');
 
-Route::get('/add-new-payment', function () {
-    return view('shop.add_new_payment');
-})->middleware(['authAdmin'])->name('add_new_payment');
+Route::get('/collections', [ShopController::class, 'collections'])->middleware(['authAdmin'])->name('collections');
 
-Route::get('/payment-details', function () {
-    return view('shop.payment-details');
-})->middleware(['authAdmin'])->name('payment_details');
+Route::get('/add-new-payment', [ShopController::class, 'add_new_payment'])->middleware(['authAdmin'])->name('add_new_payment');
+
+Route::post('/process-payment-selection', [ShopController::class, 'process_payment_selection'])->middleware(['authAdmin'])->name('process_payment_selection');
+
+Route::get('/payment-details', [ShopController::class, 'payment_details'])->middleware(['authAdmin'])->name('payment_details');
+
+Route::post('/complete-payment', [ShopController::class, 'complete_payment'])->middleware(['authAdmin'])->name('complete_payment');
 
 Route::get('/deposit', function () {
     return view('shop.deposit');

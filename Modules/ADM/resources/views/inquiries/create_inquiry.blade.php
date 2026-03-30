@@ -15,9 +15,22 @@
                     <label for="reminder_date">Inquiry Type</label>
                     <select class="select2-with-search" name="inquiry_type">
                         <option></option>
-                        <option value="None">None</option>
-                        <option value="Cash Deposit">Cash Deposit</option>
-                        <option value="Cheque Deposit">Cheque Deposit</option>
+                        <option value="No Remark">No Remark</option>
+                        <option value="Wrong Slip">Wrong Slip </option>
+                        <option value="Amount Mismatch">Amount Mismatch</option>
+                        <option value="Duplicate">Duplicate</option>
+                        <option value="Missing Slip">Missing Slip</option>
+                        <option value="Wrong Payment Method">Wrong Payment Method</option>
+                        <option value="Not Submitted">Not Submitted</option>
+                        <option value="Not in Bank Statement">Not in Bank Statement</option>
+                        <option value="Wrong Chq No">Wrong Chq No</option>
+                        <option value="Wrong Cust ID">Wrong Cust ID</option>
+                        <option value="Wrong Inv No">Wrong Inv No</option>
+                        <option value="PD Chqs">PD Chqs</option>
+                        <option value="Return to ADM">Return to ADM</option>
+                        <option value="Missing Inv No">Missing Inv No</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Other (Comment)">Other (Comment)</option>
                     </select>
                     @if ($errors->has('inquiry_type'))
                         <div class="alert alert-danger mt-2">{{ $errors->first('inquiry_type') }}</div>

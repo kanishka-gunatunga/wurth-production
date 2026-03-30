@@ -32,13 +32,13 @@ class InvoiceController extends Controller
         // Header row mapping
         $header = array_map('strtolower', $rows[0]);
         $requiredColumns = [
-            'customer',
+            'customer id',
             'customer name',
-            'adm id',
+            'adm no',
             '(a-cu) date last invoice',
             'billing document',
             'order number customer',
-            'lkr',
+            'amount',
         ];
 
         if (count(array_diff($requiredColumns, $header)) > 0) {
@@ -51,7 +51,7 @@ class InvoiceController extends Controller
         for ($i = 1; $i < count($rows); $i++) {
             $row = array_combine($header, $rows[$i]);
 
-            if (empty($row['customer']) || empty($row['billing document'])) continue;
+            if (empty($row['customer id']) || empty($row['billing document'])) continue;
 
             // Skip duplicate cheque numbers
             if (Invoices::where('invoice_or_cheque_no', $row['billing document'])->exists()) {
@@ -60,19 +60,19 @@ class InvoiceController extends Controller
             }
 
             // Find or create customer
-            $customer = Customers::where('customer_id', $row['customer'])->first();
+            $customer = Customers::where('customer_id', $row['customer id'])->first();
 
             if (!$customer) {
                 $customer = new Customers();
-                $customer->customer_id = $row['customer'];
+                $customer->customer_id = $row['customer id'];
                 $customer->name = $row['customer name'] ?? null;
-                $customer->adm = $row['adm id'] ?? null;
+                $customer->adm = $row['adm no'] ?? null;
                 $customer->is_temp = 1; 
                 $customer->status = 'active';
                 $customer->save();
             }
 
-            $rawAmount = $row['lkr'] ?? 0;
+            $rawAmount = $row['amount'] ?? 0;
             $rawAmount = (string) $rawAmount;
             $rawAmount = str_replace(',', '', $rawAmount);
             $rawAmount = str_replace('-', '', $rawAmount);

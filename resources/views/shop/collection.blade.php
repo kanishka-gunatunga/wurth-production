@@ -153,30 +153,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $dummyData = [
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Pending'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Pending'],
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Paid'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Paid'],
-                            ['no' => 'INV-001', 'name' => 'H.K Perera', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.120,000.00', 'status' => 'Paid'],
-                            ['no' => 'INV-001', 'name' => 'Pasan Randula', 'mobile' => '075 2385859', 'address' => 'No.451, Colombo 01', 'date' => '2026-03-10', 'amount' => 'Rs.20,000.00', 'status' => 'Paid'],
-                        ];
-                    @endphp
-
-                    @foreach ($dummyData as $data)
+                    @foreach ($depositedInvoices as $invoice)
                         <tr>
-                            <td>{{ $data['no'] }}</td>
-                            <td>{{ $data['name'] }}</td>
-                            <td>{{ $data['mobile'] }}</td>
-                            <td>{{ $data['address'] }}</td>
-                            <td>{{ $data['date'] }}</td>
-                            <td>{{ $data['amount'] }}</td>
+                            <td>{{ $invoice->invoice_no }}</td>
+                            <td>{{ $invoice->name }}</td>
+                            <td>{{ $invoice->mobile_number }}</td>
+                            <td>{{ $invoice->address }}</td>
+                            <td>{{ $invoice->updated_at->format('Y-m-d') }}</td>
+                            <td>Rs. {{ number_format($invoice->total_amount, 2) }}</td>
                             <td class="sticky-column">
                                 @php
-                                    $statusClass = 'status-' . strtolower($data['status']);
+                                    $paymentStatus = $invoice->payment->status ?? 'pending';
+                                    $statusClass = 'status-' . strtolower($paymentStatus);
                                 @endphp
-                                <span class="{{ $statusClass }}">{{ $data['status'] }}</span>
+                                <span class="{{ $statusClass }}">{{ ucfirst($paymentStatus) }}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -185,17 +175,7 @@
         </div>
 
         <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#" style="color: #888;">Prev</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                    <li class="page-item"><a class="page-link" href="#">10</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+            {{ $depositedInvoices->links() }}
         </div>
 
     </div>

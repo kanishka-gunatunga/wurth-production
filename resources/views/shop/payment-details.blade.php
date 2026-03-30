@@ -159,28 +159,20 @@
             <div class="col-md-5">
                 <p class="section-title">Selected Customers</p>
 
+                @foreach($groupedRequests as $customerInfo => $requests)
                 <div class="customer-section mb-5">
-                    <h2 class="customer-name">Ranuka Danushaka</h2>
+                    <h2 class="customer-name">{{ explode(' - ', $customerInfo)[0] }}</h2>
 
                     <div class="invoice-list">
+                        @foreach($requests as $request)
                         <div class="invoice-list-item">
-                            <input class="form-check-input" type="checkbox" id="inv-001" checked>
-                            <label class="invoice-no" for="inv-001">INV-001</label>
+                            <input class="form-check-input" type="checkbox" id="inv-{{ $request->id }}" checked disabled>
+                            <label class="invoice-no" for="inv-{{ $request->id }}">{{ $request->invoice_no }}</label>
                         </div>
-                        <div class="invoice-list-item">
-                            <input class="form-check-input" type="checkbox" id="inv-002" checked>
-                            <label class="invoice-no" for="inv-002">INV-002</label>
-                        </div>
-                        <div class="invoice-list-item">
-                            <input class="form-check-input" type="checkbox" id="inv-003" checked>
-                            <label class="invoice-no" for="inv-003">INV-003</label>
-                        </div>
-                        <div class="invoice-list-item">
-                            <input class="form-check-input" type="checkbox" id="inv-004" checked>
-                            <label class="invoice-no" for="inv-004">INV-004</label>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
+                @endforeach
             </div>
 
             <!-- Right Side: Payment Summary -->
@@ -188,44 +180,20 @@
                 <div class="summary-box h-100">
                     <p class="category-title" style="font-size: 18px;">Payment Summary</p>
 
-                    <!-- Cash Payment Section -->
+                    <!-- We will show a consolidated summary for now -->
                     <div class="summary-category">
-                        <p class="category-title">Cash Payment</p>
+                        <p class="category-title">Total Selections</p>
                         <div class="summary-row">
                             <span class="summary-label">Expect to pay</span>
-                            <span class="summary-value">: Rs. 100,000.00</span>
+                            <span class="summary-value">: Rs. {{ number_format($totalAmount, 2) }}</span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">Invoice No</span>
-                            <span class="summary-invoices">: INV-001, INV-002</span>
+                            <span class="summary-invoices">: {{ $invoiceRequests->pluck('invoice_no')->implode(', ') }}</span>
                         </div>
                     </div>
-
-                    <!-- Fund Transfer Section -->
-                    <div class="summary-category">
-                        <p class="category-title">Fund Transfer</p>
-                        <div class="summary-row">
-                            <span class="summary-label">Expect to pay</span>
-                            <span class="summary-value">: Rs. 400,000.00</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Invoice No</span>
-                            <span class="summary-invoices">: INV-003, INV-004</span>
-                        </div>
-                    </div>
-
-                    <!-- Card Payment Section -->
-                    <div class="summary-category">
-                        <p class="category-title">Card Payment</p>
-                        <div class="summary-row">
-                            <span class="summary-label">Expect to pay</span>
-                            <span class="summary-value">: Rs. 100,000.00</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Invoice No</span>
-                            <span class="summary-invoices">: INV-005</span>
-                        </div>
-                    </div>
+                    
+                    <p class="text-muted mt-4" style="font-size: 12px;">* Further breakdown into Cash/Transfer/Card can be added in the next step.</p>
                 </div>
             </div>
         </div>
@@ -234,7 +202,7 @@
             <div class="col-6">
                 <div class="final-amount-card" style="justify-items: center">
                     <p class="final-label">Final Payable Amount</p>
-                    <p class="final-value">Rs. 600,000.00</p>
+                    <p class="final-value">Rs. {{ number_format($totalAmount, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -268,12 +236,19 @@
 
 <script>
     function finalSubmit() {
-        const toast = document.getElementById('user-toast');
-        toast.style.display = 'block';
+        // Create a hidden form to submit via POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ route('complete_payment') }}";
         
-        setTimeout(() => {
-            window.location.href = "{{ route('collections') }}";
-        }, 3000);
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = "{{ csrf_token() }}";
+        form.appendChild(csrfToken);
+
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 
