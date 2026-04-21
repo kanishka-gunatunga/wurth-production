@@ -93,9 +93,20 @@
                         <label for="return_type" class="form-label custom-input-label">Select Return Type</label>
                         <select name="return_type" id="return_type" class="form-select custom-input">
                             <option value="">Select Return Type</option>
-                            <option value="Type 1">Type 1</option>
-                            <option value="Type 2">Type 2</option>
-                            <option value="Type 3">Type 3</option>
+                            <option value="Non - Represented - Account Closed">Non - Represented - Account Closed</option>
+                            <option value="Non - Represented - Insufficient Funds">Non - Represented - Insufficient Funds</option>
+                            <option value="Non - Represented - No Funds">Non - Represented - No Funds</option>
+                            <option value="Non - Represented - Out of Date">Non - Represented - Out of Date</option>
+                            <option value="Non - Represented - Out of Exchange">Non - Represented - Out of Exchange</option>
+                            <option value="Non - Represented - Post Dated">Non - Represented - Post Dated</option>
+                            <option value="Non - Represented - Stale Date">Non - Represented - Stale Date</option>
+                            <option value="Represented - Account Closed">Represented - Account Closed</option>
+                            <option value="Represented - Insufficient Funds">Represented - Insufficient Funds</option>
+                            <option value="Represented - No Funds">Represented - No Funds</option>
+                            <option value="Represented - Out of Date">Represented - Out of Date</option>
+                            <option value="Represented - Out of Exchange">Represented - Out of Exchange</option>
+                            <option value="Represented - Post Dated">Represented - Post Dated</option>
+                            <option value="Represented - Stale Date">Represented - Stale Date</option>
                         </select>
                         @error('return_type')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>

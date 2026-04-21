@@ -366,7 +366,7 @@ public function getUserDetailsDivisonRole(Request $request)
             $request->validate([
                 'name'   => 'required',
                 'user_role'   => 'required',
-                'phone_number'   => 'required',
+                'phone_number'   => 'required|digits:10',
                 'email'   => 'required | email',
             ]);
 
