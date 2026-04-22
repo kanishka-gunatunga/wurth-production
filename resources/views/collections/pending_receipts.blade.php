@@ -96,12 +96,7 @@
 
     </div>
 
-
-    <div class="styled-tab-main">
-       
-
-
-                <div class="row mb-3">
+ <div class="row mb-1">
                     <div class="col-lg-6 col-12 ms-auto d-flex justify-content-end gap-3">
                         <form method="GET" action="{{ url('/pending-receipts') }}">
                             <div id="final-search-box-wrapper" class="search-box-wrapper collapsed">
@@ -117,8 +112,13 @@
                         </button>
                     </div>
                 </div>
+    <div class="styled-tab-main ">
+       
+
+
+               
                 
-                <div class="table-responsive">
+                <div class="table-responsive mt-3">
                     <table class="table custom-table-locked" style="min-width: 1300px;">
                         <thead>
                             <tr>

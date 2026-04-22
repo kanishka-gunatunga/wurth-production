@@ -196,11 +196,20 @@
                                     <span
                                         class="slip-detail-text">&nbsp;{{ $inquiry->created_at ? $inquiry->created_at->format('Y.m.d') : 'N/A' }}</span>
                                 </div>
+                                <?php
+                            if(Auth::user()->user_role == 6 ){ ?> 
                                 <div>
                                     <div class="field-label">ADM Number</div>
                                     <span
                                         class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->adm_number ?? 'N/A' }}</span>
                                 </div>
+                                <?php } else{ ?> 
+                                    <div>
+                                    <div class="field-label">Recovery Manger ID</div>
+                                    <span
+                                        class="slip-detail-text">&nbsp;{{ $inquiry->admin?->userDetails?->user_id ?? 'N/A' }}</span>
+                                </div>
+                                <?php } ?>
                             </div>
                         </div>
 
@@ -220,7 +229,12 @@
                                     stroke="#4A5565" stroke-width="1.66667" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
+                               <?php
+                            if(Auth::user()->user_role == 6 ){ ?> 
                             <span class="bold-text">Customer & ADM Details</span>
+                            <?php } else{ ?> 
+                                <span class="bold-text">Customer & Recovery Manger Details</span>
+                            <?php } ?>
                         </div>
 
                         <div class="grid-two-col mt-2">
@@ -230,12 +244,22 @@
                                     &nbsp;{{ $inquiry->customerDetails?->name ?? 'N/A' }}
                                 </span>
                             </div>
+                             <?php
+                            if(Auth::user()->user_role == 6 ){ ?> 
                             <div>
                                 <div class="field-label">ADM Name</div>
                                 <span class="slip-detail-text">
                                     &nbsp;{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}
                                 </span>
                             </div>
+                            <?php } else{ ?> 
+                                <div>
+                                <div class="field-label">Recovery Manger Name</div>
+                                <span class="slip-detail-text">
+                                    &nbsp;{{ $inquiry->admin?->userDetails?->name ?? 'N/A' }}
+                                </span>
+                            </div>
+                            <?php } ?>
                         </div>
 
                     </div>

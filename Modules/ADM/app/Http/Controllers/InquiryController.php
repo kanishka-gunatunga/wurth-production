@@ -111,14 +111,14 @@ class InquiryController extends Controller
     {
         $query = $request->input('query');
 
-        $adm_no = UserDetails::where('user_id', Auth::user()->id)
-            ->value('adm_number');
+        // $adm_no = UserDetails::where('user_id', Auth::user()->id)
+        //     ->value('adm_number');
 
-        $customers = Customers::where('adm', $adm_no)
-            ->pluck('customer_id');
+        // $customers = Customers::where('adm', $adm_no)
+        //     ->pluck('customer_id');
 
         $inquiries = Inquiries::where('adm_id', Auth::id())->with(['customerDetails', 'invoice'])
-            ->whereIn('customer', $customers)
+            // ->whereIn('customer', $customers)
             ->where(function ($q) use ($query) {
                 $q->where('invoice_number', 'LIKE', "%{$query}%")
                     ->orWhereHas('customerDetails', function ($q) use ($query) {

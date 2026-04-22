@@ -275,39 +275,39 @@ class WriteOffController extends Controller
         $writeOff = WriteOffs::findOrFail($id);
 
         /* ----------------------------------------
-       1️⃣ Collect UNIQUE customers
+       1️⃣ Collect UNIQUE customers & documents
     -----------------------------------------*/
         $customerNames = [];
         $customerIds   = [];
+        $documentNumbers = [];
 
         // From invoices
         foreach ($writeOff->invoice_or_cheque_no ?? [] as $item) {
-            $invoice = Invoices::where('invoice_or_cheque_no', $item['invoice'])->first();
-            if ($invoice) {
-                $customer = Customers::where('customer_id', $invoice->customer_id)->first();
-                if ($customer) {
-                    $customerNames[$customer->customer_id] = $customer->name;
-                    $customerIds[$customer->customer_id]   = $customer->customer_id;
-                }
+            $documentNumbers[] = $item['invoice'];
+            $invoice = Invoices::with('customer')->where('invoice_or_cheque_no', $item['invoice'])->first();
+            if ($invoice && $invoice->customer) {
+                $customerNames[$invoice->customer->customer_id] = $invoice->customer->name;
+                $customerIds[$invoice->customer->customer_id]   = $invoice->customer->customer_id;
             }
         }
 
         // From credit notes & extra payments
         foreach ($writeOff->extraPayment_or_creditNote_no ?? [] as $item) {
+           
 
-            if ($item['type'] === 'extra_payment') {
-                $extra = ExtraPayment::where('extra_payment_id', $item['id'])->first();
-                if ($extra) {
-                    $customerNames[$extra->customer_id] = $extra->customer_name;
-                    $customerIds[$extra->customer_id]   = $extra->customer_id;
+            if (isset($item['type']) && $item['type'] === 'extra_payment') {
+                $extra = ExtraPayment::with('customer')->where('extra_payment_id', $item['id'])->first();
+                if ($extra && $extra->customer) {
+                    $customerNames[$extra->customer->customer_id] = $extra->customer->name;
+                    $customerIds[$extra->customer->customer_id]   = $extra->customer->customer_id;
                 }
             }
 
-            if ($item['type'] === 'credit_note') {
-                $credit = CreditNote::where('credit_note_id', $item['id'])->first();
-                if ($credit) {
-                    $customerNames[$credit->customer_id] = $credit->customer_name;
-                    $customerIds[$credit->customer_id]   = $credit->customer_id;
+            if (isset($item['type']) && $item['type'] === 'credit_note') {
+                $credit = CreditNote::with('customer')->where('credit_note_id', $item['id'])->first();
+                if ($credit && $credit->customer) {
+                    $customerNames[$credit->customer->customer_id] = $credit->customer->name;
+                    $customerIds[$credit->customer->customer_id]   = $credit->customer->customer_id;
                 }
             }
         }
@@ -351,7 +351,7 @@ class WriteOffController extends Controller
         $sheet->setCellValue($col++ . $row, $writeOff->final_amount);
         $sheet->setCellValue($col++ . $row, implode(', ', $customerNames));
         $sheet->setCellValue($col++ . $row, implode(', ', $customerIds));
-        $sheet->setCellValue($col++ . $row, ''); // Document Number (empty)
+        $sheet->setCellValue($col++ . $row, implode(', ', $documentNumbers)); // Document Numbers
 
         // GL values
         foreach ($writeOff->gl_breakdown ?? [] as $gl) {

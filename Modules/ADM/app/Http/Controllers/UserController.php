@@ -36,12 +36,14 @@ class UserController extends Controller
      */
     
     public function dashboard()
-    {
+    {   
         $currentUserId = Auth::id();
         $currentUser = Auth::user();
         $currentUserRole = $currentUser->user_role;
         $currentUserDivision = $currentUser->userDetails->division ?? null;
+        $today = Carbon::today();
 
+        // Get reminders for today for both cases
         $reminders = Reminders::with(['user', 'user.userDetails'])
             ->whereDate('reminder_date', \Carbon\Carbon::today())
             ->where(function ($query) use ($currentUserId, $currentUserRole, $currentUserDivision) {
@@ -83,19 +85,53 @@ class UserController extends Controller
             ->take(10)
             ->get();
 
-        $today = Carbon::today();
+        if($currentUserRole == 6 ){
 
-        $daily_cash = InvoicePayments::where('adm_id', $currentUserId)
-            ->where('type', 'cash')
-            ->whereDate('created_at', $today)
-            ->sum('final_payment');
+            $daily_cash = InvoicePayments::where('adm_id', $currentUserId)
+                ->where('type', 'cash')
+                ->whereDate('created_at', $today)
+                ->sum('final_payment');
 
-        $today_cheque = Deposits::where('adm_id', $currentUserId)
-            ->where('type', 'cheque')
-            ->whereDate('date_time', $today)
-            ->sum('amount');
+            $today_cheque = Deposits::where('adm_id', $currentUserId)
+                ->where('type', 'cheque')
+                ->whereDate('date_time', $today)
+                ->sum('amount');
 
-        return view('adm::dashboard.index', compact('reminders', 'notifications', 'daily_cash', 'today_cheque'));
+            return view('adm::dashboard.index', compact('reminders', 'notifications', 'daily_cash', 'today_cheque'));
+        }
+        else{
+            
+            // 1. Cash on hand - today whole system
+            $system_cash_on_hand = InvoicePayments::where('type', 'cash')
+                ->whereDate('created_at', $today)
+                ->sum('final_payment');
+                
+            // 2. Cheque on hand - today whole system
+            $system_cheque_on_hand = InvoicePayments::where('type', 'cheque')
+                ->whereDate('created_at', $today)
+                ->sum('final_payment');
+                
+            // 3. Todays cash deposits - whole system
+            $system_cash_deposits = Deposits::where('type', 'cash')
+                ->whereDate('date_time', $today)
+                ->sum('amount');
+                
+            // 4. Todays cheque deposits - whole system
+            $system_cheque_deposits = Deposits::where('type', 'cheque')
+                ->whereDate('date_time', $today)
+                ->sum('amount');
+                
+            return view('adm::dashboard.recovery_manager_dashboard', compact(
+                'reminders', 
+                'notifications', 
+                'system_cash_on_hand', 
+                'system_cheque_on_hand', 
+                'system_cash_deposits', 
+                'system_cheque_deposits'
+            ));
+            
+        }
+        
     }
     
     public function my_profile(Request $request)

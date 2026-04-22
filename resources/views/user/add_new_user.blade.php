@@ -25,7 +25,7 @@ use App\Models\UserDetails;
     
                             <div class="mb-4 col-12 col-lg-6">
                                 <label for="head-of-division-select" class="form-label custom-input-label">User
-                                    Role
+                                    Role 
                                 </label>
                                 <select class="form-select custom-input" aria-label="Default select example"
                                     id="head-of-division-select" name="user_role">

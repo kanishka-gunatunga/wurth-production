@@ -15,7 +15,7 @@
 
 <!-- body content -->
 <div class="content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <!-- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3 class="page-title">Dashboard</h3>
 
         <div class="date-range" style="display: flex; align-items: center; gap: 6px;">
@@ -29,27 +29,27 @@
             </svg>
             <span>27/02/2025 - 27/03/2025</span>
         </div>
-    </div>
+    </div> -->
 
     <!-- row 2 -->
     <div class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3 mb-3">
         <p class="gray-text mb-1">Cash on hand</p>
-        <p class="red-title mb-0">Rs. 93,500.00</p>
+        <p class="red-title mb-0">Rs. {{ number_format($system_cash_on_hand ?? 0, 2) }}</p>
     </div>
 
     <div class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3 mb-3">
         <p class="gray-text mb-1">Cheque on hand</p>
-        <p class="red-title mb-0">Rs. 120,000.00 </p>
+        <p class="red-title mb-0">Rs. {{ number_format($system_cheque_on_hand ?? 0, 2) }} </p>
     </div>
 
     <div class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3 mb-3">
         <p class="gray-text mb-1">Todays cash deposits</p>
-        <p class="red-title mb-0">Rs. 120,000.00 </p>
+        <p class="red-title mb-0">Rs. {{ number_format($system_cash_deposits ?? 0, 2) }} </p>
     </div>
 
     <div class="card-view card-box text-center d-flex flex-column justify-content-center align-items-center py-3 mb-3">
         <p class="gray-text mb-1">Todays cheque deposits</p>
-        <p class="red-title mb-0">Rs. 120,000.00 </p>
+        <p class="red-title mb-0">Rs. {{ number_format($system_cheque_deposits ?? 0, 2) }} </p>
     </div>
 
     <!-- row-3 -->
@@ -73,7 +73,7 @@
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-payment" role="tabpanel"
                 aria-labelledby="pills-payment-tab">
-                <!-- 1 -->
+                @forelse($reminders->where('reminder_type', 'Customer Payment') as $reminder)
                 <div class="d-flex flex-row px-2 mb-3">
                     <div class="col-1">
                         <span>
@@ -82,64 +82,19 @@
                         </span>
                     </div>
                     <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
+                        <p class="reminder-title mb-1">{{ $reminder->reminder_title }}</p>
+                        <p class="reminder-desc mb-0">{{ $reminder->reason }}</p>
                     </div>
                     <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                        <span class="reminder-time">{{ \Carbon\Carbon::parse($reminder->created_at)->diffForHumans() }}</span>
                     </div>
                 </div>
-                <!-- 2 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 3 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">Customer Payment Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
+                @empty
+                <p class="text-center mt-3">No payment reminders</p>
+                @endforelse
             </div>
             <div class="tab-pane fade" id="pills-system" role="tabpanel" aria-labelledby="pills-system-tab">
-                <!-- 1 -->
+                @forelse($reminders->where('reminder_type', '!=', 'Customer Payment') as $reminder)
                 <div class="d-flex flex-row px-2 mb-3">
                     <div class="col-1">
                         <span>
@@ -148,61 +103,16 @@
                         </span>
                     </div>
                     <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
+                        <p class="reminder-title mb-1">{{ $reminder->reminder_title }}</p>
+                        <p class="reminder-desc mb-0">{{ $reminder->reason }}</p>
                     </div>
                     <div class="col-2">
-                        <span class="reminder-time">Just now</span>
+                        <span class="reminder-time">{{ \Carbon\Carbon::parse($reminder->created_at)->diffForHumans() }}</span>
                     </div>
                 </div>
-                <!-- 2 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 3 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="d-flex flex-row px-2 mb-3">
-                    <div class="col-1">
-                        <span>
-                            <img src="{{ asset('adm_assets/assests/history-icon.svg') }}" alt="Logo"
-                                class="img-fluid history-icon">
-                        </span>
-                    </div>
-                    <div class="col-9 px-2">
-                        <p class="reminder-title mb-1">System Reminder</p>
-                        <p class="reminder-desc mb-0">Lorem ipsum dolor sit amet consectetur.</p>
-                    </div>
-                    <div class="col-2">
-                        <span class="reminder-time">Just now</span>
-                    </div>
-                </div>
+                @empty
+                <p class="text-center mt-3">No system reminders</p>
+                @endforelse
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Laravel Layout Example</title>
+    <title>Wurth Lanka</title>
 
     <link rel="stylesheet" href="{{ asset('new-assets/css/sidebarNew.css') }}">
     <link rel="stylesheet" href="{{ asset('new-assets/css/dashboard.css') }}">
@@ -91,7 +91,10 @@
             
     </style>
 </head>
-
+<?php
+ use App\Models\UserDetails;
+ $other_details = UserDetails::where('user_id',Auth::user()->id)->first();
+ ?>
 <body>
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary w-100">
@@ -108,8 +111,24 @@
                     <img src="{{ asset('new-assets/images/profile-icon.svg') }}" alt="Sofia Emilia"
                         class="profile-avatar mb-0" />
                     <div class="profile-info">
-                        <p class="profile-name">Sofia Emilia</p>
-                        <p class="profile-designation">Admin</p>
+                        <p class="profile-name">{{$other_details->name}}</p>
+                        <p class="profile-designation"> @if(Auth::user()->user_role == 1)
+                                                            Admin
+                                                        @elseif(Auth::user()->user_role == 2)
+                                                            HOD
+                                                        @elseif(Auth::user()->user_role == 3)
+                                                            Regional Sales Manager
+                                                        @elseif(Auth::user()->user_role == 4)
+                                                            Area Sales Manager
+                                                        @elseif(Auth::user()->user_role == 5)
+                                                            Team Leader
+                                                        @elseif(Auth::user()->user_role == 6)
+                                                            ADM (Sales Rep)
+                                                        @elseif(Auth::user()->user_role == 7)
+                                                            Finance Manager
+                                                        @elseif(Auth::user()->user_role == 8)
+                                                            Recovery Manager
+                                                        @endif</p>
                     </div>
                 </div>
             </div>
@@ -122,7 +141,23 @@
 
                 <div class="sidebar-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <p class="sidebar-title">Admin Dashboard</p>
+                        <p class="sidebar-title">@if(Auth::user()->user_role == 1)
+                                                            Admin
+                                                        @elseif(Auth::user()->user_role == 2)
+                                                            HOD
+                                                        @elseif(Auth::user()->user_role == 3)
+                                                            Regional Sales Manager
+                                                        @elseif(Auth::user()->user_role == 4)
+                                                            Area Sales Manager
+                                                        @elseif(Auth::user()->user_role == 5)
+                                                            Team Leader
+                                                        @elseif(Auth::user()->user_role == 6)
+                                                            ADM (Sales Rep)
+                                                        @elseif(Auth::user()->user_role == 7)
+                                                            Finance Manager
+                                                        @elseif(Auth::user()->user_role == 8)
+                                                            Recovery Manager
+                                                        @endif Dashboard</p>
                         <button class="sidebar-toggle border-0 bg-transparent" type="button" id="sidebarToggle">
                             <svg width="29" height="23" viewBox="0 0 29 23" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -141,11 +176,11 @@
 
 
                 <div class="sidebar-content">
-                    <ul class="sidebar-list">
+                    <ul class="sidebar-list" id="accordionFlushExample">
 
 
                         @if (in_array('dashboard', session('permissions')))
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
                                 <a href="{{ url('dashboard') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -161,7 +196,7 @@
                                 </a>
                             </li>
 
-                            <!-- <li class="nav-item">
+                            <!-- <li class="nav-item {{ request()->is('team-leader-dashboard') ? 'active' : '' }}">
                                 <a href="{{ url('/team-leader-dashboard') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -177,7 +212,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('area-sales-dashboard') ? 'active' : '' }}">
                                 <a href="{{ url('/area-sales-dashboard') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -193,7 +228,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('regional-sales-dashboard') ? 'active' : '' }}">
                                 <a href="{{ url('/regional-sales-dashboard') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -209,7 +244,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('head-of-division-dashboard') ? 'active' : '' }}">
                                 <a href="{{ url('/head-of-division-dashboard') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -226,7 +261,7 @@
                             </li> -->
                         @endif
                         @if (in_array('user-Management', session('permissions')))
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('user-managment') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('user-managment') }}">
                                     <span class="me-4">
                                         <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
@@ -249,7 +284,7 @@
                             </li>
                         @endif
                         @if (in_array('access-control', session('permissions')))
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('access-control') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('access-control') }}">
                                     <span class="me-4">
                                         <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
@@ -265,7 +300,7 @@
                             </li>
                         @endif
                         @if (in_array('customers', session('permissions')))
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('customers') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('customers') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -285,7 +320,7 @@
 
 
                         @if (in_array('division-management', session('permissions')))
-                            <li class="nav-item">
+                            <li class="nav-item {{ request()->is('division-managment') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('division-managment') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -314,9 +349,9 @@
                                 in_array('all-collections-add', session('permissions')) ||
                                 in_array('all-advanced-payments', session('permissions')))
                             <li class="nav-item">
-                                <a class="nav-link accordion-button collapsed" type="button"
+                                <a class="nav-link  {{ request()->is('all-collections') || request()->is('all-outstanding') || request()->is('all-receipts') || request()->is('pending-receipts') || request()->is('advanced-payments') ? '' : 'collapsed' }}" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#flush-collapseOne"
-                                    aria-expanded="false" aria-controls="flush-collapseOne">
+                                    aria-expanded="{{ request()->is('all-collections') || request()->is('all-outstanding') || request()->is('all-receipts') || request()->is('pending-receipts') || request()->is('advanced-payments') ? 'true' : 'false' }}" aria-controls="flush-collapseOne">
                                     <span class=" me-4">
                                         <svg width="23" height="24" viewBox="0 0 23 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -336,12 +371,11 @@
                                     </span>
 
                                 </a>
-                                <div id="flush-collapseOne" class="accordion-collapse collapse"
-                                    data-bs-parent="#accordionFlushExample">
+                                <div id="flush-collapseOne" class=" collapse {{ request()->is('all-collections') || request()->is('all-outstanding') || request()->is('all-receipts') || request()->is('pending-receipts') || request()->is('advanced-payments') ? 'show' : '' }}">
                                     <ul class="sidebar-list">
                                         @if (in_array('all-collections', session('permissions')))
-                                            <li class="nav-item">
-                                                <a href="{{ url('/all-collections') }}" class="nav-link">
+                                            <li class="nav-item {{ request()->is('all-collections') ? 'active' : '' }}">
+                                                <a href="{{ url('all-collections') }}" class="nav-link">
                                                     <span class="me-4">
                                                         <svg width="23" height="24" viewBox="0 0 23 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -355,8 +389,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('all-outstanding', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/all-outstanding') }}">
+                                            <li class="nav-item {{ request()->is('all-outstanding') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('all-outstanding') }}">
                                                     <span class="me-4">
                                                         <svg width="17" height="22" viewBox="0 0 17 22"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -377,8 +411,8 @@
                                         @endif
 
                                         @if (in_array('all-receipts', session('permissions')))
-                                            <li class="nav-item">
-                                                <a href="{{ url('/all-receipts') }}" class="nav-link">
+                                            <li class="nav-item {{ request()->is('all-receipts') ? 'active' : '' }}">
+                                                <a href="{{ url('all-receipts') }}" class="nav-link">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -392,8 +426,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('pending-receipts', session('permissions')))
-                                            <li class="nav-item">
-                                                <a href="{{ url('/pending-receipts') }}" class="nav-link">
+                                            <li class="nav-item {{ request()->is('pending-receipts') ? 'active' : '' }}">
+                                                <a href="{{ url('pending-receipts') }}" class="nav-link">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,8 +441,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('all-advanced-payments', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/advanced-payments') }}">
+                                            <li class="nav-item {{ request()->is('advanced-payments') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('advanced-payments') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -430,7 +464,7 @@
                                             </li>
                                         @endif
                                         @if (in_array('all-collections-add', session('permissions')))
-                                            <!-- <li class="nav-item">
+                                            <!-- <li class="nav-item {{ request()->is('collections/add') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('/collections/add') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
@@ -452,7 +486,7 @@
 
 
                         @if (in_array('return-cheques', session('permissions')))
-                            <li class="nav-item ">
+                            <li class="nav-item  {{ request()->is('return-cheques') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('return-cheques') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -473,8 +507,8 @@
                             </li>
                         @endif
                         @if (in_array('writeoff-writeback', session('permissions')))
-                            <li class="nav-item ">
-                                <a class="nav-link" href="{{ url('/write-off-main') }}">
+                            <li class="nav-item  {{ request()->is('write-off-main') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ url('write-off-main') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -489,8 +523,8 @@
                             </li>
                         @endif
                         @if (in_array('setoff', session('permissions')))
-                            <li class="nav-item ">
-                                <a class="nav-link" href="{{ url('/set-off-main') }}">
+                            <li class="nav-item  {{ request()->is('set-off-main') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ url('set-off-main') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -510,9 +544,9 @@
                                 in_array('notifications-payment', session('permissions')) ||
                                 in_array('notifications-system', session('permissions')))
                             <li class="nav-item">
-                                <a class="nav-link accordion-button collapsed" type="button"
+                                <a class="nav-link  {{ request()->is('sent-reminders') || request()->is('reminders') ? '' : 'collapsed' }}" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#flush-collapseThree"
-                                    aria-expanded="false" aria-controls="flush-collapseThree">
+                                    aria-expanded="{{ request()->is('sent-reminders') || request()->is('reminders') ? 'true' : 'false' }}" aria-controls="flush-collapseThree">
                                     <span class=" me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -532,11 +566,10 @@
                                     </span>
 
                                 </a>
-                                <div id="flush-collapseThree" class="accordion-collapse collapse"
-                                    data-bs-parent="#accordionFlushExample">
+                                <div id="flush-collapseThree" class=" collapse {{ request()->is('sent-reminders') || request()->is('reminders') ? 'show' : '' }}">
                                     <ul class="sidebar-list">
                                         @if (in_array('notification-create', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('sent-reminders') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('sent-reminders') }}">
                                                     <span class="me-4">
                                                         <svg width="22" height="22" viewBox="0 0 22 22"
@@ -552,7 +585,7 @@
                                             </li>
                                         @endif
                                         @if (in_array('notifications-payment', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('reminders') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('reminders') }}">
                                                     <span class="me-4">
                                                         <svg width="26" height="26" viewBox="0 0 26 26"
@@ -578,7 +611,7 @@
                                             </li>
                                         @endif
                                         @if (in_array('notifications-system', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('reminders') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('reminders') }}">
                                                     <span class="me-4">
                                                         <svg width="26" height="26" viewBox="0 0 26 26"
@@ -617,9 +650,9 @@
                                 in_array('deposits-fund-transfer', session('permissions')) ||
                                 in_array('deposits-card-payment', session('permissions')))
                             <li class="nav-item">
-                                <a class="nav-link accordion-button collapsed" type="button"
+                                <a class="nav-link  {{ request()->is('finance-cash') || request()->is('finance-cheque') || request()->is('cash-deposits') || request()->is('cheque-deposits') || request()->is('fund-transfers') || request()->is('card-payments') ? '' : 'collapsed' }}" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo"
-                                    aria-expanded="false" aria-controls="flush-collapseTwo">
+                                    aria-expanded="{{ request()->is('finance-cash') || request()->is('finance-cheque') || request()->is('cash-deposits') || request()->is('cheque-deposits') || request()->is('fund-transfers') || request()->is('card-payments') ? 'true' : 'false' }}" aria-controls="flush-collapseTwo">
                                     <span class=" me-4">
                                         <svg width="23" height="24" viewBox="0 0 23 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -642,12 +675,11 @@
                                     </span>
 
                                 </a>
-                                <div id="flush-collapseTwo" class="accordion-collapse collapse"
-                                    data-bs-parent="#accordionFlushExample">
+                                <div id="flush-collapseTwo" class=" collapse {{ request()->is('finance-cash') || request()->is('finance-cheque') || request()->is('cash-deposits') || request()->is('cheque-deposits') || request()->is('fund-transfers') || request()->is('card-payments') ? 'show' : '' }}">
                                     <ul class="sidebar-list">
                                         @if (in_array('deposits-finance-cash', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/finance-cash') }}">
+                                            <li class="nav-item {{ request()->is('finance-cash') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('finance-cash') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -670,8 +702,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('deposits-finance-cheque', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/finance-cheque') }}">
+                                            <li class="nav-item {{ request()->is('finance-cheque') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('finance-cheque') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -688,8 +720,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('deposits-cash', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/cash-deposits') }}">
+                                            <li class="nav-item {{ request()->is('cash-deposits') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('cash-deposits') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -712,8 +744,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('deposits-cheque', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/cheque-deposits') }}">
+                                            <li class="nav-item {{ request()->is('cheque-deposits') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('cheque-deposits') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -730,8 +762,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('deposits-fund-transfer', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/fund-transfers') }}">
+                                            <li class="nav-item {{ request()->is('fund-transfers') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('fund-transfers') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -754,8 +786,8 @@
                                             </li>
                                         @endif
                                         @if (in_array('deposits-card-payment', session('permissions')))
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="{{ url('/card-payments') }}">
+                                            <li class="nav-item {{ request()->is('card-payments') ? 'active' : '' }}">
+                                                <a class="nav-link" href="{{ url('card-payments') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -776,7 +808,7 @@
                             </li>
                         @endif
                         @if (in_array('inquaries', session('permissions')))
-                            <li class="nav-item ">
+                            <li class="nav-item  {{ request()->is('inquiries') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('inquiries') }}">
                                     <span class="me-4">
                                         <svg width="24" height="13" viewBox="0 0 24 13" fill="none"
@@ -792,7 +824,7 @@
                             </li>
                         @endif
                         @if (in_array('upload', session('permissions')))
-                            <li class="nav-item ">
+                            <li class="nav-item  {{ request()->is('file-upload') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('file-upload') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -809,7 +841,7 @@
                             </li>
                         @endif
                         @if (in_array('reports', session('permissions')))
-                            <li class="nav-item ">
+                            <li class="nav-item  {{ request()->is('reports') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ url('reports') }}">
                                     <span class="me-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -830,9 +862,9 @@
                                 in_array('security-locked', session('permissions')) ||
                                 in_array('security-backup', session('permissions')))
                             <li class="nav-item">
-                                <a class="nav-link accordion-button collapsed" type="button"
+                                <a class="nav-link  {{ request()->is('backup') || request()->is('activity-log') || request()->is('locked-users') ? '' : 'collapsed' }}" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#flush-collapseFour"
-                                    aria-expanded="false" aria-controls="flush-collapseFour">
+                                    aria-expanded="{{ request()->is('backup') || request()->is('activity-log') || request()->is('locked-users') ? 'true' : 'false' }}" aria-controls="flush-collapseFour">
                                     <span class=" me-4">
                                         <svg width="27" height="28" viewBox="0 0 27 28" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -851,11 +883,10 @@
                                     </span>
 
                                 </a>
-                                <div id="flush-collapseFour" class="accordion-collapse collapse"
-                                    data-bs-parent="#accordionFlushExample">
+                                <div id="flush-collapseFour" class=" collapse {{ request()->is('backup') || request()->is('activity-log') || request()->is('locked-users') ? 'show' : '' }}">
                                     <ul class="sidebar-list">
                                         @if (in_array('security-backup', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('backup') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('/backup') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
@@ -870,7 +901,7 @@
                                             </li>
                                         @endif
                                         @if (in_array('security-activity', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('activity-log') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('/activity-log') }}">
                                                     <span class="me-4">
                                                         <svg width="24" height="24" viewBox="0 0 24 24"
@@ -888,7 +919,7 @@
                                             </li>
                                         @endif
                                         @if (in_array('security-locked', session('permissions')))
-                                            <li class="nav-item">
+                                            <li class="nav-item {{ request()->is('locked-users') ? 'active' : '' }}">
                                                 <a class="nav-link" href="{{ url('/locked-users') }}">
                                                     <span class="me-4">
                                                         <svg width="20" height="22" viewBox="0 0 20 22"
@@ -916,8 +947,8 @@
                 <div class="sidebar-footer">
                     <ul class="sidebar-list">
                         @if (in_array('settings', session('permissions')))
-                            <li class="nav-item">
-                                <a href="../settings" class="nav-link">
+                            <li class="nav-item {{ request()->is('settings') ? 'active' : '' }}">
+                                <a href="{{ url('/settings') }}" class="nav-link">
                                     <span class="me-4">
                                         <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -932,8 +963,8 @@
                             </li>
                         @endif
 
-                        <li class="nav-item">
-                            <a href="../logout" class="nav-link">
+                        <li class="nav-item {{ request()->is('logout') ? 'active' : '' }}">
+                            <a href="{{ url('/logout') }}" class="nav-link">
                                 <span class="me-4">
                                     <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -957,11 +988,7 @@
 
 
 
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-                </script>
 
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
                 <!-- jQuery (required for Select2) -->
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

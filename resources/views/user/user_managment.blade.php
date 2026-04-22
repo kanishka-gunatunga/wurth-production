@@ -63,7 +63,11 @@ use App\Models\Divisions;
 
 
 <div class="main-wrapper">
-
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="header-title" id="dynamic-page-title">User Management</h1>
+        </div>
+    </div>
 
                  <div class="styled-tab-main">
                         <ul class="nav nav-tabs" role="tablist">
@@ -115,10 +119,7 @@ use App\Models\Divisions;
 
                         <div class="tab-content">
                         <div id="user-list" class="tab-pane fade show active" role="tabpanel" aria-labelledby="customer-list-tab">
-                            <div class="row d-flex justify-content-between">
-                                <div class="col-lg-6 col-12">
-                                    <h1 class="header-title">User Management</h1>
-                                </div>
+                            <div class="row d-flex justify-content-end mb-3">
                                 <div class="col-lg-6 col-12 d-flex justify-content-lg-end gap-3 ">
                                     <div id="search-box-wrapper" class="collapsed">
                                         <i class="fa-solid fa-magnifying-glass fa-xl search-icon-inside"></i>
@@ -219,9 +220,6 @@ use App\Models\Divisions;
                         <div id="switch-user" class="tab-pane fade" role="tabpanel" aria-labelledby="switch-user">
                             <form class="" action="{{url('switch-user')}}" method="post">
                             @csrf
-                            <div class="col-lg-6 col-12">
-                                <h1 class="header-title">Switch User</h1>
-                            </div>
                             <div class="card main-card red-card">
                                 <div class="card-body ps-4 d-flex">   
                                     <div>
@@ -329,9 +327,6 @@ use App\Models\Divisions;
                         <div id="replace-user" class="tab-pane fade" role="tabpanel" aria-labelledby="replace-user">
                             <form class="" action="{{url('replace-user')}}" method="post">
                             @csrf
-                            <div class="col-lg-6 col-12">
-                                <h1 class="header-title">Replace User</h1>
-                            </div>
                             <div class="card main-card red-card">
                                 <div class="card-body ps-4 d-flex">   
                                     <div>
@@ -442,9 +437,6 @@ use App\Models\Divisions;
                         <div id="promote-user" class="tab-pane fade" role="tabpanel" aria-labelledby="promote-user">
                             <form class="" action="{{url('promote-user')}}" method="post">
                             @csrf
-                            <div class="col-lg-6 col-12">
-                                <h1 class="header-title">Promote User</h1>
-                            </div>
                             <div class="card main-card red-card">
                                 <div class="card-body ps-4 d-flex">   
                                     <div>
@@ -881,6 +873,26 @@ use App\Models\Divisions;
     }
 });
 
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var triggerTabList = [].slice.call(document.querySelectorAll('.nav-tabs .nav-link'));
+        triggerTabList.forEach(function (triggerEl) {
+            triggerEl.addEventListener('shown.bs.tab', function (event) {
+                var activeTab = event.target.getAttribute('href');
+                var titleEl = document.getElementById('dynamic-page-title');
+                if(activeTab === '#user-list') {
+                    titleEl.textContent = 'User Management';
+                } else if(activeTab === '#switch-user') {
+                    titleEl.textContent = 'Switch User';
+                } else if(activeTab === '#replace-user') {
+                    titleEl.textContent = 'Replace User';
+                } else if(activeTab === '#promote-user') {
+                    titleEl.textContent = 'Promote User';
+                }
+            });
+        });
+    });
 </script>
 <script>
     $(document).ready(function() {
