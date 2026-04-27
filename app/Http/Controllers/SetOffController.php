@@ -276,9 +276,10 @@ class SetOffController extends Controller
     -----------------------------------------*/
         $customerNames = [];
         $customerIds   = [];
-
+        $documentNumbers = [];
         // From invoices
         foreach ($setOff->invoice_or_cheque_no ?? [] as $item) {
+            $documentNumbers[] = $item['invoice'];
             $invoice = Invoices::where('invoice_or_cheque_no', $item['invoice'])->first();
             if ($invoice) {
                 $customer = \App\Models\Customers::where('customer_id', $invoice->customer_id)->first();
@@ -346,7 +347,7 @@ class SetOffController extends Controller
         $sheet->setCellValue($col++ . $row, $setOff->final_amount);
         $sheet->setCellValue($col++ . $row, implode(', ', $customerNames));
         $sheet->setCellValue($col++ . $row, implode(', ', $customerIds));
-        $sheet->setCellValue($col++ . $row, ''); // Document Number (empty)
+        $sheet->setCellValue($col++ . $row, implode(', ', $documentNumbers)); // Document Number (empty)
 
         // GL values
         foreach ($setOff->gl_breakdown ?? [] as $gl) {

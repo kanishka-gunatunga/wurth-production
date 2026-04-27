@@ -118,14 +118,28 @@
                         <td>{{ number_format($payment->payment_amount, 2) }}</td>
                         <td><button class="{{ $statusClass }}">{{ ucfirst($payment['status']) }}</button></td>
                         <td class="sticky-column">
-                            @if(strtolower($payment['status']) === 'pending')
-                            <button class="success-action-btn change-status-btn"
-                                data-id="{{ $payment['id'] }}"
-                                data-status="approved">Approve</button>
+                            @php
+                                $statusLower = strtolower($payment['status']);
+                                $roleId = Auth::user()->user_role;
+                                $isFM2 = ($roleId == 9);
+                            @endphp
 
-                            <button class="red-action-btn change-status-btn"
-                                data-id="{{ $payment['id'] }}"
-                                data-status="rejected">Reject</button>
+                            @if($statusLower === 'pending')
+                                <button class="success-action-btn change-status-btn"
+                                    data-id="{{ $payment['id'] }}"
+                                    data-status="approved">Approve</button>
+
+                                <button class="red-action-btn change-status-btn"
+                                    data-id="{{ $payment['id'] }}"
+                                    data-status="rejected">Reject</button>
+                            @elseif($isFM2 && $statusLower === 'approved')
+                                <button class="red-action-btn change-status-btn"
+                                    data-id="{{ $payment['id'] }}"
+                                    data-status="rejected">Reject</button>
+                            @elseif($isFM2 && $statusLower === 'rejected')
+                                <button class="success-action-btn change-status-btn"
+                                    data-id="{{ $payment['id'] }}"
+                                    data-status="approved">Approve</button>
                             @endif
                             @if(
                                 !empty($payment->attachment) &&
@@ -449,10 +463,14 @@
                     statusCell.innerText = data.new_status;
                     statusCell.className = data.css_class;
 
-                    // Hide buttons
-                    row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => {
-                        btn.style.display = 'none';
-                    });
+                    // Hide buttons for non-Role 9 users
+                    if ({{ Auth::user()->user_role }} != 9) {
+                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    } else {
+                        window.location.reload();
+                    }
 
                     // Close modal
                     document.getElementById('confirm-status-modal').style.display = 'none';

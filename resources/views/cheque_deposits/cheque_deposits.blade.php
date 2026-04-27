@@ -157,11 +157,21 @@
                             <button class="{{ $statusClass }}">{{ ucfirst($item['status']) }}</button>
                         </td>
                         <td class="sticky-column">
-                            @if (strtolower($item['status']) === 'pending')
-                             @if(in_array('deposits-cheque-status', session('permissions', [])))
-                            <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
-                             @endif
+                            @php
+                                $statusLower = strtolower($item['status']);
+                                $roleId = Auth::user()->user_role;
+                                $isFM2 = ($roleId == 9);
+                            @endphp
+
+                            @if(in_array('deposits-cheque-status', session('permissions', [])))
+                                @if($statusLower === 'pending')
+                                    <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                                    <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                                @elseif($isFM2 && $statusLower === 'approved')
+                                    <button class="red-action-btn" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                                @elseif($isFM2 && $statusLower === 'rejected')
+                                    <button class="success-action-btn" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                                @endif
                             @endif
 
                              @if(in_array('deposits-cheque-download', session('permissions', [])))
@@ -217,38 +227,6 @@
             </div>
         </div>
         <div class="offcanvas-body">
-            <!-- <div class="row">
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>ADMs</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Marketing</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Admin</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Finance</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Team Leaders</span>
-
-            </div>
-
-            <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter">
-                <span>Head of Division</span>
-
-            </div>
-        </div> -->
-
             <!-- ADM Name Dropdown -->
              <div class="mt-5 filter-categories">
                 <p class="filter-title">ADM Name</p>
@@ -555,8 +533,13 @@
                         statusButton.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
                         statusButton.className = newStatus === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
-                        // Hide Approve/Reject buttons
-                        row.querySelectorAll('.success-action-btn, .red-action-btn').forEach(btn => btn.style.display = 'none');
+                        // Hide action buttons for non-Role 9 users
+                if ({{ Auth::user()->user_role }} != 9) {
+                    row.querySelectorAll('.success-action-btn, .red-action-btn')
+                       .forEach(btn => btn.style.display = 'none');
+                } else {
+                    window.location.reload();
+                }
                     } else {
                         alert('Failed to update status. Please try again.');
                     }

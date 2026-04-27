@@ -187,7 +187,7 @@ class ReturnChequeController extends Controller
 
         $header = array_map('strtolower', $rows[0]);
         $requiredColumns = [
-            'effective-date', 'amount', 'account#', 'rtn chq ref',
+            'date', 'amount', 'document number', 'reference',
             'cx number', 'cx name', 'adm code', 'remark',
         ];
 

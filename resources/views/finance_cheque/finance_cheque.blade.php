@@ -166,29 +166,32 @@
                             <button class="{{ $statusClass }}">{{ $statusLabel }}</button>
                         </td>
                         <td class="sticky-column">
-                            @php $status = strtolower($item['status']); @endphp
+                            @php
+                                $statusLower = strtolower($item['status']);
+                                $roleId = Auth::user()->user_role;
+                                $isFM2 = ($roleId == 9);
+                            @endphp
+
                             @if(in_array('deposits-finance-cheque-status', session('permissions', [])))
-                            {{-- Deposited → Show Approve 1 + Reject --}}
-                            @if ($status === 'pending')
-                            <button class="success-action-btn update-status"
-                                data-id="{{ $item['id'] }}"
-                                data-status="over_to_finance">Recived by finance</button>
+                                {{-- Deposited → Show Received by Finance + Reject (and Approve for FM2) --}}
+                                @if ($statusLower === 'pending')
+                                    <button class="success-action-btn update-status" data-id="{{ $item['id'] }}" data-status="over_to_finance">Recived by finance</button>
+                                    @if($isFM2)
+                                        <button class="success-action-btn update-status" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                                    @endif
+                                    <button class="red-action-btn update-status" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
 
-                            <button class="red-action-btn update-status"
-                                data-id="{{ $item['id'] }}"
-                                data-status="rejected">Reject</button>
-                            @endif
-
-                            {{-- Over to finance → Show Approve 2 + Reject --}}
-                            @if ($status === 'over_to_finance')
-                            <button class="success-action-btn update-status"
-                                data-id="{{ $item['id'] }}"
-                                data-status="approved">Approve</button>
-
-                            <button class="red-action-btn update-status"
-                                data-id="{{ $item['id'] }}"
-                                data-status="rejected">Reject</button>
-                            @endif
+                                {{-- Over to finance → Show Approve + Reject --}}
+                                @elseif ($statusLower === 'over_to_finance')
+                                    <button class="success-action-btn update-status" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                                    <button class="red-action-btn update-status" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                                
+                                {{-- Approved/Rejected → Only for FM2 reversals --}}
+                                @elseif ($isFM2 && $statusLower === 'approved')
+                                    <button class="red-action-btn update-status" data-id="{{ $item['id'] }}" data-status="rejected">Reject</button>
+                                @elseif ($isFM2 && $statusLower === 'rejected')
+                                    <button class="success-action-btn update-status" data-id="{{ $item['id'] }}" data-status="approved">Approve</button>
+                                @endif
                             @endif
 
                              @if(in_array('deposits-finance-cheque-download', session('permissions', [])))
@@ -610,21 +613,25 @@
                         statusBtn.className = "blue-status-btn";
                     }
 
-                    // Remove all action buttons except download
-                    const actionButtons = row.querySelectorAll(".success-action-btn, .red-action-btn");
-                    actionButtons.forEach(btn => btn.remove());
+                    // Update buttons for Role 9 or remove for others
+                    if ({{ Auth::user()->user_role }} != 9) {
+                        const actionButtons = row.querySelectorAll(".success-action-btn, .red-action-btn");
+                        actionButtons.forEach(btn => btn.remove());
 
-                    // AFTER APPROVE 1 (over_to_finance) → show Approve 2 + Reject
-                    if (selectedStatus === "over_to_finance") {
-                        row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
-                        <button class="success-action-btn update-status"
-                            data-id="${depositId}"
-                            data-status="approved">Approve</button>
- 
-                        <button class="red-action-btn update-status"
-                            data-id="${depositId}" 
-                            data-status="rejected">Reject</button>
-                    `);
+                        // AFTER APPROVE 1 (over_to_finance) → show Approve 2 + Reject
+                        if (selectedStatus === "over_to_finance") {
+                            row.querySelector(".sticky-column").insertAdjacentHTML("afterbegin", `
+                            <button class="success-action-btn update-status"
+                                data-id="${depositId}"
+                                data-status="approved">Approve</button>
+    
+                            <button class="red-action-btn update-status"
+                                data-id="${depositId}" 
+                                data-status="rejected">Reject</button>
+                        `);
+                        }
+                    } else {
+                        window.location.reload();
                     }
 
                     // AFTER APPROVE 2 or REJECT → show only Download (already exists)

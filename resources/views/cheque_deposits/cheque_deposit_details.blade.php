@@ -188,22 +188,21 @@
     <a href="{{ url('cheque-deposits') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 
     @php
-    $currentStatus = strtolower($deposit['status']);
+        $statusLower = strtolower($deposit['status']);
+        $roleId = Auth::user()->user_role;
+        $isFM2 = ($roleId == 9);
     @endphp
-     @if(in_array('deposits-cheque-status', session('permissions', [])))                            
-    @if ($currentStatus !== 'approved')
-    <button class="red-action-btn-lg update-status-btn"
-        data-id="{{ $deposit['id'] }}"
-        data-status="rejected">
-        Reject
-    </button>
-    <button class="success-action-btn-lg update-status-btn"
-        data-id="{{ $deposit['id'] }}"
-        data-status="approved">
-        Approve
-    </button>
+
+    @if(in_array('deposits-cheque-status', session('permissions', [])))                            
+        @if($statusLower === 'pending')
+            <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+        @elseif($isFM2 && $statusLower === 'approved')
+            <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
+        @elseif($isFM2 && $statusLower === 'rejected')
+            <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+        @endif
     @endif
-     @endif
 </div>
 
 @include('layouts.footer2')
@@ -552,9 +551,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusButton.className = 'danger-status-btn';
             }
 
-            // hide buttons after final decision
-            if (approveBtn) approveBtn.style.display = 'none';
-            if (rejectBtn) rejectBtn.style.display = 'none';
+            // Hide action buttons for non-Role 9 users
+            if ({{ Auth::user()->user_role }} != 9) {
+                if (approveBtn) approveBtn.style.display = 'none';
+                if (rejectBtn) rejectBtn.style.display = 'none';
+            } else {
+                window.location.reload();
+            }
 
         } catch (err) {
             console.error(err);

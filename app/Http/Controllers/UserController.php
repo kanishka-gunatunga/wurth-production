@@ -69,6 +69,10 @@ class UserController extends Controller
                         return redirect('adm');
                     case 8:
                         return redirect('adm');
+                    case 9:
+                        return redirect('pending-receipts');
+                    case 10:
+                        return redirect('pending-receipts');
                     default:
                         return redirect('dashboard');
                 }
@@ -234,6 +238,8 @@ public function getUserDetailsDivisonRole(Request $request)
         6 => 'ADM (Sales Rep)',
         7 => 'Finance Manager',
         8 => 'Recovery Manager',
+        9 => 'Finance Manager 2',
+        10 => 'Finance Manager 3',
     ];
 
     $divisionId = $user->userDetails->division;
@@ -922,6 +928,8 @@ public function getUserDetailsDivisonRoleWithRoles(Request $request)
         6 => 'ADM (Sales Rep)',
         7 => 'Finance Manager',
         8 => 'Recovery Manager',
+        9 => 'Finance Manager 2',
+        10 => 'Finance Manager 3',
     ];
 
     $divisionId = $user->userDetails->division;

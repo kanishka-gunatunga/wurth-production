@@ -192,18 +192,27 @@
 
 <div id="footer-buttons-container" class="action-button-lg-row" style="display:flex; gap:1.2rem;">
     <a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-     @if(in_array('deposits-finance-cheque-status', session('permissions', [])))                
     @php
-    $currentStatus =$deposit['status'];
+        $statusLower = strtolower($deposit['status']);
+        $roleId = Auth::user()->user_role;
+        $isFM2 = ($roleId == 9);
     @endphp
 
-    @if ($currentStatus === 'pending' || $currentStatus === 'rejected')
-    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recived by finance</button>
-    @elseif ($currentStatus === 'over_to_finance')
-    <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
-    @endif
+    @if(in_array('deposits-finance-cheque-status', session('permissions', [])))                
+        @if ($statusLower === 'pending')
+            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recieved by finance</button>
+            @if($isFM2)
+                <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
+            @endif
+        @elseif ($statusLower === 'over_to_finance')
+            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
+        @elseif ($isFM2 && $statusLower === 'approved')
+            <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
+        @elseif ($isFM2 && $statusLower === 'rejected')
+            <button class="success-action-btn-lg update-status-btn" data-status="approved">Approve</button>
+        @endif
     @endif
 </div>
 
@@ -342,12 +351,18 @@
         function updateActionButtons(status) {
             const footer = document.getElementById('footer-buttons-container');
 
+            // Reload for Role 9 to get fresh buttons
+            if ({{ Auth::user()->user_role }} == 9) {
+                window.location.reload();
+                return;
+            }
+
             // Remove old buttons except Back
             footer.innerHTML = `<a href="{{ url('finance-cheque') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>`;
 
             if (status === "approved") return;
 
-            if (status === "pending" || status === "rejected") {
+            if (status === "pending") {
                 footer.innerHTML += `
             <button class="red-action-btn-lg update-status-btn" data-status="rejected">Reject</button>
             <button class="success-action-btn-lg update-status-btn" data-status="over_to_finance">Recieved by finance</button>

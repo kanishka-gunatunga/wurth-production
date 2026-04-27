@@ -150,11 +150,21 @@
                         <td>{{ number_format($deposit['amount'], 2) }}</td>
                         <td><button class="{{ $statusClass }}">{{ ucfirst($deposit['status']) }}</button></td>
                         <td class="sticky-column">
-                            @if(strtolower($deposit['status']) === 'pending')
-                             @if(in_array('deposits-cash-status', session('permissions', [])))
-                            <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
-                            <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
-                            @endif
+                            @php
+                                $statusLower = strtolower($deposit['status']);
+                                $roleId = Auth::user()->user_role;
+                                $isFM2 = ($roleId == 9);
+                            @endphp
+
+                            @if(in_array('deposits-cash-status', session('permissions', [])))
+                                @if($statusLower === 'pending')
+                                    <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+                                    <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
+                                @elseif($isFM2 && $statusLower === 'approved')
+                                    <button class="red-action-btn" data-id="{{ $deposit['id'] }}" data-status="rejected">Reject</button>
+                                @elseif($isFM2 && $statusLower === 'rejected')
+                                    <button class="success-action-btn" data-id="{{ $deposit['id'] }}" data-status="approved">Approve</button>
+                                @endif
                             @endif
                             @if(in_array('deposits-cash-download', session('permissions', [])))
                             @if($deposit['attachment_path'])
@@ -540,9 +550,13 @@
                     ? 'success-status-btn' 
                     : 'danger-status-btn';
 
-                // Hide action buttons
-                row.querySelectorAll('.success-action-btn, .red-action-btn')
-                   .forEach(btn => btn.style.display = 'none');
+                // Hide action buttons for non-Role 9 users
+                if ({{ Auth::user()->user_role }} != 9) {
+                    row.querySelectorAll('.success-action-btn, .red-action-btn')
+                       .forEach(btn => btn.style.display = 'none');
+                } else {
+                    window.location.reload();
+                }
 
                 toastr.success("Status updated successfully");
             } else {

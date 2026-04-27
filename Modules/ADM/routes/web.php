@@ -99,7 +99,7 @@ Route::prefix('adm')->group(function () {
     Route::get(
         'advance-payment/details/{id}',
         [AdvancedPaymentController::class, 'advanced_payment_details']
-    )->middleware(ADMAuthenticated::class)->name('advance_payment.details');
+    )->middleware(['authADM'])->name('advance_payment.details');
 
 
 

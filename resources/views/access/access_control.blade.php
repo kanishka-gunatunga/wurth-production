@@ -25,6 +25,8 @@
                             <option value="6">ADM (Sales Rep)</option>
                             <option value="7">Finance Manager</option>
                             <option value="8">Recovery Manager</option>
+                            <option value="9">Finance Manager 2</option>
+                            <option value="10">Finance Manager 3</option>
                         </select>
                     </div>
 

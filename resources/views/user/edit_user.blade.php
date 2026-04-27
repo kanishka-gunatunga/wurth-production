@@ -54,6 +54,12 @@ use App\Models\UserDetails;
                                      if($login_details->user_role == '8'){
                                         $role = 'Recovery Manager';
                                      } 
+                                     if($login_details->user_role == '9'){
+                                        $role = 'Finance Manager 2';
+                                     } 
+                                     if($login_details->user_role == '10'){
+                                        $role = 'Finance Manager 3';
+                                     } 
                                     ?>
                                     <option selected hidden value="{{$login_details->user_role}}">{{$role}}</option>
                                     <!-- <option value="1">System Administrator</option>
@@ -174,7 +180,7 @@ use App\Models\UserDetails;
         const divisionField = document.querySelector('select[name="division"]').parentElement;
         const admField = document.querySelector('input[name="adm_number"]').parentElement;
 
-         const rolesToHide = ["1", "2", "7"];
+         const rolesToHide = ["1", "2", "7", "9", "10"];
 
         function toggleFields() {
             const selectedRole = userRoleSelect.value;
@@ -191,6 +197,12 @@ use App\Models\UserDetails;
                 divisionField.style.display = 'block';
             }
             if(selectedRole == '7'){
+                divisionField.style.display = 'block';
+            }
+            if(selectedRole == '9'){
+                divisionField.style.display = 'block';
+            }
+            if(selectedRole == '10'){
                 divisionField.style.display = 'block';
             }
             if(selectedRole == '6'){
@@ -262,7 +274,7 @@ use App\Models\UserDetails;
     supervisor.empty();
     second_supervisor.empty();
 
-    if (user_role == '1' || user_role == '7') {
+    if (user_role == '1' || user_role == '7' || user_role == '9' || user_role == '10') {
         supervisor.append('<option value="">No Supervisor Required</option>');
         second_supervisor.append('<option value="">No Supervisor Required</option>');
         return;

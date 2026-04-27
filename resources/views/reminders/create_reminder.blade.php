@@ -40,6 +40,7 @@
                                 @case(6) ADM (Sales Rep) @break
                                 @case(7) Finance Manager @break
                                 @case(8) Recovery Manager @break
+                                @case(9) Finance Manager 2 @break
                                 @default Unknown
                                 @endswitch
                             </option>

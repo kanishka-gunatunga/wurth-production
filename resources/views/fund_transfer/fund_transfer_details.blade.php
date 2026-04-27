@@ -135,12 +135,21 @@
 
 <div class="action-button-lg-row">
     <a href="{{ url('fund-transfers') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
-    @if(strtolower($status) !== 'approved')
-     @if(in_array('deposits-fund-transfer-status', session('permissions', [])))  
-    <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
-    @endif
+    @php
+        $statusLower = strtolower($status);
+        $roleId = Auth::user()->user_role;
+        $isFM2 = ($roleId == 9);
+    @endphp
+
+    @if(in_array('deposits-fund-transfer-status', session('permissions', [])))  
+        @if($statusLower === 'pending')
+            <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+            <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+        @elseif($isFM2 && $statusLower === 'approved')
+            <button class="red-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="rejected">Reject</button>
+        @elseif($isFM2 && $statusLower === 'rejected')
+            <button class="success-action-btn-lg update-status-btn" data-id="{{ $deposit->id }}" data-status="approved">Approve</button>
+        @endif
     @endif
 </div>
 @include('layouts.footer2')
@@ -233,8 +242,11 @@
                             statusBtn.className = data.status.toLowerCase() === 'approved' ? 'success-status-btn' : 'danger-status-btn';
 
                             // Hide buttons if approved, else keep them visible
-                            if (data.status.toLowerCase() === 'approved') {
+                            // Hide action buttons for non-Role 9 users
+                            if ({{ Auth::user()->user_role }} != 9) {
                                 document.querySelectorAll('.update-status-btn').forEach(btn => btn.style.display = 'none');
+                            } else {
+                                window.location.reload();
                             }
                         } else {
                             alert('Failed to update status.');

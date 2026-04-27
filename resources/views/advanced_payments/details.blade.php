@@ -39,7 +39,7 @@
             </p>
             <p>
                 <span class="bold-text">ADM No. :</span>
-                <span class="slip-detail-text">&nbsp;{{ $payment->adm_id ?? 'N/A' }}</span>
+                <span class="slip-detail-text">&nbsp;{{ $payment->admDetails?->adm_number ??  'N/A' }}</span>
             </p>
             <p>
                 <span class="bold-text">Date :</span>
@@ -159,10 +159,19 @@
 <div class="action-button-lg-row">
     <a href="{{ url('advanced-payments') }}" class="grey-action-btn-lg" style="text-decoration: none;">Back</a>
 
-    @if(strtolower($payment->status) !== 'approved')
-    <!-- Show buttons only if status is NOT Approved -->
-    <button class="red-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="rejected">Reject</button>
-    <button class="success-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="approved">Approve</button>
+    @php
+        $statusLower = strtolower($payment->status);
+        $roleId = Auth::user()->user_role;
+        $isFM2 = ($roleId == 9);
+    @endphp
+
+    @if($statusLower === 'pending')
+        <button class="red-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="rejected">Reject</button>
+        <button class="success-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="approved">Approve</button>
+    @elseif($isFM2 && $statusLower === 'approved')
+        <button class="red-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="rejected">Reject</button>
+    @elseif($isFM2 && $statusLower === 'rejected')
+        <button class="success-action-btn-lg update-status-btn" data-id="{{ $payment->id }}" data-status="approved">Approve</button>
     @endif
 </div>
 
@@ -229,11 +238,13 @@
                     statusBtn.innerText = data.new_status;
                     statusBtn.className = data.css_class;
 
-                    // Hide ONLY if approved
-                    if (selectedStatus === "approved") {
+                    // Hide buttons for non-Role 9 users or reload
+                    if ({{ Auth::user()->user_role }} != 9) {
                         document.querySelectorAll('.update-status-btn').forEach(btn => {
                             btn.style.display = 'none';
                         });
+                    } else {
+                        window.location.reload();
                     }
 
                     // Close modal

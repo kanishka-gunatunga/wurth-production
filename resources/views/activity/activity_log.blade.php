@@ -178,6 +178,12 @@ use App\Models\Divisions;
              <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(8, $selectedRoles ?? []) ? 'active' : '' }}" data-role="8">
                     <span>Recovery Manager</span>
                 </div>
+                  <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(9, $selectedRoles ?? []) ? 'active' : '' }}" data-role="9">
+                    <span>Finance Manager 2</span>
+                </div>
+                  <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(10, $selectedRoles ?? []) ? 'active' : '' }}" data-role="10">
+                    <span>Finance Manager 3</span>
+                </div>
         </div>
 
        {{-- 🗓️ Date Filters --}}

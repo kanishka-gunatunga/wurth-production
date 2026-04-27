@@ -179,6 +179,8 @@ use App\Models\Divisions;
                                                 if($user->user_role == '6'){ $role = 'ADM (Sales Rep)'; }
                                                 if($user->user_role == '7'){ $role = 'Finance Manager'; }
                                                 if($user->user_role == '8'){ $role = 'Recovery Manager'; }
+                                                if($user->user_role == '9'){ $role = 'Finance Manager 2'; }
+                                                if($user->user_role == '10'){ $role = 'Finance Manager 3'; }
 
                                                 $division = Divisions::where('id', $user->userDetails->division)->value('division_name');
                                             ?>
@@ -608,6 +610,12 @@ use App\Models\Divisions;
                 </div>
                 <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(8, $selectedRoles ?? []) ? 'active' : '' }}" data-role="8">
                     <span>Recovery Manager</span>
+                </div>
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(9, $selectedRoles ?? []) ? 'active' : '' }}" data-role="9">
+                    <span>Finance Manager 2</span>
+                </div>
+                <div class="col-4 filter-tag d-flex align-items-center justify-content-between selectable-filter {{ in_array(10, $selectedRoles ?? []) ? 'active' : '' }}" data-role="10">
+                    <span>Finance Manager 3</span>
                 </div>
             </div>
 

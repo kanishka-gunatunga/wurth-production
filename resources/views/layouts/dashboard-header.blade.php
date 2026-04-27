@@ -128,6 +128,10 @@
                                                             Finance Manager
                                                         @elseif(Auth::user()->user_role == 8)
                                                             Recovery Manager
+                                                        @elseif(Auth::user()->user_role == 9)
+                                                            Finance Manager 2
+                                                        @elseif(Auth::user()->user_role == 10)
+                                                            Finance Manager 3
                                                         @endif</p>
                     </div>
                 </div>

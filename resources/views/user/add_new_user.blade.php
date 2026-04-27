@@ -54,6 +54,12 @@ use App\Models\UserDetails;
                                      if(old('user_role') == '8'){
                                         $role = 'Recovery Manager';
                                      } 
+                                     if(old('user_role') == '9'){
+                                        $role = 'Finance Manager 2';
+                                     } 
+                                     if(old('user_role') == '10'){
+                                        $role = 'Finance Manager 3';
+                                     } 
                                     ?>
                                     <option selected hidden value="{{old('user_role')}}">{{$role}}</option>
                                     <?php } ?>
@@ -65,6 +71,8 @@ use App\Models\UserDetails;
                                     <option value="6">ADM (Sales Rep)</option>
                                     <option value="7">Finance Manager</option>
                                     <option value="8">Recovery Manager</option>
+                                    <option value="9">Finance Manager 2</option>
+                                    <option value="10">Finance Manager 3</option>
                                 </select>
                                 @if($errors->has("user_role")) <div class="alert alert-danger mt-2">{{ $errors->first('user_role') }}</div>@endif
                             </div>
@@ -175,7 +183,7 @@ use App\Models\UserDetails;
         const divisionField = document.querySelector('select[name="division"]').parentElement;
         const admField = document.querySelector('input[name="adm_number"]').parentElement;
 
-        const rolesToHide = ["1", "2", "7"];
+        const rolesToHide = ["1", "2", "7", "9", "10"];
 
         function toggleFields() {
             const selectedRole = userRoleSelect.value;
@@ -191,7 +199,7 @@ use App\Models\UserDetails;
             if(selectedRole == '2'){
                 divisionField.style.display = 'block';
             }
-            if(selectedRole == '7'){
+            if(selectedRole == '7' || selectedRole == '9' || selectedRole == '10'){
                 divisionField.style.display = 'block';
             }
             if(selectedRole == '6'){
@@ -224,7 +232,7 @@ use App\Models\UserDetails;
         supervisor.empty();
         second_supervisor.empty();
 
-        if (user_role == '1' || user_role == '7') {
+        if (user_role == '1' || user_role == '7' || user_role == '9' || user_role == '10') {
             supervisor.append('<option value="">No Supervisor Required</option>');
             second_supervisor.append('<option value="">No Supervisor Required</option>');
             return;
